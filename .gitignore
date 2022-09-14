@@ -1,0 +1,12 @@
+!Content/
+!Content/*
+!Config/
+!Config/*
+!Source/
+!Source/*
+!*.uplugin
+Binaries
+Intermediate
+Metadata
+Saved
+.idea
