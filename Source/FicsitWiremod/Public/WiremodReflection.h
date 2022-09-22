@@ -32,7 +32,8 @@ enum EConnectionType
 	Stack,
 	ArrayOfStack,
 	Any,
-	Integer
+	Integer,
+	ConnectionData
 };
 
 
@@ -64,6 +65,12 @@ struct FBuildingConnections : public FTableRowBase
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FBuildingConnection> Outputs;
+
+	/*
+	 * Whether this buildable acts as a proxy between game systems and wiremod. For example GameTime gate proxies TimeSubsystem.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool OverrideOutputObject;
 };
 
 
@@ -172,7 +179,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static TArray<AActor*> GetFunctionEntityArray(const FNewConnectionData& data);
-
 	
 	//Set
 	UFUNCTION(BlueprintCallable)
@@ -192,6 +198,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void HandleDynamicConnections(TArray<FDynamicConnectionData> connections);
 	static void HandleDynamicConnection(const FNewConnectionData& transmitter, const FNewConnectionData& receiver);
+	static FNewConnectionData GetRecursiveData(const FNewConnectionData& data)
+	{
+		if(!data.Object || !IsValid(data.Object)) return FNewConnectionData();
+
+		UFunction* function = data.Object->FindFunction(data.FunctionName);
+
+		struct { FNewConnectionData RetVal; } params;
+
+		data.Object->ProcessEvent(function, &params);
+	
+		return params.RetVal;
+	}
 	
 	UFUNCTION(CallInEditor, BlueprintCallable)
 	static void MarkDirty(UObject* object) {object->Modify();};

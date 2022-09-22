@@ -48,5 +48,4 @@ class FICSITWIREMOD_API IIConstantsDistributor
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	FDynamicValue GetValue(const FString& ValueName);
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 };

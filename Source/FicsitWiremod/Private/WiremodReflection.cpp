@@ -20,6 +20,7 @@ static UFunction* GetFunction(const FNewConnectionData& data)
 	if(!data.Object) return nullptr;
 	if(!IsValid(data.Object)) return nullptr;
 
+	
 	UFunction* function = data.Object->FindFunction(data.FunctionName);
 	return function;
 }
@@ -27,7 +28,9 @@ static UFunction* GetFunction(const FNewConnectionData& data)
 
 bool UWiremodReflection::GetFunctionBoolResult(const FNewConnectionData& data, bool defaultValue)
 {
-	
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionBoolResult(GetRecursiveData(data), defaultValue);
+
+
 	
 	if(!data.Object) return defaultValue;
 	if(!IsValid(data.Object)) return defaultValue;
@@ -46,7 +49,7 @@ bool UWiremodReflection::GetFunctionBoolResult(const FNewConnectionData& data, b
 
 
 	
-	auto function = data.Object->FindFunction(data.FunctionName);
+	auto function = GetFunction(data);
 	if(!function) return defaultValue;
 
 	struct{bool RetVal;} params;
@@ -57,6 +60,10 @@ bool UWiremodReflection::GetFunctionBoolResult(const FNewConnectionData& data, b
 
 FString UWiremodReflection::GetFunctionStringResult(const FNewConnectionData& data, FString defaultValue)
 {
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionStringResult(GetRecursiveData(data), defaultValue);
+
+
+	
 	if(!data.Object || !IsValid(data.Object)) return defaultValue;
 
 	if(data.Object->GetClass()->ImplementsInterface(IIConstantsDistributor::UClassType::StaticClass()))
@@ -88,6 +95,9 @@ FString UWiremodReflection::GetFunctionStringResult(const FNewConnectionData& da
 
 float UWiremodReflection::GetFunctionNumberResult(const FNewConnectionData& data, float defaultValue)
 {
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionNumberResult(GetRecursiveData(data), defaultValue);
+
+	
 	if(!data.Object) return defaultValue;
 	if(!IsValid(data.Object)) return defaultValue;
 
@@ -125,7 +135,7 @@ float UWiremodReflection::GetFunctionNumberResult(const FNewConnectionData& data
 	}
 	
 	
-	auto function = data.Object->FindFunction(data.FunctionName);
+	auto function = GetFunction(data);
 	if(!function) return defaultValue;
 
 	if(data.ConnectionType.GetValue() == Integer)
@@ -148,6 +158,9 @@ float UWiremodReflection::GetFunctionNumberResult(const FNewConnectionData& data
 
 FVector UWiremodReflection::GetFunctionVectorResult(const FNewConnectionData& data, FVector defaultValue)
 {
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionVectorResult(GetRecursiveData(data), defaultValue);
+
+	
 	if(!data.Object) return defaultValue;
 	if(!IsValid(data.Object)) return defaultValue;
 	
@@ -168,6 +181,8 @@ FVector UWiremodReflection::GetFunctionVectorResult(const FNewConnectionData& da
 
 FLinearColor UWiremodReflection::GetFunctionColorResult(const FNewConnectionData& data, FLinearColor defaultValue)
 {
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionColorResult(GetRecursiveData(data), defaultValue);
+	
 	if(!data.Object || !IsValid(data.Object)) return defaultValue;
 
 	if(data.Object->GetClass()->ImplementsInterface(IIConstantsDistributor::UClassType::StaticClass()))
@@ -198,6 +213,8 @@ FLinearColor UWiremodReflection::GetFunctionColorResult(const FNewConnectionData
 TArray<FString> UWiremodReflection::GetFunctionStringArray(const FNewConnectionData& data)
 {
 	TArray<FString> defaultValue = *new TArray<FString>;
+
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionStringArray(GetRecursiveData(data));
 	
 	auto function = GetFunction(data);
 	if(!function) return defaultValue;
@@ -211,6 +228,8 @@ TArray<FString> UWiremodReflection::GetFunctionStringArray(const FNewConnectionD
 
 UFGInventoryComponent* UWiremodReflection::GetFunctionInventory(const FNewConnectionData& data)
 {
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionInventory(GetRecursiveData(data));
+	
 	auto function = GetFunction(data);
 	if(!function) return nullptr;
 	
@@ -222,6 +241,9 @@ UFGInventoryComponent* UWiremodReflection::GetFunctionInventory(const FNewConnec
 
 FInventoryStack UWiremodReflection::GetFunctionStackResult(const FNewConnectionData& data)
 {
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionStackResult(GetRecursiveData(data));
+
+	
 	FInventoryStack defaultValue = *new FInventoryStack;
     	
 	auto function = GetFunction(data);
@@ -238,6 +260,8 @@ FInventoryStack UWiremodReflection::GetFunctionStackResult(const FNewConnectionD
 
 TArray<FInventoryStack> UWiremodReflection::GetFunctionInventoryStackArrays(const FNewConnectionData& data)
 {
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionInventoryStackArrays(GetRecursiveData(data));
+	
 	TArray<FInventoryStack> defaultValue = *new TArray<FInventoryStack>;
     	
 	auto function = GetFunction(data);
@@ -252,6 +276,7 @@ TArray<FInventoryStack> UWiremodReflection::GetFunctionInventoryStackArrays(cons
 
 UFGPowerCircuit* UWiremodReflection::GetFunctionPowerCircuitResult(const FNewConnectionData& data)
 {
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionPowerCircuitResult(GetRecursiveData(data));
 	UFGPowerCircuit* defaultValue = nullptr;
     	
 	auto function = GetFunction(data);
@@ -268,6 +293,7 @@ UFGPowerCircuit* UWiremodReflection::GetFunctionPowerCircuitResult(const FNewCon
 
 AActor* UWiremodReflection::GetFunctionEntityResult(const FNewConnectionData& data)
 {
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionEntityResult(GetRecursiveData(data));
 	AActor* defaultValue = nullptr;
 
 	if(data.FunctionName == "Self") return Cast<AActor>(data.Object);
@@ -284,7 +310,7 @@ AActor* UWiremodReflection::GetFunctionEntityResult(const FNewConnectionData& da
 
 TArray<AActor*> UWiremodReflection::GetFunctionEntityArray(const FNewConnectionData& data)
 {
-
+	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionEntityArray(GetRecursiveData(data));
 	auto defaultValue = new TArray<AActor*>;
 	
 	auto function = GetFunction(data);
@@ -525,7 +551,7 @@ void UWiremodReflection::HandleDynamicConnections(TArray<FDynamicConnectionData>
 
 void UWiremodReflection::HandleDynamicConnection(const FNewConnectionData& transmitter, const FNewConnectionData& receiver)
 {
-	switch (transmitter.ConnectionType)
+	switch (receiver.ConnectionType)
 	{
 	case Boolean:
 		SetFunctionBoolValue(receiver, GetFunctionBoolResult(transmitter));
