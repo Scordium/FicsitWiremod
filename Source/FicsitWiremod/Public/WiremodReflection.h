@@ -102,6 +102,7 @@ public:
 		return *this;
 	}
 
+	
 	bool operator ==(const FNewConnectionData& other) const
 	{
 		return Object == other.Object

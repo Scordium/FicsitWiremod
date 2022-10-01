@@ -9,11 +9,13 @@
 #include "FGVersionFunctionLibrary.h"
 #include "IConstantsDistributor.h"
 #include "Buildables/FGBuildableLightsControlPanel.h"
+#include "Buildables/FGBuildablePipeReservoir.h"
 #include "Buildables/FGBuildableRailroadSignal.h"
 #include "Buildables/FGBuildableRailroadStation.h"
 #include "Buildables/FGBuildableWidgetSign.h"
 #include "Components/WidgetComponent.h"
 #include "UI/FGSignBuildingWidget.h"
+
 
 static UFunction* GetFunction(const FNewConnectionData& data)
 {
@@ -329,29 +331,53 @@ void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bo
 {
 	if(!data.Object) return;
 	if(!IsValid(data.Object)) return;
+
+	if(data.FunctionName == "WM_FLUSHTANK_FUNC" && value_)
+	{
+		if(auto fluidTank = Cast<AFGBuildablePipeReservoir>(data.Object))
+		{
+			fluidTank->mFluidBox.Reset();
+			return;
+		}
+	}
+
 	
 	if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))
 	{
 
 		auto panelData = panel->GetLightControlData();
 		
-		if(data.FunctionName == "IsLightEnabled") panel->SetLightEnabled(value_);
+		if(data.FunctionName == "IsLightEnabled")
+		{
+			if(panel->IsLightEnabled() == value_) return;
+			
+			panel->SetLightEnabled(value_);
+			auto affected = panel->GetControlledBuildables(AFGBuildableLightSource::StaticClass());
+			for (auto light : affected)
+			{
+				auto lightCasted = Cast<AFGBuildableLightSource>(light);
+				lightCasted->SetLightEnabled(value_);
+			}
+		}
 		else
 		{
+			if(panelData.IsTimeOfDayAware == value_) return;
+			
 			panelData.IsTimeOfDayAware = value_;
 			panel->SetLightControlData(panelData);
-
+			
 			auto affected = panel->GetControlledBuildables(AFGBuildableLightSource::StaticClass());
-
 			for (auto light : affected)
 			{
 				auto lightCasted = Cast<AFGBuildableLightSource>(light);
 				lightCasted->SetLightControlData(panelData);
 			}
 		}
+		
 
 		return;
 	}
+	
 
 
 	
