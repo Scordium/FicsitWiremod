@@ -399,11 +399,12 @@ void UWiremodReflection::SetFunctionStringValue(const FNewConnectionData& data, 
 
 	if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
 	{
-		if(sign->mTextElementToDataMap[data.FunctionName.ToString()] == value_) return;
-
 		FPrefabSignData signData;
 
 		sign->GetSignPrefabData(signData);
+		
+		if(signData.TextElementData.Contains(data.FunctionName.ToString()))
+			if(signData.TextElementData[data.FunctionName.ToString()] == value_) return;
 		
 		signData.TextElementData[data.FunctionName.ToString()] = value_;
 		sign->SetPrefabSignData(signData);
@@ -459,40 +460,30 @@ void UWiremodReflection::SetFunctionNumberValue(const FNewConnectionData& data, 
 	}
 	else if (auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
 	{
+		FPrefabSignData signData;
+		sign->GetSignPrefabData(signData);
+		
 		if(data.FunctionName == "Emissive")
 		{
-			if(sign->mEmissive == value_) return;
-			
-			FPrefabSignData signData;
-			sign->GetSignPrefabData(signData);
+			if(signData.Emissive == value_) return;
 
 			signData.Emissive = value_;
-
-			sign->SetPrefabSignData(signData);
 		}
 		else if(data.FunctionName == "Glossiness")
 		{
-			if(sign->mGlossiness == value_) return;
-			
-			FPrefabSignData signData;
-			sign->GetSignPrefabData(signData);
+			if(signData.Glossiness == value_) return;
 
 			signData.Glossiness = value_;
-
-			sign->SetPrefabSignData(signData);
 		}
 		else
 		{
-			if(sign->mIconElementToDataMap[data.FunctionName.ToString()] == trunc(value_)) return;
+			if(signData.IconElementData.Contains(data.FunctionName.ToString()))
+				if(signData.IconElementData[data.FunctionName.ToString()] == trunc(value_)) return;
 			
-			FPrefabSignData signData;
-			sign->GetSignPrefabData(signData);
-
 			signData.IconElementData[data.FunctionName.ToString()] = trunc(value_);
-
-			sign->SetPrefabSignData(signData);
 		}
 
+		sign->SetPrefabSignData(signData);
 		return;
 	}
 
@@ -528,41 +519,30 @@ void UWiremodReflection::SetFunctionColorValue(const FNewConnectionData& data, F
 
 	if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
 	{
+
+		FPrefabSignData signData;
+		sign->GetSignPrefabData(signData);
+		
 		if(data.FunctionName == "TextColor")
 		{
-			if(sign->mForegroundColor == value_) return;
-
-			FPrefabSignData signData;
-			sign->GetSignPrefabData(signData);
+			if(signData.ForegroundColor == value_) return;
 
 			signData.ForegroundColor = value_;
-
-			sign->SetPrefabSignData(signData);
 		}
 		else if(data.FunctionName == "BackgroundColor")
 		{
-			if(sign->mBackgroundColor == value_) return;
-
-			FPrefabSignData signData;
-			sign->GetSignPrefabData(signData);
+			if(signData.BackgroundColor == value_) return;
 
 			signData.BackgroundColor = value_;
-
-			sign->SetPrefabSignData(signData);
 		}
 		else if(data.FunctionName == "AuxColor")
 		{
-			if(sign->mAuxilaryColor == value_) return;
-
-			FPrefabSignData signData;
-			sign->GetSignPrefabData(signData);
-
+			if(signData.AuxiliaryColor == value_) return;
+			
 			signData.AuxiliaryColor = value_;
-
-			sign->SetPrefabSignData(signData);
 		}
 
-		
+		sign->SetPrefabSignData(signData);
 		return;
 	}
 
