@@ -6,15 +6,21 @@ public class FicsitWiremod : ModuleRules
 {
     public FicsitWiremod(ReadOnlyTargetRules Target) : base(Target)
     {
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+	    PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] {
-            "Core", "CoreUObject",
+            "Core", 
+            "CoreUObject",
             "Engine",
             "InputCore",
-            "OnlineSubsystem", "OnlineSubsystemUtils", "OnlineSubsystemNULL",
+            "OnlineSubsystem", 
+            "OnlineSubsystemUtils", 
+            "OnlineSubsystemNULL",
             "SignificanceManager",
-            "PhysX", "APEX", "PhysXVehicles", "ApexDestruction",
+            "PhysX", 
+            "APEX", 
+            "PhysXVehicles",
+            "ApexDestruction",
             "AkAudio",
             "ReplicationGraph",
             "UMG",
@@ -23,7 +29,8 @@ public class FicsitWiremod : ModuleRules
             "AssetRegistry",
             "GameplayTasks",
             "AnimGraphRuntime",
-            "Slate", "SlateCore",
+            "Slate", 
+            "SlateCore",
             "Json"
             });
 
@@ -31,6 +38,6 @@ public class FicsitWiremod : ModuleRules
         if (Target.Type == TargetRules.TargetType.Editor) {
 			PublicDependencyModuleNames.AddRange(new string[] {"OnlineBlueprintSupport", "AnimGraph"});
 		}
-        PublicDependencyModuleNames.AddRange(new string[] {"FactoryGame", "SML"});
+        PublicDependencyModuleNames.AddRange(new string[] {"FactoryGame", "SML" });
     }
 }
