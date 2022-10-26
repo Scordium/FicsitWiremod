@@ -3,6 +3,7 @@
 
 #include "WiremodReflection.h"
 
+#include "DynamicReturnValue.h"
 #include "FGGameState.h"
 #include "FGPipeConnectionComponent.h"
 #include "FGTrainStationIdentifier.h"
@@ -14,33 +15,44 @@
 #include "Buildables/FGBuildableRailroadStation.h"
 #include "Buildables/FGBuildableWidgetSign.h"
 #include "Components/WidgetComponent.h"
+#include "DynamicValue/BoolArrayDynamicValue.h"
+#include "DynamicValue/BoolDynamicValue.h"
+#include "DynamicValue/ColorArrayDynamicValue.h"
+#include "DynamicValue/ColorDynamicValue.h"
+#include "DynamicValue/EntityArrayDynamicValue.h"
+#include "DynamicValue/EntityDynamicValue.h"
+#include "DynamicValue/InventoryArrayDynamicValue.h"
+#include "DynamicValue/InventoryDynamicValue.h"
+#include "DynamicValue/ItemStackArrayDynamicValue.h"
+#include "DynamicValue/ItemStackDynamicValue.h"
+#include "DynamicValue/NumberArrayDynamicValue.h"
+#include "DynamicValue/NumberDynamicValue.h"
+#include "DynamicValue/PowerGridArrayDynamicValue.h"
+#include "DynamicValue/PowerGridDynamicValue.h"
+#include "DynamicValue/StringArrayDynamicValue.h"
+#include "DynamicValue/StringDynamicValue.h"
+#include "DynamicValue/VectorArrayDynamicValue.h"
+#include "DynamicValue/VectorDynamicValue.h"
 #include "UI/FGSignBuildingWidget.h"
 
-
-static UFunction* GetFunction(const FNewConnectionData& data)
-{
-	if(!data.Object) return nullptr;
-	if(!IsValid(data.Object)) return nullptr;
-
-	
-	UFunction* function = data.Object->FindFunction(data.FunctionName);
-	return function;
-}
 
 
 bool UWiremodReflection::GetFunctionBoolResult(const FNewConnectionData& data, bool defaultValue)
 {
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionBoolResult(GetRecursiveData(data), defaultValue);
-
-
-	
 	if(!data.Object) return defaultValue;
 	if(!IsValid(data.Object)) return defaultValue;
-
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetFunctionBoolResult(GetRecursiveData(data), defaultValue);
+	
 	if(data.Object->GetClass()->ImplementsInterface(IIConstantsDistributor::UClassType::StaticClass()))
 	{
 		auto rawValue = IIConstantsDistributor::Execute_GetValue(data.Object, data.FunctionName.ToString());
 		return rawValue.StoredBool;
+	}
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UBoolDynamicValue>(rawValue)) return castValue->Value;
 	}
 	else if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))
 	{
@@ -62,16 +74,20 @@ bool UWiremodReflection::GetFunctionBoolResult(const FNewConnectionData& data, b
 
 FString UWiremodReflection::GetFunctionStringResult(const FNewConnectionData& data, FString defaultValue)
 {
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionStringResult(GetRecursiveData(data), defaultValue);
-
-
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
 	
-	if(!data.Object || !IsValid(data.Object)) return defaultValue;
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetFunctionStringResult(GetRecursiveData(data), defaultValue);
 
 	if(data.Object->GetClass()->ImplementsInterface(IIConstantsDistributor::UClassType::StaticClass()))
 	{
 		auto rawValue = IIConstantsDistributor::Execute_GetValue(data.Object, data.FunctionName.ToString());
 		return rawValue.StoredString;
+	}
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UStringDynamicValue>(rawValue)) return castValue->Value;
 	}
 	else if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
 	{
@@ -97,16 +113,20 @@ FString UWiremodReflection::GetFunctionStringResult(const FNewConnectionData& da
 
 float UWiremodReflection::GetFunctionNumberResult(const FNewConnectionData& data, float defaultValue)
 {
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionNumberResult(GetRecursiveData(data), defaultValue);
-
-	
 	if(!data.Object) return defaultValue;
 	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetFunctionNumberResult(GetRecursiveData(data), defaultValue);
 
 	if(data.Object->GetClass()->ImplementsInterface(IIConstantsDistributor::UClassType::StaticClass()))
 	{
 		auto rawValue = IIConstantsDistributor::Execute_GetValue(data.Object, data.FunctionName.ToString());
 		return rawValue.StoredFloat;
+	}
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UNumberDynamicValue>(rawValue)) return castValue->Value;
 	}
 	
 	if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))
@@ -160,16 +180,20 @@ float UWiremodReflection::GetFunctionNumberResult(const FNewConnectionData& data
 
 FVector UWiremodReflection::GetFunctionVectorResult(const FNewConnectionData& data, FVector defaultValue)
 {
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionVectorResult(GetRecursiveData(data), defaultValue);
-
-	
 	if(!data.Object) return defaultValue;
 	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetFunctionVectorResult(GetRecursiveData(data), defaultValue);
 	
 	if(data.Object->GetClass()->ImplementsInterface(IIConstantsDistributor::UClassType::StaticClass()))
 	{
 		auto rawValue = IIConstantsDistributor::Execute_GetValue(data.Object, data.FunctionName.ToString());
 		return rawValue.StoredVector;
+	}
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UVectorDynamicValue>(rawValue)) return castValue->Value;
 	}
 
 	auto function = GetFunction(data);
@@ -183,14 +207,20 @@ FVector UWiremodReflection::GetFunctionVectorResult(const FNewConnectionData& da
 
 FLinearColor UWiremodReflection::GetFunctionColorResult(const FNewConnectionData& data, FLinearColor defaultValue)
 {
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionColorResult(GetRecursiveData(data), defaultValue);
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
 	
-	if(!data.Object || !IsValid(data.Object)) return defaultValue;
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetFunctionColorResult(GetRecursiveData(data), defaultValue);
 
 	if(data.Object->GetClass()->ImplementsInterface(IIConstantsDistributor::UClassType::StaticClass()))
 	{
 		auto rawValue = IIConstantsDistributor::Execute_GetValue(data.Object, data.FunctionName.ToString());
 		return rawValue.StoredColor;
+	}
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UColorDynamicValue>(rawValue)) return castValue->Value;
 	}
 	
 	if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
@@ -212,25 +242,17 @@ FLinearColor UWiremodReflection::GetFunctionColorResult(const FNewConnectionData
 	return params.RetVal;
 }
 
-TArray<FString> UWiremodReflection::GetFunctionStringArray(const FNewConnectionData& data)
-{
-	TArray<FString> defaultValue = *new TArray<FString>;
-
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionStringArray(GetRecursiveData(data));
-	
-	auto function = GetFunction(data);
-	if(!function) return defaultValue;
-
-	struct{ TArray<FString> RetVal; } params;
-
-	data.Object->ProcessEvent(function, &params);
-	
-	return params.RetVal;
-}
-
 UFGInventoryComponent* UWiremodReflection::GetFunctionInventory(const FNewConnectionData& data)
 {
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionInventory(GetRecursiveData(data));
+	if(!data.Object) return nullptr;
+	if(!IsValid(data.Object)) return nullptr;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetFunctionInventory(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UInventoryDynamicValue>(rawValue)) return castValue->Value;
+	}
 	
 	auto function = GetFunction(data);
 	if(!function) return nullptr;
@@ -243,10 +265,17 @@ UFGInventoryComponent* UWiremodReflection::GetFunctionInventory(const FNewConnec
 
 FInventoryStack UWiremodReflection::GetFunctionStackResult(const FNewConnectionData& data)
 {
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionStackResult(GetRecursiveData(data));
-
+	FInventoryStack defaultValue = FInventoryStack();
 	
-	FInventoryStack defaultValue = *new FInventoryStack;
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetFunctionStackResult(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UItemStackDynamicValue>(rawValue)) return castValue->Value;
+	}
     	
 	auto function = GetFunction(data);
 	if(!function) return defaultValue;
@@ -260,26 +289,19 @@ FInventoryStack UWiremodReflection::GetFunctionStackResult(const FNewConnectionD
 	return params.RetVal;
 }
 
-TArray<FInventoryStack> UWiremodReflection::GetFunctionInventoryStackArrays(const FNewConnectionData& data)
-{
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionInventoryStackArrays(GetRecursiveData(data));
-	
-	TArray<FInventoryStack> defaultValue = *new TArray<FInventoryStack>;
-    	
-	auto function = GetFunction(data);
-	if(!function) return defaultValue;
-    
-	struct{ TArray<FInventoryStack> RetVal; } params;
-    
-    data.Object->ProcessEvent(function, &params);
-	
-    return params.RetVal;
-}
-
 UFGPowerCircuit* UWiremodReflection::GetFunctionPowerCircuitResult(const FNewConnectionData& data)
 {
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionPowerCircuitResult(GetRecursiveData(data));
 	UFGPowerCircuit* defaultValue = nullptr;
+	
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetFunctionPowerCircuitResult(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UPowerGridDynamicValue>(rawValue)) return castValue->Value;
+	}
     	
 	auto function = GetFunction(data);
 	if(!function) return defaultValue;
@@ -295,8 +317,17 @@ UFGPowerCircuit* UWiremodReflection::GetFunctionPowerCircuitResult(const FNewCon
 
 AActor* UWiremodReflection::GetFunctionEntityResult(const FNewConnectionData& data)
 {
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionEntityResult(GetRecursiveData(data));
 	AActor* defaultValue = nullptr;
+
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetFunctionEntityResult(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UEntityDynamicValue>(rawValue)) return castValue->Value;
+	}
 
 	if(data.FunctionName == "Self") return Cast<AActor>(data.Object);
 	
@@ -310,21 +341,217 @@ AActor* UWiremodReflection::GetFunctionEntityResult(const FNewConnectionData& da
 	return params.RetVal;
 }
 
-TArray<AActor*> UWiremodReflection::GetFunctionEntityArray(const FNewConnectionData& data)
-{
-	if(data.ConnectionType.GetValue() == ConnectionData) return GetFunctionEntityArray(GetRecursiveData(data));
-	auto defaultValue = new TArray<AActor*>;
-	
-	auto function = GetFunction(data);
-	if(!function) return *defaultValue;
 
-	struct{ TArray<AActor*> RetVal; } params;
-    
+//Array Get
+
+
+TArray<bool> UWiremodReflection::GetBoolArray(const FNewConnectionData& data)
+{
+	TArray<bool> defaultValue = *new TArray<bool>;
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetBoolArray(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UBoolArrayDynamicValue>(rawValue)) return castValue->Value;
+	}
+
+		
+	auto function = GetFunction(data);
+	if(!function) return defaultValue;
+
+	struct{ TArray<bool> RetVal; } params;
+
 	data.Object->ProcessEvent(function, &params);
 	
 	return params.RetVal;
-	
 }
+
+TArray<FString> UWiremodReflection::GetStringArray(const FNewConnectionData& data)
+{
+	TArray<FString> defaultValue = TArray<FString>();
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetStringArray(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UStringArrayDynamicValue>(rawValue)) return castValue->Value;
+	}
+		
+	auto function = GetFunction(data);
+	if(!function) return defaultValue;
+
+	struct{ TArray<FString> RetVal; } params;
+
+	data.Object->ProcessEvent(function, &params);
+	
+	return params.RetVal;
+}
+
+TArray<float> UWiremodReflection::GetNumberArray(const FNewConnectionData& data)
+{
+	TArray<float> defaultValue = TArray<float>();
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetNumberArray(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UNumberArrayDynamicValue>(rawValue)) return castValue->Value;
+	}
+		
+	auto function = GetFunction(data);
+	if(!function) return defaultValue;
+
+	struct{ TArray<float> RetVal; } params;
+
+	data.Object->ProcessEvent(function, &params);
+	
+	return params.RetVal;
+}
+	
+TArray<FVector> UWiremodReflection::GetVectorArray(const FNewConnectionData& data)
+{
+	auto defaultValue = TArray<FVector>();
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetVectorArray(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UVectorArrayDynamicValue>(rawValue)) return castValue->Value;
+	}
+
+	
+	auto function = GetFunction(data);
+	if(!function) return defaultValue;
+
+	struct{ TArray<FVector> RetVal; } params;
+	data.Object->ProcessEvent(function, &params);
+	
+	return params.RetVal;
+}
+
+TArray<FLinearColor> UWiremodReflection::GetColorArray(const FNewConnectionData& data)
+{
+	auto defaultValue = TArray<FLinearColor>();
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetColorArray(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UColorArrayDynamicValue>(rawValue)) return castValue->Value;
+	}
+
+		
+	
+	auto function = GetFunction(data);
+	if(!function) return defaultValue;
+
+	struct{ TArray<FLinearColor> RetVal; } params;
+	data.Object->ProcessEvent(function, &params);
+	
+	return params.RetVal;
+}
+
+TArray<UFGInventoryComponent*> UWiremodReflection::GetInventoryArray(const FNewConnectionData& data)
+{
+	auto defaultValue = TArray<UFGInventoryComponent*>();
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetInventoryArray(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UInventoryArrayDynamicValue>(rawValue)) return castValue->Value;
+	}
+		
+	
+	auto function = GetFunction(data);
+	if(!function) return defaultValue;
+
+	struct{ TArray<UFGInventoryComponent*> RetVal; } params;
+	data.Object->ProcessEvent(function, &params);
+	
+	return params.RetVal;
+}
+
+TArray<FInventoryStack> UWiremodReflection::GetItemStackArray(const FNewConnectionData& data)
+{
+	auto defaultValue = TArray<FInventoryStack>();
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetItemStackArray(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UItemStackArrayDynamicValue>(rawValue)) return castValue->Value;
+	}
+	
+	auto function = GetFunction(data);
+	if(!function) return defaultValue;
+    
+	struct{ TArray<FInventoryStack> RetVal; } params;
+	data.Object->ProcessEvent(function, &params);
+	
+	return params.RetVal;
+}
+
+TArray<AActor*> UWiremodReflection::GetEntityArray(const FNewConnectionData& data)
+{
+	auto defaultValue = TArray<AActor*>();
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetEntityArray(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UEntityArrayDynamicValue>(rawValue)) return castValue->Value;
+	}
+	
+	auto function = GetFunction(data);
+	if(!function) return defaultValue;
+
+	struct{ TArray<AActor*> RetVal; } params;
+	data.Object->ProcessEvent(function, &params);
+	
+	return params.RetVal;
+}
+
+TArray<UFGPowerCircuit*> UWiremodReflection::GetPowerGridArray(const FNewConnectionData& data)
+{
+	auto defaultValue = TArray<UFGPowerCircuit*>();
+	if(!data.Object) return defaultValue;
+	if(!IsValid(data.Object)) return defaultValue;
+	
+	if(data.FunctionName.ToString() == "WM_GET_SELECT_FUNC") return GetPowerGridArray(GetRecursiveData(data));
+	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
+	{
+		auto rawValue = IDynamicReturnValue::Execute_GetValue(data.Object, data.FunctionName.ToString());
+		if(auto castValue = Cast<UPowerGridArrayDynamicValue>(rawValue)) return castValue->Value;
+	}
+	
+	auto function = GetFunction(data);
+	if(!function) return defaultValue;
+
+	struct{ TArray<UFGPowerCircuit*> RetVal; } params;
+	data.Object->ProcessEvent(function, &params);
+	
+	return params.RetVal;
+}
+
+
 
 
 void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bool value_)
@@ -557,22 +784,6 @@ void UWiremodReflection::SetFunctionColorValue(const FNewConnectionData& data, F
 	data.Object->ProcessEvent(function, &params);
 }
 
-void UWiremodReflection::HandleDynamicConnections(TArray<FDynamicConnectionData> connections)
-{
-	for (auto ConnectionData : connections)
-	{
-		bool HasNullPtr = !ConnectionData.Transmitter.Object || !ConnectionData.Receiver.Object;
-		bool HasInvalid = !IsValid(ConnectionData.Transmitter.Object) || !IsValid(ConnectionData.Receiver.Object);
-		
-		if(HasNullPtr || HasInvalid)
-		{
-			connections.Remove(ConnectionData);
-			continue;
-		}
-		
-		HandleDynamicConnection(ConnectionData.Transmitter, ConnectionData.Receiver);
-	}
-}
 
 void UWiremodReflection::HandleDynamicConnection(const FNewConnectionData& transmitter, const FNewConnectionData& receiver)
 {

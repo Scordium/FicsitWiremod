@@ -7,7 +7,6 @@
 #include "Buildables/FGBuildableFactory.h"
 #include "Buildables/FGBuildableWidgetSign.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Resources/FGBuildingDescriptor.h"
 #include "WiremodReflection.generated.h"
 
 UENUM(BlueprintType)
@@ -33,7 +32,11 @@ enum EConnectionType
 	ArrayOfStack,
 	Any,
 	Integer,
-	ConnectionData
+	ConnectionData,
+	AnyArray,
+	AnyNonArray,
+	ArrayOfPowerGrid,
+	ArrayOfInventory
 };
 
 
@@ -91,6 +94,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TEnumAsByte<EConnectionType> ConnectionType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FLinearColor WireColor = FLinearColor::White;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool WireHidden;
+
 	
 	FNewConnectionData operator =(const FNewConnectionData& data)
 	{
@@ -98,6 +107,8 @@ public:
 		DisplayName = data.DisplayName;
 		FunctionName  = data.FunctionName;
 		ConnectionType = data.ConnectionType;
+		WireColor = data.WireColor;
+		WireHidden = data.WireHidden;
 
 		return *this;
 	}
@@ -107,7 +118,6 @@ public:
 	{
 		return Object == other.Object
 		&& FunctionName == other.FunctionName
-		&& ConnectionType == other.ConnectionType
 		&& DisplayName == other.DisplayName;
 	}
 };
@@ -159,9 +169,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static FLinearColor GetFunctionColorResult(const FNewConnectionData& data, FLinearColor defaultValue = FLinearColor::Black);
-
-	UFUNCTION(BlueprintCallable)
-	static  TArray<FString> GetFunctionStringArray(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static UFGInventoryComponent* GetFunctionInventory(const FNewConnectionData& data);
@@ -170,16 +177,40 @@ public:
 	static FInventoryStack GetFunctionStackResult(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
-	static TArray<FInventoryStack> GetFunctionInventoryStackArrays(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
 	static UFGPowerCircuit* GetFunctionPowerCircuitResult(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
 	static AActor* GetFunctionEntityResult(const FNewConnectionData& data);
 
+
+	//Array Get
 	UFUNCTION(BlueprintCallable)
-	static TArray<AActor*> GetFunctionEntityArray(const FNewConnectionData& data);
+	static TArray<bool> GetBoolArray(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FString> GetStringArray(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<float> GetNumberArray(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FVector> GetVectorArray(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<FLinearColor> GetColorArray(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<UFGInventoryComponent*> GetInventoryArray(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FInventoryStack> GetItemStackArray(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<AActor*> GetEntityArray(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<UFGPowerCircuit*> GetPowerGridArray(const FNewConnectionData& data);
+	
 	
 	//Set
 	UFUNCTION(BlueprintCallable)
@@ -197,8 +228,21 @@ public:
 
 	//Utility
 	UFUNCTION(BlueprintCallable)
-	static void HandleDynamicConnections(TArray<FDynamicConnectionData> connections);
+	static void HandleDynamicConnections(TArray<FDynamicConnectionData> connections)
+	{
+		for (auto ConnectionData : connections)
+		{
+			bool HasNullPtr = !ConnectionData.Transmitter.Object || !ConnectionData.Receiver.Object;
+			bool HasInvalid = !IsValid(ConnectionData.Transmitter.Object) || !IsValid(ConnectionData.Receiver.Object);
+		
+			if(HasNullPtr || HasInvalid) continue;
+		
+			HandleDynamicConnection(ConnectionData.Transmitter, ConnectionData.Receiver);
+		}
+	}
+	
 	static void HandleDynamicConnection(const FNewConnectionData& transmitter, const FNewConnectionData& receiver);
+	
 	static FNewConnectionData GetRecursiveData(const FNewConnectionData& data)
 	{
 		if(!data.Object || !IsValid(data.Object)) return FNewConnectionData();
@@ -214,4 +258,14 @@ public:
 	
 	UFUNCTION(CallInEditor, BlueprintCallable)
 	static void MarkDirty(UObject* object) {object->Modify();};
+
+	static UFunction* GetFunction(const FNewConnectionData& data)
+	{
+		if(!data.Object) return nullptr;
+		if(!IsValid(data.Object)) return nullptr;
+
+	
+		UFunction* function = data.Object->FindFunction(data.FunctionName);
+		return function;
+	}
 };
