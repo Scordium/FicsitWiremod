@@ -100,6 +100,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	bool WireHidden;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FVector StartPos;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FVector EndPos;
 	
 	FNewConnectionData operator =(const FNewConnectionData& data)
 	{
@@ -109,6 +114,8 @@ public:
 		ConnectionType = data.ConnectionType;
 		WireColor = data.WireColor;
 		WireHidden = data.WireHidden;
+		StartPos = data.StartPos;
+		EndPos = data.EndPos;
 
 		return *this;
 	}

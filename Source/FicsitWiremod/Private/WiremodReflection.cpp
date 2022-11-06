@@ -4,6 +4,7 @@
 #include "WiremodReflection.h"
 
 #include "DynamicReturnValue.h"
+#include "FGBuildableDoor.h"
 #include "FGGameState.h"
 #include "FGPipeConnectionComponent.h"
 #include "FGTrainStationIdentifier.h"
@@ -48,6 +49,13 @@ bool UWiremodReflection::GetFunctionBoolResult(const FNewConnectionData& data, b
 	{
 		auto rawValue = IIConstantsDistributor::Execute_GetValue(data.Object, data.FunctionName.ToString());
 		return rawValue.StoredBool;
+	}
+	else if(data.FunctionName == "WM_DOORCONTROL_FUNC")
+	{
+		if(auto door = Cast<AFGBuildableDoor>(data.Object))
+		{
+			return door->mDoorState == EDoorState::DS_Closed;
+		}
 	}
 	else if(data.Object->GetClass()->ImplementsInterface(IDynamicReturnValue::UClassType::StaticClass()))
 	{
@@ -567,7 +575,43 @@ void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bo
 			return;
 		}
 	}
+	else if(data.FunctionName == "WM_DOORCONTROL_FUNC")
+	{
+		if(auto door = Cast<AFGBuildableDoor>(data.Object))
+		{
+			if(value_)
+			{
+				if(door->mDoorState == EDoorState::DS_Closed) return;
+				door->mDoorState = EDoorState::DS_Closed;
+				door->OnDoorConfigurationChanged(EDoorConfiguration::DC_Closed);
+				door->SetDoorLightFeedbackState(EDoorConfiguration::DC_Closed);
+				door->BeginClosing();
+			}
+			else
+			{
+				if(door->mDoorState == EDoorState::DS_Open) return;
+				door->mDoorState = EDoorState::DS_Open;
+				door->OnDoorConfigurationChanged(EDoorConfiguration::DC_Open);
+				door->SetDoorLightFeedbackState(EDoorConfiguration::DC_Open);
+				door->BeginOpening();
+			}
+			return;
+		}
+	}
+	else if(data.FunctionName == "WM_ON_USE_FUNC" && value_)
+	{
+		if(auto object = Cast<AFGBuildable>(data.Object))
+		{
+			if(auto character = Cast<AFGCharacterPlayer>(object->GetWorld()->GetFirstPlayerController()->GetCharacter()))
+			{
+				auto useState = FUseState();
+				useState.UseLocation = object->GetTransform().GetLocation();
+				AFGBuildable::Execute_OnUse(object, character, useState);
 
+				return;
+			}
+		}
+	}
 	
 	if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))
 	{
