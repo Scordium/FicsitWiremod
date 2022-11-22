@@ -35,4 +35,24 @@ class FICSITWIREMOD_API UWiremodUtils : public UBlueprintFunctionLibrary
 		float finalTime = hour * 3600 + minute * 60 + second;
 		subsystem->SetDaySeconds(finalTime);
 	}
+
+	UFUNCTION(BlueprintCallable)
+	static FFactoryCustomizationData InitCustomizationData(FLinearColor primaryColor, FLinearColor secondaryColor, AFGGameState* gameState)
+	{
+		auto data = FFactoryCustomizationData();
+		data.ColorSlot = 254;
+		data.OverrideColorData.PrimaryColor = primaryColor;
+		data.OverrideColorData.SecondaryColor = secondaryColor;
+		data.Initialize(gameState);
+
+		return data;
+	}
+
+	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf))
+	static AFGBuildableBlueprintDesigner* GetBlueprintDesigner(AFGBuildable* Buildable)
+	{
+		if(!Buildable) return nullptr;
+		return Buildable->GetBlueprintDesigner();
+	}
+	
 };

@@ -1,8 +1,8 @@
 {
 	"FileVersion": 3,
 	"Version": 0,
-	"VersionName": "0.10.30",
-	"SemVersion": "0.10.30",
+	"VersionName": "0.10.40",
+	"SemVersion": "0.10.40",
 	"FriendlyName": "Ficsit Wiremod",
 	"Description": "",
 	"Category": "Modding",
@@ -26,7 +26,7 @@
 	"Plugins": [
 		{
 			"Name": "SML",
-			"SemVersion": "^3.3.2",
+			"SemVersion": "^3.4.1",
 			"bIsOptional": false,
 			"Enabled": true
 		}

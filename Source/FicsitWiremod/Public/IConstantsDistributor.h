@@ -7,30 +7,6 @@
 #include "UObject/Interface.h"
 #include "IConstantsDistributor.generated.h"
 
-USTRUCT(BlueprintType)
-struct FDynamicValue
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TEnumAsByte<EConnectionType> ConnectionType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool StoredBool;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	float StoredFloat;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FString StoredString;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FVector StoredVector;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FLinearColor StoredColor;
-};
-
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, Blueprintable)

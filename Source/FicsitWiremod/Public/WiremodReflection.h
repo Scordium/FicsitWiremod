@@ -39,6 +39,69 @@ enum EConnectionType
 	ArrayOfInventory
 };
 
+USTRUCT(BlueprintType)
+struct FDynamicValue
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TEnumAsByte<EConnectionType> ConnectionType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool StoredBool;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<bool> BoolArr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	float StoredFloat;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<float> NumberArr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FString StoredString;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<FString> StringArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FVector StoredVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<FVector> VectorArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FLinearColor StoredColor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<FLinearColor> ColorArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FInventoryStack Stack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<FInventoryStack> StackArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	UFGInventoryComponent* Inventory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<UFGInventoryComponent*> InventoryArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	UFGPowerCircuit* PowerGrid;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<UFGPowerCircuit*> PowerGridArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	AActor* Entity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<AActor*> EntityArr;
+};
+
 
 USTRUCT(BlueprintType)
 struct FBuildingConnection : public FTableRowBase
@@ -99,12 +162,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	bool WireHidden;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FVector StartPos;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FVector EndPos;
+	TArray<FVector> WirePositions;
 	
 	FNewConnectionData operator =(const FNewConnectionData& data)
 	{
@@ -114,14 +174,12 @@ public:
 		ConnectionType = data.ConnectionType;
 		WireColor = data.WireColor;
 		WireHidden = data.WireHidden;
-		StartPos = data.StartPos;
-		EndPos = data.EndPos;
+		WirePositions = data.WirePositions;
 
 		return *this;
 	}
-
 	
-	bool operator ==(const FNewConnectionData& other) const
+	FORCEINLINE bool operator ==(const FNewConnectionData& other) const
 	{
 		return Object == other.Object
 		&& FunctionName == other.FunctionName
@@ -262,6 +320,9 @@ public:
 	
 		return params.RetVal;
 	}
+
+	UFUNCTION(BlueprintCallable)
+	static void FillDynamicStructFromData(const FNewConnectionData& data, FDynamicValue& Out);
 	
 	UFUNCTION(CallInEditor, BlueprintCallable)
 	static void MarkDirty(UObject* object) {object->Modify();};
