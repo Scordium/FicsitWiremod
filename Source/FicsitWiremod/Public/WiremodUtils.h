@@ -54,5 +54,13 @@ class FICSITWIREMOD_API UWiremodUtils : public UBlueprintFunctionLibrary
 		if(!Buildable) return nullptr;
 		return Buildable->GetBlueprintDesigner();
 	}
+
+	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf))
+	static void SetCanEverTick(AFGBuildable* Buildable, bool Enabled)
+	{
+		if (!Buildable) return;
+
+		Buildable->mFactoryTickFunction.bCanEverTick = Enabled;
+	}
 	
 };

@@ -720,6 +720,13 @@ void UWiremodReflection::SetFunctionNumberValue(const FNewConnectionData& data, 
 		sign->SetPrefabSignData(signData);
 		return;
 	}
+	else if(data.FunctionName == "SetPendingPotential")
+	{
+		if(auto building = Cast<AFGBuildableFactory>(data.Object))
+		{
+			if (building->GetPendingPotential() == value_) return;
+		}
+	}
 
 	
 	
