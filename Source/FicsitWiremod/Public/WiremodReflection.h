@@ -100,6 +100,30 @@ struct FDynamicValue
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<AActor*> EntityArr;
+
+	FDynamicValue operator =(const FDynamicValue& other)
+	{
+		ConnectionType = other.ConnectionType;
+		StoredBool = other.StoredBool;
+		BoolArr = other.BoolArr;
+		StoredFloat = other.StoredFloat;
+		NumberArr = other.NumberArr;
+		StoredString = other.StoredString;
+		StringArr = other.StringArr;
+		StoredVector = other.StoredVector;
+		VectorArr = other.VectorArr;
+		StoredColor = other.StoredColor;
+		Stack = other.Stack;
+		StackArr = other.StackArr;
+		Inventory = other.Inventory;
+		InventoryArr = other.InventoryArr;
+		PowerGrid = other.PowerGrid;
+		PowerGridArr = other.PowerGridArr;
+		Entity = other.Entity;
+		EntityArr = other.EntityArr;
+
+		return *this;
+	}
 };
 
 
@@ -307,19 +331,6 @@ public:
 	}
 	
 	static void HandleDynamicConnection(const FNewConnectionData& transmitter, const FNewConnectionData& receiver);
-	
-	static FNewConnectionData GetRecursiveData(const FNewConnectionData& data)
-	{
-		if(!data.Object || !IsValid(data.Object)) return FNewConnectionData();
-
-		UFunction* function = data.Object->FindFunction(data.FunctionName);
-
-		struct { FNewConnectionData RetVal; } params;
-
-		data.Object->ProcessEvent(function, &params);
-	
-		return params.RetVal;
-	}
 
 	UFUNCTION(BlueprintCallable)
 	static void FillDynamicStructFromData(const FNewConnectionData& data, FDynamicValue& Out);
@@ -335,5 +346,43 @@ public:
 	
 		UFunction* function = data.Object->FindFunction(data.FunctionName);
 		return function;
+	}
+
+
+
+	//Utility function to add backwards compatibility. Before this was done manually, so the function could have invalid info.
+	//Now it's done automatically and supported by all wiremod gates.
+
+	static bool IsInteger(const FNewConnectionData& data)
+	{
+		auto checkData = FNewConnectionData();
+		checkData.Object = data.Object;
+		checkData.FunctionName = "netFunc_getFunctionReturnType";
+
+		auto function = GetFunction(checkData);
+		if(!function) return data.ConnectionType == Integer;
+
+		struct
+		{
+			FString FuncName;
+			FString TypeString;
+			int TypeInt;
+		} params{data.FunctionName.ToString()};
+
+		checkData.Object->ProcessEvent(function, &params);
+
+		return params.TypeInt == EConnectionType::Integer;
+	}
+
+	template<typename T>
+	static T ProcessFunction(const FNewConnectionData& data, T params)
+	{
+		if(!IsValid(data.Object)) return params;
+		
+		auto function = GetFunction(data);
+		if(!function) return params;
+		
+		data.Object->ProcessEvent(function, &params);
+		return params;
 	}
 };

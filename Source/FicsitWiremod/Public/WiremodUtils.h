@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "FGBuildableDoor.h"
+#include "FGPlayerState.h"
 #include "FGStorySubsystem.h"
 #include "FGTimeSubsystem.h"
+#include "Equipment/FGEquipment.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Patching/NativeHookManager.h"
 #include "WiremodUtils.generated.h"
@@ -55,12 +57,27 @@ class FICSITWIREMOD_API UWiremodUtils : public UBlueprintFunctionLibrary
 		return Buildable->GetBlueprintDesigner();
 	}
 
-	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf))
+	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf = "Buildable"))
 	static void SetCanEverTick(AFGBuildable* Buildable, bool Enabled)
 	{
 		if (!Buildable) return;
 
 		Buildable->mFactoryTickFunction.bCanEverTick = Enabled;
 	}
+
+	UFUNCTION(BlueprintCallable)
+	static void HookAnimation()
+	{
+
+#if !WITH_EDITOR
+		SUBSCRIBE_METHOD(AFGEquipment::ShouldShowStinger, [](auto& Scope, const AFGEquipment* self)
+		{
+			Scope.Override(true);
+		});
+
+#endif
+		
+	}
+	
 	
 };

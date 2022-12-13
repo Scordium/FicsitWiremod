@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "WiremodReflection.h"
+#include "Kismet/KismetArrayLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UObject/Object.h"
 #include "WiremodArrayFuncs.generated.h"
@@ -84,7 +85,7 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 		{
 		case ArrayOfBoolean:
 			if(arrayData.BoolArr.IsValidIndex(index))
-			out.StoredBool = arrayData.BoolArr[index];
+				out.StoredBool = arrayData.BoolArr[index];
 			break;
 		
 		case ArrayOfNumber:
@@ -178,18 +179,44 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 	static void SetArrayElem(const FDynamicValue& original, int index, const FNewConnectionData& elem, FDynamicValue& out)
 	{
 		out = original;
-
 		switch (out.ConnectionType)
 		{
-		case ArrayOfBoolean: out.BoolArr[index] = UWiremodReflection::GetFunctionBoolResult(elem); break;
-		case ArrayOfNumber: out.NumberArr[index] = UWiremodReflection::GetFunctionNumberResult(elem); break;
-		case ArrayOfString: out.StringArr[index] = UWiremodReflection::GetFunctionStringResult(elem); break;
-		case ArrayOfColor: out.ColorArr[index] = UWiremodReflection::GetFunctionColorResult(elem); break;
-		case ArrayOfEntity: out.EntityArr[index] = UWiremodReflection::GetFunctionEntityResult(elem); break;
-		case ArrayOfVector: out.VectorArr[index] = UWiremodReflection::GetFunctionVectorResult(elem); break;
-		case ArrayOfStack: out.StackArr[index] = UWiremodReflection::GetFunctionStackResult(elem); break;
-		case ArrayOfInventory: out.InventoryArr[index] = UWiremodReflection::GetFunctionInventory(elem); break;
-		case ArrayOfPowerGrid: out.PowerGridArr[index] = UWiremodReflection::GetFunctionPowerCircuitResult(elem); break;
+		case ArrayOfBoolean:
+			if(out.BoolArr.IsValidIndex(index))
+				out.BoolArr[index] = UWiremodReflection::GetFunctionBoolResult(elem); break;
+			
+		case ArrayOfNumber:
+			if(out.NumberArr.IsValidIndex(index))
+				out.NumberArr[index] = UWiremodReflection::GetFunctionNumberResult(elem); break;
+			
+		case ArrayOfString:
+			if(out.StringArr.IsValidIndex(index))
+				out.StringArr[index] = UWiremodReflection::GetFunctionStringResult(elem); break;
+			
+		case ArrayOfColor:
+			if(out.ColorArr.IsValidIndex(index))
+				out.ColorArr[index] = UWiremodReflection::GetFunctionColorResult(elem); break;
+			
+		case ArrayOfEntity:
+			if(out.EntityArr.IsValidIndex(index))
+				out.EntityArr[index] = UWiremodReflection::GetFunctionEntityResult(elem); break;
+			
+		case ArrayOfVector:
+			if(out.VectorArr.IsValidIndex(index))
+				out.VectorArr[index] = UWiremodReflection::GetFunctionVectorResult(elem); break;
+			
+		case ArrayOfStack:
+			if(out.StackArr.IsValidIndex(index))
+				out.StackArr[index] = UWiremodReflection::GetFunctionStackResult(elem); break;
+			
+		case ArrayOfInventory:
+			if(out.InventoryArr.IsValidIndex(index))
+				out.InventoryArr[index] = UWiremodReflection::GetFunctionInventory(elem); break;
+			
+		case ArrayOfPowerGrid:
+			if(out.PowerGridArr.IsValidIndex(index))
+				out.PowerGridArr[index] = UWiremodReflection::GetFunctionPowerCircuitResult(elem); break;
+			
 		default: break;
 		}
 	}
