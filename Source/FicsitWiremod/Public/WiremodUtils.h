@@ -4,13 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "FGBuildableDoor.h"
+#include "FGFluidIntegrantInterface.h"
+#include "FGPlayerController.h"
 #include "FGPlayerState.h"
+#include "FGResourceSinkSubsystem.h"
 #include "FGStorySubsystem.h"
 #include "FGTimeSubsystem.h"
+#include "WiremodReflection.h"
 #include "Equipment/FGEquipment.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Kismet/KismetStringLibrary.h"
 #include "Patching/NativeHookManager.h"
 #include "WiremodUtils.generated.h"
+
 
 /**
  * 
@@ -65,19 +71,48 @@ class FICSITWIREMOD_API UWiremodUtils : public UBlueprintFunctionLibrary
 		Buildable->mFactoryTickFunction.bCanEverTick = Enabled;
 	}
 
-	UFUNCTION(BlueprintCallable)
-	static void HookAnimation()
+
+#define WM UWiremodReflection
+#define STR UKismetStringLibrary
+	UFUNCTION(BlueprintPure)
+	static FString GetStringifiedValue(const FNewConnectionData& Value)
 	{
-
-#if !WITH_EDITOR
-		SUBSCRIBE_METHOD(AFGEquipment::ShouldShowStinger, [](auto& Scope, const AFGEquipment* self)
+		switch (Value.ConnectionType)
 		{
-			Scope.Override(true);
-		});
-
-#endif
-		
+		case Unknown: return "?";
+		case Boolean: return WM::GetFunctionBoolResult(Value) ? "True" : "False";
+		case Number: return STR::Conv_FloatToString(WM::GetFunctionNumberResult(Value));
+		case String: return WM::GetFunctionStringResult(Value);
+		case Vector: return STR::Conv_VectorToString(WM::GetFunctionVectorResult(Value));
+		case Inventory: return "?";
+		case PowerGrid: return "?";
+		case Entity:
+			if(auto player = Cast<AFGCharacterPlayer>(WM::GetFunctionEntityResult(Value)))
+			{
+				return UKismetSystemLibrary::GetObjectName(player) + "(Player " + player->GetPlayerState()->GetPlayerName() + ")";
+			}
+			return UKismetSystemLibrary::GetObjectName(WM::GetFunctionEntityResult(Value));
+		case Recipe: return UFGRecipe::GetRecipeName(WM::GetFunctionRecipeResult(Value)).ToString();
+		case Color: return STR::Conv_ColorToString(WM::GetFunctionColorResult(Value));
+		case ArrayOfBoolean: return "[" + STR::Conv_IntToString(WM::GetBoolArray(Value).Num()) + " elements]";
+		case ArrayOfNumber: return "[" + STR::Conv_IntToString(WM::GetNumberArray(Value).Num()) + " elements]";
+		case ArrayOfString: return "[" + STR::Conv_IntToString(WM::GetStringArray(Value).Num()) + " elements]";
+		case ArrayOfVector: return "[" + STR::Conv_IntToString(WM::GetVectorArray(Value).Num()) + " elements]";
+		case ArrayOfEntity: return "[" + STR::Conv_IntToString(WM::GetEntityArray(Value).Num()) + " elements]";
+		case ArrayOfColor: return "[" + STR::Conv_IntToString(WM::GetColorArray(Value).Num()) + " elements]";
+		case ArrayOfInventory: return "[" + STR::Conv_IntToString(WM::GetInventoryArray(Value).Num()) + " elements]";
+		case ArrayOfPowerGrid: return "[" + STR::Conv_IntToString(WM::GetPowerGridArray(Value).Num()) + " elements]";
+		case ArrayOfStack: return "[" + STR::Conv_IntToString(WM::GetItemStackArray(Value).Num()) + " elements]";
+		case ArrayOfRecipe: return "[" + STR::Conv_IntToString(WM::GetRecipeArray(Value).Num()) + " elements]";
+		case Stack: return UFGItemDescriptor::GetItemName(WM::GetFunctionStackResult(Value).Item.GetItemClass()).ToString();
+		case Integer: return STR::Conv_IntToString(WM::GetFunctionNumberResult(Value));
+		case Any: return "How did this happen";
+		case AnyArray: return "How did this happen[]";
+		case AnyNonArray: return "How did this happen {}";
+		default:
+			UE_LOG(LogTemp, Error, TEXT("Failed to find switch case for EConnectionType::%d in function GET_STRINGIFIED_VALUE. Returning default value instead..."), (int)Value.ConnectionType);
+			return "?";
+		}
 	}
-	
 	
 };

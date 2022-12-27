@@ -4,6 +4,7 @@
 #include "WiremodReflection.h"
 
 #include "FGBuildableDoor.h"
+#include "FGCircuitSubsystem.h"
 #include "FGGameState.h"
 #include "FGPipeConnectionComponent.h"
 #include "FGTrainStationIdentifier.h"
@@ -170,6 +171,17 @@ AActor* UWiremodReflection::GetFunctionEntityResult(const FNewConnectionData& da
 	return ProcessFunction(data, params).RetVal;
 }
 
+TSubclassOf<UFGRecipe> UWiremodReflection::GetFunctionRecipeResult(const FNewConnectionData& data)
+{
+	if(IsDynamic(data.Object))
+		return Dynamic(data.Object, data.FunctionName.ToString()).Recipe;
+
+	struct{TSubclassOf<UFGRecipe> RetVal; } params{};
+	return ProcessFunction(data, params).RetVal;
+}
+
+
+
 
 TArray<bool> UWiremodReflection::GetBoolArray(const FNewConnectionData& data)
 {
@@ -249,6 +261,15 @@ TArray<UFGPowerCircuit*> UWiremodReflection::GetPowerGridArray(const FNewConnect
 		return Dynamic(data.Object, data.FunctionName.ToString()).PowerGridArr;
 
 	struct{ TArray<UFGPowerCircuit*> RetVal; } params;
+	return ProcessFunction(data, params).RetVal;
+}
+
+TArray< TSubclassOf<UFGRecipe> > UWiremodReflection::GetRecipeArray(const FNewConnectionData& data)
+{
+	if(IsDynamic(data.Object))
+		return Dynamic(data.Object, data.FunctionName.ToString()).RecipeArr;
+
+	struct{TArray< TSubclassOf<UFGRecipe> > RetVal; } params{};
 	return ProcessFunction(data, params).RetVal;
 }
 
@@ -374,6 +395,7 @@ void UWiremodReflection::SetFunctionNumberValue(const FNewConnectionData& data, 
 	{
 		if(auto railSwitch = Cast<AFGBuildableRailroadSwitchControl>(data.Object))
 		{
+			//If switch is not in the position that we want, switch it to the next one.
 			if(railSwitch->GetSwitchPosition() != trunc(value_)) railSwitch->ToggleSwitchPosition();
 			return;
 		}
@@ -486,6 +508,12 @@ void UWiremodReflection::SetFunctionColorValue(const FNewConnectionData& data, F
 	ProcessFunction(data, params);
 }
 
+void UWiremodReflection::SetFunctionRecipeValue(const FNewConnectionData& data, TSubclassOf<UFGRecipe> value_)
+{
+	struct{TSubclassOf<UFGRecipe> val;} params{value_};
+	ProcessFunction(data, params);
+}
+
 
 void UWiremodReflection::HandleDynamicConnection(const FNewConnectionData& transmitter, const FNewConnectionData& receiver)
 {
@@ -496,6 +524,7 @@ void UWiremodReflection::HandleDynamicConnection(const FNewConnectionData& trans
 	case Integer:SetFunctionNumberValue(receiver, GetFunctionNumberResult(transmitter));break;
 	case String:SetFunctionStringValue(receiver, GetFunctionStringResult(transmitter));break;
 	case Color:SetFunctionColorValue(receiver, GetFunctionColorResult(transmitter));break;
+	case Recipe: SetFunctionRecipeValue(receiver, GetFunctionRecipeResult(transmitter)); break;
 	default: break;
 	}
 }
@@ -507,6 +536,7 @@ void UWiremodReflection::FillDynamicStructFromData(const FNewConnectionData& dat
 	ReturnValue.ConnectionType = data.ConnectionType;
 	switch (data.ConnectionType)
 	{
+	case Unknown: break;
 	case Boolean:ReturnValue.StoredBool = GetFunctionBoolResult(data);break;
 	case Number:
 	case Integer:ReturnValue.StoredFloat = GetFunctionNumberResult(data); break;
@@ -526,7 +556,11 @@ void UWiremodReflection::FillDynamicStructFromData(const FNewConnectionData& dat
 	case ArrayOfStack: ReturnValue.StackArr = GetItemStackArray(data); break;
 	case ArrayOfPowerGrid: ReturnValue.PowerGridArr = GetPowerGridArray(data); break;
 	case ArrayOfInventory: ReturnValue.InventoryArr = GetInventoryArray(data); break;
-	default: break;
+	case Recipe: ReturnValue.Recipe = GetFunctionRecipeResult(data); break;
+	case ArrayOfRecipe: ReturnValue.RecipeArr = GetRecipeArray(data); break;
+	default:
+		UE_LOG(LogTemp, Error, TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function FILL_DYNAMIC_STRUCT"), (int)data.ConnectionType);
+		break;
 	}
 }
 

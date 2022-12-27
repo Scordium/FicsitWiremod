@@ -6,7 +6,6 @@
 #include "WiremodReflection.h"
 #include "Kismet/KismetArrayLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "UObject/Object.h"
 #include "WiremodArrayFuncs.generated.h"
 
 /**
@@ -22,6 +21,7 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 	{
 		switch (in)
 		{
+		case Unknown: return Unknown;
 		case Boolean: return ArrayOfBoolean;
 		case String: return ArrayOfString;
 		case Integer:
@@ -32,7 +32,12 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 		case PowerGrid: return ArrayOfPowerGrid;
 		case Inventory: return ArrayOfInventory;
 		case Stack: return ArrayOfStack;
-		default: return Unknown;
+		case Recipe: return ArrayOfRecipe;
+		case Any: return Any;
+		case AnyNonArray: return AnyArray;
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function BASE_TO_ARRAY"), in);
+			return Unknown;
 		}
 	}
 
@@ -41,6 +46,7 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 	{
 		switch (in)
 		{
+		case Unknown: return Unknown;
 		case ArrayOfBoolean: return Boolean;
 		case ArrayOfNumber: return Number;
 		case ArrayOfString: return String;
@@ -50,7 +56,12 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 		case ArrayOfInventory: return Inventory;
 		case ArrayOfStack: return Stack;
 		case ArrayOfPowerGrid: return PowerGrid;
-		default: return Unknown;
+		case ArrayOfRecipe: return Recipe;
+		case Any: return Any;
+		case AnyArray: return AnyNonArray;
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ARRAY_TO_BASE"), in);
+			return Unknown;
 		}
 	}
 
@@ -68,6 +79,7 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 		case ArrayOfStack:
 		case ArrayOfString:
 		case ArrayOfPowerGrid:
+		case ArrayOfRecipe:
 			return true;
 
 		default: return false;
@@ -128,7 +140,14 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 				out.PowerGrid = arrayData.PowerGridArr[index];
 			break;
 
-		default: break;
+		case ArrayOfRecipe:
+			if(arrayData.RecipeArr.IsValidIndex(index))
+				out.Recipe = arrayData.RecipeArr[index];
+			break;
+		
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function GET_ARRAY_ELEMENT"), (int)out.ConnectionType);
+			break;
 		}
 
 		return out;
@@ -149,7 +168,10 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 		case ArrayOfInventory: return UWiremodReflection::GetInventoryArray(data).Num();
 		case ArrayOfStack: return UWiremodReflection::GetItemStackArray(data).Num();
 		case ArrayOfPowerGrid: return UWiremodReflection::GetPowerGridArray(data).Num();
-		default: return 0;
+		case ArrayOfRecipe: return UWiremodReflection::GetRecipeArray(data).Num();
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ARRAY_LENGTH. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)data.ConnectionType);
+			return 0;
 		}
 	}
 
@@ -170,7 +192,10 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 		case ArrayOfInventory: out.InventoryArr.SetNum(newSize); break;
 		case ArrayOfStack: out.StackArr.SetNum(newSize); break;
 		case ArrayOfPowerGrid: out.PowerGridArr.SetNum(newSize); break;
-		default: break;
+		case ArrayOfRecipe: out.RecipeArr.SetNum(newSize);
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function RESIZE_ARRAY. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
+			break;
 		}
 	}
 
@@ -216,8 +241,14 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 		case ArrayOfPowerGrid:
 			if(out.PowerGridArr.IsValidIndex(index))
 				out.PowerGridArr[index] = UWiremodReflection::GetFunctionPowerCircuitResult(elem); break;
+
+		case ArrayOfRecipe:
+			if(out.RecipeArr.IsValidIndex(index))
+				out.RecipeArr[index] = UWiremodReflection::GetFunctionRecipeResult(elem); break;
 			
-		default: break;
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function SET_ARRAY_ELEMENT. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
+			break;
 		}
 	}
 
@@ -237,7 +268,10 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 		case ArrayOfStack: out.StackArr.Add(UWiremodReflection::GetFunctionStackResult(elem)); break;
 		case ArrayOfInventory: out.InventoryArr.Add(UWiremodReflection::GetFunctionInventory(elem)); break;
 		case ArrayOfPowerGrid: out.PowerGridArr.Add(UWiremodReflection::GetFunctionPowerCircuitResult(elem)); break;
-		default: break;
+		case ArrayOfRecipe: out.RecipeArr.Add(UWiremodReflection::GetFunctionRecipeResult(elem)); break;
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ADD_ARRAY_ELEMENT. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
+			break;
 		}
 	}
 };

@@ -20,7 +20,7 @@ enum EConnectionType
 	Inventory,
 	PowerGrid,
 	Entity,
-	Building,
+	Recipe,
 	Color,
 	ArrayOfBoolean,
 	ArrayOfNumber,
@@ -36,7 +36,8 @@ enum EConnectionType
 	AnyArray,
 	AnyNonArray,
 	ArrayOfPowerGrid,
-	ArrayOfInventory
+	ArrayOfInventory,
+	ArrayOfRecipe
 };
 
 USTRUCT(BlueprintType)
@@ -77,10 +78,10 @@ struct FDynamicValue
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FLinearColor> ColorArr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, NotReplicated)
 	FInventoryStack Stack;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, NotReplicated)
 	TArray<FInventoryStack> StackArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
@@ -101,7 +102,15 @@ struct FDynamicValue
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<AActor*> EntityArr;
 
-	FDynamicValue operator =(const FDynamicValue& other)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TSubclassOf<UFGRecipe> Recipe;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray< TSubclassOf<UFGRecipe> > RecipeArr;
+
+	
+
+	/*FDynamicValue operator =(const FDynamicValue& other)
 	{
 		ConnectionType = other.ConnectionType;
 		StoredBool = other.StoredBool;
@@ -123,7 +132,7 @@ struct FDynamicValue
 		EntityArr = other.EntityArr;
 
 		return *this;
-	}
+	}*/
 };
 
 
@@ -150,17 +159,27 @@ struct FBuildingConnections : public FTableRowBase
 {
 	GENERATED_BODY()
 
+	/**
+	 * The inputs this building has.
+	 * @note If you don't handle connecting the data yourself, or want wiremod to call the function for you, mark the input as Dynamic.
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FBuildingConnection> Inputs;
-	
+
+
+	/**
+	 * The outputs this building has.
+	 * "Dynamic" doesn't do anything in this context.
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FBuildingConnection> Outputs;
 
-	/*
-	 * Whether this buildable acts as a proxy between game systems and wiremod. For example GameTime gate proxies TimeSubsystem.
+	/**
+	 * Fill with the name of the buildable, if this buildable uses a list of connections that already exists.
+	 * Reduces the amount of work required to update each list when a new output/input is added to the vanilla buildings.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool OverrideOutputObject;
+	FName RedirectTo;
 };
 
 
@@ -271,6 +290,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static AActor* GetFunctionEntityResult(const FNewConnectionData& data);
 
+	UFUNCTION(BlueprintCallable)
+	static TSubclassOf<UFGRecipe> GetFunctionRecipeResult(const FNewConnectionData& data);
 
 	//Array Get
 	UFUNCTION(BlueprintCallable)
@@ -299,7 +320,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static TArray<UFGPowerCircuit*> GetPowerGridArray(const FNewConnectionData& data);
-	
+
+	UFUNCTION(BlueprintCallable)
+	static TArray< TSubclassOf<UFGRecipe> > GetRecipeArray(const FNewConnectionData& data);
 	
 	//Set
 	UFUNCTION(BlueprintCallable)
@@ -314,6 +337,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void SetFunctionColorValue(const FNewConnectionData& data, FLinearColor value_);
 
+	UFUNCTION(BlueprintCallable)
+	static void SetFunctionRecipeValue(const FNewConnectionData& data, TSubclassOf<UFGRecipe> recipe);
 
 	//Utility
 	UFUNCTION(BlueprintCallable)
@@ -377,12 +402,12 @@ public:
 	template<typename T>
 	static T ProcessFunction(const FNewConnectionData& data, T params)
 	{
-		if(!IsValid(data.Object)) return params;
-		
-		auto function = GetFunction(data);
-		if(!function) return params;
-		
-		data.Object->ProcessEvent(function, &params);
+		if(IsValid(data.Object))
+		{
+			auto function = GetFunction(data);
+			if(function)
+				data.Object->ProcessEvent(function, &params);
+		}
 		return params;
 	}
 };
