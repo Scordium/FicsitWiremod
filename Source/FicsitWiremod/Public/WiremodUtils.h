@@ -3,15 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGBuildableDoor.h"
-#include "FGFluidIntegrantInterface.h"
+#include "AbstractInstanceManager.h"
 #include "FGPlayerController.h"
 #include "FGPlayerState.h"
-#include "FGResourceSinkSubsystem.h"
 #include "FGStorySubsystem.h"
 #include "FGTimeSubsystem.h"
 #include "WiremodReflection.h"
-#include "Equipment/FGEquipment.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Patching/NativeHookManager.h"
@@ -26,34 +23,16 @@ class FICSITWIREMOD_API UWiremodUtils : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable)
-	static void CallSchematicPurchased(AFGStorySubsystem* storySubsystem, TSubclassOf<UFGSchematic> schematic)
-	{
-		storySubsystem->OnSchematicPurchased(schematic);
-	}
-
-
+public:
 	UFUNCTION(BlueprintCallable)
 	static void SetTime(AFGTimeOfDaySubsystem* subsystem, float hour, float minute, float second)
 	{
-	    hour = (int)hour%24;
-	    minute = (int)minute%60;
-	    second = (int)second%60;
+		hour = (int)hour%24;
+		minute = (int)minute%60;
+		second = (int)second%60;
 	
 		float finalTime = hour * 3600 + minute * 60 + second;
 		subsystem->SetDaySeconds(finalTime);
-	}
-
-	UFUNCTION(BlueprintCallable)
-	static FFactoryCustomizationData InitCustomizationData(FLinearColor primaryColor, FLinearColor secondaryColor, AFGGameState* gameState)
-	{
-		auto data = FFactoryCustomizationData();
-		data.ColorSlot = 254;
-		data.OverrideColorData.PrimaryColor = primaryColor;
-		data.OverrideColorData.SecondaryColor = secondaryColor;
-		data.Initialize(gameState);
-
-		return data;
 	}
 
 	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf))
@@ -84,7 +63,16 @@ class FICSITWIREMOD_API UWiremodUtils : public UBlueprintFunctionLibrary
 		case Number: return STR::Conv_FloatToString(WM::GetFunctionNumberResult(Value));
 		case String: return WM::GetFunctionStringResult(Value);
 		case Vector: return STR::Conv_VectorToString(WM::GetFunctionVectorResult(Value));
-		case Inventory: return "?";
+		case Inventory:
+			{
+				auto inv = WM::GetFunctionInventory(Value);
+				if(!inv) return "Invalid Inv.";
+
+				TArray<FInventoryStack> Stacks;
+				inv->GetInventoryStacks(Stacks);
+				
+				return STR::Conv_IntToString(Stacks.Num()) + "/" + STR::Conv_IntToString(inv->GetSizeLinear()) + " slots occupied";
+			};
 		case PowerGrid: return "?";
 		case Entity:
 			if(auto player = Cast<AFGCharacterPlayer>(WM::GetFunctionEntityResult(Value)))
@@ -115,4 +103,129 @@ class FICSITWIREMOD_API UWiremodUtils : public UBlueprintFunctionLibrary
 		}
 	}
 	
+	
+	static FString GetModReference(UObject* object)
+	{
+		if(!IsValid(object)) return "";
+		TArray<FString> pathParse;
+		UKismetSystemLibrary::GetPathName(object).ParseIntoArray(pathParse, *FString("/"), true);
+		if(pathParse.Num() == 0) return "";
+		
+		return pathParse[0];
+	}
+    
+    	
+	UFUNCTION(BlueprintPure)
+	static FName GetClassName(UClass* inClass)
+	{
+		auto unparsed = UKismetSystemLibrary::GetClassDisplayName(inClass);
+		TArray<FString> Remove = {"Build_", "BP_"};
+		FString ReplaceWith = "";
+		for (FString Element : Remove)
+		{
+			unparsed = unparsed.Replace(*Element, *ReplaceWith);
+		}
+    
+		auto parsed = UKismetStringLibrary::GetSubstring(unparsed, 0, unparsed.Len() - 2);
+    		
+		return FName(parsed);
+	}
+
+
+	UFUNCTION(BlueprintPure)
+	static bool IsValidConnectionPair(EConnectionType Input, EConnectionType Output)
+	{
+		if(Input == Any) return true;
+		if(Input == Output) return true;
+		if(Input == AnyArray) return IsArrayType(Output);
+		if(Input == AnyNonArray) return !IsArrayType(Output);
+		if(Input == Number || Input == Integer) return Output == Number || Output == Integer;
+
+		return false;
+	}
+
+
+	UFUNCTION(BlueprintPure)
+	static EConnectionType BaseToArray(EConnectionType in)
+	{
+		switch (in)
+		{
+		case Unknown: return Unknown;
+		case Boolean: return ArrayOfBoolean;
+		case String: return ArrayOfString;
+		case Integer:
+		case Number: return ArrayOfNumber;
+		case Color: return ArrayOfColor;
+		case Vector: return ArrayOfVector;
+		case Entity: return ArrayOfEntity;
+		case PowerGrid: return ArrayOfPowerGrid;
+		case Inventory: return ArrayOfInventory;
+		case Stack: return ArrayOfStack;
+		case Recipe: return ArrayOfRecipe;
+		case Any: return Any;
+		case AnyNonArray: return AnyArray;
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function BASE_TO_ARRAY"), in);
+			return Unknown;
+		}
+	}
+
+	UFUNCTION(BlueprintPure)
+	static EConnectionType ArrayToBase(EConnectionType in)
+	{
+		switch (in)
+		{
+		case Unknown: return Unknown;
+		case ArrayOfBoolean: return Boolean;
+		case ArrayOfNumber: return Number;
+		case ArrayOfString: return String;
+		case ArrayOfVector: return Vector;
+		case ArrayOfColor: return Color;
+		case ArrayOfEntity: return Entity;
+		case ArrayOfInventory: return Inventory;
+		case ArrayOfStack: return Stack;
+		case ArrayOfPowerGrid: return PowerGrid;
+		case ArrayOfRecipe: return Recipe;
+		case Any: return Any;
+		case AnyArray: return AnyNonArray;
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ARRAY_TO_BASE"), in);
+			return Unknown;
+		}
+	}
+
+	UFUNCTION(BlueprintPure)
+	static bool IsArrayType(EConnectionType type)
+	{
+		switch (type)
+		{
+		case ArrayOfBoolean:
+		case ArrayOfVector:
+		case ArrayOfColor:
+		case ArrayOfEntity:
+		case ArrayOfInventory:
+		case ArrayOfNumber:
+		case ArrayOfStack:
+		case ArrayOfString:
+		case ArrayOfPowerGrid:
+		case ArrayOfRecipe:
+			return true;
+
+		default: return false;
+		}
+	}
+
+
+	UFUNCTION(BlueprintCallable)
+	static AActor* GetActualHitTarget(const FHitResult& hit, FVector& Location)
+	{
+		Location = hit.Location;
+		if(auto abstractHit = Cast<AAbstractInstanceManager>(hit.Actor))
+		{
+			FInstanceHandle handle;
+			abstractHit->ResolveHit(hit, handle);
+			return handle.GetOwner<AActor>();
+		}
+		return hit.Actor.Get();
+	}
 };

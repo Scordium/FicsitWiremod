@@ -31,7 +31,8 @@ public class FicsitWiremod : ModuleRules
             "AnimGraphRuntime",
             "Slate", 
             "SlateCore",
-            "Json"
+            "Json",
+            "AbstractInstance"
             });
 
 

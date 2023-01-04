@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "WiremodReflection.h"
+#include "WiremodUtils.h"
 #include "Kismet/KismetArrayLibrary.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "WiremodArrayFuncs.generated.h"
 
 /**
@@ -15,86 +15,19 @@ UCLASS()
 class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
-
-	UFUNCTION(BlueprintPure)
-	static EConnectionType BaseToArray(EConnectionType in)
-	{
-		switch (in)
-		{
-		case Unknown: return Unknown;
-		case Boolean: return ArrayOfBoolean;
-		case String: return ArrayOfString;
-		case Integer:
-		case Number: return ArrayOfNumber;
-		case Color: return ArrayOfColor;
-		case Vector: return ArrayOfVector;
-		case Entity: return ArrayOfEntity;
-		case PowerGrid: return ArrayOfPowerGrid;
-		case Inventory: return ArrayOfInventory;
-		case Stack: return ArrayOfStack;
-		case Recipe: return ArrayOfRecipe;
-		case Any: return Any;
-		case AnyNonArray: return AnyArray;
-		default:
-			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function BASE_TO_ARRAY"), in);
-			return Unknown;
-		}
-	}
-
-	UFUNCTION(BlueprintPure)
-	static EConnectionType ArrayToBase(EConnectionType in)
-	{
-		switch (in)
-		{
-		case Unknown: return Unknown;
-		case ArrayOfBoolean: return Boolean;
-		case ArrayOfNumber: return Number;
-		case ArrayOfString: return String;
-		case ArrayOfVector: return Vector;
-		case ArrayOfColor: return Color;
-		case ArrayOfEntity: return Entity;
-		case ArrayOfInventory: return Inventory;
-		case ArrayOfStack: return Stack;
-		case ArrayOfPowerGrid: return PowerGrid;
-		case ArrayOfRecipe: return Recipe;
-		case Any: return Any;
-		case AnyArray: return AnyNonArray;
-		default:
-			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ARRAY_TO_BASE"), in);
-			return Unknown;
-		}
-	}
-
-	UFUNCTION(BlueprintPure)
-	static bool IsArrayType(EConnectionType type)
-	{
-		switch (type)
-		{
-		case ArrayOfBoolean:
-		case ArrayOfVector:
-		case ArrayOfColor:
-		case ArrayOfEntity:
-		case ArrayOfInventory:
-		case ArrayOfNumber:
-		case ArrayOfStack:
-		case ArrayOfString:
-		case ArrayOfPowerGrid:
-		case ArrayOfRecipe:
-			return true;
-
-		default: return false;
-		}
-	}
+public:
+	
 
 	UFUNCTION(BlueprintCallable)
 	static FDynamicValue GetArrayElement(const FNewConnectionData& data, int index)
 	{
 		auto out = FDynamicValue();
-		out.ConnectionType = ArrayToBase(data.ConnectionType);
+		out.ConnectionType = UWiremodUtils::ArrayToBase(data.ConnectionType);
 		FDynamicValue arrayData;
 		UWiremodReflection::FillDynamicStructFromData(data, arrayData);
 		switch (data.ConnectionType)
 		{
+		case Unknown: break;
 		case ArrayOfBoolean:
 			if(arrayData.BoolArr.IsValidIndex(index))
 				out.StoredBool = arrayData.BoolArr[index];
@@ -159,6 +92,7 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 	{
 		switch (data.ConnectionType)
 		{
+		case Unknown: return 0;
 		case ArrayOfBoolean: return UWiremodReflection::GetBoolArray(data).Num();
 		case ArrayOfNumber: return UWiremodReflection::GetNumberArray(data).Num();
 		case ArrayOfString: return UWiremodReflection::GetStringArray(data).Num();
@@ -180,9 +114,9 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 	{
 		out = original;
 		
-		newSize = UKismetMathLibrary::Clamp(newSize, 0, 100);
 		switch (out.ConnectionType)
 		{
+		case Unknown: break;
 		case ArrayOfBoolean: out.BoolArr.SetNum(newSize); break;
 		case ArrayOfNumber: out.NumberArr.SetNum(newSize); break;
 		case ArrayOfString: out.StringArr.SetNum(newSize); break;
@@ -206,6 +140,7 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 		out = original;
 		switch (out.ConnectionType)
 		{
+		case Unknown: break;
 		case ArrayOfBoolean:
 			if(out.BoolArr.IsValidIndex(index))
 				out.BoolArr[index] = UWiremodReflection::GetFunctionBoolResult(elem); break;
@@ -259,6 +194,7 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 
 		switch (out.ConnectionType)
 		{
+		case Unknown: break;
 		case ArrayOfBoolean: out.BoolArr.Add(UWiremodReflection::GetFunctionBoolResult(elem)); break;
 		case ArrayOfNumber: out.NumberArr.Add(UWiremodReflection::GetFunctionNumberResult(elem)); break;
 		case ArrayOfString: out.StringArr.Add(UWiremodReflection::GetFunctionStringResult(elem)); break;
@@ -274,4 +210,97 @@ class FICSITWIREMOD_API UWiremodArrayFuncs : public UBlueprintFunctionLibrary
 			break;
 		}
 	}
+
+
+	UFUNCTION(BlueprintCallable)
+	static void RemoveArrayElement(const FDynamicValue& original, const FNewConnectionData& indexData, FDynamicValue& out)
+	{
+		out = original;
+		const int Index = UWiremodReflection::GetFunctionNumberResult(indexData);
+		
+		switch (out.ConnectionType)
+		{
+		case Unknown: break;
+		case ArrayOfBoolean:
+			if(out.BoolArr.IsValidIndex(Index))
+				out.BoolArr.RemoveAt(Index); break;
+		case ArrayOfNumber:
+			if(out.NumberArr.IsValidIndex(Index))
+				out.NumberArr.RemoveAt(Index); break;
+		case ArrayOfString:
+			if(out.StringArr.IsValidIndex(Index))
+				out.StringArr.RemoveAt(Index); break;
+		case ArrayOfColor:
+			if(out.ColorArr.IsValidIndex(Index))
+				out.ColorArr.RemoveAt(Index); break;
+		case ArrayOfEntity:
+			if(out.EntityArr.IsValidIndex(Index))
+				out.EntityArr.RemoveAt(Index); break;
+		case ArrayOfVector:
+			if(out.VectorArr.IsValidIndex(Index))
+				out.VectorArr.RemoveAt(Index); break;
+		case ArrayOfStack:
+			if(out.StackArr.IsValidIndex(Index))
+				out.StackArr.RemoveAt(Index); break;
+		case ArrayOfInventory:
+			if(out.InventoryArr.IsValidIndex(Index))
+				out.InventoryArr.RemoveAt(Index); break;
+		case ArrayOfPowerGrid:
+			if(out.PowerGridArr.IsValidIndex(Index))
+				out.PowerGridArr.RemoveAt(Index); break;
+		case ArrayOfRecipe:
+			if(out.RecipeArr.IsValidIndex(Index))
+				out.RecipeArr.RemoveAt(Index); break;
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function REMOVE_ARRAY_ELEMENT. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
+			break;
+		}
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static void InsertArrayElement(const FDynamicValue& original, const FNewConnectionData& element, const FNewConnectionData& indexData, FDynamicValue& out)
+	{
+		out = original;
+		int Index = UWiremodReflection::GetFunctionNumberResult(indexData);
+		
+		
+		switch (out.ConnectionType)
+		{
+		case Unknown: break;
+		case ArrayOfBoolean:
+			if(out.BoolArr.IsValidIndex(Index))
+				out.BoolArr.Insert(UWiremodReflection::GetFunctionBoolResult(element), Index); break;
+		case ArrayOfNumber:
+			if(out.NumberArr.IsValidIndex(Index))
+				out.NumberArr.Insert(UWiremodReflection::GetFunctionNumberResult(element), Index); break;
+		case ArrayOfString:
+			if(out.StringArr.IsValidIndex(Index))
+				out.StringArr.Insert(UWiremodReflection::GetFunctionStringResult(element), Index); break;
+		case ArrayOfColor:
+			if(out.ColorArr.IsValidIndex(Index))
+				out.ColorArr.Insert(UWiremodReflection::GetFunctionColorResult(element), Index); break;
+		case ArrayOfEntity:
+			if(out.EntityArr.IsValidIndex(Index))
+				out.EntityArr.Insert(UWiremodReflection::GetFunctionEntityResult(element), Index); break;
+		case ArrayOfVector:
+			if(out.VectorArr.IsValidIndex(Index))
+				out.VectorArr.Insert(UWiremodReflection::GetFunctionVectorResult(element), Index); break;
+		case ArrayOfStack:
+			if(out.StackArr.IsValidIndex(Index))
+				out.StackArr.Insert(UWiremodReflection::GetFunctionStackResult(element), Index); break;
+		case ArrayOfInventory:
+			if(out.InventoryArr.IsValidIndex(Index))
+				out.InventoryArr.Insert(UWiremodReflection::GetFunctionInventory(element), Index); break;
+		case ArrayOfPowerGrid:
+			if(out.PowerGridArr.IsValidIndex(Index))
+				out.PowerGridArr.Insert(UWiremodReflection::GetFunctionPowerCircuitResult(element), Index); break;
+		case ArrayOfRecipe:
+			if(out.RecipeArr.IsValidIndex(Index))
+				out.RecipeArr.Insert(UWiremodReflection::GetFunctionRecipeResult(element), Index); break;
+		default:
+			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function INSERT_ARRAY_ELEMENT. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
+			break;
+		}
+	}
+	
 };
