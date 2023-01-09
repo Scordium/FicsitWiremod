@@ -8,6 +8,7 @@
 #include "FGPlayerState.h"
 #include "FGStorySubsystem.h"
 #include "FGTimeSubsystem.h"
+#include "FGWorldSettings.h"
 #include "WiremodReflection.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
@@ -75,11 +76,18 @@ public:
 			};
 		case PowerGrid: return "?";
 		case Entity:
-			if(auto player = Cast<AFGCharacterPlayer>(WM::GetFunctionEntityResult(Value)))
 			{
-				return UKismetSystemLibrary::GetObjectName(player) + "(Player " + player->GetPlayerState()->GetPlayerName() + ")";
+				auto entity = WM::GetFunctionEntityResult(Value);
+				auto objectName = UKismetSystemLibrary::GetObjectName(entity);
+				
+				if(auto player = Cast<AFGCharacterPlayer>(entity))
+				{
+					//Check if the player state is valid. If the player is offline it will be null and crash if not handled properly
+					if(auto state = player->GetPlayerState()) return objectName + "(Player " + state->GetPlayerName() + ")";
+					return UKismetSystemLibrary::GetObjectName(player) + "(Offline player)";
+				}
+				return UKismetSystemLibrary::GetObjectName(entity);
 			}
-			return UKismetSystemLibrary::GetObjectName(WM::GetFunctionEntityResult(Value));
 		case Recipe: return UFGRecipe::GetRecipeName(WM::GetFunctionRecipeResult(Value)).ToString();
 		case Color: return STR::Conv_ColorToString(WM::GetFunctionColorResult(Value));
 		case ArrayOfBoolean: return "[" + STR::Conv_IntToString(WM::GetBoolArray(Value).Num()) + " elements]";
@@ -135,15 +143,15 @@ public:
 	UFUNCTION(BlueprintPure)
 	static bool IsValidConnectionPair(EConnectionType Input, EConnectionType Output)
 	{
+		if(Input == Unknown || Output == Unknown) return false;
 		if(Input == Any) return true;
 		if(Input == Output) return true;
 		if(Input == AnyArray) return IsArrayType(Output);
 		if(Input == AnyNonArray) return !IsArrayType(Output);
 		if(Input == Number || Input == Integer) return Output == Number || Output == Integer;
-
+		
 		return false;
 	}
-
 
 	UFUNCTION(BlueprintPure)
 	static EConnectionType BaseToArray(EConnectionType in)
@@ -227,5 +235,14 @@ public:
 			return handle.GetOwner<AActor>();
 		}
 		return hit.Actor.Get();
+	}
+
+	UFUNCTION(BlueprintPure)
+	static bool HasNoteData(const FBuildableNote& note){ return note.Text.ToString().Len() > 0; }
+
+	UFUNCTION(BlueprintCallable)
+	static void CopyTextToClipboard(FString text)
+	{
+		FPlatformMisc::ClipboardCopy(*text);
 	}
 };

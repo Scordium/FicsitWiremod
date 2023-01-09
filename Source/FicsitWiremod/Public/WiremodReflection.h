@@ -152,6 +152,27 @@ struct FBuildingConnection : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	bool Dynamic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(MultiLine="true"))
+	FText Description;
+};
+
+USTRUCT(BlueprintType)
+struct FBuildableNote
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MultiLine="true"))
+	FText Text;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor Color1 = FLinearColor(0.783538, 0.291771, 0.059511, 1);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor Color2;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool Animated;
 };
 
 USTRUCT(BlueprintType)
@@ -180,6 +201,14 @@ struct FBuildingConnections : public FTableRowBase
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FName RedirectTo;
+
+	/**
+	 * Note to show to the user when they aim at the buildable
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FBuildableNote Note;
+
+	
 };
 
 
@@ -227,6 +256,15 @@ public:
 		return Object == other.Object
 		&& FunctionName == other.FunctionName
 		&& DisplayName == other.DisplayName;
+	}
+
+
+	FNewConnectionData(){};
+
+	FNewConnectionData(UObject* object, FName functionName)
+	{
+		this->Object = object;
+		this->FunctionName = functionName;
 	}
 };
 
@@ -342,15 +380,15 @@ public:
 
 	//Utility
 	UFUNCTION(BlueprintCallable)
-	static void HandleDynamicConnections(TArray<FDynamicConnectionData> connections)
+	static void HandleDynamicConnections(TArray<FDynamicConnectionData> connections, bool& NoneWereValid)
 	{
+		NoneWereValid = true;
 		for (auto ConnectionData : connections)
 		{
 			bool HasNullPtr = !ConnectionData.Transmitter.Object || !ConnectionData.Receiver.Object;
-			bool HasInvalid = !IsValid(ConnectionData.Transmitter.Object) || !IsValid(ConnectionData.Receiver.Object);
-		
-			if(HasNullPtr || HasInvalid) continue;
-		
+			if(HasNullPtr) continue;
+
+			NoneWereValid = false;
 			HandleDynamicConnection(ConnectionData.Transmitter, ConnectionData.Receiver);
 		}
 	}
@@ -373,6 +411,19 @@ public:
 		return function;
 	}
 
+	UFUNCTION(BlueprintCallable)
+	static void PrintAllFunctions(UObject* object)
+	{
+		for ( TFieldIterator<UFunction> FIT ( object->GetClass(), EFieldIteratorFlags::IncludeSuper ); FIT; ++FIT) {
+
+			UFunction* Function = *FIT;
+			TMap<FString, FString> properties;
+			Function->GetNativePropertyValues(properties);
+			UE_LOG(LogTemp, Warning, TEXT("[WIREMOD REFLECTION] FUNCTION: %s"), *Function->GetName())
+			for (TTuple<FString, FString> Property : properties) {UE_LOG(LogTemp, Warning, TEXT("%s -> %s"), *Property.Key, *Property.Value);}
+		}
+	}
+
 
 
 	//Utility function to add backwards compatibility. Before this was done manually, so the function could have invalid info.
@@ -380,10 +431,7 @@ public:
 
 	static bool IsInteger(const FNewConnectionData& data)
 	{
-		auto checkData = FNewConnectionData();
-		checkData.Object = data.Object;
-		checkData.FunctionName = "netFunc_getFunctionReturnType";
-
+		auto checkData = FNewConnectionData(data.Object, "netFunc_getFunctionReturnType");
 		auto function = GetFunction(checkData);
 		if(!function) return data.ConnectionType == Integer;
 

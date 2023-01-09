@@ -7,6 +7,8 @@
 #include "WiremodUtils.h"
 #include "Buildables/FGBuildable.h"
 #include "Engine/DataTable.h"
+#include "HAL/FileManagerGeneric.h"
+#include "Kismet/DataTableFunctionLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Subsystem/ModSubsystem.h"
 #include "UObject/Object.h"
@@ -16,11 +18,11 @@ USTRUCT(BlueprintType)
 struct FWiremodAPIData
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly)
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<FString, UDataTable*> ConnectionLists;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UDataTable* FactoryGameList;
 	
 };
@@ -34,8 +36,8 @@ UCLASS(BlueprintType, Blueprintable, Abstract)
 class FICSITWIREMOD_API AWiremodAPI : public AModSubsystem
 {
 	GENERATED_BODY()
-	
-	UPROPERTY(EditDefaultsOnly)
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FWiremodAPIData Data;
 	
 	UFUNCTION(BlueprintCallable)
@@ -108,4 +110,6 @@ class FICSITWIREMOD_API AWiremodAPI : public AModSubsystem
 
 		return FindRedirectedList(row->RedirectTo.ToString());
 	}
+
+	
 };
