@@ -7,6 +7,7 @@
 #include "WiremodUtils.h"
 #include "Buildables/FGBuildable.h"
 #include "Engine/DataTable.h"
+#include "Engine/Private/DataTableJSON.h"
 #include "HAL/FileManagerGeneric.h"
 #include "Kismet/DataTableFunctionLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
@@ -40,6 +41,69 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FWiremodAPIData Data;
 	
+	FString ForceFileUsePrefix = "WMOD_FORCEUSE_";
+	
+	virtual void BeginPlay() override
+	{
+		ParseLists();
+	}
+
+	UFUNCTION(BlueprintCallable)
+	FString ParseLists(bool ForceOverwrite = false)
+	{
+		FString ErrorList;
+
+		
+		auto path = FPaths::ProjectDir() + "/WiremodAPI";
+		
+		if(!FFileManagerGeneric::Get().DirectoryExists(*path))
+		{
+			FFileManagerGeneric::Get().MakeDirectory(*path);
+			FString PlaceholderFile = 
+			"This is a folder for wiremod API lists!\nDrop your JSON table in this folder and wiremod will attempt to add connections to buildings.\n"
+			"The file name must match the mod reference! i.e. Wiremod's mod reference is \"FicsitWiremod\"\n"
+			"In case wiremod already integrated the mod in question but you still want to use your own data list, you can force the file to be used as a data table by prefixing the file with \"" + ForceFileUsePrefix + "\"";
+
+			FFileHelper::SaveStringToFile(PlaceholderFile, *FString(path + "/README.txt"));
+		}
+
+
+		TArray<FString> Files;
+		FFileManagerGeneric::Get().FindFiles(Files, *path, *FString("json"));
+		int successParse = 0;
+		for (FString File : Files)
+		{
+			UDataTable* table = NewObject<UDataTable>();
+			table->RowStruct = FBuildingConnections::StaticStruct();
+	
+			FString json;
+			FFileHelper::LoadFileToString(json, *FString(path + "/" + File));
+			auto parseErrors = table->CreateTableFromJSONString(json);
+			
+			if(parseErrors.Num() != 0)
+			{
+				for (FString Error : parseErrors)
+				{
+					UE_LOG(LogTemp, Error, TEXT("[WIREMOD API] There was an error when trying to parse file %s: %s"), *File, *Error)
+					ErrorList.Append("[" + File + "]: " + Error + "\n");
+				}
+				continue;
+			} else successParse++;
+
+
+			FString modRef = File
+			.Replace(*ForceFileUsePrefix, *FString())
+			.Replace(*FString(".json"), *FString(""));
+			
+			AddList(modRef, table, File.StartsWith(ForceFileUsePrefix) || ForceOverwrite);
+		}
+	
+		UE_LOG(LogTemp, Warning, TEXT("[WIREMOD API] Finished parsing lists. Parsed without errors %d out of %d lists"), successParse, Files.Num())
+		return ErrorList.Len() > 0 ? ErrorList : "Successfully parsed all lists!";
+	}
+	
+	
+	
 	UFUNCTION(BlueprintCallable)
 	void AddLists(TMap<FString, UDataTable*> lists, UDataTable* factoryGameList, bool override)
 	{
@@ -49,6 +113,15 @@ public:
 			if(Data.ConnectionLists.Contains(List.Key) && !override) continue;
 			Data.ConnectionLists.Add(List);
 		}
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void AddList(FString modReference, UDataTable* list, bool allowOverwrite = false)
+	{
+		if(Data.ConnectionLists.Contains(modReference) && !allowOverwrite) return;
+
+		UE_LOG(LogTemp, Warning, TEXT("[WIREMOD API] New connections list was added at runtime. {Mod reference:%s | Entries count:%d}"), *modReference, list->GetRowNames().Num())
+		Data.ConnectionLists.Add(modReference, list);
 	}
 
 	UFUNCTION(BlueprintPure)
@@ -111,5 +184,6 @@ public:
 		return FindRedirectedList(row->RedirectTo.ToString());
 	}
 
+	
 	
 };

@@ -37,7 +37,8 @@ enum EConnectionType
 	AnyNonArray,
 	ArrayOfPowerGrid,
 	ArrayOfInventory,
-	ArrayOfRecipe
+	ArrayOfRecipe,
+	NonReferenceable
 };
 
 USTRUCT(BlueprintType)
@@ -84,16 +85,16 @@ struct FDynamicValue
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, NotReplicated)
 	TArray<FInventoryStack> StackArr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UFGInventoryComponent* Inventory;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UFGInventoryComponent*> InventoryArr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UFGPowerCircuit* PowerGrid;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UFGPowerCircuit*> PowerGridArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
@@ -107,32 +108,6 @@ struct FDynamicValue
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray< TSubclassOf<UFGRecipe> > RecipeArr;
-
-	
-
-	/*FDynamicValue operator =(const FDynamicValue& other)
-	{
-		ConnectionType = other.ConnectionType;
-		StoredBool = other.StoredBool;
-		BoolArr = other.BoolArr;
-		StoredFloat = other.StoredFloat;
-		NumberArr = other.NumberArr;
-		StoredString = other.StoredString;
-		StringArr = other.StringArr;
-		StoredVector = other.StoredVector;
-		VectorArr = other.VectorArr;
-		StoredColor = other.StoredColor;
-		Stack = other.Stack;
-		StackArr = other.StackArr;
-		Inventory = other.Inventory;
-		InventoryArr = other.InventoryArr;
-		PowerGrid = other.PowerGrid;
-		PowerGridArr = other.PowerGridArr;
-		Entity = other.Entity;
-		EntityArr = other.EntityArr;
-
-		return *this;
-	}*/
 };
 
 
@@ -140,19 +115,45 @@ USTRUCT(BlueprintType)
 struct FBuildingConnection : public FTableRowBase
 {
 	GENERATED_BODY()
-	
+
+	/**
+	 * Display name for this connection that wiremod will display to the user
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FString DisplayName;
 
+	/**
+	 * Function/property name that wiremod will call/read to get the value for it's own use
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FName FunctionName;
 
+	
+    /**
+     * The type of value this function/property returns/stores
+     * Setting this to an incorrect type might cause crashes
+     */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TEnumAsByte<EConnectionType> ConnectionType;
 
+
+	/**
+	 * Set this to true if you don't handle connecting the data yourself, or want wiremod to call the function for you.
+	 * For output: Does nothing
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	bool Dynamic;
 
+	/**
+	 * Whether wiremod should skip trying to find the function with "FunctionName" and just directly try to get the value from property.
+	 * Wiremod will try to find a property with such name anyway in case a function was not found.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool FromProperty;
+	
+	/**
+	 * Description that the user will see in the UI, pretty useless as localization is not possible unless set up by the dev.
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(MultiLine="true"))
 	FText Description;
 };
@@ -162,17 +163,23 @@ struct FBuildableNote
 {
 	GENERATED_BODY()
 
+	/**
+	 * Text for the note, pretty useless as localization is not possible unless set up by the dev.
+	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MultiLine="true"))
 	FText Text;
 
+	/**
+	 * Color for the note
+	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FLinearColor Color1 = FLinearColor(0.783538, 0.291771, 0.059511, 1);
 
+	/**
+	 * Whether note should "blink". This will be ignored if the user enabled photoepilepsy mode.
+	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FLinearColor Color2;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool Animated;
+	bool Animated = false;
 };
 
 USTRUCT(BlueprintType)
@@ -182,7 +189,6 @@ struct FBuildingConnections : public FTableRowBase
 
 	/**
 	 * The inputs this building has.
-	 * @note If you don't handle connecting the data yourself, or want wiremod to call the function for you, mark the input as Dynamic.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FBuildingConnection> Inputs;
@@ -190,13 +196,16 @@ struct FBuildingConnections : public FTableRowBase
 
 	/**
 	 * The outputs this building has.
-	 * "Dynamic" doesn't do anything in this context.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FBuildingConnection> Outputs;
 
 	/**
-	 * Fill with the name of the buildable, if this buildable uses a list of connections that already exists.
+	 * Fill with the mod reference and name of the buildable, if this buildable uses a list of connections that already exists.
+	 * Schema: ModRef__BuildableName.
+	 * Note: You need to use double underscore (`_`) to separate mod reference from buildable name
+	 * Note: Buildable name should not contain the following prefixes: "Build_", "BP_". For example if your buildable is called "Build_SuperCoolSmelter", you should only leave the "SuperCoolSmelter" part.
+	 * Example: Satisfactory's mod reference is "Game"
 	 * Reduces the amount of work required to update each list when a new output/input is added to the vanilla buildings.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
@@ -204,6 +213,7 @@ struct FBuildingConnections : public FTableRowBase
 
 	/**
 	 * Note to show to the user when they aim at the buildable
+	 * Useless to other mod devs unless shared with wiremod developer.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FBuildableNote Note;
@@ -237,6 +247,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FVector> WirePositions;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool FromProperty;
 	
 	FNewConnectionData operator =(const FNewConnectionData& data)
 	{
@@ -247,6 +260,7 @@ public:
 		WireColor = data.WireColor;
 		WireHidden = data.WireHidden;
 		WirePositions = data.WirePositions;
+		FromProperty = data.FromProperty;
 
 		return *this;
 	}
@@ -265,6 +279,12 @@ public:
 	{
 		this->Object = object;
 		this->FunctionName = functionName;
+	}
+
+
+	static bool ReadAsBool(const FNewConnectionData& In)
+	{
+		
 	}
 };
 
@@ -305,62 +325,122 @@ public:
 	static bool GetFunctionBoolResult(const FNewConnectionData& data, bool defaultValue = false);
 
 	UFUNCTION(BlueprintCallable)
+	static bool GetBoolFromProperty(const FNewConnectionData& data, bool defaultValue = false);
+	
+	UFUNCTION(BlueprintCallable)
 	static FString GetFunctionStringResult(const FNewConnectionData& data, FString defaultValue = "");
+	
+	UFUNCTION(BlueprintCallable)
+	static FString GetStringFromProperty(const FNewConnectionData& data, FString defaultValue = "");
 	
 	UFUNCTION(BlueprintCallable)
 	static float GetFunctionNumberResult(const FNewConnectionData& data, float defaultValue = 0);
 
 	UFUNCTION(BlueprintCallable)
+	static float GetNumberFromProperty(const FNewConnectionData& data, float defaultValue = 0);
+	
+	UFUNCTION(BlueprintCallable)
 	static FVector GetFunctionVectorResult(const FNewConnectionData& data, FVector defaultValue = FVector::ZeroVector);
 
 	UFUNCTION(BlueprintCallable)
+	static FVector GetVectorFromProperty(const FNewConnectionData& data, FVector defaultValue = FVector::ZeroVector);
+	
+	UFUNCTION(BlueprintCallable)
 	static FLinearColor GetFunctionColorResult(const FNewConnectionData& data, FLinearColor defaultValue = FLinearColor::Black);
+
+	UFUNCTION(BlueprintCallable)
+	static FLinearColor GetColorFromProperty(const FNewConnectionData& data, FLinearColor defaultValue = FLinearColor::Black);
 	
 	UFUNCTION(BlueprintCallable)
 	static UFGInventoryComponent* GetFunctionInventory(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
+	static UFGInventoryComponent* GetInventoryFromProperty(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
 	static FInventoryStack GetFunctionStackResult(const FNewConnectionData& data);
 
+	UFUNCTION(BlueprintCallable)
+	static FInventoryStack GetItemStackFromProperty(const FNewConnectionData& data);
+	
 	UFUNCTION(BlueprintCallable)
 	static UFGPowerCircuit* GetFunctionPowerCircuitResult(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
+	static UFGPowerCircuit* GetPowerCircuitFromProperty(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
 	static AActor* GetFunctionEntityResult(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
+	static AActor* GetEntityFromProperty(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
 	static TSubclassOf<UFGRecipe> GetFunctionRecipeResult(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TSubclassOf<UFGRecipe> GetRecipeFromProperty(const FNewConnectionData& data);
 
 	//Array Get
 	UFUNCTION(BlueprintCallable)
 	static TArray<bool> GetBoolArray(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
+	static TArray<bool> GetBoolArrayFromProperty(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
 	static TArray<FString> GetStringArray(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FString> GetStringArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<float> GetNumberArray(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
+	static TArray<float> GetNumberArrayFromProperty(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
 	static TArray<FVector> GetVectorArray(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FVector> GetVectorArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<FLinearColor> GetColorArray(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FLinearColor> GetColorArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<UFGInventoryComponent*> GetInventoryArray(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
+	static TArray<UFGInventoryComponent*> GetInventoryArrayFromProperty(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
 	static TArray<FInventoryStack> GetItemStackArray(const FNewConnectionData& data);
 
+	UFUNCTION(BlueprintCallable)
+	static TArray<FInventoryStack> GetItemStackArrayFromProperty(const FNewConnectionData& data);
+	
 	UFUNCTION(BlueprintCallable)
 	static TArray<AActor*> GetEntityArray(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
+	static TArray<AActor*> GetEntityArrayFromProperty(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
 	static TArray<UFGPowerCircuit*> GetPowerGridArray(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
+	static TArray<UFGPowerCircuit*> GetPowerGridArrayFromProperty(const FNewConnectionData& data);
+	
+	UFUNCTION(BlueprintCallable)
 	static TArray< TSubclassOf<UFGRecipe> > GetRecipeArray(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<TSubclassOf<UFGRecipe> > GetRecipeArrayFromProperty(const FNewConnectionData& data);
 	
 	//Set
 	UFUNCTION(BlueprintCallable)
@@ -447,15 +527,33 @@ public:
 		return params.TypeInt == EConnectionType::Integer;
 	}
 
-	template<typename T>
-	static T ProcessFunction(const FNewConnectionData& data, T params)
+
+	/**
+	 * Calls `ProcessEvent` on the object stored in data with params
+	 * @returns Whether the function was called successfully
+	 */
+	static bool ProcessFunction(const FNewConnectionData& data, void* params)
 	{
 		if(IsValid(data.Object))
 		{
 			auto function = GetFunction(data);
 			if(function)
-				data.Object->ProcessEvent(function, &params);
+			{
+				data.Object->ProcessEvent(function, params);
+				return true;
+			}
 		}
-		return params;
+		return false;
+	}
+
+	/*
+	 * Tries to find a function with name "FunctionName", returns nullpeter if the object is not valid or the property does not exist
+	 */
+	template<typename T>
+	static T* GetProperty(const FNewConnectionData& data) 
+	{
+		if(!data.Object) return nullptr;
+
+		return CastField<T>(data.Object->GetClass()->FindPropertyByName(data.FunctionName));
 	}
 };

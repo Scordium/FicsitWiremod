@@ -22,7 +22,7 @@ public:
 		struct{ FString arg1; int32 elementIndex; } params{ text,elementIndex};
 
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetText");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -30,7 +30,7 @@ public:
 	{
 		struct{ FVector2D arg1; int32 elementIndex; } params{ size,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetImageSize");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -38,7 +38,7 @@ public:
 	{
 		struct{ FVector2D arg1; int32 elementIndex;} params{ size,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetOverwriteImageSize");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -46,7 +46,7 @@ public:
 	{
 		struct{ bool arg1; int32 elementIndex; } params{ IsStep,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetPannerType");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -54,7 +54,7 @@ public:
 	{
 		struct{ float arg1; int32 elementIndex; } params{ frequenz,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetStepFrequenz");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 		
 	}
 
@@ -63,7 +63,7 @@ public:
 	{
 		struct{ FLinearColor arg1; } params{ animationData};
 		auto data = FNewConnectionData(sign, "netFunc_Material_SetAnimation");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -71,7 +71,7 @@ public:
 	{
 		struct{ FLinearColor arg1; int32 elementIndex; } params{ color,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetColor");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -79,7 +79,7 @@ public:
 	{
 		struct{ float arg1; int32 elementIndex; } params{opacity, elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetOpacity");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -87,7 +87,7 @@ public:
 	{
 		struct{ float arg1; int32 elementIndex; } params{ rotation,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetRotation");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -95,7 +95,7 @@ public:
 	{
 		struct{ UTexture* arg1; int32 elementIndex; } params{ texture,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetTexture");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -103,7 +103,7 @@ public:
 	{
 		struct{ int arg1; int32 elementIndex; } params{ size,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetTextSize");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -111,7 +111,7 @@ public:
 	{
 		struct{ bool arg1; int32 elementIndex; } params{isBold, elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetIsBold");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -119,7 +119,7 @@ public:
 	{
 		struct{ bool arg1; int32 elementIndex; } params{ isUppercase,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetUppercase");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -127,7 +127,7 @@ public:
 	{
 		struct{ int arg1; int32 elementIndex; } params{ justify,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetJustify");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -135,7 +135,7 @@ public:
 	{
 		struct{ int arg1; int32 elementIndex; } params{ zIndex,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetZIndex");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -143,7 +143,7 @@ public:
 	{
 		struct{ FVector2D arg1; int32 elementIndex; } params{ position,elementIndex};
 		auto data = FNewConnectionData(sign, "netFunc_Element_SetPosition");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -151,7 +151,7 @@ public:
 	{
 		struct{ FLinearColor arg1; } params{ color};
 		auto data = FNewConnectionData(sign, "netFunc_SetSignBackgroundColor");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 	
 	UFUNCTION(BlueprintCallable)
@@ -159,7 +159,7 @@ public:
 	{
 		struct{ float arg1; } params{ emissive};
 		auto data = FNewConnectionData(sign, "netFunc_SetSignEmmisive");
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -167,7 +167,8 @@ public:
 	{
 		struct{ int ReturnValue; } params{};
 		auto data = FNewConnectionData(sign, "netFunc_GetNumOfElements");
-		return UWiremodReflection::ProcessFunction(data, params).ReturnValue;
+		UWiremodReflection::ProcessFunction(data, &params);
+		return params.ReturnValue;
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -175,7 +176,8 @@ public:
 	{
 		struct{ int type; int ReturnValue; } params{type};
 		auto data = FNewConnectionData(sign, "netFunc_GetNumOfElementsOfType");
-		return UWiremodReflection::ProcessFunction(data, params).ReturnValue;
+		UWiremodReflection::ProcessFunction(data, &params);
+		return params.ReturnValue;
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -183,6 +185,7 @@ public:
 	{
 		struct{ int ReturnValue; } params{};
 		auto data = FNewConnectionData(sign, "netFunc_GetSignType");
-		return UWiremodReflection::ProcessFunction(data, params).ReturnValue;
+		UWiremodReflection::ProcessFunction(data, &params);
+		return params.ReturnValue;
 	}
 };

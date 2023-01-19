@@ -8,7 +8,6 @@
 #include "FGPlayerState.h"
 #include "FGStorySubsystem.h"
 #include "FGTimeSubsystem.h"
-#include "FGWorldSettings.h"
 #include "WiremodReflection.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
@@ -60,7 +59,7 @@ public:
 		switch (Value.ConnectionType)
 		{
 		case Unknown: return "?";
-		case Boolean: return WM::GetFunctionBoolResult(Value) ? "True" : "False";
+		case Boolean: return WM::GetFunctionBoolResult(Value) ? "true" : "false";
 		case Number: return STR::Conv_FloatToString(WM::GetFunctionNumberResult(Value));
 		case String: return WM::GetFunctionStringResult(Value);
 		case Vector: return STR::Conv_VectorToString(WM::GetFunctionVectorResult(Value));
@@ -149,6 +148,7 @@ public:
 		if(Input == AnyArray) return IsArrayType(Output);
 		if(Input == AnyNonArray) return !IsArrayType(Output);
 		if(Input == Number || Input == Integer) return Output == Number || Output == Integer;
+		if(Input == NonReferenceable) return Output != Inventory && Output != PowerGrid;
 		
 		return false;
 	}

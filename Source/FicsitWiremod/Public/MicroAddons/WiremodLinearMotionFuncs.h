@@ -22,7 +22,7 @@ class FICSITWIREMOD_API UWiremodLinearMotionFuncs : public UBlueprintFunctionLib
 		auto data = FNewConnectionData(Lift, "netFunc_SetFloorHeight");
 
 		struct { int floorIndex; float height; } params {FloorIndex, Height};
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -30,7 +30,7 @@ class FICSITWIREMOD_API UWiremodLinearMotionFuncs : public UBlueprintFunctionLib
 	{
 		auto data = FNewConnectionData(lift, "netFunc_SetFloorName");
 		struct { int floorIndex; FString name; } params {FloorIndex, Name};
-		UWiremodReflection::ProcessFunction(data, params);
+		UWiremodReflection::ProcessFunction(data, &params);
 	}
 
 
@@ -40,8 +40,8 @@ class FICSITWIREMOD_API UWiremodLinearMotionFuncs : public UBlueprintFunctionLib
 		auto data = FNewConnectionData(Lift, "netFunc_GetFloorInfo");
 		struct {int floorIndex; float out_Height; FString out_Name; } params{FloorIndex};
 
-		auto result = UWiremodReflection::ProcessFunction(data, params);
-		Name = result.out_Name;
-		Height = result.out_Height;
+		UWiremodReflection::ProcessFunction(data, &params);
+		Name = params.out_Name;
+		Height = params.out_Height;
 	}
 };
