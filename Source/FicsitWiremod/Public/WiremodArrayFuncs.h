@@ -77,6 +77,11 @@ public:
 			if(arrayData.RecipeArr.IsValidIndex(index))
 				out.Recipe = arrayData.RecipeArr[index];
 			break;
+
+		case ArrayOfItemAmount:
+			if(arrayData.ItemAmountArr.IsValidIndex(index))
+				out.ItemAmount = arrayData.ItemAmountArr[index];
+			break;
 		
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function GET_ARRAY_ELEMENT"), (int)out.ConnectionType);
@@ -103,6 +108,7 @@ public:
 		case ArrayOfStack: return UWiremodReflection::GetItemStackArray(data).Num();
 		case ArrayOfPowerGrid: return UWiremodReflection::GetPowerGridArray(data).Num();
 		case ArrayOfRecipe: return UWiremodReflection::GetRecipeArray(data).Num();
+		case ArrayOfItemAmount: return UWiremodReflection::GetItemAmountArray(data).Num();
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ARRAY_LENGTH. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)data.ConnectionType);
 			return 0;
@@ -126,7 +132,8 @@ public:
 		case ArrayOfInventory: out.InventoryArr.SetNum(newSize); break;
 		case ArrayOfStack: out.StackArr.SetNum(newSize); break;
 		case ArrayOfPowerGrid: out.PowerGridArr.SetNum(newSize); break;
-		case ArrayOfRecipe: out.RecipeArr.SetNum(newSize);
+		case ArrayOfRecipe: out.RecipeArr.SetNum(newSize); break;
+		case ArrayOfItemAmount: out.ItemAmountArr.SetNum(newSize); break;
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function RESIZE_ARRAY. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
 			break;
@@ -180,6 +187,10 @@ public:
 		case ArrayOfRecipe:
 			if(out.RecipeArr.IsValidIndex(index))
 				out.RecipeArr[index] = UWiremodReflection::GetFunctionRecipeResult(elem); break;
+
+		case ArrayOfItemAmount:
+			if(out.ItemAmountArr.IsValidIndex(index))
+				out.ItemAmountArr[index] = UWiremodReflection::GetItemAmount(elem); break;
 			
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function SET_ARRAY_ELEMENT. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
@@ -205,6 +216,7 @@ public:
 		case ArrayOfInventory: out.InventoryArr.Add(UWiremodReflection::GetFunctionInventory(elem)); break;
 		case ArrayOfPowerGrid: out.PowerGridArr.Add(UWiremodReflection::GetFunctionPowerCircuitResult(elem)); break;
 		case ArrayOfRecipe: out.RecipeArr.Add(UWiremodReflection::GetFunctionRecipeResult(elem)); break;
+		case ArrayOfItemAmount: out.ItemAmountArr.Add(UWiremodReflection::GetItemAmount(elem)); break;
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ADD_ARRAY_ELEMENT. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
 			break;
@@ -251,6 +263,10 @@ public:
 		case ArrayOfRecipe:
 			if(out.RecipeArr.IsValidIndex(Index))
 				out.RecipeArr.RemoveAt(Index); break;
+		case ArrayOfItemAmount:
+			if(out.ItemAmountArr.IsValidIndex(Index))
+				out.ItemAmountArr.RemoveAt(Index); break;
+			
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function REMOVE_ARRAY_ELEMENT. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
 			break;
@@ -297,9 +313,82 @@ public:
 		case ArrayOfRecipe:
 			if(out.RecipeArr.IsValidIndex(Index))
 				out.RecipeArr.Insert(UWiremodReflection::GetFunctionRecipeResult(element), Index); break;
+		case ArrayOfItemAmount:
+			if(out.ItemAmountArr.IsValidIndex(Index))
+				out.ItemAmountArr.Insert(UWiremodReflection::GetItemAmount(element), Index); break;
+			
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function INSERT_ARRAY_ELEMENT. This should not be happening. Possibly trying to use the function outside array-focused gates?"), (int)out.ConnectionType);
 			break;
+		}
+	}
+
+
+	UFUNCTION(BlueprintCallable)
+	static void MakeArray(TArray<FNewConnectionData> Elements, EConnectionType arrayType, FDynamicValue& out)
+	{
+		if(Elements.Num() == 0) return;
+
+		out.ConnectionType = arrayType;
+
+		switch (out.ConnectionType)
+		{
+		case ArrayOfBoolean:
+			for (FNewConnectionData element : Elements)
+				out.BoolArr.Add(WM::GetFunctionBoolResult(element));
+			break;
+
+		case ArrayOfNumber:
+			for (FNewConnectionData element : Elements)
+				out.NumberArr.Add(WM::GetFunctionNumberResult(element));
+			break;
+
+		case ArrayOfString:
+			for (FNewConnectionData element : Elements)
+				out.StringArr.Add(WM::GetFunctionStringResult(element));
+			break;
+
+		case ArrayOfVector:
+			for (FNewConnectionData element : Elements)
+				out.VectorArr.Add(WM::GetFunctionVectorResult(element));
+			break;
+
+		case ArrayOfColor:
+			for (FNewConnectionData element : Elements)
+				out.ColorArr.Add(WM::GetFunctionColorResult(element));
+			break;
+
+		case ArrayOfEntity:
+			for (FNewConnectionData element : Elements)
+				out.EntityArr.Add(WM::GetFunctionEntityResult(element));
+			break;
+
+		case ArrayOfStack:
+			for (FNewConnectionData element : Elements)
+				out.StackArr.Add(WM::GetFunctionStackResult(element));
+			break;
+
+		case ArrayOfInventory:
+			for (FNewConnectionData element : Elements)
+				out.InventoryArr.Add(WM::GetFunctionInventory(element));
+			break;
+
+		case ArrayOfRecipe:
+			for (FNewConnectionData element : Elements)
+				out.RecipeArr.Add(WM::GetFunctionRecipeResult(element));
+			break;
+		
+		case ArrayOfPowerGrid:
+			for (FNewConnectionData element : Elements)
+				out.PowerGridArr.Add(WM::GetFunctionPowerCircuitResult(element));
+			break;
+
+		case ArrayOfItemAmount:
+			for (FNewConnectionData element : Elements)
+				out.ItemAmountArr.Add(WM::GetItemAmount(element));
+			break;
+			
+		default: break;
 		}
 	}
 	

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "WiremodReflection.h"
-#include "UObject/Object.h"
 #include "NumberUtilities.generated.h"
 
 /**
@@ -41,6 +40,25 @@ class FICSITWIREMOD_API UNumberUtilities : public UBlueprintFunctionLibrary
 		for (float Element : In){ a += Element; }
 		
 		return a / In.Num();
+	}
+
+	UFUNCTION(BlueprintPure)
+	static void QuadraticFormula(const FNewConnectionData& A, const FNewConnectionData& B, const FNewConnectionData& C, float& X1, float& X2)
+	{
+		X1 = 0;
+		X2 = 0;
+		
+		float a = UWiremodReflection::GetFunctionNumberResult(A);
+		float b = UWiremodReflection::GetFunctionNumberResult(B);
+		float c = UWiremodReflection::GetFunctionNumberResult(C);
+
+		if(a == 0 || b == 0 || c == 0) return;
+
+		float D = b*b - 4*a*c;
+		if(D == 0) return;
+
+		X1 = (-b + sqrtf(D)) / (2*a);
+		X2 = (-b - sqrtf(D)) / (2*a);
 	}
 	
 };

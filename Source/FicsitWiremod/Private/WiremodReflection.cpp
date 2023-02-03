@@ -7,6 +7,7 @@
 #include "FGCircuitSubsystem.h"
 #include "FGGameState.h"
 #include "FGPipeConnectionComponent.h"
+#include "FGPipeSubsystem.h"
 #include "FGTrainStationIdentifier.h"
 #include "IConstantsDistributor.h"
 #include "Buildables/FGBuildableLightsControlPanel.h"
@@ -33,7 +34,7 @@ bool UWiremodReflection::GetFunctionBoolResult(const FNewConnectionData& data, b
 {
 
 	if(data.FromProperty)
-		return GetBoolFromProperty(data, defaultValue);
+		return FromProperty<bool>(data, defaultValue);
 		
 	
 	if(IsDynamic(data.Object))
@@ -53,23 +54,15 @@ bool UWiremodReflection::GetFunctionBoolResult(const FNewConnectionData& data, b
 
 	
 	struct{bool RetVal;} params{defaultValue};
-	if(!ProcessFunction(data, &params)) return GetBoolFromProperty(data, defaultValue);
+	if(!ProcessFunction(data, &params)) return FromProperty<bool>(data, defaultValue);
 	return params.RetVal;
 }
-
-bool UWiremodReflection::GetBoolFromProperty(const FNewConnectionData& data, bool defaultValue)
-{
-	auto val = GetProperty<FBoolProperty>(data);
-	if(!val) return defaultValue;
-	return val->GetPropertyValue_InContainer(data.Object);
-}
-
 
 FString UWiremodReflection::GetFunctionStringResult(const FNewConnectionData& data, FString defaultValue)
 {
 
 	if(data.FromProperty)
-		return GetStringFromProperty(data, defaultValue);
+		return FromProperty<FString>(data, defaultValue);
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).StoredString;
@@ -88,22 +81,19 @@ FString UWiremodReflection::GetFunctionStringResult(const FNewConnectionData& da
 	
 	struct{FString RetVal;} params{defaultValue};
 	if(!ProcessFunction(data, &params))
-		return GetStringFromProperty(data, defaultValue);
+		return FromProperty<FString>(data, defaultValue);
 	return params.RetVal;
-}
-
-FString UWiremodReflection::GetStringFromProperty(const FNewConnectionData& data, FString defaultValue)
-{
-	auto val = GetProperty<FStrProperty>(data);
-	if(!val) return defaultValue;
-	return val->GetPropertyValue_InContainer(data.Object);
 }
 
 
 float UWiremodReflection::GetFunctionNumberResult(const FNewConnectionData& data, float defaultValue)
 {
 	if(data.FromProperty)
-		return GetNumberFromProperty(data, defaultValue);
+	{
+		if(IsInteger(data))
+			return FromProperty<int>(data, defaultValue);
+		return FromProperty<float>(data, defaultValue);
+	}
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).StoredFloat;
@@ -130,60 +120,38 @@ float UWiremodReflection::GetFunctionNumberResult(const FNewConnectionData& data
 	{
 		struct{int RetVal;} params{(int)defaultValue};
 		if(!ProcessFunction(data, &params))
-			return GetNumberFromProperty(data, defaultValue);
+			return FromProperty<int>(data, defaultValue);
 		return params.RetVal;
 	}
 	else
 	{
 		struct{float RetVal;} params{defaultValue};
 		if(!ProcessFunction(data, &params))
-			return GetNumberFromProperty(data, defaultValue);
+			return FromProperty<float>(data, defaultValue);
 		return params.RetVal;
-	}
-}
-
-float UWiremodReflection::GetNumberFromProperty(const FNewConnectionData& data, float defaultValue)
-{
-	if(IsInteger(data))
-	{
-		auto val = GetProperty<FIntProperty>(data);
-		if(!val) return defaultValue;
-		return val->GetPropertyValue_InContainer(data.Object);
-	}
-	else
-	{
-		auto val = GetProperty<FFloatProperty>(data) ;
-		if(!val) return defaultValue;
-		return val->GetPropertyValue_InContainer(data.Object);
 	}
 }
 
 FVector UWiremodReflection::GetFunctionVectorResult(const FNewConnectionData& data, FVector defaultValue)
 {
 	if(data.FromProperty)
-		return GetVectorFromProperty(data, defaultValue);
+		return FromProperty<FVector>(data, defaultValue);
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).StoredVector;
 	
 	struct{FVector RetVal;} params{defaultValue};
 	if(!ProcessFunction(data, &params))
-		return GetVectorFromProperty(data, defaultValue);
+		return FromProperty<FVector>(data, defaultValue);
 	return params.RetVal;
 }
 
-FVector UWiremodReflection::GetVectorFromProperty(const FNewConnectionData& data, FVector defaultValue)
-{
-	auto val = GetProperty<FStructProperty>(data);
-	if(!val) return defaultValue;
-	return *val->ContainerPtrToValuePtr<FVector>(data.Object);
-}
 
 FLinearColor UWiremodReflection::GetFunctionColorResult(const FNewConnectionData& data, FLinearColor defaultValue)
 {
 	
 	if(data.FromProperty)
-		return GetColorFromProperty(data, defaultValue);
+		return FromProperty<FLinearColor>(data, defaultValue);
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).StoredColor;
@@ -199,21 +167,15 @@ FLinearColor UWiremodReflection::GetFunctionColorResult(const FNewConnectionData
 	
 	struct{FLinearColor RetVal;} params{defaultValue};
 	if(!ProcessFunction(data, &params))
-		return GetColorFromProperty(data, defaultValue);
+		return FromProperty<FLinearColor>(data, defaultValue);
 	return params.RetVal;
 }
 
-FLinearColor UWiremodReflection::GetColorFromProperty(const FNewConnectionData& data, FLinearColor defaultValue)
-{
-	auto val = GetProperty<FStructProperty>(data);
-	if(!val) return defaultValue;
-	return *val->ContainerPtrToValuePtr<FLinearColor>(data.Object);
-}
 
 UFGInventoryComponent* UWiremodReflection::GetFunctionInventory(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetInventoryFromProperty(data);
+		return FromProperty<UFGInventoryComponent*>(data, nullptr);
 
 	
 	if(IsDynamic(data.Object))
@@ -221,42 +183,29 @@ UFGInventoryComponent* UWiremodReflection::GetFunctionInventory(const FNewConnec
 	
 	struct{ UFGInventoryComponent* RetVal; } params{};
 	if(!ProcessFunction(data, &params))
-		return GetInventoryFromProperty(data);
+		return FromProperty<UFGInventoryComponent*>(data, nullptr);
 	return params.RetVal;
 }
 
-UFGInventoryComponent* UWiremodReflection::GetInventoryFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FObjectProperty>(data);
-	if(!val) return nullptr;
-	return val->ContainerPtrToValuePtr<UFGInventoryComponent>(data.Object);
-}
 
 FInventoryStack UWiremodReflection::GetFunctionStackResult(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetItemStackFromProperty(data);
+		return FromProperty<FInventoryStack>(data, FInventoryStack());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).Stack;
     
-	struct{FInventoryStack RetVal;} params;
+	struct{FInventoryStack RetVal;} params{};
 	if(!ProcessFunction(data, &params))
-		return GetItemStackFromProperty(data);
+		return FromProperty<FInventoryStack>(data, FInventoryStack());
 	return params.RetVal;
-}
-
-FInventoryStack UWiremodReflection::GetItemStackFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FStructProperty>(data);
-	if(!val) return FInventoryStack();
- 	return *val->ContainerPtrToValuePtr<FInventoryStack>(data.Object);
 }
 
 UFGPowerCircuit* UWiremodReflection::GetFunctionPowerCircuitResult(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetPowerCircuitFromProperty(data);
+		return FromProperty<UFGPowerCircuit*>(data, nullptr);
 
 	
 	if(IsDynamic(data.Object))
@@ -264,15 +213,8 @@ UFGPowerCircuit* UWiremodReflection::GetFunctionPowerCircuitResult(const FNewCon
 	
 	struct{ UFGPowerCircuit* RetVal; } params{};
 	if(!ProcessFunction(data, &params))
-		return GetPowerCircuitFromProperty(data);
+		return FromProperty<UFGPowerCircuit*>(data, nullptr);
 	return params.RetVal;
-}
-
-UFGPowerCircuit* UWiremodReflection::GetPowerCircuitFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FObjectProperty>(data);
-	if(!val) return nullptr;
-	return val->ContainerPtrToValuePtr<UFGPowerCircuit>(data.Object);
 }
 
 AActor* UWiremodReflection::GetFunctionEntityResult(const FNewConnectionData& data)
@@ -280,22 +222,15 @@ AActor* UWiremodReflection::GetFunctionEntityResult(const FNewConnectionData& da
 	if(data.FunctionName == "Self") return Cast<AActor>(data.Object);
 
 	if(data.FromProperty)
-		return GetEntityFromProperty(data);
+		return FromProperty<AActor*>(data, nullptr);
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).Entity;
 	
 	struct{ AActor* RetVal; } params{};
 	if(!ProcessFunction(data, &params))
-		return GetEntityFromProperty(data);
+		return FromProperty<AActor*>(data, nullptr);
 	return params.RetVal;
-}
-
-AActor* UWiremodReflection::GetEntityFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FObjectProperty>(data);
-	if(!val) return nullptr;
-	return val->ContainerPtrToValuePtr<AActor>(data.Object);
 }
 
 TSubclassOf<UFGRecipe> UWiremodReflection::GetFunctionRecipeResult(const FNewConnectionData& data)
@@ -303,14 +238,14 @@ TSubclassOf<UFGRecipe> UWiremodReflection::GetFunctionRecipeResult(const FNewCon
 	TSubclassOf<UFGRecipe> out;
 
 	if(data.FromProperty)
-		out = GetRecipeFromProperty(data);
+		out = FromProperty<TSubclassOf<UFGRecipe>>(data, nullptr);
 	else if(IsDynamic(data.Object))
 		out = Dynamic(data.Object, data.FunctionName.ToString()).Recipe; 
 	else
 	{
 		struct{TSubclassOf<UFGRecipe> RetVal; } params{};	
 		if(!ProcessFunction(data, &params))
-			out = GetRecipeFromProperty(data);
+			out = FromProperty<TSubclassOf<UFGRecipe>>(data, nullptr);
 		out = params.RetVal;
 	}
 	
@@ -318,222 +253,173 @@ TSubclassOf<UFGRecipe> UWiremodReflection::GetFunctionRecipeResult(const FNewCon
 	return TSubclassOf<UFGRecipe>(out.GetDefaultObject()->GetClass());
 }
 
-TSubclassOf<UFGRecipe> UWiremodReflection::GetRecipeFromProperty(const FNewConnectionData& data)
+FItemAmount UWiremodReflection::GetItemAmount(const FNewConnectionData& data)
 {
-	auto val = GetProperty<FObjectProperty>(data);
-	if(!val) return nullptr;
-    return *val->ContainerPtrToValuePtr<TSubclassOf<UFGRecipe>>(data.Object);
+	if(data.FromProperty)
+		return FromProperty<FItemAmount>(data, FItemAmount());
+
+	if(IsDynamic(data.Object))
+		return Dynamic(data.Object, data.FunctionName.ToString()).ItemAmount; 
+	
+	struct{FItemAmount RetVal; } params{};	
+	if(!ProcessFunction(data, &params))
+		return FromProperty<FItemAmount>(data, FItemAmount());
+	return params.RetVal;
 }
 
 
 TArray<bool> UWiremodReflection::GetBoolArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetBoolArrayFromProperty(data);
+		return FromProperty<TArray<bool>>(data, TArray<bool>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).BoolArr;
 		
 	struct{ TArray<bool> RetVal; } params;
 	if(!ProcessFunction(data, &params))
-		return GetBoolArrayFromProperty(data);
+		return FromProperty<TArray<bool>>(data, TArray<bool>());
 	return params.RetVal;
-}
-
-TArray<bool> UWiremodReflection::GetBoolArrayFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<bool>();
-	return *val->ContainerPtrToValuePtr<TArray<bool>>(data.Object);
 }
 
 TArray<FString> UWiremodReflection::GetStringArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetStringArrayFromProperty(data);
+		return FromProperty<TArray<FString>>(data, TArray<FString>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).StringArr;
 
 	struct{ TArray<FString> RetVal; } params;
 	if(!ProcessFunction(data, &params))
-		return GetStringArrayFromProperty(data);
+		return FromProperty<TArray<FString>>(data, TArray<FString>());
 	return params.RetVal;
-}
-
-TArray<FString> UWiremodReflection::GetStringArrayFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<FString>();
-	return *val->ContainerPtrToValuePtr<TArray<FString>>(data.Object);
 }
 
 TArray<float> UWiremodReflection::GetNumberArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetNumberArrayFromProperty(data);
+		return FromProperty<TArray<float>>(data, TArray<float>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).NumberArr;
 	
 	struct{ TArray<float> RetVal; } params;
 	if(!ProcessFunction(data, &params))
-		return GetNumberArrayFromProperty(data);
+		return FromProperty<TArray<float>>(data, TArray<float>());
 	return params.RetVal;
-}
-
-TArray<float> UWiremodReflection::GetNumberArrayFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<float>();
-	return *val->ContainerPtrToValuePtr<TArray<float>>(data.Object);
 }
 
 TArray<FVector> UWiremodReflection::GetVectorArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetVectorArrayFromProperty(data);
+		return FromProperty<TArray<FVector>>(data, TArray<FVector>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).VectorArr;
 	
 	struct{ TArray<FVector> RetVal; } params;
 	if(!ProcessFunction(data, &params))
-		return GetVectorArrayFromProperty(data);
+		return FromProperty<TArray<FVector>>(data, TArray<FVector>());
 	return params.RetVal;
-}
-
-TArray<FVector> UWiremodReflection::GetVectorArrayFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<FVector>();
-	return *val->ContainerPtrToValuePtr<TArray<FVector>>(data.Object);
 }
 
 TArray<FLinearColor> UWiremodReflection::GetColorArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetColorArrayFromProperty(data);
+		return FromProperty<TArray<FLinearColor>>(data, TArray<FLinearColor>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).ColorArr;
 	
 	struct{ TArray<FLinearColor> RetVal; } params;
 	if(!ProcessFunction(data, &params))
-		return GetColorArrayFromProperty(data);
+		return FromProperty<TArray<FLinearColor>>(data, TArray<FLinearColor>());
 	return params.RetVal;
-}
-
-TArray<FLinearColor> UWiremodReflection::GetColorArrayFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<FLinearColor>();
-	return *val->ContainerPtrToValuePtr<TArray<FLinearColor>>(data.Object);
 }
 
 TArray<UFGInventoryComponent*> UWiremodReflection::GetInventoryArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetInventoryArrayFromProperty(data);
+		return FromProperty<TArray<UFGInventoryComponent*>>(data, TArray<UFGInventoryComponent*>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).InventoryArr;
 	
 	struct{ TArray<UFGInventoryComponent*> RetVal; } params;
 	if(!ProcessFunction(data, &params))
-		return GetInventoryArrayFromProperty(data);
+		return FromProperty<TArray<UFGInventoryComponent*>>(data, TArray<UFGInventoryComponent*>());
 	return params.RetVal;
-}
-
-TArray<UFGInventoryComponent*> UWiremodReflection::GetInventoryArrayFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<UFGInventoryComponent*>();
-	return *val->ContainerPtrToValuePtr<TArray<UFGInventoryComponent*>>(data.Object);
 }
 
 TArray<FInventoryStack> UWiremodReflection::GetItemStackArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetItemStackArrayFromProperty(data);
+		return FromProperty<TArray<FInventoryStack>>(data, TArray<FInventoryStack>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).StackArr;
 	
 	struct{ TArray<FInventoryStack> RetVal; } params;
 	if(!ProcessFunction(data, &params))
-		return GetItemStackArrayFromProperty(data);
+		return FromProperty<TArray<FInventoryStack>>(data, TArray<FInventoryStack>());
 	return params.RetVal;
-}
-
-TArray<FInventoryStack> UWiremodReflection::GetItemStackArrayFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<FInventoryStack>();
-	return *val->ContainerPtrToValuePtr<TArray<FInventoryStack>>(data.Object);
 }
 
 TArray<AActor*> UWiremodReflection::GetEntityArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetEntityArrayFromProperty(data);
+		return FromProperty<TArray<AActor*>>(data, TArray<AActor*>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).EntityArr;
 
 	struct{ TArray<AActor*> RetVal; } params;
 	if(!ProcessFunction(data, &params))
-		return GetEntityArrayFromProperty(data);
+		return FromProperty<TArray<AActor*>>(data, TArray<AActor*>());
 	return params.RetVal;
-}
-
-TArray<AActor*> UWiremodReflection::GetEntityArrayFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<AActor*>();
-	return *val->ContainerPtrToValuePtr<TArray<AActor*>>(data.Object);
 }
 
 TArray<UFGPowerCircuit*> UWiremodReflection::GetPowerGridArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetPowerGridArrayFromProperty(data);
+		return FromProperty<TArray<UFGPowerCircuit*>>(data, TArray<UFGPowerCircuit*>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).PowerGridArr;
 
 	struct{ TArray<UFGPowerCircuit*> RetVal; } params;
 	if(!ProcessFunction(data, &params))
-		return GetPowerGridArrayFromProperty(data);
+		return FromProperty<TArray<UFGPowerCircuit*>>(data, TArray<UFGPowerCircuit*>());
 	return params.RetVal;
-}
-
-TArray<UFGPowerCircuit*> UWiremodReflection::GetPowerGridArrayFromProperty(const FNewConnectionData& data)
-{
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<UFGPowerCircuit*>();
-	return *val->ContainerPtrToValuePtr<TArray<UFGPowerCircuit*>>(data.Object);
 }
 
 TArray< TSubclassOf<UFGRecipe> > UWiremodReflection::GetRecipeArray(const FNewConnectionData& data)
 {
 	if(data.FromProperty)
-		return GetRecipeArrayFromProperty(data);
+		return FromProperty<TArray<TSubclassOf<UFGRecipe>>>(data, TArray<TSubclassOf<UFGRecipe>>());
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).RecipeArr;
 
 	struct{TArray< TSubclassOf<UFGRecipe> > RetVal; } params{};
 	if(!ProcessFunction(data, &params))
-		return GetRecipeArrayFromProperty(data);
+		return FromProperty<TArray<TSubclassOf<UFGRecipe>>>(data, TArray<TSubclassOf<UFGRecipe>>());
 	return params.RetVal;
 }
 
-TArray<TSubclassOf<UFGRecipe>> UWiremodReflection::GetRecipeArrayFromProperty(const FNewConnectionData& data)
+TArray<FItemAmount> UWiremodReflection::GetItemAmountArray(const FNewConnectionData& data)
 {
-	auto val = GetProperty<FArrayProperty>(data);
-	if(!val) return TArray<TSubclassOf<UFGRecipe>>();
-	return *val->ContainerPtrToValuePtr<TArray<TSubclassOf<UFGRecipe>>>(data.Object);
+	if(data.FromProperty)
+		return FromProperty<TArray<FItemAmount>>(data, TArray<FItemAmount>());
+	
+	if(IsDynamic(data.Object))
+		return Dynamic(data.Object, data.FunctionName.ToString()).ItemAmountArr;
+
+	struct{TArray<FItemAmount> RetVal; } params{};
+	if(!ProcessFunction(data, &params))
+		return FromProperty<TArray<FItemAmount>>(data, TArray<FItemAmount>());
+	return params.RetVal;
 }
 
 
@@ -545,6 +431,14 @@ void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bo
 		if(auto fluidTank = Cast<AFGBuildablePipeReservoir>(data.Object))
 		{
 			fluidTank->mFluidBox.Reset();
+			return;
+		}
+	}
+	else if(data.FunctionName == "WM_FLUSHNET_FUNC" && value_)
+	{
+		if(auto fluidTank = Cast<AFGBuildablePipeReservoir>(data.Object))
+		{
+			AFGPipeSubsystem::Get(data.Object->GetWorld())->FlushPipeNetworkFromIntegrant(fluidTank);
 			return;
 		}
 	}
@@ -608,13 +502,7 @@ void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bo
 			if(panelData.IsTimeOfDayAware == value_) return;
 			
 			panelData.IsTimeOfDayAware = value_;
-			panel->SetLightControlData(panelData);
-			
-			auto affected = panel->GetControlledBuildables(AFGBuildableLightSource::StaticClass());
-			for (auto light : affected)
-			{
-				Cast<AFGBuildableLightSource>(light)->SetLightControlData(panelData);
-			}
+			panel->SetLightDataOnControlledLights(panelData);
 		}
 		
 
@@ -680,14 +568,7 @@ void UWiremodReflection::SetFunctionNumberValue(const FNewConnectionData& data, 
 			panelData.Intensity = value_;
 		}
 
-		panel->SetLightControlData(panelData);
-
-		auto affected = panel->GetControlledBuildables(AFGBuildableLightSource::StaticClass());
-
-		for (auto light : affected)
-			Cast<AFGBuildableLightSource>(light)->SetLightControlData(panelData);
-		
-		
+		panel->SetLightDataOnControlledLights(panelData);
 		return;
 	}
 	else if (auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
@@ -821,6 +702,8 @@ void UWiremodReflection::FillDynamicStructFromData(const FNewConnectionData& dat
 	case ArrayOfInventory: ReturnValue.InventoryArr = GetInventoryArray(data); break;
 	case Recipe: ReturnValue.Recipe = GetFunctionRecipeResult(data); break;
 	case ArrayOfRecipe: ReturnValue.RecipeArr = GetRecipeArray(data); break;
+	case ItemAmount: ReturnValue.ItemAmount = GetItemAmount(data); break;
+	case ArrayOfItemAmount: ReturnValue.ItemAmountArr = GetItemAmountArray(data); break;
 	default:
 		UE_LOG(LogTemp, Error, TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function FILL_DYNAMIC_STRUCT"), (int)data.ConnectionType);
 		break;

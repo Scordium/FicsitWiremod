@@ -32,13 +32,15 @@ enum EConnectionType
 	ArrayOfStack,
 	Any,
 	Integer,
-	ConnectionData,
+	CustomStruct,
 	AnyArray,
 	AnyNonArray,
 	ArrayOfPowerGrid,
 	ArrayOfInventory,
 	ArrayOfRecipe,
-	NonReferenceable
+	NonReferenceable,
+	ItemAmount,
+	ArrayOfItemAmount
 };
 
 USTRUCT(BlueprintType)
@@ -108,6 +110,12 @@ struct FDynamicValue
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray< TSubclassOf<UFGRecipe> > RecipeArr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FItemAmount ItemAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<FItemAmount> ItemAmountArr;
 };
 
 
@@ -281,11 +289,7 @@ public:
 		this->FunctionName = functionName;
 	}
 
-
-	static bool ReadAsBool(const FNewConnectionData& In)
-	{
-		
-	}
+	
 };
 
 
@@ -317,130 +321,77 @@ struct FDynamicConnectionData
 UCLASS()
 class FICSITWIREMOD_API UWiremodReflection : public UBlueprintFunctionLibrary
 {
+	friend FNewConnectionData;
 	GENERATED_BODY()
 public:
 
 	//Get
 	UFUNCTION(BlueprintCallable)
 	static bool GetFunctionBoolResult(const FNewConnectionData& data, bool defaultValue = false);
-
-	UFUNCTION(BlueprintCallable)
-	static bool GetBoolFromProperty(const FNewConnectionData& data, bool defaultValue = false);
 	
 	UFUNCTION(BlueprintCallable)
 	static FString GetFunctionStringResult(const FNewConnectionData& data, FString defaultValue = "");
 	
 	UFUNCTION(BlueprintCallable)
-	static FString GetStringFromProperty(const FNewConnectionData& data, FString defaultValue = "");
-	
-	UFUNCTION(BlueprintCallable)
 	static float GetFunctionNumberResult(const FNewConnectionData& data, float defaultValue = 0);
-
-	UFUNCTION(BlueprintCallable)
-	static float GetNumberFromProperty(const FNewConnectionData& data, float defaultValue = 0);
 	
 	UFUNCTION(BlueprintCallable)
 	static FVector GetFunctionVectorResult(const FNewConnectionData& data, FVector defaultValue = FVector::ZeroVector);
-
-	UFUNCTION(BlueprintCallable)
-	static FVector GetVectorFromProperty(const FNewConnectionData& data, FVector defaultValue = FVector::ZeroVector);
 	
 	UFUNCTION(BlueprintCallable)
 	static FLinearColor GetFunctionColorResult(const FNewConnectionData& data, FLinearColor defaultValue = FLinearColor::Black);
-
-	UFUNCTION(BlueprintCallable)
-	static FLinearColor GetColorFromProperty(const FNewConnectionData& data, FLinearColor defaultValue = FLinearColor::Black);
 	
 	UFUNCTION(BlueprintCallable)
 	static UFGInventoryComponent* GetFunctionInventory(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static UFGInventoryComponent* GetInventoryFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static FInventoryStack GetFunctionStackResult(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static FInventoryStack GetItemStackFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static UFGPowerCircuit* GetFunctionPowerCircuitResult(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static UFGPowerCircuit* GetPowerCircuitFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static AActor* GetFunctionEntityResult(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
-	static AActor* GetEntityFromProperty(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
 	static TSubclassOf<UFGRecipe> GetFunctionRecipeResult(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
-	static TSubclassOf<UFGRecipe> GetRecipeFromProperty(const FNewConnectionData& data);
+	static FItemAmount GetItemAmount(const FNewConnectionData& data);
 
 	//Array Get
 	UFUNCTION(BlueprintCallable)
 	static TArray<bool> GetBoolArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<bool> GetBoolArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<FString> GetStringArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<FString> GetStringArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<float> GetNumberArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<float> GetNumberArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<FVector> GetVectorArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<FVector> GetVectorArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<FLinearColor> GetColorArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<FLinearColor> GetColorArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<UFGInventoryComponent*> GetInventoryArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<UFGInventoryComponent*> GetInventoryArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<FInventoryStack> GetItemStackArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<FInventoryStack> GetItemStackArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<AActor*> GetEntityArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<AActor*> GetEntityArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray<UFGPowerCircuit*> GetPowerGridArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<UFGPowerCircuit*> GetPowerGridArrayFromProperty(const FNewConnectionData& data);
 	
 	UFUNCTION(BlueprintCallable)
 	static TArray< TSubclassOf<UFGRecipe> > GetRecipeArray(const FNewConnectionData& data);
 
 	UFUNCTION(BlueprintCallable)
-	static TArray<TSubclassOf<UFGRecipe> > GetRecipeArrayFromProperty(const FNewConnectionData& data);
+	static TArray<FItemAmount> GetItemAmountArray(const FNewConnectionData& data);
 	
 	//Set
 	UFUNCTION(BlueprintCallable)
@@ -546,14 +497,13 @@ public:
 		return false;
 	}
 
-	/*
-	 * Tries to find a function with name "FunctionName", returns nullpeter if the object is not valid or the property does not exist
-	 */
-	template<typename T>
-	static T* GetProperty(const FNewConnectionData& data) 
+	template<typename O>
+	static O FromProperty(const FNewConnectionData& data, O defaultValue)
 	{
-		if(!data.Object) return nullptr;
-
-		return CastField<T>(data.Object->GetClass()->FindPropertyByName(data.FunctionName));
+		if(!data.Object) return defaultValue;
+		
+		auto val = data.Object->GetClass()->FindPropertyByName(data.FunctionName);
+		if(!val) return defaultValue;
+		return *val->ContainerPtrToValuePtr<O>(data.Object);
 	}
 };

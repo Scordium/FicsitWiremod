@@ -99,11 +99,21 @@ public:
 		case ArrayOfPowerGrid: return "[" + STR::Conv_IntToString(WM::GetPowerGridArray(Value).Num()) + " elements]";
 		case ArrayOfStack: return "[" + STR::Conv_IntToString(WM::GetItemStackArray(Value).Num()) + " elements]";
 		case ArrayOfRecipe: return "[" + STR::Conv_IntToString(WM::GetRecipeArray(Value).Num()) + " elements]";
-		case Stack: return UFGItemDescriptor::GetItemName(WM::GetFunctionStackResult(Value).Item.GetItemClass()).ToString();
+		case Stack:
+			{
+				auto stack = WM::GetFunctionStackResult(Value);
+				return STR::Conv_IntToString(stack.NumItems) + " " + UFGItemDescriptor::GetItemName(stack.Item.GetItemClass()).ToString();
+			}
 		case Integer: return STR::Conv_IntToString(WM::GetFunctionNumberResult(Value));
 		case Any: return "How did this happen";
 		case AnyArray: return "How did this happen[]";
 		case AnyNonArray: return "How did this happen {}";
+		case ItemAmount:
+			{
+				auto item = WM::GetItemAmount(Value);
+				return STR::Conv_IntToString(item.Amount) + " of " + UFGItemDescriptor::GetItemName(item.ItemClass).ToString();
+			}
+		case ArrayOfItemAmount: return "[" + STR::Conv_IntToString(WM::GetItemAmountArray(Value).Num()) + " elements]";
 		default:
 			UE_LOG(LogTemp, Error, TEXT("Failed to find switch case for EConnectionType::%d in function GET_STRINGIFIED_VALUE. Returning default value instead..."), (int)Value.ConnectionType);
 			return "?";
@@ -172,6 +182,7 @@ public:
 		case Recipe: return ArrayOfRecipe;
 		case Any: return Any;
 		case AnyNonArray: return AnyArray;
+		case ItemAmount: return ArrayOfItemAmount;
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function BASE_TO_ARRAY"), in);
 			return Unknown;
@@ -196,6 +207,7 @@ public:
 		case ArrayOfRecipe: return Recipe;
 		case Any: return Any;
 		case AnyArray: return AnyNonArray;
+		case ArrayOfItemAmount: return ItemAmount;
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ARRAY_TO_BASE"), in);
 			return Unknown;
@@ -217,6 +229,7 @@ public:
 		case ArrayOfString:
 		case ArrayOfPowerGrid:
 		case ArrayOfRecipe:
+		case ArrayOfItemAmount:
 			return true;
 
 		default: return false;
@@ -238,11 +251,11 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	static bool HasNoteData(const FBuildableNote& note){ return note.Text.ToString().Len() > 0; }
+	static bool HasNoteData(const FBuildableNote& note) { return note.Text.ToString().Len() > 0; }
 
 	UFUNCTION(BlueprintCallable)
-	static void CopyTextToClipboard(FString text)
-	{
-		FPlatformMisc::ClipboardCopy(*text);
-	}
+	static void CopyTextToClipboard(FString text) { FPlatformMisc::ClipboardCopy(*text); }
+	
+	UFUNCTION(BlueprintPure, meta=(DefaultToSelf="in", HidePin="in"))
+	static UTexture2D* GetBuildableTexture(AFGBuildable* in) { return UFGItemDescriptor::GetBigIcon(in->GetBuiltWithDescriptor()); }
 };
