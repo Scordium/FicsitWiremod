@@ -663,11 +663,11 @@ void UWiremodReflection::HandleDynamicConnection(const FNewConnectionData& trans
 {
 	switch (receiver.ConnectionType)
 	{
-	case Boolean:SetFunctionBoolValue(receiver, GetFunctionBoolResult(transmitter));break;
+	case Boolean:SetFunctionBoolValue(receiver, GetFunctionBoolResult(transmitter)); break;
 	case Number:
-	case Integer:SetFunctionNumberValue(receiver, GetFunctionNumberResult(transmitter));break;
-	case String:SetFunctionStringValue(receiver, GetFunctionStringResult(transmitter));break;
-	case Color:SetFunctionColorValue(receiver, GetFunctionColorResult(transmitter));break;
+	case Integer:SetFunctionNumberValue(receiver, GetFunctionNumberResult(transmitter)); break;
+	case String:SetFunctionStringValue(receiver, GetFunctionStringResult(transmitter)); break;
+	case Color:SetFunctionColorValue(receiver, GetFunctionColorResult(transmitter)); break;
 	case Recipe: SetFunctionRecipeValue(receiver, GetFunctionRecipeResult(transmitter)); break;
 	default: break;
 	}

@@ -23,65 +23,96 @@ public:
 	{
 		auto out = FDynamicValue();
 		out.ConnectionType = UWiremodUtils::ArrayToBase(data.ConnectionType);
-		FDynamicValue arrayData;
-		UWiremodReflection::FillDynamicStructFromData(data, arrayData);
 		switch (data.ConnectionType)
 		{
 		case Unknown: break;
 		case ArrayOfBoolean:
-			if(arrayData.BoolArr.IsValidIndex(index))
-				out.StoredBool = arrayData.BoolArr[index];
-			break;
+			{
+				auto arr = WM::GetBoolArray(data);
+				if(arr.IsValidIndex(index))
+					out.StoredBool = arr[index];
+				break;
+			}
 		
 		case ArrayOfNumber:
-			if(arrayData.NumberArr.IsValidIndex(index))
-				out.StoredFloat = arrayData.NumberArr[index];
-			break;
+			{
+				auto arr = WM::GetNumberArray(data);
+				if(arr.IsValidIndex(index))
+					out.StoredFloat = arr[index];
+				break;
+			}
 
 		case ArrayOfString:
-			if(arrayData.StringArr.IsValidIndex(index))
-				out.StoredString = arrayData.StringArr[index];
-			break;
+			{
+				auto arr = WM::GetStringArray(data);
+				if(arr.IsValidIndex(index))
+					out.StoredString = arr[index];
+				break;
+			}
 
 		case ArrayOfVector:
-			if(arrayData.VectorArr.IsValidIndex(index))
-				out.StoredVector = arrayData.VectorArr[index];
-			break;
+			{
+				auto arr = WM::GetVectorArray(data);
+				if(arr.IsValidIndex(index))
+					out.StoredVector = arr[index];
+				break;
+			}
 
 		case ArrayOfColor:
-			if(arrayData.ColorArr.IsValidIndex(index))
-				out.StoredColor = arrayData.ColorArr[index];
-			break;
+			{
+				auto arr = WM::GetColorArray(data);
+				if(arr.IsValidIndex(index))
+					out.StoredColor = arr[index];
+				break;
+			}
 
 		case ArrayOfEntity:
-			if(arrayData.EntityArr.IsValidIndex(index))
-				out.Entity = arrayData.EntityArr[index];
-			break;
+			{
+				auto arr = WM::GetEntityArray(data);
+				if(arr.IsValidIndex(index))
+					out.Entity = arr[index];
+				break;
+			}
 
 		case ArrayOfInventory:
-			if(arrayData.InventoryArr.IsValidIndex(index))
-				out.Inventory = arrayData.InventoryArr[index];
-			break;
+			{
+				auto arr = WM::GetInventoryArray(data);
+				if(arr.IsValidIndex(index))
+					out.Inventory = arr[index];
+				break;
+			}
 
 		case ArrayOfStack:
-			if(arrayData.StackArr.IsValidIndex(index))
-				out.Stack = arrayData.StackArr[index];
-			break;
-
+			{
+				auto arr = WM::GetItemStackArray(data);
+				if(arr.IsValidIndex(index))
+					out.Stack = arr[index];
+				break;
+			}
+		
 		case ArrayOfPowerGrid:
-			if(arrayData.PowerGridArr.IsValidIndex(index))
-				out.PowerGrid = arrayData.PowerGridArr[index];
-			break;
+			{
+				auto arr = WM::GetPowerGridArray(data);
+				if(arr.IsValidIndex(index))
+					out.PowerGrid = arr[index];
+				break;
+			}
 
 		case ArrayOfRecipe:
-			if(arrayData.RecipeArr.IsValidIndex(index))
-				out.Recipe = arrayData.RecipeArr[index];
-			break;
-
+			{
+				auto arr = WM::GetRecipeArray(data);
+				if(arr.IsValidIndex(index))
+					out.Recipe = arr[index];
+				break;
+			}
+			
 		case ArrayOfItemAmount:
-			if(arrayData.ItemAmountArr.IsValidIndex(index))
-				out.ItemAmount = arrayData.ItemAmountArr[index];
-			break;
+			{
+				auto arr = WM::GetItemAmountArray(data);
+				if(arr.IsValidIndex(index))
+					out.ItemAmount = arr[index];
+				break;
+			}
 		
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function GET_ARRAY_ELEMENT"), (int)out.ConnectionType);
@@ -391,5 +422,26 @@ public:
 		default: break;
 		}
 	}
+
+	UFUNCTION(BlueprintCallable)
+	static void BreakArray(const FNewConnectionData& data, TArray<FBuildingConnection>& Out)
+	{
+		const EConnectionType ElementType = UWiremodUtils::ArrayToBase(data.ConnectionType);
+		const int ElementsCount = ArrayLength(data);
+		
+		for(int i = 0; i < ElementsCount; i++)
+		{
+			Out.Add(
+				FBuildingConnection(
+					"Item " + STR::Conv_IntToString(i),
+					STR::Conv_IntToString(i),
+					ElementType
+					)
+				);
+		}
+	}
+
+
+	
 	
 };

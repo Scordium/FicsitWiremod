@@ -164,6 +164,19 @@ struct FBuildingConnection : public FTableRowBase
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(MultiLine="true"))
 	FText Description;
+
+
+
+	FBuildingConnection() : Super(){};
+
+	FBuildingConnection(FString DisplayName, FString FunctionName, EConnectionType ConnectionType, bool Dynamic = false, bool IsProperty = false)
+	{
+		this->DisplayName = DisplayName;
+		this->FunctionName = FName(FunctionName);
+		this->ConnectionType = ConnectionType;
+		this->Dynamic = Dynamic;
+		this->FromProperty = IsProperty;
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -413,6 +426,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void HandleDynamicConnections(TArray<FDynamicConnectionData> connections, bool& NoneWereValid)
 	{
+		if(connections.Num() == 0) return;
+		
 		NoneWereValid = true;
 		for (auto ConnectionData : connections)
 		{

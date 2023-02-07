@@ -89,4 +89,11 @@ class FICSITWIREMOD_API UValueConverters : public UBlueprintFunctionLibrary
 			ReturnValue.Add(UKismetStringLibrary::Conv_FloatToString(element));
 		}
 	}
+
+	UFUNCTION(BlueprintCallable)
+	static void ColorArrayToStringArray(const FNewConnectionData& arr, TArray<FString>& ReturnValue)
+	{
+		for(FLinearColor col : WM::GetColorArray(arr))
+			ReturnValue.Add(STR::Conv_ColorToString(col));
+	}
 };
