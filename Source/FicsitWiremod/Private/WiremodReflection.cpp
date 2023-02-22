@@ -176,7 +176,6 @@ UFGInventoryComponent* UWiremodReflection::GetFunctionInventory(const FNewConnec
 {
 	if(data.FromProperty)
 		return FromProperty<UFGInventoryComponent*>(data, nullptr);
-
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).Inventory;

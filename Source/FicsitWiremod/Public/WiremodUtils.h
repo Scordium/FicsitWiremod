@@ -35,13 +35,6 @@ public:
 		subsystem->SetDaySeconds(finalTime);
 	}
 
-	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf))
-	static AFGBuildableBlueprintDesigner* GetBlueprintDesigner(AFGBuildable* Buildable)
-	{
-		if(!Buildable) return nullptr;
-		return Buildable->GetBlueprintDesigner();
-	}
-
 	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf = "Buildable"))
 	static void SetCanEverTick(AFGBuildable* Buildable, bool Enabled)
 	{
@@ -60,9 +53,9 @@ public:
 		{
 		case Unknown: return "?";
 		case Boolean: return WM::GetFunctionBoolResult(Value) ? "true" : "false";
-		case Number: return STR::Conv_FloatToString(WM::GetFunctionNumberResult(Value));
+		case Number: return FString::SanitizeFloat(WM::GetFunctionNumberResult(Value));
 		case String: return WM::GetFunctionStringResult(Value);
-		case Vector: return STR::Conv_VectorToString(WM::GetFunctionVectorResult(Value));
+		case Vector: return WM::GetFunctionVectorResult(Value).ToCompactString();
 		case Inventory:
 			{
 				auto inv = WM::GetFunctionInventory(Value);
@@ -88,7 +81,7 @@ public:
 				return UKismetSystemLibrary::GetObjectName(entity);
 			}
 		case Recipe: return UFGRecipe::GetRecipeName(WM::GetFunctionRecipeResult(Value)).ToString();
-		case Color: return STR::Conv_ColorToString(WM::GetFunctionColorResult(Value));
+		case Color: return WM::GetFunctionColorResult(Value).ToString();
 		case ArrayOfBoolean: return "[" + STR::Conv_IntToString(WM::GetBoolArray(Value).Num()) + " elements]";
 		case ArrayOfNumber: return "[" + STR::Conv_IntToString(WM::GetNumberArray(Value).Num()) + " elements]";
 		case ArrayOfString: return "[" + STR::Conv_IntToString(WM::GetStringArray(Value).Num()) + " elements]";
@@ -105,9 +98,9 @@ public:
 				return STR::Conv_IntToString(stack.NumItems) + " " + UFGItemDescriptor::GetItemName(stack.Item.GetItemClass()).ToString();
 			}
 		case Integer: return STR::Conv_IntToString(WM::GetFunctionNumberResult(Value));
-		case Any: return "How did this happen";
-		case AnyArray: return "How did this happen[]";
-		case AnyNonArray: return "How did this happen {}";
+		case Any: return "?";
+		case AnyArray: return "?";
+		case AnyNonArray: return "?";
 		case ItemAmount:
 			{
 				auto item = WM::GetItemAmount(Value);

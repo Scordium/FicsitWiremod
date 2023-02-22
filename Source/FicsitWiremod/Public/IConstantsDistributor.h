@@ -22,6 +22,6 @@ class FICSITWIREMOD_API IIConstantsDistributor
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FDynamicValue GetValue(const FString& ValueName);
 };

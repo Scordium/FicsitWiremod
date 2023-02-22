@@ -32,13 +32,10 @@ class FICSITWIREMOD_API IWiremodInterface
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void OnInputConnected(FNewConnectionData Data, int Index, UObject* Setter);
+	void OnInputConnected(const FNewConnectionData& Data, int Index, UObject* Setter);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnInputDisconnected(int Index, UObject* Setter);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	TArray<FBuildingConnection> GetAvailableConnections(EConnectionDirection direction = Output);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TSubclassOf<UUserWidget> GetCompactWidget();

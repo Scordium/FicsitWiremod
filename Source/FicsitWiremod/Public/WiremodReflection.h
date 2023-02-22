@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "FGPowerCircuit.h"
+#include "GeneratedCodeHelpers.h"
 #include "Buildables/FGBuildableFactory.h"
-#include "Buildables/FGBuildableWidgetSign.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "WiremodReflection.generated.h"
 
@@ -258,19 +258,19 @@ public:
 	FName FunctionName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TEnumAsByte<EConnectionType> ConnectionType;
+	TEnumAsByte<EConnectionType> ConnectionType = Unknown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FLinearColor WireColor = FLinearColor::White;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool WireHidden;
+	bool WireHidden = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FVector> WirePositions;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool FromProperty;
+	bool FromProperty = false;
 	
 	FNewConnectionData operator =(const FNewConnectionData& data)
 	{
@@ -294,12 +294,21 @@ public:
 	}
 
 
-	FNewConnectionData(){};
+	FNewConnectionData()
+	{
+		this->Object = NULL;
+	};
 
-	FNewConnectionData(UObject* object, FName functionName)
+	FNewConnectionData(UObject* object, FName functionName, EConnectionType Type = Unknown)
 	{
 		this->Object = object;
 		this->FunctionName = functionName;
+		this->ConnectionType = Type;
+	}
+
+	bool IsValid()
+	{
+		return ::IsValid(Object);
 	}
 
 	
@@ -324,6 +333,17 @@ struct FDynamicConnectionData
 		Transmitter == other.Transmitter
 		&& Receiver == other.Receiver;
 	}
+
+	FDynamicConnectionData(){}
+
+	FDynamicConnectionData(FNewConnectionData Transmitter, FNewConnectionData Receiver)
+	{
+		this->Transmitter = Transmitter;
+		this->Receiver = Receiver;
+	}
+	
+	bool IsValid() { return Transmitter.IsValid() && Receiver.IsValid(); }
+	bool IsValidForWire() { return Transmitter.IsValid() && Receiver.IsValid() && !Transmitter.WireHidden; }
 };
 
 
@@ -422,22 +442,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void SetFunctionRecipeValue(const FNewConnectionData& data, TSubclassOf<UFGRecipe> recipe);
 
-	//Utility
-	UFUNCTION(BlueprintCallable)
-	static void HandleDynamicConnections(TArray<FDynamicConnectionData> connections, bool& NoneWereValid)
-	{
-		if(connections.Num() == 0) return;
-		
-		NoneWereValid = true;
-		for (auto ConnectionData : connections)
-		{
-			bool HasNullPtr = !ConnectionData.Transmitter.Object || !ConnectionData.Receiver.Object;
-			if(HasNullPtr) continue;
-
-			NoneWereValid = false;
-			HandleDynamicConnection(ConnectionData.Transmitter, ConnectionData.Receiver);
-		}
-	}
+	
 	
 	static void HandleDynamicConnection(const FNewConnectionData& transmitter, const FNewConnectionData& receiver);
 
@@ -451,8 +456,7 @@ public:
 	{
 		if(!data.Object) return nullptr;
 		if(!IsValid(data.Object)) return nullptr;
-
-	
+		
 		UFunction* function = data.Object->FindFunction(data.FunctionName);
 		return function;
 	}
@@ -470,27 +474,10 @@ public:
 		}
 	}
 
-
-
-	//Utility function to add backwards compatibility. Before this was done manually, so the function could have invalid info.
-	//Now it's done automatically and supported by all wiremod gates.
-
+	
 	static bool IsInteger(const FNewConnectionData& data)
 	{
-		auto checkData = FNewConnectionData(data.Object, "netFunc_getFunctionReturnType");
-		auto function = GetFunction(checkData);
-		if(!function) return data.ConnectionType == Integer;
-
-		struct
-		{
-			FString FuncName;
-			FString TypeString;
-			int TypeInt;
-		} params{data.FunctionName.ToString()};
-
-		checkData.Object->ProcessEvent(function, &params);
-
-		return params.TypeInt == EConnectionType::Integer;
+		return data.ConnectionType == Integer;
 	}
 
 
