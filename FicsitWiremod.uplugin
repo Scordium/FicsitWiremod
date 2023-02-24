@@ -1,0 +1,40 @@
+{
+	"FileVersion": 3,
+	"SemVersion": "0.11.33",
+	"AcceptsAnyRemoteVersion": false,
+	"Version": 0,
+	"VersionName": "0.11.33",
+	"FriendlyName": "Ficsit Wiremod",
+	"Description": "",
+	"Category": "Modding",
+	"CreatedBy": "Scordium (Topaz#6700)",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "FicsitWiremod",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"LocalizationTargets": [
+		{
+			"Name": "FicsitWiremod",
+			"LoadingPolicy": "Always"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "SML",
+			"Enabled": true,
+			"SemVersion": "^3.4.1",
+			"BasePlugin": false
+		}
+	]
+}
