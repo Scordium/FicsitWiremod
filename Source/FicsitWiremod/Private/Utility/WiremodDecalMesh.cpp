@@ -1,4 +1,4 @@
-﻿// 
+// 
 
 
 #include "Utility/WiremodDecalMesh.h"
