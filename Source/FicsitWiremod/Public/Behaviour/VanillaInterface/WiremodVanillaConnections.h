@@ -66,6 +66,10 @@ class FICSITWIREMOD_API AWiremodVanillaConnections : public AModSubsystem
 	GENERATED_BODY()
 
 public:
+
+	//A shitty bandaid because USubsystemActorManager can't find the subsystem instance despite it being registered and accessible through this variable.
+	inline static AWiremodVanillaConnections* Self;
+	
 	// Sets default values for this actor's properties
 	AWiremodVanillaConnections() : Super()
 	{
@@ -79,6 +83,7 @@ protected:
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
+		Self = this;
 		if(!HasAuthority()) return;
 
 		LoadConnections();
@@ -197,6 +202,15 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
+	TArray<FDynamicConnectionData> GetAllConnections(UObject* Buildable)
+	{
+		auto Data = Game_VanillaBuildableData.Find(Buildable);
+		if(!Data) return TArray<FDynamicConnectionData>();
+
+		return Data->Connections;
+	}
+
+	UFUNCTION(BlueprintPure)
 	FWiremodOwnerData GetOwnerData(UObject* Buildable)
 	{
 		auto Data = Game_VanillaBuildableData.Find(Buildable);
@@ -204,6 +218,9 @@ public:
 
 		return Data->OwnerData;
 	}
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void GetOccupationStatus(UObject* Object, EConnectionType AllowedType, TArray<TEnumAsByte<EConnectionOccupationState>>& Statuses);
 
 
 	UFUNCTION(BlueprintCallable)

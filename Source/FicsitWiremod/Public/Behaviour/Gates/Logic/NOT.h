@@ -15,7 +15,7 @@ public:
 
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = !WM::GetFunctionBoolResult(GetConnection(0));
+		Out = !WM_GetBool(0);
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

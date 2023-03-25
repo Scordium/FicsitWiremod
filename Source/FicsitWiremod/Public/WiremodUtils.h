@@ -9,6 +9,7 @@
 #include "FGStorySubsystem.h"
 #include "FGTimeSubsystem.h"
 #include "WiremodReflection.h"
+#include "Behaviour/WiremodInterface.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Patching/NativeHookManager.h"
@@ -41,6 +42,8 @@ public:
 		if (!Buildable) return;
 
 		Buildable->mFactoryTickFunction.bCanEverTick = Enabled;
+		Buildable->mFactoryTickFunction.bStartWithTickEnabled = true;
+		UE_LOG(LogActor, Warning, TEXT("Buildable %s has requested to use factory tick"), *Buildable->GetName())
 	}
 
 
@@ -244,11 +247,22 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	static bool HasNoteData(const FBuildableNote& note) { return note.Text.ToString().Len() > 0; }
+	static bool HasNoteData(const FBuildableNote& note) { return !note.Text.IsEmpty(); }
 
 	UFUNCTION(BlueprintCallable)
 	static void CopyTextToClipboard(FString text) { FPlatformMisc::ClipboardCopy(*text); }
-	
-	UFUNCTION(BlueprintPure, meta=(DefaultToSelf="in", HidePin="in"))
-	static UTexture2D* GetBuildableTexture(AFGBuildable* in) { return UFGItemDescriptor::GetBigIcon(in->GetBuiltWithDescriptor()); }
+
+	UFUNCTION(BlueprintPure)
+	static UTexture2D* GetTexture(AFGBuildable* Buildable)
+	{
+		if(!Buildable) return nullptr;
+		
+		if(auto Wiremod = Cast<IWiremodInterface>(Buildable))
+		{
+			return Wiremod->GetTexture();
+		}
+
+		return UFGItemDescriptor::GetBigIcon(Buildable->GetBuiltWithDescriptor());
+	}
+
 };

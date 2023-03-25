@@ -38,6 +38,10 @@ class FICSITWIREMOD_API AWiremodAPI : public AModSubsystem
 {
 	GENERATED_BODY()
 public:
+
+	//A shitty bandaid because USubsystemActorManager can't find the subsystem instance despite it being registered and accessible through this variable.
+	inline static AWiremodAPI* Self;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FWiremodAPIData Data;
 	
@@ -45,6 +49,8 @@ public:
 	
 	virtual void BeginPlay() override
 	{
+		Super::BeginPlay();
+		Self = this;
 		ParseLists();
 	}
 
@@ -132,12 +138,13 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure, DisplayName="Is Registered", Category="Wiremod API")
-	bool IsBuildableRegistered(AFGBuildable* buildable)
+	bool IsBuildableRegistered(UObject* Object)
 	{
-		if(!IsValid(buildable)) return false;
+		auto Buildable = Cast<AFGBuildable>(Object);
+		if(!IsValid(Buildable)) return false;
 		
-		auto list = GetListOrDefault(Ref(buildable->GetClass()));
-		auto className = UWiremodUtils::GetClassName(buildable->GetClass());
+		auto list = GetListOrDefault(Ref(Buildable->GetClass()));
+		auto className = UWiremodUtils::GetClassName(Buildable->GetClass());
 		
 		return list->GetRowNames().Contains(className);
 	}
@@ -163,6 +170,20 @@ public:
 		}
 
 		return FBuildingConnections();
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void GetConnections(AFGBuildable* Buildable, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, int& Count, FBuildableNote& Note)
+	{
+		auto FoundData = FindConnections(Buildable);
+		Note = FoundData.Note;
+		
+		switch (Direction)
+		{
+		case Input: Connections = FoundData.Inputs; break;
+		case Output: Connections = FoundData.Outputs; break;
+		}
+		Count = Connections.Num();
 	}
 
 	FBuildingConnections FindRedirectedList(FString redirector)

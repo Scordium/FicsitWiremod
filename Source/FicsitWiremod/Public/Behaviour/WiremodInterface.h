@@ -39,4 +39,6 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TSubclassOf<UUserWidget> GetCompactWidget();
+	
+	virtual UTexture2D* GetTexture(){return nullptr;};
 };

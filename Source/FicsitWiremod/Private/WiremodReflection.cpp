@@ -424,6 +424,16 @@ TArray<FItemAmount> UWiremodReflection::GetItemAmountArray(const FNewConnectionD
 
 void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bool value_)
 {
+
+	if(data.FromProperty)
+	{
+		auto Property = Cast<FBoolProperty>(FindProperty(data));
+		if(Property)
+		{
+			Property->SetPropertyValue_InContainer(data.Object, value_);
+			return;
+		}
+	}
 	
 	if(data.FunctionName == "WM_FLUSHTANK_FUNC" && value_)
 	{
@@ -515,6 +525,17 @@ void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bo
 
 void UWiremodReflection::SetFunctionStringValue(const FNewConnectionData& data, FString value_)
 {
+
+	if(data.FromProperty)
+	{
+		auto Property = Cast<FStrProperty>(FindProperty(data));
+		if(Property)
+		{
+			Property->SetPropertyValue_InContainer(data.Object, value_);
+			return;
+		}
+	}
+	
 	if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
 	{
 		FPrefabSignData signData;
@@ -541,6 +562,29 @@ void UWiremodReflection::SetFunctionStringValue(const FNewConnectionData& data, 
 
 void UWiremodReflection::SetFunctionNumberValue(const FNewConnectionData& data, float value_)
 {
+
+	if(data.FromProperty)
+	{
+		if(IsInteger(data))
+		{
+			auto Property = Cast<FIntProperty>(FindProperty(data));
+			if(Property)
+			{
+				Property->SetPropertyValue_InContainer(data.Object, value_);
+				return;
+			}	
+		}
+		else
+		{
+			auto Property = Cast<FFloatProperty>(FindProperty(data));
+			if(Property)
+			{
+				Property->SetPropertyValue_InContainer(data.Object, value_);
+				return;
+			}
+		}
+	}
+	
 	if(data.FunctionName == "WM_RAILSWITCH_FUNC")
 	{
 		if(auto railSwitch = Cast<AFGBuildableRailroadSwitchControl>(data.Object))
@@ -618,6 +662,21 @@ void UWiremodReflection::SetFunctionNumberValue(const FNewConnectionData& data, 
 
 void UWiremodReflection::SetFunctionColorValue(const FNewConnectionData& data, FLinearColor value_)
 {
+
+	if(data.FromProperty)
+	{
+		auto Property = Cast<FStructProperty>(FindProperty(data));
+		if(Property)
+		{
+			auto Value = Property->ContainerPtrToValuePtr<FLinearColor>(data.Object);
+			Value->R = value_.R;
+			Value->G = value_.G;
+			Value->B = value_.B;
+			Value->A = value_.A;
+			return;
+		}
+	}
+	
 	if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
 	{
 

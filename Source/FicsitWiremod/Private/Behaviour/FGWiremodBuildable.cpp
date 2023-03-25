@@ -5,6 +5,7 @@
 
 void AFGWiremodBuildable::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
 	if(IsActiveEntity()) Process(DeltaTime);
 }
 
@@ -78,11 +79,19 @@ void AFGWiremodBuildable::OnInputConnected_Internal(const FNewConnectionData& Da
 {
 	if(InputConnections.Num() <= Index)
 		InputConnections.SetNum(Index + 1);
-	
-	InputConnections[Index] = Data;
+
+	auto ConvertedPositions = ConvertConnections(Data.WirePositions);
+
+	//A small hack to force redraw the wire if it doesn't have a complex shape. Implemented for usage with mods that can move buildables (i.e. MicroManage)
+	if(ConvertedPositions.Num() < 3) ConvertedPositions.Empty();
+	InputConnections[Index] = FNewConnectionData(Data, ConvertedPositions);
 	
 	DrawWires();
 }
+
+
+
+
 
 void AFGWiremodBuildable::OnInputDisconnected_Implementation(int Index, UObject* Setter)
 {

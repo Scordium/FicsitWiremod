@@ -2,7 +2,6 @@
 
 
 #include "Utility/ConnectionWireBase.h"
-
 #include "Components/SplineComponent.h"
 #include "Utility/ConnectionWireSplineMesh.h"
 
@@ -35,7 +34,8 @@ void AConnectionWireBase::DrawWire(FDynamicConnectionData Data)
 	if(!Data.Receiver.Object || !Data.Transmitter.Object) return;
 	
 	TArray<FVector> Points = AssignedConnection.Transmitter.WirePositions;
-	
+
+	//A small hack to force redraw the wire if it doesn't have a complex shape. Implemented for usage with mods that can move buildables (i.e. MicroManage)
 	if(Points.Num() == 0)
 	{
 		Points.SetNum(2);
@@ -45,9 +45,13 @@ void AConnectionWireBase::DrawWire(FDynamicConnectionData Data)
 		
 		if(auto receiver = Cast<AActor>(Data.Receiver.Object))
 			Points[1] = receiver->GetActorLocation();
-	}
 
-	Spline->SetSplinePoints(Points, ESplineCoordinateSpace::World);
+		Data.Transmitter.UseLocalWirePosition = false;
+	}
+	
+	const auto CoordinateSpace = Data.Transmitter.UseLocalWirePosition ? ESplineCoordinateSpace::Local : ESplineCoordinateSpace::World;
+	
+	Spline->SetSplinePoints(Points, CoordinateSpace);
 	for(int i = 1; i < Points.Num(); i++)
 	{
 		auto SplineMesh = Cast<UConnectionWireSplineMesh>(AddComponentByClass(UConnectionWireSplineMesh::StaticClass(), false, FTransform::Identity, false));

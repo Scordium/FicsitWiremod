@@ -14,14 +14,11 @@ class FICSITWIREMOD_API ADFlipFlop : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		bool Clock = WM::GetFunctionBoolResult(GetConnection(0));
-
-		if(Clock)
+		if(WM_GetBool(1))
 		{
-			if(!HasClockedLastFrame)
-			{
-				Out = WM::GetFunctionBoolResult(GetConnection(0));
-			}
+			if(HasClockedLastFrame) return;
+			
+			Out = WM_GetBool(0);
 			HasClockedLastFrame = true;
 		}
 		else HasClockedLastFrame = false;

@@ -149,16 +149,21 @@ public:
 	void OnInputConnected_Implementation(const FNewConnectionData& Data, int Index, UObject* Setter) override;
 	void OnInputDisconnected_Implementation(int Index, UObject* Setter) override;
 	TSubclassOf<UUserWidget> GetCompactWidget_Implementation() override;
+	virtual UTexture2D* GetTexture() override { return UFGItemDescriptor::GetBigIcon(GetBuiltWithDescriptor()); }
 	// End IWiremodInterface
 
 	
-	AFGWiremodBuildable(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+	AFGWiremodBuildable(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer)
 	{
+		//Tick prerequisites
 		PrimaryActorTick.bCanEverTick = true;
 		PrimaryActorTick.bStartWithTickEnabled = true;
+		mFactoryTickFunction.bCanEverTick = false;
+		
+		//Multiplayer configuring
 		NetDormancy = DORM_Never;
 		
-		
+		//Visuals
 		Mesh->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 		Mesh->SetStaticMesh(Assets->WiremodGateMesh);
 		Mesh->SetRelativeScale3D(FVector(20, 20, 20));
@@ -211,40 +216,40 @@ protected:
 
 
 	UFUNCTION(BlueprintCallable)
-	bool WM_GetBool(int InputIndex, bool DefaultValue = false) { return WM::GetFunctionBoolResult(GetConnection(InputIndex), DefaultValue); }
+	FORCEINLINE bool WM_GetBool(int InputIndex, bool DefaultValue = false) { return WM::GetFunctionBoolResult(GetConnection(InputIndex), DefaultValue); }
 	
 	UFUNCTION(BlueprintCallable)
-	float WM_GetFloat(int InputIndex, float DefaultValue = 0.f) { return WM::GetFunctionNumberResult(GetConnection(InputIndex), DefaultValue); }
+	FORCEINLINE float WM_GetFloat(int InputIndex, float DefaultValue = 0.f) { return WM::GetFunctionNumberResult(GetConnection(InputIndex), DefaultValue); }
 	
 	UFUNCTION(BlueprintCallable)
-	int WM_GetInt(int InputIndex, int DefaultValue = 0) { return WM::GetFunctionNumberResult(GetConnection(InputIndex), DefaultValue); }
+	FORCEINLINE int WM_GetInt(int InputIndex, int DefaultValue = 0) { return WM::GetFunctionNumberResult(GetConnection(InputIndex), DefaultValue); }
 	
 	UFUNCTION(BlueprintCallable)
-	FLinearColor WM_GetColor(int InputIndex, FLinearColor DefaultValue = FLinearColor::Black) { return WM::GetFunctionColorResult(GetConnection(InputIndex), DefaultValue); }
+	FORCEINLINE FLinearColor WM_GetColor(int InputIndex, FLinearColor DefaultValue = FLinearColor::Black) { return WM::GetFunctionColorResult(GetConnection(InputIndex), DefaultValue); }
 
 	UFUNCTION(BlueprintCallable)
-	FString WM_GetString(int InputIndex, FString DefaultValue = "") { return WM::GetFunctionStringResult(GetConnection(InputIndex), DefaultValue); }
+	FORCEINLINE FString WM_GetString(int InputIndex, FString DefaultValue = "") { return WM::GetFunctionStringResult(GetConnection(InputIndex), DefaultValue); }
 
 	UFUNCTION(BlueprintCallable)
-	FVector WM_GetVector(int InputIndex, FVector DefaultValue = FVector::ZeroVector) { return WM::GetFunctionVectorResult(GetConnection(InputIndex), DefaultValue); }
+	FORCEINLINE FVector WM_GetVector(int InputIndex, FVector DefaultValue = FVector::ZeroVector) { return WM::GetFunctionVectorResult(GetConnection(InputIndex), DefaultValue); }
 
 	UFUNCTION(BlueprintCallable)
-	FInventoryStack WM_GetStack(int InputIndex) { return WM::GetFunctionStackResult(GetConnection(InputIndex)); }
+	FORCEINLINE FInventoryStack WM_GetStack(int InputIndex) { return WM::GetFunctionStackResult(GetConnection(InputIndex)); }
 
 	UFUNCTION(BlueprintCallable)
-	AActor* WM_GetEntity(int InputIndex) { return WM::GetFunctionEntityResult(GetConnection(InputIndex)); }
+	FORCEINLINE AActor* WM_GetEntity(int InputIndex) { return WM::GetFunctionEntityResult(GetConnection(InputIndex)); }
 
 	UFUNCTION(BlueprintCallable)
-	UFGInventoryComponent* WM_GetInventory(int InputIndex) { return WM::GetFunctionInventory(GetConnection(InputIndex)); }
+	FORCEINLINE UFGInventoryComponent* WM_GetInventory(int InputIndex) { return WM::GetFunctionInventory(GetConnection(InputIndex)); }
 
 	UFUNCTION(BlueprintCallable)
-	UFGPowerCircuit* WM_GetPowerCircuit(int InputIndex) { return WM::GetFunctionPowerCircuitResult(GetConnection(InputIndex)); }
+	FORCEINLINE UFGPowerCircuit* WM_GetPowerCircuit(int InputIndex) { return WM::GetFunctionPowerCircuitResult(GetConnection(InputIndex)); }
 
 	UFUNCTION(BlueprintCallable)
-	TSubclassOf<UFGRecipe> WM_GetRecipe(int InputIndex) { return WM::GetFunctionRecipeResult(GetConnection(InputIndex)); }
+	FORCEINLINE TSubclassOf<UFGRecipe> WM_GetRecipe(int InputIndex) { return WM::GetFunctionRecipeResult(GetConnection(InputIndex)); }
 
 	UFUNCTION(BlueprintCallable)
-	FItemAmount WM_GetItemAmount(int InputIndex) { return WM::GetItemAmount(GetConnection(InputIndex)); }
+	FORCEINLINE FItemAmount WM_GetItemAmount(int InputIndex) { return WM::GetItemAmount(GetConnection(InputIndex)); }
 
 public:
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override;
@@ -378,7 +383,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetInputOccupationStatus(EConnectionType AllowedType, TArray<TEnumAsByte<EConnectionOccupationState>>& Out);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Replicated)
+	UPROPERTY(VisibleInstanceOnly, meta=(HideInDetailPanel=true))
+	bool AllowStatelessEdit = true;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Replicated, meta=(EditCondition="AllowStatelessEdit"))
 	FBuildingConnections ConnectionsInfo;
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, SaveGame, Replicated)
@@ -411,4 +419,19 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable)
 	void SetAssets(UWiremodGameWorldModule* assets){Assets = assets;}
+
+
+	//Legacy wire positions converter
+	TArray<FVector> ConvertConnections(TArray<FVector> Old)
+	{
+		TArray<FVector> Out;
+
+		for(auto Pos : Old)
+		{
+			auto NewPos = UKismetMathLibrary::InverseTransformLocation(GetActorTransform(), Pos);
+			Out.Add(NewPos);
+		}
+
+		return Out;
+	}
 };

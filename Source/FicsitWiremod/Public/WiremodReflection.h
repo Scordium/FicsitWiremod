@@ -272,6 +272,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	bool FromProperty = false;
 	
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, SaveGame)
+	bool UseLocalWirePosition;
+	
 	FNewConnectionData operator =(const FNewConnectionData& data)
 	{
 		Object = data.Object;
@@ -282,6 +285,7 @@ public:
 		WireHidden = data.WireHidden;
 		WirePositions = data.WirePositions;
 		FromProperty = data.FromProperty;
+		UseLocalWirePosition = data.UseLocalWirePosition;
 
 		return *this;
 	}
@@ -304,6 +308,20 @@ public:
 		this->Object = object;
 		this->FunctionName = functionName;
 		this->ConnectionType = Type;
+	}
+
+	//Constructor for updating to local positions
+	FNewConnectionData(const FNewConnectionData& Original, TArray<FVector> LocalPositions)
+	{
+		Object = Original.Object;
+		DisplayName = Original.DisplayName;
+		FunctionName  = Original.FunctionName;
+		ConnectionType = Original.ConnectionType;
+		WireColor = Original.WireColor;
+		WireHidden = Original.WireHidden;
+		WirePositions = LocalPositions;
+		FromProperty = Original.FromProperty;
+		UseLocalWirePosition = true;
 	}
 
 	bool IsValid()
@@ -504,8 +522,14 @@ public:
 	{
 		if(!data.Object) return defaultValue;
 		
-		auto val = data.Object->GetClass()->FindPropertyByName(data.FunctionName);
+		auto val = FindProperty(data);
 		if(!val) return defaultValue;
 		return *val->ContainerPtrToValuePtr<O>(data.Object);
+	}
+
+	static FProperty* FindProperty(const FNewConnectionData& data)
+	{
+		if(!data.Object) return nullptr;
+		return data.Object->GetClass()->FindPropertyByName(data.FunctionName);
 	}
 };

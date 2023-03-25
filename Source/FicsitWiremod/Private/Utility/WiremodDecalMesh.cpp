@@ -4,7 +4,6 @@
 #include "Utility/WiremodDecalMesh.h"
 
 #include "WiremodUtils.h"
-#include "Kismet/KismetMaterialLibrary.h"
 #include "Utility/WiremodGameWorldModule.h"
 
 
@@ -26,16 +25,6 @@ UWiremodDecalMesh::UWiremodDecalMesh() : Super()
 void UWiremodDecalMesh::BeginPlay()
 {
 	Super::BeginPlay();
-	auto Buildable = Cast<AFGBuildable>(this->GetAttachmentRootActor());
-	if(!Buildable) return;
-	
-	auto Texture = UWiremodUtils::GetBuildableTexture(Buildable);
-	if(!Texture || Texture == UWiremodGameWorldModule::DecalDefaultTexture) this->DestroyComponent();
-	else
-	{
-		auto DynamicMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetWorld(), this->GetMaterial(0));
-		DynamicMaterial->SetTextureParameterValue(FName("Texture"), Texture);
-		this->SetMaterial(0, DynamicMaterial);
-	}
+	UpdateTexture();
 }
 
