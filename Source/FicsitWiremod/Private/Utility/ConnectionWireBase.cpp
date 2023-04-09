@@ -2,6 +2,8 @@
 
 
 #include "Utility/ConnectionWireBase.h"
+
+#include "WiremodUtils.h"
 #include "Components/SplineComponent.h"
 #include "Utility/ConnectionWireSplineMesh.h"
 
@@ -20,16 +22,8 @@ AConnectionWireBase::AConnectionWireBase() : Super()
 
 
 
-void AConnectionWireBase::DrawWire(FDynamicConnectionData Data)
+void AConnectionWireBase::DrawWireFromData(FDynamicConnectionData Data)
 {
-	if(!Spline)
-	{
-		Spline = Cast<USplineComponent>(AddComponentByClass(USplineComponent::StaticClass(), false, FTransform::Identity, false));
-		Spline->Activate();
-		Spline->SetIsReplicated(true);
-		RootComponent = Spline;
-	}
-	
 	AssignedConnection = Data;
 	if(!Data.Receiver.Object || !Data.Transmitter.Object) return;
 	
@@ -51,6 +45,21 @@ void AConnectionWireBase::DrawWire(FDynamicConnectionData Data)
 	
 	const auto CoordinateSpace = Data.Transmitter.UseLocalWirePosition ? ESplineCoordinateSpace::Local : ESplineCoordinateSpace::World;
 	
+	DrawWireFromPoints(Points, CoordinateSpace);
+}
+
+void AConnectionWireBase::DrawWireFromPoints(const TArray<FVector>& Points, ESplineCoordinateSpace::Type CoordinateSpace)
+{
+	if(!Spline)
+	{
+		Spline = Cast<USplineComponent>(AddComponentByClass(USplineComponent::StaticClass(), false, FTransform::Identity, false));
+		Spline->Activate();
+		Spline->SetIsReplicated(true);
+		RootComponent = Spline;
+	}
+		
+	DestroyAllSplineMeshes();
+		
 	Spline->SetSplinePoints(Points, CoordinateSpace);
 	for(int i = 1; i < Points.Num(); i++)
 	{
@@ -65,6 +74,28 @@ void AConnectionWireBase::DrawWire(FDynamicConnectionData Data)
 	}
 
 	UpdateWireVisuals();
+}
+
+void AConnectionWireBase::UpdateWireVisuals()
+{
+	TInlineComponentArray<UConnectionWireSplineMesh*> SplineMeshes;
+	GetComponents<UConnectionWireSplineMesh>(SplineMeshes);
+	
+	auto Color = AssignedConnection.Transmitter.WireColor;
+
+	float Emission;
+	UWiremodUtils::WireEmission(Emission);
+
+
+	auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
+	auto BoolProperty = Cast<UConfigPropertyBool>(Config->SectionProperties["Health_Epilepsy"]);
+	
+	for (auto SplineMesh : SplineMeshes)
+	{
+		SplineMesh->SetScalarParameterValueOnMaterials(FName("Emission"), Emission);
+		SplineMesh->SetVectorParameterValueOnMaterials(FName("CustomColor"), FVector(Color));
+		SplineMesh->SetScalarParameterValueOnMaterials(FName("Speed"), BoolProperty->Value ? -.5 : -1.5);
+	}
 }
 
 

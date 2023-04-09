@@ -22,7 +22,7 @@ public:
 	
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Enabled = WM_GetBool(0, EnabledByDefault);
+		Enabled = WM_GetBool(0, EnabledByDefault());
 
 		if(WM_GetBool(1)) TotalPassed = 0;
 	}
@@ -139,6 +139,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	class UFGInventoryComponent* TempStorage;
 
-	UPROPERTY(BlueprintReadWrite)
-	bool EnabledByDefault;
+	
+	FORCEINLINE bool EnabledByDefault() const
+	{
+		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["ConveyorLimiter_DefaultEnabled"];
+		return Cast<UConfigPropertyBool>(Config)->Value;
+	}
 };

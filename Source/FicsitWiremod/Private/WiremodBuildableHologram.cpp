@@ -3,12 +3,17 @@
 
 #include "WiremodBuildableHologram.h"
 
+#include "WiremodUtils.h"
 #include "Buildables/FGBuildableFoundation.h"
+#include "Configuration/Properties/ConfigPropertyFloat.h"
+#include "Configuration/Properties/ConfigPropertySection.h"
 #include "Hologram/FGWallHologram.h"
+
+#define GRID_SIZE Cast<UConfigPropertyFloat>(Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["WiremodHolo_SnapSize"])->Value
 
 void AWiremodBuildableHologram::SetHologramLocationAndRotation(const FHitResult& hitResult)
 {
-	FVector NewPos = hitResult.ImpactPoint.GridSnap(mGridSnapSize);
+	FVector NewPos = hitResult.ImpactPoint.GridSnap(UseConfigGridSize ? GRID_SIZE : mGridSnapSize);
 	
 	FVector RotationAxis = FVector::CrossProduct(FVector::UpVector, hitResult.ImpactNormal);
 	RotationAxis.Normalize();

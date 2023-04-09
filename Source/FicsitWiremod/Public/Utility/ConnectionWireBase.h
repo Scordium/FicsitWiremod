@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ConnectionWireSplineMesh.h"
 #include "WiremodReflection.h"
+#include "Components/SplineComponent.h"
 #include "GameFramework/Actor.h"
 #include "ConnectionWireBase.generated.h"
 
@@ -32,7 +33,7 @@ protected:
 		Super::BeginPlay();
 		
 		if(!HasAuthority())
-			DrawWire(AssignedConnection);
+			DrawWireFromData(AssignedConnection);
 	}
 
 public:
@@ -46,9 +47,9 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void DrawWire(FDynamicConnectionData Data);
+	void DrawWireFromData(FDynamicConnectionData Data);
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintCallable)
 	void UpdateWireVisuals();
 
 	UFUNCTION(BlueprintCallable)
@@ -57,24 +58,30 @@ public:
 		AssignedConnection = FDynamicConnectionData();
 		PreviewMode = false;
 
-		TArray<UConnectionWireSplineMesh*> SplineMeshes;
-		GetComponents<UConnectionWireSplineMesh>(SplineMeshes);
-		for (auto SplineMesh : SplineMeshes) SplineMesh->DestroyComponent();
-		
+		DestroyAllSplineMeshes();
 		Destroy();
 	}
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	UFUNCTION(BlueprintCallable)
+	void DestroyAllSplineMeshes()
+	{
+		TInlineComponentArray<UConnectionWireSplineMesh*> SplineMeshes;
+		GetComponents<UConnectionWireSplineMesh>(SplineMeshes);
+		for (auto SplineMesh : SplineMeshes) SplineMesh->DestroyComponent();
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void DrawWireFromPoints(const TArray<FVector>& Points, ESplineCoordinateSpace::Type CoordinateSpace = ESplineCoordinateSpace::World);
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Replicated)
 	FDynamicConnectionData AssignedConnection;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool PreviewMode;
-
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	
+	UPROPERTY()
 	class USplineComponent* Spline;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStaticMesh* WireMesh;
+	UStaticMesh* WireMesh = LoadObject<UStaticMesh>(NULL, *FString("/FicsitWiremod/Buildings/SpecialCube.SpecialCube"));;
 };

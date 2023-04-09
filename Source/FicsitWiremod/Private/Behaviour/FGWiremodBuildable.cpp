@@ -2,6 +2,7 @@
 #include "Behaviour/FGWiremodBuildable.h"
 
 #include "WiremodUtils.h"
+#include "Buildables/FGBuildableBlueprintDesigner.h"
 
 void AFGWiremodBuildable::Tick(float DeltaTime)
 {
@@ -83,7 +84,13 @@ void AFGWiremodBuildable::OnInputConnected_Internal(const FNewConnectionData& Da
 	auto ConvertedPositions = ConvertConnections(Data.WirePositions);
 
 	//A small hack to force redraw the wire if it doesn't have a complex shape. Implemented for usage with mods that can move buildables (i.e. MicroManage)
-	if(ConvertedPositions.Num() < 3) ConvertedPositions.Empty();
+	if(ConvertedPositions.Num() < 3)
+	{
+		//Check if the starting point is the object's location.
+		//If it is then it's safe to make adaptive wire. If not - don't do anything. The only thing that will change is that wire won't redraw after the objects were moved around.
+		//There's no need to bother making a wire at all if the object is not an actor, so check for that as well.
+		if(auto actor = Cast<AActor>(Data.Object); actor && Data.WirePositions[0] == actor->GetActorLocation()) ConvertedPositions.Empty();
+	}
 	InputConnections[Index] = FNewConnectionData(Data, ConvertedPositions);
 	
 	DrawWires();
@@ -155,6 +162,10 @@ FString AFGWiremodBuildable::netFunc_getWireString(FString FunctionName, FString
 FVector AFGWiremodBuildable::netFunc_getWireVector(FString FunctionName, FVector DefaultValue) { return UWiremodReflection::GetFunctionVectorResult(FNewConnectionData(this, FName(FunctionName), Vector), DefaultValue); }
 FLinearColor AFGWiremodBuildable::netFunc_getWireColor(FString FunctionName, FLinearColor DefaultValue) { return UWiremodReflection::GetFunctionColorResult(FNewConnectionData(this, FName(FunctionName), Color), DefaultValue); }
 FString AFGWiremodBuildable::netFunc_getDebuggerOutputString(FString FunctionName) { return UWiremodUtils::GetStringifiedValue(FNewConnectionData(this, FName(FunctionName), (EConnectionType) netFunc_getFunctionReturnType(FunctionName))); }
+bool AFGWiremodBuildable::netFunc_isBlueprinted()
+{
+	return IsValid(mBlueprintDesigner);
+}
 
 void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, TArray<TEnumAsByte<EConnectionOccupationState>>& Out)
 {
@@ -163,7 +174,7 @@ void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, 
 	for(int i = 0; i < Inputs.Num(); i++)
 	{
 		auto Connection = GetConnection(i);
-		if(!Connection.Object)
+		if(!Connection.IsValid())
 		{
 			bool ValidPair = UWiremodUtils::IsValidConnectionPair(Inputs[i].ConnectionType, AllowedType);
 			Out.Add(ValidPair ? Free : Disabled);
@@ -205,7 +216,7 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 	if(InputInfoList.Num() == 0) return;
 
 	//Visible wire class to use as wire
-	auto WireClass = Assets->VisibleWireClass;
+	auto WireClass = AConnectionWireBase::StaticClass();
 	
 	//Create new wires
 	for (int i = 0; i < InputConnections.Num(); i++)
@@ -233,7 +244,7 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 		FDynamicConnectionData AssignedConnection = FDynamicConnectionData();
 		AssignedConnection.Transmitter = ConnectionData;
 		AssignedConnection.Receiver = ReceiverData;
-		WireActor->DrawWire(AssignedConnection);
+		WireActor->DrawWireFromData(AssignedConnection);
 		
 		WireActorComponent->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
 		WireActorComponent->SetHiddenInGame(false);

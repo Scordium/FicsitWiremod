@@ -25,4 +25,7 @@ class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 	{
 		return hitResult.Actor.IsValid();
 	};
+
+	UPROPERTY(EditDefaultsOnly)
+	bool UseConfigGridSize = true;
 };

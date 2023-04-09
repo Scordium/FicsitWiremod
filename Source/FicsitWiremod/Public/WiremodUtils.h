@@ -10,9 +10,11 @@
 #include "FGTimeSubsystem.h"
 #include "WiremodReflection.h"
 #include "Behaviour/WiremodInterface.h"
+#include "Configuration/ConfigProperty.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Patching/NativeHookManager.h"
+#include "Utility/WiremodGameWorldModule.h"
 #include "WiremodUtils.generated.h"
 
 
@@ -25,6 +27,20 @@ class FICSITWIREMOD_API UWiremodUtils : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION(BlueprintCallable)
+	static AActor* GetActualHitTarget(const FHitResult& hit, FVector& Location)
+	{
+		Location = hit.Location;
+		if(auto abstractHit = Cast<AAbstractInstanceManager>(hit.Actor))
+		{
+			FInstanceHandle handle;
+			abstractHit->ResolveHit(hit, handle);
+			return handle.GetOwner<AActor>();
+		}
+		return hit.Actor.Get();
+	}
+	
 	UFUNCTION(BlueprintCallable)
 	static void SetTime(AFGTimeOfDaySubsystem* subsystem, float hour, float minute, float second)
 	{
@@ -34,16 +50,6 @@ public:
 	
 		float finalTime = hour * 3600 + minute * 60 + second;
 		subsystem->SetDaySeconds(finalTime);
-	}
-
-	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf = "Buildable"))
-	static void SetCanEverTick(AFGBuildable* Buildable, bool Enabled)
-	{
-		if (!Buildable) return;
-
-		Buildable->mFactoryTickFunction.bCanEverTick = Enabled;
-		Buildable->mFactoryTickFunction.bStartWithTickEnabled = true;
-		UE_LOG(LogActor, Warning, TEXT("Buildable %s has requested to use factory tick"), *Buildable->GetName())
 	}
 
 
@@ -232,19 +238,7 @@ public:
 		}
 	}
 
-
-	UFUNCTION(BlueprintCallable)
-	static AActor* GetActualHitTarget(const FHitResult& hit, FVector& Location)
-	{
-		Location = hit.Location;
-		if(auto abstractHit = Cast<AAbstractInstanceManager>(hit.Actor))
-		{
-			FInstanceHandle handle;
-			abstractHit->ResolveHit(hit, handle);
-			return handle.GetOwner<AActor>();
-		}
-		return hit.Actor.Get();
-	}
+	
 
 	UFUNCTION(BlueprintPure)
 	static bool HasNoteData(const FBuildableNote& note) { return !note.Text.IsEmpty(); }
@@ -263,6 +257,65 @@ public:
 		}
 
 		return UFGItemDescriptor::GetBigIcon(Buildable->GetBuiltWithDescriptor());
+	}
+
+
+	UFUNCTION(BlueprintPure)
+	static FORCEINLINE float TraceDistance()
+	{
+		return Cast<UConfigPropertyFloat>(Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["WiremodTool_RaycastDistance"])->Value;
+	}
+
+	UFUNCTION(BlueprintPure)
+	static UConfigPropertyArray* DefaultWireColor(FLinearColor& Color)
+	{
+		auto Property = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["Wire_Color"];
+		auto ColorProperty = Cast<UConfigPropertyArray>(Property);
+
+		float R = Cast<UConfigPropertyFloat>(ColorProperty->Values[0])->Value;
+		float G = Cast<UConfigPropertyFloat>(ColorProperty->Values[1])->Value;
+		float B = Cast<UConfigPropertyFloat>(ColorProperty->Values[2])->Value;
+		
+		Color = FLinearColor(R, G, B);
+		return ColorProperty;
+	}
+
+	UFUNCTION(BlueprintPure)
+	static bool ShouldToolKeepState()
+	{
+		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
+
+		return Cast<UConfigPropertyBool>(Config->SectionProperties["WiremodTool_KeepState"])->Value;
+	}
+
+	UFUNCTION(BlueprintPure)
+	static UConfigPropertyBool* WireDefaultHidden(bool& Out)
+	{
+		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
+		auto BoolProperty = Cast<UConfigPropertyBool>(Config->SectionProperties["Wire_Hidden"]);
+
+		Out = BoolProperty->Value;
+		return BoolProperty;
+	}
+
+	UFUNCTION(BlueprintPure)
+	static UConfigPropertyFloat* WireEmission(float& Out)
+	{
+		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
+		auto FloatProperty = Cast<UConfigPropertyFloat>(Config->SectionProperties["Wire_Emission"]);
+
+		Out = FloatProperty->Value;
+		return FloatProperty;
+	}
+
+	UFUNCTION(BlueprintPure)
+	static bool IsPhotoEpilepsyMode(UConfigPropertyBool*& Property) //This function causes editor to crash sometimes. Wtf?
+	{
+		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
+		auto BoolProperty = Cast<UConfigPropertyBool>(Config->SectionProperties["Health_Epilepsy"]);
+
+		Property = BoolProperty;
+		return BoolProperty->Value;
 	}
 
 };

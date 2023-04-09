@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGCharacterPlayer.h"
 #include "FGPlayerState.h"
+#include "WiremodBuildableHologram.h"
 #include "WiremodInterface.h"
 #include "WiremodReflection.h"
 #include "WiremodUtils.h"
@@ -16,6 +17,7 @@
 #include "FGWiremodBuildable.generated.h"
 
 #define WM UWiremodReflection
+
 
 UENUM(BlueprintType)
 enum EConnectionOccupationState
@@ -134,6 +136,18 @@ struct FWiremodOwnerData
 		if(auto state = GetState(entity)) return state->GetPlayerName();
 		return "";
 	}
+
+	bool operator ==(const FWiremodOwnerData& Other) const
+	{
+		return
+		OwnerId == Other.OwnerId
+		&& CustomName.EqualTo(Other.CustomName)
+		&& AllowDismantle == Other.AllowDismantle
+		&& Configuring == Other.Configuring
+		&& Disconnecting == Other.Disconnecting
+		&& Connecting == Other.Connecting;
+	}
+
 };
 
 UCLASS(Abstract)
@@ -165,9 +179,10 @@ public:
 		
 		//Visuals
 		Mesh->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-		Mesh->SetStaticMesh(Assets->WiremodGateMesh);
+		Mesh->SetStaticMesh(UWiremodGameWorldModule::Self->WiremodGateMesh);
 		Mesh->SetRelativeScale3D(FVector(20, 20, 20));
-		
+
+		mHologramClass = AWiremodBuildableHologram::StaticClass();
 		
 		BuildableDecal->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 		FINConnector->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
@@ -367,6 +382,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FString netFunc_getDebuggerOutputString(FString FunctionName);
+
+	UFUNCTION(BlueprintPure, DisplayName="Is Blueprinted")
+	bool netFunc_isBlueprinted();
 #pragma endregion 
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
@@ -410,15 +428,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* FINConnector = CreateDefaultSubobject<UStaticMeshComponent>("FINConnector");
-	
-	inline static UWiremodGameWorldModule* Assets;
-
-	/*
-	 * An odd hack to get the correct models for gates, and some other assets.
-	 * Called in the blueprint before initialization.
-	 */
-	UFUNCTION(BlueprintCallable)
-	void SetAssets(UWiremodGameWorldModule* assets){Assets = assets;}
 
 
 	//Legacy wire positions converter

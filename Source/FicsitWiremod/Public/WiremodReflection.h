@@ -131,50 +131,38 @@ struct FBuildingConnection : public FTableRowBase
 	FString DisplayName;
 
 	/**
-	 * Function/property name that wiremod will call/read to get the value for it's own use
+	 * Function/property name that wiremod will call/read to get/set the value
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FName FunctionName;
-
 	
     /**
      * The type of value this function/property returns/stores
      * Setting this to an incorrect type might cause crashes
      */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TEnumAsByte<EConnectionType> ConnectionType;
-
-
-	/**
-	 * Set this to true if you don't handle connecting the data yourself, or want wiremod to call the function for you.
-	 * For output: Does nothing
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool Dynamic;
+	TEnumAsByte<EConnectionType> ConnectionType = Unknown;
 
 	/**
 	 * Whether wiremod should skip trying to find the function with "FunctionName" and just directly try to get the value from property.
 	 * Wiremod will try to find a property with such name anyway in case a function was not found.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool FromProperty;
+	bool FromProperty = false;
 	
 	/**
 	 * Description that the user will see in the UI, pretty useless as localization is not possible unless set up by the dev.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(MultiLine="true"))
 	FText Description;
+	
+	FBuildingConnection(){};
 
-
-
-	FBuildingConnection() : Super(){};
-
-	FBuildingConnection(FString DisplayName, FString FunctionName, EConnectionType ConnectionType, bool Dynamic = false, bool IsProperty = false)
+	FBuildingConnection(FString DisplayName, FString FunctionName, EConnectionType ConnectionType, bool IsProperty = false)
 	{
 		this->DisplayName = DisplayName;
 		this->FunctionName = FName(FunctionName);
 		this->ConnectionType = ConnectionType;
-		this->Dynamic = Dynamic;
 		this->FromProperty = IsProperty;
 	}
 };
@@ -273,7 +261,7 @@ public:
 	bool FromProperty = false;
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, SaveGame)
-	bool UseLocalWirePosition;
+	bool UseLocalWirePosition = false;
 	
 	FNewConnectionData operator =(const FNewConnectionData& data)
 	{
@@ -477,19 +465,6 @@ public:
 		
 		UFunction* function = data.Object->FindFunction(data.FunctionName);
 		return function;
-	}
-
-	UFUNCTION(BlueprintCallable)
-	static void PrintAllFunctions(UObject* object)
-	{
-		for ( TFieldIterator<UFunction> FIT ( object->GetClass(), EFieldIteratorFlags::IncludeSuper ); FIT; ++FIT) {
-
-			UFunction* Function = *FIT;
-			TMap<FString, FString> properties;
-			Function->GetNativePropertyValues(properties);
-			UE_LOG(LogTemp, Warning, TEXT("[WIREMOD REFLECTION] FUNCTION: %s"), *Function->GetName())
-			for (TTuple<FString, FString> Property : properties) {UE_LOG(LogTemp, Warning, TEXT("%s -> %s"), *Property.Key, *Property.Value);}
-		}
 	}
 
 	

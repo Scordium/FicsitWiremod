@@ -8,7 +8,6 @@
 #include "Behaviour/WiremodInterface.h"
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Subsystem/SubsystemActorManager.h"
 #include "WiremodBlueprintUtils.generated.h"
 
 /**
@@ -107,4 +106,13 @@ public:
 			else AWiremodVanillaConnections::Self->GetOccupationStatus(Object, AllowedType, Statuses);
 		}
 	}
+
+	UFUNCTION(BlueprintPure)
+	static UObject* GetSetterObject()
+	{
+		return UGameplayStatics::GetPlayerCharacter(UWiremodGameWorldModule::Self->GetWorld(), 0);
+	}
+
+	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="=="))
+	static bool IsOwnerDataEqual(const FWiremodOwnerData& Data1, const FWiremodOwnerData& Data2){return Data1 == Data2; }
 };

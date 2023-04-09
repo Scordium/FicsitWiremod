@@ -4,7 +4,6 @@
 #include "WiremodReflection.h"
 
 #include "FGBuildableDoor.h"
-#include "FGCircuitSubsystem.h"
 #include "FGGameState.h"
 #include "FGPipeConnectionComponent.h"
 #include "FGPipeSubsystem.h"
@@ -17,9 +16,7 @@
 #include "Buildables/FGBuildableRailroadSwitchControl.h"
 #include "Buildables/FGBuildableWidgetSign.h"
 #include "Components/WidgetComponent.h"
-#include "Kismet/KismetStringLibrary.h"
 #include "Kismet/KismetTextLibrary.h"
-#include "UI/FGSignBuildingWidget.h"
 
 #define Dynamic IIConstantsDistributor::Execute_GetValue
 
@@ -106,14 +103,15 @@ float UWiremodReflection::GetFunctionNumberResult(const FNewConnectionData& data
 	}
 	else if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
 	{
-		if(data.FunctionName == "Emissive") return sign->mEmissive;
-		else if(data.FunctionName == "Glossiness") return sign->mGlossiness;
-		else
-		{
-			if(sign->mIconElementToDataMap.Contains(data.FunctionName.ToString()))
-				return sign->mIconElementToDataMap[data.FunctionName.ToString()];
-			else return defaultValue;
-		}
+		if(sign->mIconElementToDataMap.Contains(data.FunctionName.ToString()))
+			return sign->mIconElementToDataMap[data.FunctionName.ToString()];
+		else return defaultValue;
+	}
+	else if(auto fluidTank = Cast<AFGBuildablePipeReservoir>(data.Object))
+	{
+		auto fluidBox = *fluidTank->GetFluidBox();
+		if(data.FunctionName == "Content") return fluidBox.Content;
+		else return fluidBox.MaxContent;
 	}
 	
 	if(IsInteger(data))
@@ -155,15 +153,6 @@ FLinearColor UWiremodReflection::GetFunctionColorResult(const FNewConnectionData
 	
 	if(IsDynamic(data.Object))
 		return Dynamic(data.Object, data.FunctionName.ToString()).StoredColor;
-	
-	if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
-	{
-		if(data.FunctionName == "TextColor") return sign->mForegroundColor;
-		if(data.FunctionName == "BackgroundColor") return sign->mBackgroundColor;
-		if(data.FunctionName == "AuxColor") return sign->mAuxilaryColor;
-		
-		return defaultValue;
-	}
 	
 	struct{FLinearColor RetVal;} params{defaultValue};
 	if(!ProcessFunction(data, &params))
@@ -245,7 +234,7 @@ TSubclassOf<UFGRecipe> UWiremodReflection::GetFunctionRecipeResult(const FNewCon
 		struct{TSubclassOf<UFGRecipe> RetVal; } params{};	
 		if(!ProcessFunction(data, &params))
 			out = FromProperty<TSubclassOf<UFGRecipe>>(data, nullptr);
-		out = params.RetVal;
+		else out = params.RetVal;
 	}
 	
 	if(!out.GetDefaultObject()) return TSubclassOf<UFGRecipe>();

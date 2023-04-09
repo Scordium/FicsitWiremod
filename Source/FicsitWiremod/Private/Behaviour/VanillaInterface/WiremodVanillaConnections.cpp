@@ -29,7 +29,7 @@ void AWiremodVanillaConnections::DrawWiresForBuildable(FVanillaBuildingDataKeyVa
 	if(KeyValuePair.Data.Connections.Num() == 0) return;
 
 	//Visible wire class to use as wire
-	auto WireClass = AFGWiremodBuildable::Assets->VisibleWireClass;
+	auto WireClass = AConnectionWireBase::StaticClass();
 	
 	//Create new wires
 	for (auto Connection : KeyValuePair.Data.Connections)
@@ -45,7 +45,7 @@ void AWiremodVanillaConnections::DrawWiresForBuildable(FVanillaBuildingDataKeyVa
 		WireActor->SetActorTickEnabled(true);
 
 		//Assign data to wire
-		WireActor->DrawWire(Connection);
+		WireActor->DrawWireFromData(Connection);
 				
 		WireActorComponent->AttachToComponent(Buildable->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
 		WireActorComponent->SetHiddenInGame(false);
