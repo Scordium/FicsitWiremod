@@ -1,17 +1,16 @@
 {
 	"FileVersion": 3,
-	"SemVersion": "0.11.50",
-	"AcceptsAnyRemoteVersion": false,
 	"Version": 0,
-	"VersionName": "0.11.50",
-	"FriendlyName": "Ficsit Wiremod",
+	"VersionName": "0.11.51",
+	"SemVersion": "0.11.51",
+	"FriendlyName": "Circuitry - Logic Gates and More",
 	"Description": "",
 	"Category": "Modding",
 	"CreatedBy": "Scordium (Topaz#6700)",
 	"CreatedByURL": "",
 	"DocsURL": "",
 	"MarketplaceURL": "",
-	"SupportURL": "",
+	"SupportURL": "https://discord.gg/rrWPx32jkW",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
@@ -32,9 +31,8 @@
 	"Plugins": [
 		{
 			"Name": "SML",
-			"Enabled": true,
 			"SemVersion": "^3.4.1",
-			"BasePlugin": false
+			"Enabled": true
 		}
 	]
 }

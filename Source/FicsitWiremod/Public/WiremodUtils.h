@@ -269,8 +269,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	static UConfigPropertyArray* DefaultWireColor(FLinearColor& Color)
 	{
-		auto Property = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["Wire_Color"];
-		auto ColorProperty = Cast<UConfigPropertyArray>(Property);
+		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
+		auto ColorProperty = Cast<UConfigPropertyArray>(Config->SectionProperties["Wire_Color"]);
 
 		float R = Cast<UConfigPropertyFloat>(ColorProperty->Values[0])->Value;
 		float G = Cast<UConfigPropertyFloat>(ColorProperty->Values[1])->Value;
@@ -306,16 +306,6 @@ public:
 
 		Out = FloatProperty->Value;
 		return FloatProperty;
-	}
-
-	UFUNCTION(BlueprintPure)
-	static bool IsPhotoEpilepsyMode(UConfigPropertyBool*& Property) //This function causes editor to crash sometimes. Wtf?
-	{
-		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
-		auto BoolProperty = Cast<UConfigPropertyBool>(Config->SectionProperties["Health_Epilepsy"]);
-
-		Property = BoolProperty;
-		return BoolProperty->Value;
 	}
 
 };

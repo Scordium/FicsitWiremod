@@ -68,7 +68,7 @@ public:
 		for(auto ModRef : ModLockedSchematics)
 		{
 			FModInfo Mod;
-			if(!ModLib->GetLoadedModInfo(ModRef.Key, Mod)) return;
+			if(!ModLib->GetLoadedModInfo(ModRef.Key, Mod)) continue;
 
 			FVersion Version = FVersion(
 				ModRef.Value.MajorVersion,
@@ -76,7 +76,7 @@ public:
 				ModRef.Value.Patch
 				);
 			
-			if(!Compare(Version, Mod.Version)) return;
+			if(!Compare(Version, Mod.Version)) continue;
 
 			if(ModRef.Value.Schematic.GetDefaultObject())
 				SchematicManager->GiveAccessToSchematic(ModRef.Value.Schematic);

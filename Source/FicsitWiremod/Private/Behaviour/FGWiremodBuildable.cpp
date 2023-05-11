@@ -224,8 +224,7 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 		FNewConnectionData ConnectionData = GetConnection(i);
 		if(!ConnectionData.IsValid()) continue;
 		if(ConnectionData.WireHidden) continue;
-
-
+		
 		//Create child actor component to store our wire actor. This should probably be optimized as it's a lot better for performance to just have 1 actor that handles all the wires.
 		auto WireActorComponent = Cast<UChildActorComponent>(AddComponentByClass(UChildActorComponent::StaticClass(), false, FTransform::Identity, false));
 		WireActorComponent->SetIsReplicated(true);
