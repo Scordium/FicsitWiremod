@@ -231,7 +231,6 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 		WireActorComponent->SetChildActorClass(WireClass);
 		WireActorComponent->CreateChildActor();
 		auto WireActor = Cast<AConnectionWireBase>(WireActorComponent->GetChildActor());
-		WireActor->SetActorTickEnabled(true);
 
 
 		//Create data for the wire

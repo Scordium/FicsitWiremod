@@ -136,6 +136,7 @@ protected:
 	bool CanConnect()
 	{
 		if(!CurrentTarget) return false;
+		if(Widget->CurrentIndex == -1 || Widget->MaxIndex == 0) return false;
 		if(!HasSelectedConnection())
 		{
 			TArray<FBuildingConnection> Connections;
