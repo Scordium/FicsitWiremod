@@ -22,10 +22,9 @@ AConnectionWireBase::AConnectionWireBase() : Super()
 
 
 
-void AConnectionWireBase::DrawWireFromData(FDynamicConnectionData Data)
+void AConnectionWireBase::DrawWireFromData()
 {
-	AssignedConnection = Data;
-	if(!Data.Receiver.Object || !Data.Transmitter.Object) return;
+	if(!AssignedConnection.Receiver.Object || !AssignedConnection.Transmitter.Object) return;
 	
 	TArray<FVector> Points = AssignedConnection.Transmitter.WirePositions;
 
@@ -34,16 +33,16 @@ void AConnectionWireBase::DrawWireFromData(FDynamicConnectionData Data)
 	{
 		Points.SetNum(2);
 
-		if(auto transmitter = Cast<AActor>(Data.Transmitter.Object))
+		if(auto transmitter = Cast<AActor>(AssignedConnection.Transmitter.Object))
 			Points[0] = transmitter->GetActorLocation();
 		
-		if(auto receiver = Cast<AActor>(Data.Receiver.Object))
+		if(auto receiver = Cast<AActor>(AssignedConnection.Receiver.Object))
 			Points[1] = receiver->GetActorLocation();
 
-		Data.Transmitter.UseLocalWirePosition = false;
+		AssignedConnection.Transmitter.UseLocalWirePosition = false;
 	}
 	
-	const auto CoordinateSpace = Data.Transmitter.UseLocalWirePosition ? ESplineCoordinateSpace::Local : ESplineCoordinateSpace::World;
+	const auto CoordinateSpace = AssignedConnection.Transmitter.UseLocalWirePosition ? ESplineCoordinateSpace::Local : ESplineCoordinateSpace::World;
 	
 	DrawWireFromPoints(Points, CoordinateSpace);
 }

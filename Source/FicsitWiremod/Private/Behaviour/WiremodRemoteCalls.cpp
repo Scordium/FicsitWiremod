@@ -11,7 +11,10 @@ void UWiremodRemoteCalls::ConnectWiremodObject_Implementation(UObject* Buildable
 
 bool UWiremodRemoteCalls::ConnectWiremodObject_Validate(UObject* Buildable, const FNewConnectionData& Data, int Index, UObject* Setter){ return true; }
 
-void UWiremodRemoteCalls::ConnectNonWiremodObject_Implementation(const FDynamicConnectionData& Connection, int Index, UObject* Setter) { AWiremodVanillaConnections::Self->AddConnection(Connection, Index, Setter); }
+void UWiremodRemoteCalls::ConnectNonWiremodObject_Implementation(const FDynamicConnectionData& Connection, int Index, UObject* Setter)
+{
+	AWiremodVanillaConnections::Self->AddConnection(Connection, Index, Setter);
+}
 
 bool UWiremodRemoteCalls::ConnectNonWiremodObject_Validate(const FDynamicConnectionData& Connection, int Index, UObject* Setter){ return true; }
 

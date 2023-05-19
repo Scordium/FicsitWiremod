@@ -33,7 +33,7 @@ protected:
 		Super::BeginPlay();
 		
 		if(!HasAuthority())
-			DrawWireFromData(AssignedConnection);
+			DrawWireFromData();
 	}
 
 public:
@@ -47,7 +47,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void DrawWireFromData(FDynamicConnectionData Data);
+	void DrawWireFromData();
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateWireVisuals();
@@ -55,9 +55,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Invalidate()
 	{
-		AssignedConnection = FDynamicConnectionData();
-		PreviewMode = false;
-
 		DestroyAllSplineMeshes();
 		Destroy();
 	}

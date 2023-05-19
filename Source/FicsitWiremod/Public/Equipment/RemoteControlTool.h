@@ -56,17 +56,17 @@ public:
 	void HandleDataUpdate() const
 	{
 		auto RCO = Cast<UWiremodRemoteCalls>(Cast<AFGPlayerController>(GetWorld()->GetFirstPlayerController())->GetRemoteCallObjectOfClass(UWiremodRemoteCalls::StaticClass()));
-		RCO->UpdateRemoteControlData_Implementation(Receiver, Data, UWiremodBlueprintUtils::GetSetterObject());
+		RCO->UpdateRemoteControlData(Receiver, Data, UWiremodBlueprintUtils::GetSetterObject());
 	}
 
 	UFUNCTION(BlueprintCallable)
 	void OnReceiverChanged(ARemoteControlReceiver* NewReceiver)
 	{
 		auto RCO = Cast<UWiremodRemoteCalls>(Cast<AFGPlayerController>(GetWorld()->GetFirstPlayerController())->GetRemoteCallObjectOfClass(UWiremodRemoteCalls::StaticClass()));
-		RCO->SetBuildableOwner_Implementation(Receiver, nullptr, UWiremodBlueprintUtils::GetSetterObject());
+		RCO->SetBuildableOwner(Receiver, nullptr, UWiremodBlueprintUtils::GetSetterObject());
 
 		Receiver = NewReceiver;
-		if(Receiver) RCO->SetBuildableOwner_Implementation(Receiver, UWiremodBlueprintUtils::GetSetterObject(), UWiremodBlueprintUtils::GetSetterObject());
+		if(Receiver) RCO->SetBuildableOwner(Receiver, UWiremodBlueprintUtils::GetSetterObject(), UWiremodBlueprintUtils::GetSetterObject());
 		HandleDataUpdate();
 	}
 	

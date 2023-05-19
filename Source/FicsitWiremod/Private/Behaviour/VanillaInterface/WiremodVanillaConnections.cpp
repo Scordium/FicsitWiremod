@@ -45,7 +45,8 @@ void AWiremodVanillaConnections::DrawWiresForBuildable(FVanillaBuildingDataKeyVa
 		WireActor->SetActorTickEnabled(true);
 
 		//Assign data to wire
-		WireActor->DrawWireFromData(Connection);
+		WireActor->AssignedConnection = Connection;
+		WireActor->DrawWireFromData();
 				
 		WireActorComponent->AttachToComponent(Buildable->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
 		WireActorComponent->SetHiddenInGame(false);

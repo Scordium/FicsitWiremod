@@ -214,12 +214,12 @@ protected:
 		{
 			if(UWiremodBlueprintUtils::IsWiremod(CurrentTarget))
 			{
-				RCO->ConnectWiremodObject_Implementation(CurrentTarget, SelectedConnection, Index, Setter);
+				RCO->ConnectWiremodObject(CurrentTarget, SelectedConnection, Index, Setter);
 			}
 			else
 			{
 				auto DynamicData = FDynamicConnectionData(SelectedConnection, Data);
-				RCO->ConnectNonWiremodObject_Implementation(DynamicData, Index, Setter);
+				RCO->ConnectNonWiremodObject(DynamicData, Index, Setter);
 			}
 
 			if(!MultiConnectMode) SelectedConnection = FNewConnectionData();
@@ -258,7 +258,7 @@ protected:
 				auto Setter = UWiremodBlueprintUtils::GetSetterObject();
 				auto Index = Widget->CurrentIndex;
 
-				RCO->ResetConnections_Implementation(CurrentTarget, Index, Setter);
+				RCO->ResetConnections(CurrentTarget, Index, Setter);
 
 
 				FFormatNamedArguments Args;

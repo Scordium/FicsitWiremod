@@ -556,8 +556,7 @@ void UWiremodReflection::SetFunctionNumberValue(const FNewConnectionData& data, 
 	{
 		if(IsInteger(data))
 		{
-			auto Property = Cast<FIntProperty>(FindProperty(data));
-			if(Property)
+			if(auto Property = Cast<FIntProperty>(FindProperty(data)))
 			{
 				Property->SetPropertyValue_InContainer(data.Object, value_);
 				return;
@@ -565,8 +564,7 @@ void UWiremodReflection::SetFunctionNumberValue(const FNewConnectionData& data, 
 		}
 		else
 		{
-			auto Property = Cast<FFloatProperty>(FindProperty(data));
-			if(Property)
+			if(auto Property = Cast<FFloatProperty>(FindProperty(data)))
 			{
 				Property->SetPropertyValue_InContainer(data.Object, value_);
 				return;

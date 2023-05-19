@@ -197,6 +197,8 @@ void AFGWiremodBuildable::netFunc_getAllWiremodFuncs(TArray<FString>& Out)
 
 void AFGWiremodBuildable::DrawWires_Implementation()
 {
+	if(!HasAuthority()) return;
+	
 	//First remove all existing wires
 	TArray<UActorComponent*> ChildComponents;
 	GetComponents(UChildActorComponent::StaticClass(), ChildComponents);
@@ -242,7 +244,8 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 		FDynamicConnectionData AssignedConnection = FDynamicConnectionData();
 		AssignedConnection.Transmitter = ConnectionData;
 		AssignedConnection.Receiver = ReceiverData;
-		WireActor->DrawWireFromData(AssignedConnection);
+		WireActor->AssignedConnection = AssignedConnection;
+		WireActor->DrawWireFromData();
 		
 		WireActorComponent->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
 		WireActorComponent->SetHiddenInGame(false);

@@ -17,6 +17,7 @@ class FICSITWIREMOD_API UWiremodRemoteCalls : public UFGRemoteCallObject
 {
 	GENERATED_BODY()
 
+public:
 
 	UFUNCTION(BlueprintCallable, Reliable, WithValidation, Server)
 	void ConnectWiremodObject(UObject* Buildable, const FNewConnectionData& Data, int Index, UObject* Setter);
