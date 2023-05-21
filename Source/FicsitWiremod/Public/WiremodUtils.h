@@ -1,20 +1,15 @@
 // Copyright Coffee Stain Studios. All Rights Reserved.
 
 #pragma once
-
-#include "CoreMinimal.h"
 #include "AbstractInstanceManager.h"
-#include "FGPlayerController.h"
-#include "FGPlayerState.h"
-#include "FGStorySubsystem.h"
+#include "FGCharacterPlayer.h"
 #include "FGTimeSubsystem.h"
 #include "WiremodReflection.h"
 #include "Behaviour/WiremodInterface.h"
-#include "Configuration/ConfigProperty.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Configuration/Properties/ConfigPropertySection.h"
 #include "Kismet/KismetStringLibrary.h"
-#include "Patching/NativeHookManager.h"
 #include "Utility/WiremodGameWorldModule.h"
+
 #include "WiremodUtils.generated.h"
 
 

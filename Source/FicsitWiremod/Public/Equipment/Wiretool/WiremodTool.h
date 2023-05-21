@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FGCharacterPlayer.h"
+#include "FGPlayerController.h"
 #include "WiremodReflection.h"
 #include "WiremodUtils.h"
 #include "WiretoolWidget.h"

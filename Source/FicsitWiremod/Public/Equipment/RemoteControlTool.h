@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FGPlayerController.h"
 #include "WiremodBaseTool.h"
 #include "Behaviour/WiremodRemoteCalls.h"
 #include "Behaviour/Communications/RemoteControlReceiver.h"

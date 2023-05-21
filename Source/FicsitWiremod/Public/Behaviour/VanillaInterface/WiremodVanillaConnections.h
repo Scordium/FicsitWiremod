@@ -7,6 +7,7 @@
 #include "Subsystem/ModSubsystem.h"
 #include "WiremodVanillaConnections.generated.h"
 
+
 USTRUCT(BlueprintType)
 struct FVanillaInterfaceData
 {
@@ -114,8 +115,11 @@ protected:
 		UE_LOG(LogActor, Warning, TEXT("Loaded %d vanilla connections"), Game_VanillaBuildableData.Num())
 	}
 
-	//Draw or redraw wires for all active buildables
-	//Do not call this without the need as it is very expensive to do this.
+
+	/*
+	*Draw or redraw wires for all active buildables
+	*Do not call this without the need as it is very expensive to do this.
+	*/
 	void DrawWires(bool SkipDestruct = false)
 	{
 		for(auto KeyValuePair : SavedVanillaBuildableData)
@@ -136,17 +140,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddConnection(FDynamicConnectionData Connection, int Index, UObject* Setter)
 	{
-		auto Data = GetOrDefault(Connection.Receiver.Object);
-
-		if(!Data.Data.OwnerData.GetCanConnect(Setter)) return;
+		auto Entry = GetOrDefault(Connection.Receiver.Object);
 		
-		if(!Data.Data.Connections.IsValidIndex(Index))
-			Data.Data.Connections.SetNum(Index+1);
+		if(!Entry.Data.OwnerData.GetCanConnect(Setter)) return;
+		
+		if(!Entry.Data.Connections.IsValidIndex(Index))
+			Entry.Data.Connections.SetNum(Index+1);
 
-		Data.Data.Connections[Index] = Connection;
+		Entry.Data.Connections[Index] = Connection;
 
-		UpdateBuildable(Connection.Receiver.Object, Data.Data.Connections, Data.Data.OwnerData);
-		DrawWiresForBuildable(Data);
+		UpdateBuildable(Connection.Receiver.Object, Entry.Data.Connections, Entry.Data.OwnerData);
+		DrawWiresForBuildable(Entry);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -296,3 +300,4 @@ public:
 	UPROPERTY(VisibleInstanceOnly, SaveGame, BlueprintReadWrite)
 	TMap<UObject*, FVanillaInterfaceData> Game_VanillaBuildableData;
 };
+

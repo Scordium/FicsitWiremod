@@ -28,8 +28,6 @@ struct FWiremodAPIData
 	
 };
 
-#define Ref UWiremodUtils::GetModReference
-
 /**
  * 
  */
@@ -143,7 +141,7 @@ public:
 		auto Buildable = Cast<AFGBuildable>(Object);
 		if(!IsValid(Buildable)) return false;
 		
-		auto list = GetListOrDefault(Ref(Buildable->GetClass()));
+		auto list = GetListOrDefault(UWiremodUtils::GetModReference(Buildable->GetClass()));
 		auto className = UWiremodUtils::GetClassName(Buildable->GetClass());
 		
 		return list->GetRowNames().Contains(className);
@@ -155,7 +153,7 @@ public:
 	{
 		if(!IsValid(Buildable)) return FBuildingConnections();
 		
-		auto modReference = Ref(Buildable->GetClass());
+		auto modReference = UWiremodUtils::GetModReference(Buildable->GetClass());
 		
 		auto list = GetListOrDefault(modReference);
 		auto className = UWiremodUtils::GetClassName(Buildable->GetClass());
