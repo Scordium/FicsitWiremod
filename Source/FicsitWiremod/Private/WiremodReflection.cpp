@@ -479,6 +479,14 @@ void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bo
 			}
 		}
 	}
+	else if(data.FunctionName == "WM_RAILSIGNAL_STOP")
+	{
+		if(auto RailSignal = Cast<AFGBuildableRailroadSignal>(data.Object))
+		{
+			if(RailSignal->GetObservedBlock().IsValid())
+				RailSignal->GetObservedBlock().Pin().Get()->SetIsPathBlock(value_);
+		}
+	}
 	
 	if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))
 	{
