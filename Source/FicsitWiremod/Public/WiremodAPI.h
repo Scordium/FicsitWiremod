@@ -64,9 +64,9 @@ public:
 		{
 			FFileManagerGeneric::Get().MakeDirectory(*path);
 			FString PlaceholderFile = 
-			"This is a folder for wiremod API lists!\nDrop your JSON table in this folder and wiremod will attempt to add connections to buildings.\n"
-			"The file name must match the mod reference! i.e. Wiremod's mod reference is \"FicsitWiremod\"\n"
-			"In case wiremod already integrated the mod in question but you still want to use your own data list, you can force the file to be used as a data table by prefixing the file with \"" + ForceFileUsePrefix + "\"";
+			"This is a folder for circuitry API lists!\nDrop your JSON table in this folder and circuitry will attempt to add connections to buildings.\n"
+			"The file name must match the mod reference! i.e. Circuitry's mod reference is \"FicsitWiremod\"\n"
+			"In case circuitry already integrated the mod in question but you still want to use your own data list, you can force the file to be used as a data table by prefixing the file with \"" + ForceFileUsePrefix + "\"";
 
 			FFileHelper::SaveStringToFile(PlaceholderFile, *FString(path + "/README.txt"));
 		}

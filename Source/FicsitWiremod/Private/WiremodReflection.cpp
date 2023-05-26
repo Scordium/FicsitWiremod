@@ -20,6 +20,8 @@
 
 #define Dynamic IIConstantsDistributor::Execute_GetValue
 
+//TODO: Remove backwards compatibility patch for property reading. 
+
 static bool IsDynamic(UObject* Object)
 {
 	if(!Object) return false;
@@ -416,8 +418,7 @@ void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bo
 
 	if(data.FromProperty)
 	{
-		auto Property = Cast<FBoolProperty>(FindProperty(data));
-		if(Property)
+		if(auto Property = Cast<FBoolProperty>(FindProperty(data)))
 		{
 			Property->SetPropertyValue_InContainer(data.Object, value_);
 			return;
@@ -525,8 +526,7 @@ void UWiremodReflection::SetFunctionStringValue(const FNewConnectionData& data, 
 
 	if(data.FromProperty)
 	{
-		auto Property = Cast<FStrProperty>(FindProperty(data));
-		if(Property)
+		if(auto Property = Cast<FStrProperty>(FindProperty(data)))
 		{
 			Property->SetPropertyValue_InContainer(data.Object, value_);
 			return;
@@ -660,8 +660,7 @@ void UWiremodReflection::SetFunctionColorValue(const FNewConnectionData& data, F
 
 	if(data.FromProperty)
 	{
-		auto Property = Cast<FStructProperty>(FindProperty(data));
-		if(Property)
+		if(auto Property = Cast<FStructProperty>(FindProperty(data)))
 		{
 			auto Value = Property->ContainerPtrToValuePtr<FLinearColor>(data.Object);
 			Value->R = value_.R;
