@@ -88,19 +88,19 @@ struct FDynamicValue
 	TArray<FInventoryStack> StackArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UFGInventoryComponent* Inventory;
+	UFGInventoryComponent* Inventory = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UFGInventoryComponent*> InventoryArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UFGPowerCircuit* PowerGrid;
+	UFGPowerCircuit* PowerGrid = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UFGPowerCircuit*> PowerGridArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	AActor* Entity;
+	AActor* Entity = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<AActor*> EntityArr;
@@ -116,6 +116,66 @@ struct FDynamicValue
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FItemAmount> ItemAmountArr;
+
+	FDynamicValue(){}
+	
+	FDynamicValue(bool Value)
+	{
+		ConnectionType = Boolean;
+		StoredBool = Value;
+	}
+
+	FDynamicValue(FString Value)
+	{
+		ConnectionType = String;
+		StoredString = Value;
+	}
+
+	FDynamicValue(float Value)
+	{
+		ConnectionType = Number;
+		StoredFloat = Value;
+	}
+	
+	FDynamicValue(int Value)
+	{
+		ConnectionType = Number;
+		StoredFloat = Value;
+	}
+
+	FDynamicValue(FVector Value)
+	{
+		ConnectionType = Vector;
+		StoredVector = Value;
+	}
+
+	FDynamicValue(FLinearColor Value)
+	{
+		ConnectionType = Color;
+		StoredColor = Value;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FNamedValue
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FString Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FDynamicValue Value = FDynamicValue();
+
+	FNamedValue(FString Name, FDynamicValue Value)
+	{
+		this->Name = Name;
+		this->Value = Value;
+	}
+
+	FNamedValue(){}
+
+	operator FDynamicValue() {return this->Value; }
 };
 
 
