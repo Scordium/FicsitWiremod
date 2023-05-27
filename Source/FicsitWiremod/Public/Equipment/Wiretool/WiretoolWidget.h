@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Behaviour/WiremodInterface.h"
+#include "..\..\Behaviour\CircuitryInterface.h"
 #include "Blueprint/UserWidget.h"
 #include "Utility/ConnectionWireBase.h"
 #include "WiretoolWidget.generated.h"

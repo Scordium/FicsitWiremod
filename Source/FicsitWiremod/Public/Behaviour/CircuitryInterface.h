@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "WiremodReflection.h"
 #include "UObject/Interface.h"
-#include "WiremodInterface.generated.h"
+#include "CircuitryInterface.generated.h"
 
 UENUM(BlueprintType)
 enum EConnectionDirection
@@ -16,7 +16,7 @@ enum EConnectionDirection
 
 // This class does not need to be modified.
 UINTERFACE()
-class UWiremodInterface : public UInterface
+class UCircuitryProcessableInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -24,7 +24,7 @@ class UWiremodInterface : public UInterface
 /**
  * 
  */
-class FICSITWIREMOD_API IWiremodInterface
+class FICSITWIREMOD_API ICircuitryProcessableInterface
 {
 	GENERATED_BODY()
 
@@ -40,5 +40,5 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TSubclassOf<UUserWidget> GetCompactWidget();
 	
-	virtual UTexture2D* GetTexture(){return nullptr;};
+	virtual UTexture2D* GetTexture(){ return nullptr; }
 };

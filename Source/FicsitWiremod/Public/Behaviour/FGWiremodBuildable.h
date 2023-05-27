@@ -6,7 +6,7 @@
 #include "FGCharacterPlayer.h"
 #include "FGPlayerState.h"
 #include "WiremodBuildableHologram.h"
-#include "WiremodInterface.h"
+#include "CircuitryInterface.h"
 #include "WiremodReflection.h"
 #include "WiremodUtils.h"
 #include "Buildables/FGBuildable.h"
@@ -151,7 +151,7 @@ struct FWiremodOwnerData
 };
 
 UCLASS(Abstract)
-class FICSITWIREMOD_API AFGWiremodBuildable : public AFGBuildable, public IWiremodInterface
+class FICSITWIREMOD_API AFGWiremodBuildable : public AFGBuildable, public ICircuitryProcessableInterface
 {
 	GENERATED_BODY()
 

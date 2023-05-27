@@ -80,5 +80,5 @@ public:
 	class USplineComponent* Spline;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStaticMesh* WireMesh = LoadObject<UStaticMesh>(NULL, *FString("/FicsitWiremod/Buildings/SpecialCube.SpecialCube"));;
+	UStaticMesh* WireMesh = LoadObject<UStaticMesh>(NULL, *FString("/FicsitWiremod/Buildings/SpecialCube.SpecialCube"));
 };

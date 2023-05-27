@@ -5,7 +5,7 @@
 #include "FGCharacterPlayer.h"
 #include "FGTimeSubsystem.h"
 #include "WiremodReflection.h"
-#include "Behaviour/WiremodInterface.h"
+#include "Behaviour\CircuitryInterface.h"
 #include "Configuration/Properties/ConfigPropertySection.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Utility/WiremodGameWorldModule.h"
@@ -246,7 +246,7 @@ public:
 	{
 		if(!Buildable) return nullptr;
 		
-		if(auto Wiremod = Cast<IWiremodInterface>(Buildable))
+		if(auto Wiremod = Cast<ICircuitryProcessableInterface>(Buildable))
 		{
 			return Wiremod->GetTexture();
 		}

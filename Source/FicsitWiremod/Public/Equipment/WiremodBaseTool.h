@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "WiremodUtils.h"
 #include "CoreMinimal.h"
-#include "AbstractInstanceManager.h"
 #include "Equipment/FGEquipment.h"
 #include "WiremodBaseTool.generated.h"
 

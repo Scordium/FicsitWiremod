@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "WiremodAPI.h"
 #include "Behaviour/FGWiremodBuildable.h"
-#include "Behaviour/WiremodInterface.h"
+#include "..\Behaviour\CircuitryInterface.h"
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "WiremodBlueprintUtils.generated.h"
@@ -25,7 +25,7 @@ public:
 	{
 		if(!Object) return false;
 
-		return Object->GetClass()->ImplementsInterface(IWiremodInterface::UClassType::StaticClass());
+		return Object->GetClass()->ImplementsInterface(ICircuitryProcessableInterface::UClassType::StaticClass());
 	}
 
 	UFUNCTION(BlueprintPure)
