@@ -7,6 +7,7 @@
 #include "GeneratedCodeHelpers.h"
 #include "Buildables/FGBuildableFactory.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Utility/HelpModule/BaseHelpModule.h"
 #include "WiremodReflection.generated.h"
 
 UENUM(BlueprintType)
@@ -215,6 +216,13 @@ struct FBuildingConnection : public FTableRowBase
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(MultiLine="true"))
 	FText Description;
+
+
+	/* 
+	 * Module that should be executed when trying to receive help/tips for this connection
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+	UBaseHelpModule* HelpInfo;
 	
 	FBuildingConnection(){};
 
@@ -286,6 +294,13 @@ struct FBuildingConnections : public FTableRowBase
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FBuildableNote Note;
+
+
+	/* 
+	 * Module that should be executed when trying to receive help/tips for this buildable
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+	UBaseHelpModule* HelpInfo;
 
 	
 };
