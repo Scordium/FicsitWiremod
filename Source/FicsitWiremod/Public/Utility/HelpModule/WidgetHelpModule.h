@@ -19,7 +19,7 @@ class FICSITWIREMOD_API UWidgetHelpModule : public UBaseHelpModule
 
 public:
 
-	UPROPERTY(EditAnywhere, Category = "Settings", meta=(ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, Category = "Settings", BlueprintReadWrite, meta=(ExposeOnSpawn = true))
 	TSubclassOf<UFGInteractWidget> Widget;
 
 
