@@ -128,12 +128,12 @@ struct FWiremodOwnerData
 	}
 	static FString GetUserIDOrDefault(UObject* entity)
 	{
-		if(auto state = GetState(entity)) return state->GetUserID();
+		if(auto state = GetState(entity)) return state ? state->GetUserID() : FString();
 		return "";
 	}
 	static FString GetUsernameOrDefault(UObject* entity)
 	{
-		if(auto state = GetState(entity)) return state->GetPlayerName();
+		if(auto state = GetState(entity)) return state ? state->GetPlayerName() : FString();
 		return "";
 	}
 
@@ -197,8 +197,8 @@ protected:
 		PostGateSetup();
 	}
 
-	void OnInputConnected_Internal(const FNewConnectionData& Data, int Index);
-	void OnInputDisconnected_Internal(int Index);
+	virtual void OnInputConnected_Internal(const FNewConnectionData& Data, int Index);
+	virtual void OnInputDisconnected_Internal(int Index);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void SetupGate();

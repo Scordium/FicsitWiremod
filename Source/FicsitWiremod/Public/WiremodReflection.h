@@ -222,7 +222,7 @@ struct FBuildingConnection : public FTableRowBase
 	 * Module that should be executed when trying to receive help/tips for this connection
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	UBaseHelpModule* HelpInfo;
+	UBaseHelpModule* HelpInfo = nullptr;
 	
 	FBuildingConnection(){};
 
@@ -300,7 +300,7 @@ struct FBuildingConnections : public FTableRowBase
 	 * Module that should be executed when trying to receive help/tips for this buildable
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	UBaseHelpModule* HelpInfo;
+	UBaseHelpModule* HelpInfo = nullptr;
 
 	
 };
@@ -388,6 +388,12 @@ public:
 	}
 
 	bool IsValid()
+	{
+		return ::IsValid(Object);
+	}
+
+	//Const version
+	bool IsValid() const
 	{
 		return ::IsValid(Object);
 	}

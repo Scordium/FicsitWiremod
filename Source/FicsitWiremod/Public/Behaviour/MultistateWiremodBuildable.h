@@ -65,7 +65,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void OnStateSelected(int Index, UObject* Setter)
+	virtual void OnStateSelected(int Index, UObject* Setter)
 	{
 		if(!GetCanConfigure(Setter)) return;
 		if(!States.IsValidIndex(Index)) return;

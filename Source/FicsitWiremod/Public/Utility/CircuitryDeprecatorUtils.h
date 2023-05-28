@@ -24,7 +24,14 @@ public:
 	{
 		auto const Transform = Old->GetActorTransform();
 		auto NewBuildable = Cast<AMultistateWiremodBuildable>(Old->GetWorld()->SpawnActor(Class.GetDefaultObject()->GetClass(), &Transform));
-		NewBuildable->CurrentStateIndex = StateIndex;
-		NewBuildable->InputConnections = Old->InputConnections;
+		NewBuildable->InputConnections = Old->InputConnections; //Transfer connections
+		
+		//Calling this *before* setting owner data to avoid problems with object ownership getting in the way
+		NewBuildable->OnStateSelected(StateIndex, NULL); //Set the state index
+		
+		NewBuildable->OwnerData = Old->OwnerData; // Transfer owner data
+
+		// "Do not directly call Event functions in Interfaces" my ass, UE.
+		IFGDismantleInterface::Execute_Dismantle(Old);
 	}
 };

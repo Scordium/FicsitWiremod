@@ -29,7 +29,10 @@ public:
 		else if (CurrentStateIndex == 1)
 		{
 			int Value = WM_GetInt(0) + 1;
-			UWiremodReflection::FillDynamicStructFromData(GetConnection(Value), Out);
+			if(IsConnected(Value))
+				UWiremodReflection::FillDynamicStructFromData(GetConnection(Value), Out);
+			else
+				Out = FDynamicValue();
 		}
 	}
 
@@ -42,73 +45,79 @@ public:
 
 	virtual FDynamicValue GetValue_Implementation(const FString& ValueName) override{ return Out; }
 
+	int FindSelectorIndex()
+	{
+		if(InputConnections.Num() <= 1) return INDEX_NONE;
 
+		for(int i = InputConnections.Num() - 1; i > 0; i--)
+		{
+			if(InputConnections[i].IsValid()) return i;
+		}
+
+		return INDEX_NONE;
+	}
+
+// Why? Why not :^)
+#define MinSelectorInputs 8
+	
 	void GenerateInputList()
 	{
-		
 		//Default mode (aka IF TRUE RETURN TRUE_VAL ELSE RETURN FALSE_VAL)
 		if(CurrentStateIndex == 0)
 		{
-			FBuildingConnection SelectorInput = FBuildingConnection("Value", "", Boolean);
-			FBuildingConnection FalseValueInput = FBuildingConnection("False", "", Any);
-			FBuildingConnection TrueValueInput = FBuildingConnection("True", "", Any);
-
-
-			//Prioritize FALSE_VAL input, if it's connected then use its connection type for both value inputs
+			//Prioritize FALSE_VAL input, if it's connected then use its connection type for both value inputs and the output
 			if(IsConnected(1))
 			{
-				FalseValueInput.ConnectionType = GetConnection(1).ConnectionType;
-				TrueValueInput.ConnectionType = GetConnection(1).ConnectionType;
+				SetInputType(1, GetConnection(1).ConnectionType);
+				SetInputType(2, GetConnection(1).ConnectionType);
+				SetOutputType(0, GetConnection(1).ConnectionType);
 			}
 			//If FALSE_VAL is not connected, then try to do the same with TRUE_VAL input
 			else if(IsConnected(2))
 			{
-				FalseValueInput.ConnectionType = GetConnection(2).ConnectionType;
-				TrueValueInput.ConnectionType = GetConnection(2).ConnectionType;
+				SetInputType(1, GetConnection(2).ConnectionType);
+				SetInputType(2, GetConnection(2).ConnectionType);
+				SetOutputType(0, GetConnection(2).ConnectionType);
 			}
-
-			//If both value inputs are not connected, then we don't need to do anything since we already set the inputs to accept "Any" type.
-			
-
-			//Make an array and assign it to inputs.
-			ConnectionsInfo.Inputs = TArray
+			//If both value inputs are not connected, then set inputs to "Any" type and output to "Unknown"
+			else
 			{
-				SelectorInput,
-				FalseValueInput,
-				TrueValueInput
-			};
+				SetInputType(1, Any);
+				SetInputType(2, Any);
+				SetOutputType(0, Unknown);
+			}
 		}
 		//Alt mode - Select one from a list
 		else
 		{
-			for(int i = InputConnections.Num(); i > 0; i--)
-			{
-				//If there's an input already connected, then we should use it's connection type and update all other inputs as well.
-				if(IsConnected(i))
-				{
-					ConnectionsInfo.Inputs = MakeSelectorConnections(i, GetConnection(i).ConnectionType);
-					return;
-				}
-			}
+			auto FoundIndex = FindSelectorIndex();
+			auto Type = FoundIndex > 0 ? GetConnection(FoundIndex).ConnectionType : Any;
 
-			//If no inputs are connected, then use the default mode - set all inputs to "Any" connection type, and wait for user to connect something.
-			ConnectionsInfo.Inputs = MakeSelectorConnections();
+			//I don't even know what i'm doing at this point, but all this shit basically prevents selectors from pointlessly recreating their connection list.
+			//I'd prefer to just do it on input connect/disconnect, but then cases when the output building was destroyed remain unhandled.
+			bool NotInitialized = FoundIndex == INDEX_NONE && ConnectionsInfo.Inputs.Num() == 0;
+			
+			bool NotResetToDefault = Type == Any && GetInputType(1) != Any;
+			bool NotSetToInputType = Type != GetOutputType(0) && Type != Any;
+			bool UpdateInputTypes = NotResetToDefault || NotSetToInputType;
+			
+			bool UpdateInputList = ConnectionsInfo.Inputs.Num() != FoundIndex && FoundIndex != INDEX_NONE && FoundIndex >= MinSelectorInputs;
+			
+			if(UpdateInputTypes || UpdateInputList || NotInitialized)
+				MakeSelectorConnections(ConnectionsInfo.Inputs, FoundIndex >= MinSelectorInputs ? FoundIndex : MinSelectorInputs, Type);
 		}
 	}
 
-	static TArray<FBuildingConnection> MakeSelectorConnections(int Count = 8, EConnectionType Type = Any)
+	void MakeSelectorConnections(TArray<FBuildingConnection>& OutArray, int Count = MinSelectorInputs, EConnectionType Type = Any)
 	{
-		auto Out = TArray
+		OutArray.Empty();
+		OutArray.Add(FBuildingConnection("Value", "", Integer));
+		for(int i = 0; OutArray.Num() < Count; i++)
 		{
-			FBuildingConnection("Value", "", Integer)
-		};
-
-		for(int i = 0; i <= Count; i++)
-		{
-			Out.Add(FBuildingConnection(FString::FromInt(i), "", Type));
+			OutArray.Add(FBuildingConnection(FString::FromInt(i), "", Type));
 		}
 
-		return Out;
+		SetOutputType(0, Type == Any ? Unknown : Type);
 	}
 
 
