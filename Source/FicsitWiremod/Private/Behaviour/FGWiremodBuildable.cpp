@@ -189,7 +189,7 @@ void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, 
 
 void AFGWiremodBuildable::netFunc_getAllWiremodFuncs(TArray<FString>& Out)
 {
-	for(auto conn : GetAvailableConnections_Slim(Input))
+	for(auto conn : GetAvailableConnections_Slim(Output))
 	{
 		Out.Add(conn.FunctionName.ToString());
 	}

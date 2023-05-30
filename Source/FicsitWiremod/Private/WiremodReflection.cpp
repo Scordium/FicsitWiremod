@@ -6,12 +6,11 @@
 #include "FGBuildableDoor.h"
 #include "FGGameState.h"
 #include "FGPipeConnectionComponent.h"
-#include "FGPipeSubsystem.h"
 #include "FGTrainStationIdentifier.h"
 #include "IConstantsDistributor.h"
+#include "ReflectionExternalFunctions.h"
 #include "Buildables/FGBuildableLightsControlPanel.h"
 #include "Buildables/FGBuildablePipeReservoir.h"
-#include "Buildables/FGBuildableRailroadSignal.h"
 #include "Buildables/FGBuildableRailroadStation.h"
 #include "Buildables/FGBuildableRailroadSwitchControl.h"
 #include "Buildables/FGBuildableWidgetSign.h"
@@ -424,69 +423,18 @@ void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bo
 			return;
 		}
 	}
-	
-	if(data.FunctionName == "WM_FLUSHTANK_FUNC" && value_)
-	{
-		if(auto fluidTank = Cast<AFGBuildablePipeReservoir>(data.Object))
-		{
-			fluidTank->mFluidBox.Reset();
-			return;
-		}
-	}
-	else if(data.FunctionName == "WM_FLUSHNET_FUNC" && value_)
-	{
-		if(auto fluidTank = Cast<AFGBuildablePipeReservoir>(data.Object))
-		{
-			AFGPipeSubsystem::Get(data.Object->GetWorld())->FlushPipeNetworkFromIntegrant(fluidTank);
-			return;
-		}
-	}
-	else if(data.FunctionName == "WM_DOORCONTROL_FUNC")
-	{
-		if(auto door = Cast<AFGBuildableDoor>(data.Object))
-		{
-			if(value_)
-			{
-				if(door->mDoorState == EDoorState::DS_Closed) return;
-				
-				door->mDoorState = EDoorState::DS_Closed;
-				door->OnDoorConfigurationChanged(EDoorConfiguration::DC_Closed);
-				door->SetDoorLightFeedbackState(EDoorConfiguration::DC_Closed);
-				door->BeginClosing();
-			}
-			else
-			{
-				if(door->mDoorState == EDoorState::DS_Open) return;
-				
-				door->mDoorState = EDoorState::DS_Open;
-				door->OnDoorConfigurationChanged(EDoorConfiguration::DC_Open);
-				door->SetDoorLightFeedbackState(EDoorConfiguration::DC_Open);
-				door->BeginOpening();
-			}
-			return;
-		}
-	}
-	else if(data.FunctionName == "WM_ON_USE_FUNC" && value_)
-	{
-		if(auto object = Cast<AFGBuildable>(data.Object))
-		{
-			if(auto character = Cast<AFGCharacterPlayer>(object->GetWorld()->GetFirstPlayerController()->GetCharacter()))
-			{
-				auto useState = FUseState();
-				useState.UseLocation = object->GetTransform().GetLocation();
-				AFGBuildable::Execute_OnUse(object, character, useState);
 
-				return;
-			}
-		}
-	}
-	else if(data.FunctionName == "WM_RAILSIGNAL_STOP")
+	if(data.FunctionName.ToString().StartsWith("WM_") && value_)
 	{
-		if(auto RailSignal = Cast<AFGBuildableRailroadSignal>(data.Object))
-		{
-			if(RailSignal->GetObservedBlock().IsValid())
-				RailSignal->GetObservedBlock().Pin().Get()->SetIsPathBlock(value_);
-		}
+		if(data.FunctionName == "WM_FLUSHTANK_FUNC") UReflectionExternalFunctions::FlushTank(data.Object);
+		else if(data.FunctionName == "WM_FLUSHNET_FUNC") UReflectionExternalFunctions::FlushNetwork(data.Object);
+		else if(data.FunctionName == "WM_ON_USE_FUNC") UReflectionExternalFunctions::ExecuteOnUse(data.Object);
+	}
+	else if(data.FunctionName.ToString().StartsWith("WMCL_"))
+	{
+		if(data.FunctionName == "WMCL_DOORCONTROL_FUNC") UReflectionExternalFunctions::ChangeDoorState(data.Object, value_);
+		else if(data.FunctionName == "WMCL_RAILSIGNAL_STOP") UReflectionExternalFunctions::ChangeRailroadSignalState(data.Object, value_);
+		else if(data.FunctionName == "WMCL_FF_DOGGODOOR") UReflectionExternalFunctions::ChangeDoggoHouseDoorState(data.Object, value_);
 	}
 	
 	if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))

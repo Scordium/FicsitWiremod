@@ -96,15 +96,25 @@ public:
 			//I don't even know what i'm doing at this point, but all this shit basically prevents selectors from pointlessly recreating their connection list.
 			//I'd prefer to just do it on input connect/disconnect, but then cases when the output building was destroyed remain unhandled.
 			bool NotInitialized = FoundIndex == INDEX_NONE && ConnectionsInfo.Inputs.Num() == 0;
-			
+
+			//If all selector inputs are disconnected, do we need to reset them to default mode so they accept "Any" value type?
 			bool NotResetToDefault = Type == Any && GetInputType(1) != Any;
+
+			//If any selector input is connected, do we need to update the connection type for all inputs?
 			bool NotSetToInputType = Type != GetOutputType(0) && Type != Any;
+
+			//Whether we need to recreate selector connections
 			bool UpdateInputTypes = NotResetToDefault || NotSetToInputType;
-			
-			bool UpdateInputList = ConnectionsInfo.Inputs.Num() != FoundIndex && FoundIndex != INDEX_NONE && FoundIndex >= MinSelectorInputs;
+
+			//Input count is not equal to the index of the last connected input in the list,
+			//and the index is greater than the minimum amount of connectors the selector must have
+			//and index is not default value (-1)
+			bool UpdateInputList = ConnectionsInfo.Inputs.Num() != FoundIndex && FoundIndex >= MinSelectorInputs && FoundIndex != INDEX_NONE;
 			
 			if(UpdateInputTypes || UpdateInputList || NotInitialized)
 				MakeSelectorConnections(ConnectionsInfo.Inputs, FoundIndex >= MinSelectorInputs ? FoundIndex : MinSelectorInputs, Type);
+
+			SetOutputType(0, Type == Any ? Unknown : Type);
 		}
 	}
 
@@ -116,8 +126,6 @@ public:
 		{
 			OutArray.Add(FBuildingConnection(FString::FromInt(i), "", Type));
 		}
-
-		SetOutputType(0, Type == Any ? Unknown : Type);
 	}
 
 
