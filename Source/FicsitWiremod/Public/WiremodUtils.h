@@ -84,7 +84,11 @@ public:
 				}
 				return UKismetSystemLibrary::GetObjectName(entity);
 			}
-		case Recipe: return UFGRecipe::GetRecipeName(WM::GetFunctionRecipeResult(Value)).ToString();
+		case Recipe:
+			{
+				auto Recipe = WM::GetFunctionRecipeResult(Value);
+				return IsValid(Recipe) ? UFGRecipe::GetRecipeName(Recipe).ToString() : FString();
+			}
 		case Color: return WM::GetFunctionColorResult(Value).ToString();
 		case ArrayOfBoolean: return "[" + STR::Conv_IntToString(WM::GetBoolArray(Value).Num()) + " elements]";
 		case ArrayOfNumber: return "[" + STR::Conv_IntToString(WM::GetNumberArray(Value).Num()) + " elements]";
@@ -133,7 +137,7 @@ public:
 	static FName GetClassName(UClass* inClass)
 	{
 		auto unparsed = UKismetSystemLibrary::GetClassDisplayName(inClass);
-		TArray<FString> Remove = {"Build_", "BP_"};
+		TArray<FString> Remove = {"Build_", "BP_", "SF+_", "RP_", "SF_", "MP_", "FF_"};
 		FString ReplaceWith = "";
 		for (FString Element : Remove)
 		{
