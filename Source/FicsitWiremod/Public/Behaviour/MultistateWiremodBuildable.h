@@ -42,6 +42,12 @@ struct FWiremodBuildableState
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool ForceDisconnectInputs = true;
+
+	/**
+	 * Whether this state should be hidden from the user and only used as an internal building state.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsHidden = false;
 };
 
 
