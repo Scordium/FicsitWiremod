@@ -76,6 +76,11 @@ public:
 		if(!GetCanConfigure(Setter)) return;
 		if(!States.IsValidIndex(Index)) return;
 		
+		OnStateSelected_Internal(Index);
+	}
+
+	virtual void OnStateSelected_Internal(int Index)
+	{
 		auto NewState = States[Index];
 		if(NewState.ForceDisconnectInputs) OnInputDisconnected_Internal(-1);
 		

@@ -45,3 +45,8 @@ void UWiremodRemoteCalls::SetBuildableOwner_Implementation(AFGBuildable* Buildab
 }
 
 bool UWiremodRemoteCalls::SetBuildableOwner_Validate(AFGBuildable* Buildable, UObject* NewOwner, UObject* Setter) { return true; }
+
+void UWiremodRemoteCalls::SetCustomStructData_Implementation(ACustomStructProcessor* Processor, const FCustomStruct& Data, UObject* Setter)
+{
+	Processor->SetCustomStruct(Data, Setter);
+}

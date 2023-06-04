@@ -256,6 +256,17 @@ FItemAmount UWiremodReflection::GetItemAmount(const FNewConnectionData& data)
 	return params.RetVal;
 }
 
+FCustomStruct UWiremodReflection::GetCustomStruct(const FNewConnectionData& Data)
+{
+	if(Data.FromProperty)
+		return FromProperty<FCustomStruct>(Data, FCustomStruct());
+	
+	struct{FCustomStruct RetVal; } params{};	
+	if(!ProcessFunction(Data, &params))
+		return FromProperty<FCustomStruct>(Data, FCustomStruct());
+	return params.RetVal;
+}
+
 
 TArray<bool> UWiremodReflection::GetBoolArray(const FNewConnectionData& data)
 {

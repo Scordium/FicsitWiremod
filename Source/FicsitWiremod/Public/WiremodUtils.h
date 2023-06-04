@@ -115,6 +115,7 @@ public:
 				return STR::Conv_IntToString(item.Amount) + " of " + UFGItemDescriptor::GetItemName(item.ItemClass).ToString();
 			}
 		case ArrayOfItemAmount: return "[" + STR::Conv_IntToString(WM::GetItemAmountArray(Value).Num()) + " elements]";
+		case CustomStruct: return "[" + FString::FromInt(WM::GetCustomStruct(Value).Values.Num()) + " values]"; 
 		default:
 			UE_LOG(LogTemp, Error, TEXT("Failed to find switch case for EConnectionType::%d in function GET_STRINGIFIED_VALUE. Returning default value instead..."), (int)Value.ConnectionType);
 			return "?";
@@ -154,7 +155,7 @@ public:
 	static bool IsValidConnectionPair(EConnectionType Input, EConnectionType Output)
 	{
 		if(Input == Unknown || Output == Unknown) return false;
-		if(Input == Any) return true;
+		if(Input == Any) return Output != CustomStruct;
 		if(Input == Output) return true;
 		if(Input == AnyArray) return IsArrayType(Output);
 		if(Input == AnyNonArray) return !IsArrayType(Output);

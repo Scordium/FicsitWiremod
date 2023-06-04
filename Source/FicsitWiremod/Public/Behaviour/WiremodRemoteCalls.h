@@ -6,6 +6,7 @@
 #include "FGRemoteCallObject.h"
 #include "WiremodReflection.h"
 #include "Communications/RemoteControlReceiver.h"
+#include "Miscellaneous/CustomStructProcessor.h"
 #include "Utility/WiremodBlueprintUtils.h"
 #include "WiremodRemoteCalls.generated.h"
 
@@ -33,6 +34,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Reliable, WithValidation, Server)
 	void SetBuildableOwner(AFGBuildable* Buildable, UObject* NewOwner, UObject* Setter);
+
+	UFUNCTION(BlueprintCallable, Reliable, Server)
+	void SetCustomStructData(ACustomStructProcessor* Processor, const FCustomStruct& Data, UObject* Setter);
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{

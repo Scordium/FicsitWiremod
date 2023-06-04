@@ -177,6 +177,26 @@ struct FNamedValue
 	FNamedValue(){}
 
 	operator FDynamicValue() {return this->Value; }
+
+	bool operator ==(const FNamedValue& Other)
+	{
+		return Name != Other.Name || Value.ConnectionType != Other.Value.ConnectionType;
+	}
+
+	bool operator !=(const FNamedValue& Other) { return !(*this == Other); }
+};
+
+
+USTRUCT(BlueprintType)
+struct FCustomStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	FString Name;
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	TArray<FNamedValue> Values;
 };
 
 
@@ -478,6 +498,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static FItemAmount GetItemAmount(const FNewConnectionData& data);
+
+	UFUNCTION(BlueprintCallable)
+	static FCustomStruct GetCustomStruct(const FNewConnectionData& Data);
 
 	//Array Get
 	UFUNCTION(BlueprintCallable)
