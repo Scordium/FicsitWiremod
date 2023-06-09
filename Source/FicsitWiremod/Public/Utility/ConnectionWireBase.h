@@ -7,7 +7,9 @@
 #include "WiremodReflection.h"
 #include "Components/SplineComponent.h"
 #include "GameFramework/Actor.h"
+#include "Net/UnrealNetwork.h"
 #include "ConnectionWireBase.generated.h"
+
 
 UCLASS()
 class FICSITWIREMOD_API AConnectionWireBase : public AActor

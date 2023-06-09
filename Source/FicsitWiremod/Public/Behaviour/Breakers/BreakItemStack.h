@@ -15,7 +15,7 @@ class FICSITWIREMOD_API ABreakItemStack : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Stack = WM_GetStack(0);
+		Stack = GetConnection(0).GetStack();
 	}
 
 	UFUNCTION(BlueprintPure)

@@ -24,18 +24,18 @@ public:
 		//Default state - N+ inputs, 1 output
 		if(CurrentStateIndex == 0)
 		{
-			TArray<FNewConnectionData> Connected;
+			TArray<FConnectionData> Connected;
 			GetAllConnected(Connected);
 
 			int Active = 0;
-			for (auto Data : Connected) Active += WM::GetFunctionBoolResult(Data);
+			for (auto Data : Connected) Active += Data.GetBool();
 			
 			Out = (Active%2) == 1;	
 		}
 		//Alternate state - 1 bool array input, 1 output
 		else if(CurrentStateIndex == 1)
 		{
-			auto Array = WM::GetBoolArray(GetConnection(0));
+			auto Array = GetConnection(0).GetBoolArray();
 			
 			int Active = 0;
 			for(auto Element : Array) Active += Element;

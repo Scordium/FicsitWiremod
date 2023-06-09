@@ -14,9 +14,9 @@ class FICSITWIREMOD_API AExpoInterpolation : public AMultistateWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		float A = WM_GetFloat(0);
-		float B = WM_GetFloat(1);
-		float Alpha = WM_GetFloat(2);
+		float A = GetConnection(0).GetFloat();
+		float B = GetConnection(1).GetFloat();
+		float Alpha = GetConnection(2).GetFloat();
 		
 		//0 - Expo IN
 		if(CurrentStateIndex == 0) Out = FMath::InterpExpoIn(A, B, Alpha);

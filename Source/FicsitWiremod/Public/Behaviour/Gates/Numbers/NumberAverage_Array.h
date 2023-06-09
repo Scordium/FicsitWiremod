@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ANumberAverage_Array : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		auto Array = WM::GetNumberArray(GetConnection(0));
+		auto Array = GetConnection(0).GetFloatArray();
 		float Result = 0;
 
 		for(float Element : Array)

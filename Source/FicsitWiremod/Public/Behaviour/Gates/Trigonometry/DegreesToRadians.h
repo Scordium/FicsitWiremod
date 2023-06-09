@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ADegreesToRadians : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = UKismetMathLibrary::DegreesToRadians(WM_GetFloat(0));
+		Out = UKismetMathLibrary::DegreesToRadians(GetConnection(0).GetFloat());
 	}
         
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

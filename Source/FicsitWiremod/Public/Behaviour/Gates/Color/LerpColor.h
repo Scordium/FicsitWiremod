@@ -17,16 +17,16 @@ public:
 		//Default mode - lerp from A to B
 		if(CurrentStateIndex == 0)
 		{
-			auto A = WM_GetColor(0);
-			auto B = WM_GetColor(1);
-			auto Alpha = WM_GetFloat(2);
+			auto A = GetConnection(0).GetColor();
+			auto B = GetConnection(1).GetColor();
+			auto Alpha = GetConnection(2).GetFloat();
 
 			Out = UKismetMathLibrary::LinearColorLerp(A, B, Alpha);
 		}
 		//Alt mode - lerp in color array
 		else if (CurrentStateIndex == 1)
 		{
-			auto Colors = WM::GetColorArray(GetConnection(0));
+			auto Colors = GetConnection(0).GetColorArray();
 			auto NumColors = Colors.Num();
 			
 			if(NumColors == 0)
@@ -39,7 +39,7 @@ public:
 			}
 			else
 			{
-				auto Alpha = WM_GetFloat(1);
+				auto Alpha = GetConnection(1).GetFloat();
 				auto AlphaPerIndex = 1.f / Colors.Num();
 
 				//This is so fucking stupid
@@ -51,8 +51,6 @@ public:
 
 				Out = UKismetMathLibrary::LinearColorLerp(A, B, Alpha);
 			}
-			
-			
 		}
 	}
 

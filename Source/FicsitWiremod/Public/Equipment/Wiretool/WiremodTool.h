@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "FGCharacterPlayer.h"
 #include "FGPlayerController.h"
-#include "WiremodReflection.h"
 #include "WiremodUtils.h"
 #include "WiretoolWidget.h"
 #include "Behaviour/WiremodRemoteCalls.h"
@@ -97,7 +96,7 @@ protected:
 		if(ForceReset || !UWiremodUtils::ShouldToolKeepState())
 		{
 			CurrentTarget = nullptr;
-			SelectedConnection = FNewConnectionData();
+			SelectedConnection = FConnectionData();
 		}
 
 		SetOutline(nullptr);
@@ -115,7 +114,7 @@ protected:
 
 		if(!SuccessfulHit) return;
 
-		SelectedConnection = FNewConnectionData();
+		SelectedConnection = FConnectionData();
 
 		SelectedConnection.Object = HitActor;
 		SelectedConnection.FunctionName = FName("Self");
@@ -154,7 +153,7 @@ protected:
 			FBuildableNote Note;
 			UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Input, Connections, Count, Note);
 			if(Count == 0) return false;
-			return UWiremodUtils::IsValidConnectionPair(Connections[Widget->CurrentIndex].ConnectionType, SelectedConnection.ConnectionType);
+			return UConnectionTypeFunctions::IsValidConnectionPair(Connections[Widget->CurrentIndex].ConnectionType, SelectedConnection.ConnectionType);
 		}
 	}
 
@@ -168,7 +167,7 @@ protected:
 		UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Input, Connections, Count, Note);
 
 		for(auto Connection : Connections){
-			if(UWiremodUtils::IsValidConnectionPair(Connection.ConnectionType, SelectedConnection.ConnectionType)){
+			if(UConnectionTypeFunctions::IsValidConnectionPair(Connection.ConnectionType, SelectedConnection.ConnectionType)){
 				return true;
 			}
 		}
@@ -223,7 +222,7 @@ protected:
 				RCO->ConnectNonWiremodObject(DynamicData, Index, Setter);
 			}
 
-			if(!MultiConnectMode) SelectedConnection = FNewConnectionData();
+			if(!MultiConnectMode) SelectedConnection = FConnectionData();
 		}
 		else
 		{
@@ -326,7 +325,7 @@ protected:
 	AActor* CurrentTarget;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-	FNewConnectionData SelectedConnection;
+	FConnectionData SelectedConnection;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	UWiretoolWidget* Widget;

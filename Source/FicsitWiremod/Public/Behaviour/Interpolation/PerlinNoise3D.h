@@ -15,15 +15,15 @@ class FICSITWIREMOD_API APerlinNoise3D : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		float X = WM_GetFloat(0);
-		float Y = WM_GetFloat(1);
-		float Z = WM_GetFloat(2);
-		float MinX = WM_GetFloat(3);
-		float MaxX = WM_GetFloat(4);
-		float MinY = WM_GetFloat(5);
-		float MaxY = WM_GetFloat(6);
-		float MinZ = WM_GetFloat(7);
-		float MaxZ = WM_GetFloat(8);
+		float X = GetConnection(0).GetFloat();
+		float Y = GetConnection(1).GetFloat();
+		float Z = GetConnection(2).GetFloat();
+		float MinX = GetConnection(3).GetFloat();
+		float MaxX = GetConnection(4).GetFloat();
+		float MinY = GetConnection(5).GetFloat();
+		float MaxY = GetConnection(6).GetFloat();
+		float MinZ = GetConnection(7).GetFloat();
+		float MaxZ = GetConnection(8).GetFloat();
 		
 		Out = UKismetAnimationLibrary::K2_MakePerlinNoiseVectorAndRemap(X, Y, Z, MinX, MaxX, MinY, MaxY, MinZ, MaxZ);
 	}

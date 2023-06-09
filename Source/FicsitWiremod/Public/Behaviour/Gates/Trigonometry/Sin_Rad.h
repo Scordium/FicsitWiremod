@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ASin_Rad : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = UKismetMathLibrary::Sin(WM_GetFloat(0));
+		Out = UKismetMathLibrary::Sin(GetConnection(0).GetFloat());
 	}
         
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

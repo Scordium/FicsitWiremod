@@ -18,7 +18,7 @@ class FICSITWIREMOD_API ABreakEntity : public AFGWiremodBuildable
 public:
 	void Process_Implementation(float DeltaTime) override
 	{
-		Entity = WM_GetEntity(0);
+		Entity = GetConnection(0).GetEntity();
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override

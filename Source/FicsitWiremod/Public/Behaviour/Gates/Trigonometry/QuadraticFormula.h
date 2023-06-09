@@ -22,9 +22,9 @@ public:
 
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		float a = WM_GetFloat(0);
-		float b = WM_GetFloat(1);
-		float c = WM_GetFloat(2);
+		float a = GetConnection(0).GetFloat();;
+		float b = GetConnection(1).GetFloat();;
+		float c = GetConnection(2).GetFloat();;
 
 		if(a == 0 || b == 0 || c == 0) return;
 

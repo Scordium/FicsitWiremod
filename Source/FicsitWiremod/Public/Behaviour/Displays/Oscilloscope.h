@@ -6,12 +6,12 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Oscilloscope.generated.h"
 
-#define DF_GET_X WM_GetFloat(0)
-#define DF_GET_Y WM_GetFloat(1)
-#define DF_LINE_COLOR WM_GetColor(2)
-#define DF_BACKGROUND_COLOR WM_GetColor(3)
-#define DF_MAX_POINTS WM_GetInt(4)
-#define DF_NO_FADING WM_GetBool(5)
+#define DF_GET_X GetConnection(0).GetFloat()
+#define DF_GET_Y GetConnection(1).GetFloat()
+#define DF_LINE_COLOR GetConnection(2).GetColor()
+#define DF_BACKGROUND_COLOR GetConnection(3).GetColor()
+#define DF_MAX_POINTS GetConnection(4).GetFloat()
+#define DF_NO_FADING GetConnection(5).GetBool()
 
 UCLASS()
 class FICSITWIREMOD_API AOscilloscope : public AFGWiremodBuildable

@@ -19,13 +19,13 @@ public:
 		//0 - Sum of all connected inputs
 		if(CurrentStateIndex == 0)
 		{
-			TArray<FNewConnectionData> Connected;
+			TArray<FConnectionData> Connected;
 			GetAllConnected(Connected);
 
 			float Output = 0;
 			for (auto Data : Connected)
 			{
-				Output += WM::GetFunctionNumberResult(Data);
+				Output += Data.GetFloat();
 			}
 
 			Out = Output;
@@ -34,7 +34,7 @@ public:
 		//1 - Array sum
 		else if(CurrentStateIndex == 1)
 		{
-			auto Array = WM::GetNumberArray(GetConnection(0));
+			auto Array = GetConnection(0).GetFloatArray();
 			float Output = 0;
 
 			for(auto Element : Array) Output += Element;
@@ -44,8 +44,8 @@ public:
 		//2 - Add a value to all elements in array
 		else if(CurrentStateIndex == 2)
 		{
-			auto Array = WM::GetNumberArray(GetConnection(0));
-			float Value = WM_GetFloat(1);
+			auto Array = GetConnection(0).GetFloatArray();
+			float Value = GetConnection(1).GetFloat();;
 
 			for(int i = 0; i < Array.Num(); i++) Array[i] += Value;
 

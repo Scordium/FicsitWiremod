@@ -14,7 +14,7 @@ class FICSITWIREMOD_API AInverseNumber : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = 1.f / WM_GetFloat(0);
+		Out = 1.f / GetConnection(0).GetFloat();;
 	}
     
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

@@ -7,6 +7,7 @@
 #include "WiremodBaseTool.h"
 #include "Behaviour/WiremodRemoteCalls.h"
 #include "Behaviour/Communications/RemoteControlReceiver.h"
+#include "Utility/WiremodBlueprintUtils.h"
 #include "RemoteControlTool.generated.h"
 
 UCLASS()

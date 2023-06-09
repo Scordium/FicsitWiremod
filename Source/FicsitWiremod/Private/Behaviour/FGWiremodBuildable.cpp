@@ -1,6 +1,7 @@
 ﻿// 
 #include "Behaviour/FGWiremodBuildable.h"
 
+#include "WiremodReflection.h"
 #include "WiremodUtils.h"
 #include "Buildables/FGBuildableBlueprintDesigner.h"
 
@@ -10,13 +11,13 @@ void AFGWiremodBuildable::Tick(float DeltaTime)
 	if(IsActiveEntity()) Process(DeltaTime);
 }
 
-FNewConnectionData AFGWiremodBuildable::GetConnection(int Index)
+FConnectionData AFGWiremodBuildable::GetConnection(int Index)
 {
-	if(!InputConnections.IsValidIndex(Index)) return FNewConnectionData(nullptr, FName());
+	if(!InputConnections.IsValidIndex(Index)) return FConnectionData(nullptr, FName());
 	return InputConnections[Index];
 }
 
-void AFGWiremodBuildable::GetAllConnected(TArray<FNewConnectionData>& Out)
+void AFGWiremodBuildable::GetAllConnected(TArray<FConnectionData>& Out)
 {
 	for (auto InputConnection : InputConnections)
 		if(InputConnection.IsValid())
@@ -70,13 +71,13 @@ void AFGWiremodBuildable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(AFGWiremodBuildable, OwnerData);
 }
 
-void AFGWiremodBuildable::OnInputConnected_Implementation(const FNewConnectionData& Data, int Index, UObject* Setter)
+void AFGWiremodBuildable::OnInputConnected_Implementation(const FConnectionData& Data, int Index, UObject* Setter)
 {
 	if(!GetCanConnect(Setter)) return;
 	OnInputConnected_Internal(Data, Index);
 }
 
-void AFGWiremodBuildable::OnInputConnected_Internal(const FNewConnectionData& Data, int Index)
+void AFGWiremodBuildable::OnInputConnected_Internal(const FConnectionData& Data, int Index)
 {
 	if(InputConnections.Num() <= Index)
 		InputConnections.SetNum(Index + 1);
@@ -91,7 +92,7 @@ void AFGWiremodBuildable::OnInputConnected_Internal(const FNewConnectionData& Da
 		//There's no need to bother making a wire at all if the object is not an actor, so check for that as well.
 		if(auto actor = Cast<AActor>(Data.Object); actor && Data.WirePositions[0] == actor->GetActorLocation()) ConvertedPositions.Empty();
 	}
-	InputConnections[Index] = FNewConnectionData(Data, ConvertedPositions);
+	InputConnections[Index] = FConnectionData(Data, ConvertedPositions);
 	
 	DrawWires();
 }
@@ -112,7 +113,7 @@ void AFGWiremodBuildable::OnInputDisconnected_Internal(int Index)
 	else
 	{
 		if(InputConnections.IsValidIndex(Index))
-			InputConnections[Index] = FNewConnectionData();
+			InputConnections[Index] = FConnectionData();
 	}
 	
 	DrawWires();
@@ -156,12 +157,12 @@ int AFGWiremodBuildable::netFunc_getFunctionReturnType(FString FunctionName)
 
 	return -1;
 }
-bool AFGWiremodBuildable::netFunc_getWireBool(FString FunctionName, bool DefaultValue){ return UWiremodReflection::GetFunctionBoolResult(FNewConnectionData(this, FName(FunctionName), Boolean), DefaultValue); }
-float AFGWiremodBuildable::netFunc_getWireNumber(FString FunctionName, float DefaultValue) { return UWiremodReflection::GetFunctionNumberResult(FNewConnectionData(this, FName(FunctionName), Number), DefaultValue); }
-FString AFGWiremodBuildable::netFunc_getWireString(FString FunctionName, FString DefaultValue) { return UWiremodReflection::GetFunctionStringResult(FNewConnectionData(this, FName(FunctionName), String), DefaultValue); }
-FVector AFGWiremodBuildable::netFunc_getWireVector(FString FunctionName, FVector DefaultValue) { return UWiremodReflection::GetFunctionVectorResult(FNewConnectionData(this, FName(FunctionName), Vector), DefaultValue); }
-FLinearColor AFGWiremodBuildable::netFunc_getWireColor(FString FunctionName, FLinearColor DefaultValue) { return UWiremodReflection::GetFunctionColorResult(FNewConnectionData(this, FName(FunctionName), Color), DefaultValue); }
-FString AFGWiremodBuildable::netFunc_getDebuggerOutputString(FString FunctionName) { return UWiremodUtils::GetStringifiedValue(FNewConnectionData(this, FName(FunctionName), (EConnectionType) netFunc_getFunctionReturnType(FunctionName))); }
+bool AFGWiremodBuildable::netFunc_getWireBool(FString FunctionName, bool DefaultValue){ return FConnectionData(this, FName(FunctionName), Boolean).GetBool(DefaultValue); }
+float AFGWiremodBuildable::netFunc_getWireNumber(FString FunctionName, float DefaultValue) { return FConnectionData(this, FName(FunctionName), Number).GetFloat(DefaultValue); }
+FString AFGWiremodBuildable::netFunc_getWireString(FString FunctionName, FString DefaultValue) { return FConnectionData(this, FName(FunctionName), String).GetString(DefaultValue); }
+FVector AFGWiremodBuildable::netFunc_getWireVector(FString FunctionName, FVector DefaultValue) { return FConnectionData(this, FName(FunctionName), Vector).GetVector(DefaultValue); }
+FLinearColor AFGWiremodBuildable::netFunc_getWireColor(FString FunctionName, FLinearColor DefaultValue) { return FConnectionData(this, FName(FunctionName), Color).GetColor(DefaultValue); }
+FString AFGWiremodBuildable::netFunc_getDebuggerOutputString(FString FunctionName) { return FConnectionData(this, FName(FunctionName), (EConnectionType) netFunc_getFunctionReturnType(FunctionName)).GetStringifiedValue(); }
 bool AFGWiremodBuildable::netFunc_isBlueprinted()
 {
 	return IsValid(mBlueprintDesigner);
@@ -176,7 +177,7 @@ void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, 
 		auto Connection = GetConnection(i);
 		if(!Connection.IsValid())
 		{
-			bool ValidPair = UWiremodUtils::IsValidConnectionPair(Inputs[i].ConnectionType, AllowedType);
+			bool ValidPair = UConnectionTypeFunctions::IsValidConnectionPair(Inputs[i].ConnectionType, AllowedType);
 			Out.Add(ValidPair ? Free : Disabled);
 		}
 		else
@@ -223,7 +224,7 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 	//Create new wires
 	for (int i = 0; i < InputConnections.Num(); i++)
 	{
-		FNewConnectionData ConnectionData = GetConnection(i);
+		FConnectionData ConnectionData = GetConnection(i);
 		if(!ConnectionData.IsValid()) continue;
 		if(ConnectionData.WireHidden) continue;
 		
@@ -237,7 +238,7 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 
 		//Create data for the wire
 		auto InputInfo = InputInfoList[i];
-		FNewConnectionData ReceiverData = FNewConnectionData(this, InputInfo.FunctionName, InputInfo.ConnectionType);
+		FConnectionData ReceiverData = FConnectionData(this, InputInfo.FunctionName, InputInfo.ConnectionType);
 		ReceiverData.DisplayName = InputInfo.DisplayName;
 
 		//Assign data to the wire

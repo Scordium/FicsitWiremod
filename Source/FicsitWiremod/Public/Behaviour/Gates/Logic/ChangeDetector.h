@@ -14,7 +14,7 @@ class FICSITWIREMOD_API AChangeDetector : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		bool Value = WM::GetFunctionBoolResult(GetConnection(0));
+		bool Value = GetConnection(0).GetBool();
 
 		if(Value != LastValue)
 		{

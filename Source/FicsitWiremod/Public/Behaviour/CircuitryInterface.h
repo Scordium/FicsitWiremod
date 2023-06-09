@@ -7,13 +7,6 @@
 #include "UObject/Interface.h"
 #include "CircuitryInterface.generated.h"
 
-UENUM(BlueprintType)
-enum EConnectionDirection
-{
-	Input,
-	Output
-};
-
 // This class does not need to be modified.
 UINTERFACE()
 class UCircuitryProcessableInterface : public UInterface
@@ -32,7 +25,7 @@ class FICSITWIREMOD_API ICircuitryProcessableInterface
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void OnInputConnected(const FNewConnectionData& Data, int Index, UObject* Setter);
+	void OnInputConnected(const FConnectionData& Data, int Index, UObject* Setter);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnInputDisconnected(int Index, UObject* Setter);

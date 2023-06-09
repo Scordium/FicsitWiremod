@@ -22,9 +22,9 @@ public:
 	
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Enabled = WM_GetBool(0, EnabledByDefault());
+		Enabled = GetConnection(0).GetBool(EnabledByDefault());
 
-		if(WM_GetBool(1)) TotalPassed = 0;
+		if(GetConnection(1).GetBool()) TotalPassed = 0;
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override

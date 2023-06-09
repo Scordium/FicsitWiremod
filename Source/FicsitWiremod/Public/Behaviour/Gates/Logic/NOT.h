@@ -15,7 +15,7 @@ public:
 
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = !WM_GetBool(0);
+		Out = !GetConnection(0).GetBool();
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

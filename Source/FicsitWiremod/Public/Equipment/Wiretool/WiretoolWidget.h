@@ -35,7 +35,7 @@ public:
 	FString GetConnectionName();
 
 	UFUNCTION(BlueprintPure, BlueprintImplementableEvent)
-	FNewConnectionData GetConnectionData();
+	FConnectionData GetConnectionData();
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void ScrollListDown(EConnectionType Type, bool ScrollInputs);

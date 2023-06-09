@@ -14,10 +14,10 @@ class FICSITWIREMOD_API AEaseInterpolation : public AMultistateWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		float A = WM_GetFloat(0);
-		float B = WM_GetFloat(1);
-		float Alpha = WM_GetFloat(2);
-		float Exp = WM_GetFloat(3);
+		float A = GetConnection(0).GetFloat();
+		float B = GetConnection(1).GetFloat();
+		float Alpha = GetConnection(2).GetFloat();
+		float Exp = GetConnection(3).GetFloat();
 		
 		//0 - Ease IN
 		if(CurrentStateIndex == 0) Out = FMath::InterpEaseIn(A, B, Alpha, Exp);

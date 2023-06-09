@@ -15,7 +15,7 @@ class FICSITWIREMOD_API ABreakItemAmount : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		ItemAmount = WM_GetItemAmount(0);
+		ItemAmount = GetConnection(0).GetItemAmount();
 	}
 	
 	UFUNCTION(BlueprintPure)

@@ -88,19 +88,18 @@ bool AWiremodVanillaConnections::HandleDynamicConnections(TArray<FDynamicConnect
 	bool HadValid = false;
 	for (auto ConnectionData : connections)
 	{
-		bool HasNullPtr = !ConnectionData.Transmitter.Object || !ConnectionData.Receiver.Object;
-		if(HasNullPtr) continue;
+		if(!ConnectionData.Transmitter.Object || !ConnectionData.Receiver.Object) continue;
 
 		HadValid = true;
 			
 		switch (ConnectionData.Receiver.ConnectionType)
 		{
-		case Boolean: WM::SetFunctionBoolValue(ConnectionData.Receiver, WM::GetFunctionBoolResult(ConnectionData.Transmitter)); break;
+		case Boolean: ConnectionData.Receiver.SetBool( ConnectionData.Transmitter.GetBool()); break;
 		case Number:
-		case Integer: WM::SetFunctionNumberValue(ConnectionData.Receiver, WM::GetFunctionNumberResult(ConnectionData.Transmitter)); break;
-		case String: WM::SetFunctionStringValue(ConnectionData.Receiver, WM::GetFunctionStringResult(ConnectionData.Transmitter)); break;
-		case Color: WM::SetFunctionColorValue(ConnectionData.Receiver, WM::GetFunctionColorResult(ConnectionData.Transmitter)); break;
-		case Recipe: WM::SetFunctionRecipeValue(ConnectionData.Receiver, WM::GetFunctionRecipeResult(ConnectionData.Transmitter)); break;
+		case Integer: ConnectionData.Receiver.SetFloat(ConnectionData.Transmitter.GetFloat()); break;
+		case String: ConnectionData.Receiver.SetString(ConnectionData.Transmitter.GetString()); break;
+		case Color: ConnectionData.Receiver.SetColor(ConnectionData.Transmitter.GetColor()); break;
+		case Recipe: ConnectionData.Receiver.SetRecipe(ConnectionData.Transmitter.GetRecipe()); break;
 		default: break;
 		}
 	}
@@ -108,7 +107,7 @@ bool AWiremodVanillaConnections::HandleDynamicConnections(TArray<FDynamicConnect
 	return HadValid;
 }
 
-void AWiremodVanillaConnections::FilterNullPointers(TArray<int> ClearIndexes)
+void AWiremodVanillaConnections::FilterNullPointers(const TArray<int>& ClearIndexes)
 {
 	TArray<FVanillaBuildingDataKeyValuePair> Filtered;
 

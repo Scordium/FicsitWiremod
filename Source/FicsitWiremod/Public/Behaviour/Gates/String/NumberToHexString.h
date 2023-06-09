@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ANumberToHexString : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = Convert(WM_GetInt(0));
+		Out = Convert(GetConnection(0).GetFloat());
 	}
 
 
@@ -31,31 +31,31 @@ public:
 
 private:
 
+	TArray<FString> Chars
+	{
+		"0",
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"A",
+		"B",
+		"C",
+		"D",
+		"E",
+		"F",
+	};
+
 	FString Convert(int Number)
 	{
 		Number = FMath::Abs(Number);
 		
 		FString Output;
-		
-		TArray<FString> Chars
-		{
-			"0",
-			"1",
-			"2",
-			"3",
-			"4",
-			"5",
-			"6",
-			"7",
-			"8",
-			"9",
-			"A",
-			"B",
-			"C",
-			"D",
-			"E",
-			"F",
-		};
 
 		while(Number > 0)
 		{

@@ -17,27 +17,26 @@ class FICSITWIREMOD_API ABreakPowerCircuit : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Circuit = WM_GetPowerCircuit(0);
+		Circuit = GetConnection(0).GetCircuit();
 
-		if(Circuit.IsValid())
+		if(Circuit)
 		{
 			Circuit->GetStats(CachedStats);
 			
 			//Reset fuse if it was tripped
-			if(WM_GetBool(1)) Circuit.Get()->ResetFuse();
+			if(GetConnection(1).GetBool()) Circuit->ResetFuse();
 
 			// Trip fuse
-			if(WM_GetBool(2))
+			if(GetConnection(2).GetBool())
 			{
-				Circuit.Get()->mIsFuseTriggered = true;
-				//Circuit.Get()->StatFuseTriggered();
+				Circuit->mIsFuseTriggered = true;
 				AFGCircuitSubsystem::Get(GetWorld())->PowerCircuit_OnFuseSet();
 			}
 
 			//Drain batteries
-			if(WM_GetBool(3))
+			if(GetConnection(3).GetBool())
 			{
-				for(UFGPowerInfoComponent* component : Circuit.Get()->mPowerInfos)
+				for(UFGPowerInfoComponent* component : Circuit->mPowerInfos)
 				{
 					if(auto battery = Cast<AFGBuildablePowerStorage>(component->GetOwner()->GetRootComponent()->GetOwner()))
 					{
@@ -53,71 +52,71 @@ public:
 	UFUNCTION()
 	FORCEINLINE float GetBatterySumInput()
 	{
-		if(!Circuit.IsValid()) return 0;
-		return Circuit.Get()->GetBatterySumPowerInput();
+		if(!Circuit) return 0;
+		return Circuit->GetBatterySumPowerInput();
 	}
 
 	UFUNCTION()
 	FORCEINLINE float GetBatterySumOutput()
 	{
-		if(!Circuit.IsValid()) return 0;
-		return Circuit.Get()->GetBatterySumPowerOutput();
+		if(!Circuit) return 0;
+		return Circuit->GetBatterySumPowerOutput();
 	}
 
 	UFUNCTION()
 	FORCEINLINE float GetBatteryStoredPower()
 	{
-		if(!Circuit.IsValid()) return 0;
-		return Circuit.Get()->GetBatterySumPowerStore();
+		if(!Circuit) return 0;
+		return Circuit->GetBatterySumPowerStore();
 	}
 	
 	UFUNCTION()
 	FORCEINLINE float GetBatteryStorageCapacity()
 	{
-		if(!Circuit.IsValid()) return 0;
-		return Circuit.Get()->GetBatterySumPowerStoreCapacity();
+		if(!Circuit) return 0;
+		return Circuit->GetBatterySumPowerStoreCapacity();
 	}
 
 	UFUNCTION()
 	FORCEINLINE float GetBatteryStoredPowerPercent()
 	{
-		if(!Circuit.IsValid()) return 0;
-		return Circuit.Get()->GetBatterySumPowerStorePercent();
+		if(!Circuit) return 0;
+		return Circuit->GetBatterySumPowerStorePercent();
 	}
 
 	UFUNCTION()
 	FORCEINLINE float GetTimeTillBatteriesFull()
 	{
-		if(!Circuit.IsValid()) return -1;
-		return Circuit.Get()->GetTimeToBatteriesFull();
+		if(!Circuit) return -1;
+		return Circuit->GetTimeToBatteriesFull();
 	}
 
 	UFUNCTION()
 	FORCEINLINE float GetTimeTillBatteriesEmpty()
 	{
-		if(!Circuit.IsValid()) return -1;
-		return Circuit.Get()->GetTimeToBatteriesEmpty();
+		if(!Circuit) return -1;
+		return Circuit->GetTimeToBatteriesEmpty();
 	}
 
 	UFUNCTION()
 	FORCEINLINE bool GetHasBatteries()
 	{
-		if(!Circuit.IsValid()) return false;
-		return Circuit.Get()->HasBatteries();
+		if(!Circuit) return false;
+		return Circuit->HasBatteries();
 	}
 
 	UFUNCTION()
 	FORCEINLINE bool GetHasPower()
 	{
-		if(!Circuit.IsValid()) return false;
-		return Circuit.Get()->HasPower();
+		if(!Circuit) return false;
+		return Circuit->HasPower();
 	}
 
 	UFUNCTION()
 	FORCEINLINE bool GetIsFuseTriggered()
 	{
-		if(!Circuit.IsValid()) return false;
-		return Circuit.Get()->IsFuseTriggered();
+		if(!Circuit) return false;
+		return Circuit->IsFuseTriggered();
 	}
 
 	UFUNCTION()
@@ -185,5 +184,5 @@ public:
 	FPowerCircuitStats CachedStats;
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	TWeakObjectPtr<UFGPowerCircuit> Circuit;
+	UFGPowerCircuit* Circuit;
 };

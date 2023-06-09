@@ -3,13 +3,15 @@
 
 #include "Behaviour/WiremodRemoteCalls.h"
 
-void UWiremodRemoteCalls::ConnectWiremodObject_Implementation(UObject* Buildable, const FNewConnectionData& Data, int Index, UObject* Setter)
+#include "Utility/WiremodBlueprintUtils.h"
+
+void UWiremodRemoteCalls::ConnectWiremodObject_Implementation(UObject* Buildable, const FConnectionData& Data, int Index, UObject* Setter)
 {
 	if(!UWiremodBlueprintUtils::IsWiremod(Buildable)) return;
 	ICircuitryProcessableInterface::Execute_OnInputConnected(Buildable, Data, Index, Setter);
 }
 
-bool UWiremodRemoteCalls::ConnectWiremodObject_Validate(UObject* Buildable, const FNewConnectionData& Data, int Index, UObject* Setter){ return true; }
+bool UWiremodRemoteCalls::ConnectWiremodObject_Validate(UObject* Buildable, const FConnectionData& Data, int Index, UObject* Setter){ return true; }
 
 void UWiremodRemoteCalls::ConnectNonWiremodObject_Implementation(const FDynamicConnectionData& Connection, int Index, UObject* Setter)
 {
@@ -46,7 +48,7 @@ void UWiremodRemoteCalls::SetBuildableOwner_Implementation(AFGBuildable* Buildab
 
 bool UWiremodRemoteCalls::SetBuildableOwner_Validate(AFGBuildable* Buildable, UObject* NewOwner, UObject* Setter) { return true; }
 
-void UWiremodRemoteCalls::SetCustomStructData_Implementation(ACustomStructProcessor* Processor, const FCustomStruct& Data, UObject* Setter)
+void UWiremodRemoteCalls::SetCustomStructData_Implementation(ACustomStructProcessor* Processor, const FCustomStructReplicatable& Data, UObject* Setter)
 {
-	Processor->SetCustomStruct(Data, Setter);
+	Processor->SetCustomStruct(Data.Convert(Processor), Setter);
 }

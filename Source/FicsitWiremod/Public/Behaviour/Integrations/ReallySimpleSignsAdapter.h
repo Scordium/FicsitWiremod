@@ -15,8 +15,8 @@ class FICSITWIREMOD_API AReallySimpleSignsAdapter : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Sign = Cast<AFGBuildable>(WM_GetEntity(0));
-		ElementIndex = WM_GetInt(1);
+		Sign = Cast<AFGBuildable>(GetConnection(0).GetEntity());
+		ElementIndex = GetConnection(1).GetFloat();
 
 		if(IsConnected(2)) SetElementText();
 		if(IsConnected(3)) SetElementTextSize();
@@ -43,147 +43,154 @@ public:
 	{
 		struct{ FString arg1; int32 elementIndex; } params{ WM_GetString(2), ElementIndex};
 
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetText");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetText");
+		data.ProcessFunction(&params);
 	}
 
 	void SetElementTextSize()
 	{
-		struct{ int arg1; int32 elementIndex; } params{ WM_GetInt(3), ElementIndex};
+		struct{ int arg1; int32 elementIndex; } params{ (int)GetConnection(3).GetFloat(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetTextSize");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetTextSize");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetElementPosition()
 	{
-		struct{ FVector2D arg1; int32 elementIndex; } params{ FVector2D(WM_GetVector(4)), ElementIndex};
+		struct{ FVector2D arg1; int32 elementIndex; } params{ FVector2D(GetConnection(4).GetVector()), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetPosition");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetPosition");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetElementRotation()
 	{
-		struct{ float arg1; int32 elementIndex; } params{ WM_GetFloat(5), ElementIndex};
+		struct{ float arg1; int32 elementIndex; } params{ GetConnection(5).GetFloat(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetRotation");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetRotation");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetElementZIndex()
 	{
-		struct{ int arg1; int32 elementIndex; } params{ WM_GetInt(6), ElementIndex};
+		struct{ int arg1; int32 elementIndex; } params{ (int)GetConnection(6).GetFloat(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetZIndex");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetZIndex");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetElementColor()
 	{
-		struct{ FLinearColor arg1; int32 elementIndex; } params{ WM_GetColor(7), ElementIndex};
+		struct{ FLinearColor arg1; int32 elementIndex; } params{ GetConnection(7).GetColor(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetColor");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetColor");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetElementOpacity()
 	{
-		struct{ float arg1; int32 elementIndex; } params{WM_GetFloat(8), ElementIndex};
+		struct{ float arg1; int32 elementIndex; } params{GetConnection(8).GetFloat(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetOpacity");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetOpacity");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetSignBackgroundColor()
 	{
-		struct{ FLinearColor arg1; } params{WM_GetColor(9)};
+		struct{ FLinearColor arg1; } params{GetConnection(9).GetColor()};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_SetSignBackgroundColor");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_SetSignBackgroundColor");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetSignEmission()
 	{
-		struct{ float arg1; } params{WM_GetFloat(10)};
+		struct{ float arg1; } params{GetConnection(10).GetFloat()};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_SetSignEmmisive");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_SetSignEmmisive");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetTextElementIsBold()
 	{
-		struct{ bool arg1; int32 elementIndex; } params{WM_GetBool(11), ElementIndex};
+		struct{ bool arg1; int32 elementIndex; } params{GetConnection(11).GetBool(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetIsBold");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetIsBold");
+		data.ProcessFunction(&params);
 	}
 
 	void SetTextElementIsUpperCase()
 	{
-		struct{ bool arg1; int32 elementIndex; } params{ WM_GetBool(12), ElementIndex};
+		struct{ bool arg1; int32 elementIndex; } params{ GetConnection(12).GetBool(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetUppercase");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetUppercase");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetElementScaleAndSpeed()
 	{
-		struct{ FLinearColor arg1; } params{ WM_GetColor(13)};
+		struct{ FLinearColor arg1; } params{ GetConnection(13).GetColor()};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Material_SetAnimation");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Material_SetAnimation");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetElementJustify()
 	{
-		struct{ int arg1; int32 elementIndex; } params{ WM_GetInt(14), ElementIndex};
+		struct{ int arg1; int32 elementIndex; } params{ (int)GetConnection(14).GetFloat(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetJustify");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetJustify");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetImageElementSize()
 	{
-		struct{ FVector2D arg1; int32 elementIndex; } params{ FVector2D(WM_GetVector(15)), ElementIndex};
+		struct{ FVector2D arg1; int32 elementIndex; } params{ FVector2D(GetConnection(15).GetVector()), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetImageSize");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetImageSize");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetImageElementOverwriteSize()
 	{
-		struct{ FVector2D arg1; int32 elementIndex;} params{ FVector2D(WM_GetVector(16)), ElementIndex};
+		struct{ FVector2D arg1; int32 elementIndex;} params{ FVector2D(GetConnection(16).GetVector()), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetOverwriteImageSize");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetOverwriteImageSize");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetElementPannerIsStep()
 	{
-		struct{ bool arg1; int32 elementIndex; } params{ WM_GetBool(17), ElementIndex};
+		struct{ bool arg1; int32 elementIndex; } params{ GetConnection(17).GetBool(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetPannerType");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetPannerType");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetPannerStepFrequency()
 	{
-		struct{ float arg1; int32 elementIndex; } params{ WM_GetFloat(18), ElementIndex};
+		struct{ float arg1; int32 elementIndex; } params{ GetConnection(18).GetFloat(), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetStepFrequenz");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetStepFrequenz");
+		data.ProcessFunction(&params);
 	}
 	
 	void SetImageElementTexture()
 	{
-		struct{ UTexture* arg1; int32 elementIndex; } params{ UTextureUtilities::GetTextureFromIconId(WM_GetInt(19)), ElementIndex};
+		struct{ UTexture* arg1; int32 elementIndex; } params{ UTextureUtilities::GetTextureFromIconId(GetConnection(19).GetFloat()), ElementIndex};
 		
-		auto data = FNewConnectionData(Sign, "netFunc_Element_SetTexture");
-		UWiremodReflection::ProcessFunction(data, &params);
+		auto data = FConnectionData(Sign, "netFunc_Element_SetTexture");
+		data.ProcessFunction(&params);
 	}
 	
-	
+	UFUNCTION(BlueprintCallable)
+	static int GetElementCountOfType(AFGBuildable* sign, int type)
+	{
+		struct{ int type; int ReturnValue; } params{type};
+		auto data = FConnectionData(sign, "netFunc_GetNumOfElementsOfType");
+		data.ProcessFunction(&params);
+		return params.ReturnValue;
+	}
 	
 	
 	UPROPERTY()

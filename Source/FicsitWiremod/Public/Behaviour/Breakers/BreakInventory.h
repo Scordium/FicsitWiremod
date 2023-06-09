@@ -15,11 +15,11 @@ public:
 	
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Inventory = WM_GetInventory(0);
+		Inventory = GetConnection(0).GetInventory();
 
 		if(Inventory)
 		{
-			if(WM_GetBool(1))
+			if(GetConnection(1).GetBool())
 				Inventory->Empty();
 
 

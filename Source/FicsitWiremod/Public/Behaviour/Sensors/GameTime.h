@@ -21,9 +21,9 @@ public:
 		
 		auto System = AFGTimeOfDaySubsystem::Get(this);
 
-		auto Hour = WM_GetFloat(0);
-		auto Minute = WM_GetFloat(1);
-		auto Second = WM_GetFloat(2);
+		auto Hour = GetConnection(0).GetFloat();
+		auto Minute = GetConnection(1).GetFloat();
+		auto Second = GetConnection(2).GetFloat();
 
 		float FinalTime = Hour * 3600 + Minute * 60 + Second;
 		System->SetDaySeconds(FinalTime);

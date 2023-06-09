@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ANumberMax : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = FMath::Max(WM_GetFloat(0), WM_GetFloat(1));
+		Out = FMath::Max(GetConnection(0).GetFloat(), GetConnection(1).GetFloat());
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

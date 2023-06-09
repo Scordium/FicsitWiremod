@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ANormalizeNumber : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = UKismetMathLibrary::NormalizeToRange(WM_GetFloat(0), WM_GetFloat(1), WM_GetFloat(2));
+		Out = UKismetMathLibrary::NormalizeToRange(GetConnection(0).GetFloat(), GetConnection(1).GetFloat(), GetConnection(2).GetFloat());
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

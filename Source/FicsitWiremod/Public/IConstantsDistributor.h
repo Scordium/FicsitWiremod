@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WiremodReflection.h"
+#include "CommonLib/BackwardsCompatibilityHandler.h"
+#include "CommonLib/DynamicValues/CCDynamicValueBase.h"
 #include "UObject/Interface.h"
 #include "IConstantsDistributor.generated.h"
 
@@ -23,5 +24,5 @@ class FICSITWIREMOD_API IIConstantsDistributor
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	FDynamicValue GetValue(const FString& ValueName);
+	UCCDynamicValueBase* GetValue(const FString& ValueName);
 };

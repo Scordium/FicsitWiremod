@@ -14,11 +14,11 @@ class FICSITWIREMOD_API ARemapNumber : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		float Value = WM_GetFloat(0);
-		float InMin = WM_GetFloat(1);
-		float InMax = WM_GetFloat(2);
-		float OutMin = WM_GetFloat(3);
-		float OutMax = WM_GetFloat(4);
+		float Value = GetConnection(0).GetFloat();;
+		float InMin = GetConnection(1).GetFloat();;
+		float InMax = GetConnection(2).GetFloat();;
+		float OutMin = GetConnection(3).GetFloat();;
+		float OutMax = GetConnection(4).GetFloat();;
 
 		Out = FMath::GetMappedRangeValueUnclamped(
 			FVector2D(InMin, InMax),

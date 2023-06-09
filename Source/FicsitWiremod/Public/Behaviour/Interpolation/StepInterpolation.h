@@ -14,10 +14,10 @@ class FICSITWIREMOD_API AStepInterpolation : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		float A = WM_GetFloat(0);
-		float B = WM_GetFloat(1);
-		float Alpha = WM_GetFloat(2);
-		int Steps = WM_GetInt(3);
+		float A = GetConnection(0).GetFloat();;
+		float B = GetConnection(1).GetFloat();;
+		float Alpha = GetConnection(2).GetFloat();;
+		int Steps = GetConnection(3).GetFloat();
 		
 		Out = FMath::InterpStep(A, B, Alpha, Steps);
 	}

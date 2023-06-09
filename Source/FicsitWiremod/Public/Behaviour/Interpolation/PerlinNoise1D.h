@@ -15,9 +15,9 @@ class FICSITWIREMOD_API APerlinNoise1D : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		float Value = WM_GetFloat(0);
-		float Min = WM_GetFloat(1);
-		float Max = WM_GetFloat(2);
+		float Value = GetConnection(0).GetFloat();;
+		float Min = GetConnection(1).GetFloat();;
+		float Max = GetConnection(2).GetFloat();;
 		
 		Out = UKismetAnimationLibrary::K2_MakePerlinNoiseAndRemap(Value, Min, Max);
 	}

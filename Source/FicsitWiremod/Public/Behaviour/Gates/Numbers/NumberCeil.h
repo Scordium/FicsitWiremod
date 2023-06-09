@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ANumberCeil : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = FMath::CeilToInt(WM_GetFloat(0));
+		Out = FMath::CeilToInt(GetConnection(0).GetFloat());
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

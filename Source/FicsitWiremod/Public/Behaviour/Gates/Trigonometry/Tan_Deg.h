@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ATan_Deg : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = UKismetMathLibrary::DegTan(WM_GetFloat(0));
+		Out = UKismetMathLibrary::DegTan(GetConnection(0).GetFloat());
 	}
         
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

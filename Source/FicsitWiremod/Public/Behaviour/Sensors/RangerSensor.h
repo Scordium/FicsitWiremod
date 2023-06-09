@@ -33,7 +33,7 @@ public:
 	
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		MaxDistance = WM_GetFloat(0, 1000);
+		MaxDistance = GetConnection(0).GetFloat(1000);
 		
 		auto ActorIgnoreList = TArray<AActor*>();
 		TraceForHit(ActorIgnoreList);
@@ -84,7 +84,7 @@ public:
 
 		//Otherwise check if the ranger should ignore buildings (only react to players, vehicles, and wildlife)
 		//If it should, then return false and continue looking for a new target
-		return !WM_GetBool(2);
+		return !GetConnection(2).GetBool();
 	}
 	
 	void RenderLaser()
@@ -97,7 +97,7 @@ public:
 
 		Spline->SetSplinePoints(SplinePoints, ESplineCoordinateSpace::World);
 
-		SplineMesh->SetHiddenInGame(WM_GetBool(1));
+		SplineMesh->SetHiddenInGame(GetConnection(1).GetBool());
 
 		FVector StartLoc, StartTan, EndLoc, EndTan;
 		Spline->GetLocationAndTangentAtSplinePoint(0, StartLoc, StartTan, ESplineCoordinateSpace::Local);

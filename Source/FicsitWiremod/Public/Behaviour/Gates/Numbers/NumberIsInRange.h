@@ -15,11 +15,11 @@ public:
 	virtual void Process_Implementation(float DeltaTime) override
     	{
     		Out = UKismetMathLibrary::InRange_FloatFloat(
-    			WM_GetFloat(0),
-    			WM_GetFloat(1),
-    			WM_GetFloat(2),
-    			WM_GetBool(4),
-    			WM_GetBool(5)
+    			GetConnection(0).GetFloat(),
+    			GetConnection(1).GetFloat(),
+    			GetConnection(2).GetFloat(),
+    			GetConnection(4).GetBool(),
+    			GetConnection(5).GetBool()
     			);
     	}
     

@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ANumberTruncate : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = WM_GetInt(0);
+		Out = GetConnection(0).GetFloat();
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

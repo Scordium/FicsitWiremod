@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ANumberRound : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = FMath::RoundToInt(WM_GetFloat(0));
+		Out = FMath::RoundToInt(GetConnection(0).GetFloat());
 	}
     
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

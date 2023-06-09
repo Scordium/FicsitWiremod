@@ -14,8 +14,8 @@ class FICSITWIREMOD_API ASRLatch : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		auto S = WM_GetBool(0);
-		auto R = WM_GetBool(1);
+		auto S = GetConnection(0).GetBool();
+		auto R = GetConnection(1).GetBool();
 
 		if(!(Out && OutInverted))
 		{
@@ -62,10 +62,10 @@ class FICSITWIREMOD_API ASRLatchWithEnable : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		if(!WM_GetBool(2)) return;
+		if(!GetConnection(2).GetBool()) return;
 		
-		auto S = WM_GetBool(0);
-		auto R = WM_GetBool(1);
+		auto S = GetConnection(0).GetBool();
+		auto R = GetConnection(1).GetBool();
 
 		if(!(Out && OutInverted))
 		{

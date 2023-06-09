@@ -18,13 +18,13 @@ public:
 		//0 - Average of all connected inputs
 		if(CurrentStateIndex == 0)
 		{
-			TArray<FNewConnectionData> Connected;
+			TArray<FConnectionData> Connected;
 			GetAllConnected(Connected);
 
 			float Result = 0;
 			for(auto Data : Connected)
 			{
-				Result += WM::GetFunctionNumberResult(Data);
+				Result += Data.GetFloat();
 			}
 
 			Out = Result / Connected.Num();	
@@ -33,7 +33,7 @@ public:
 		//1 - Average of all array elements
 		else if(CurrentStateIndex == 1)
 		{
-			auto Array = WM::GetNumberArray(GetConnection(0));
+			auto Array = GetConnection(0).GetFloatArray();
 
 			float Sum = 0;
 			for (auto Element : Array) Sum += Element;

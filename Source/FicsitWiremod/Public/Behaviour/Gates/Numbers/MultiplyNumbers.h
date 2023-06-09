@@ -19,13 +19,13 @@ public:
 		//0 - Multiply all connected
 		if(CurrentStateIndex == 0)
 		{
-			TArray<FNewConnectionData> Connected;
+			TArray<FConnectionData> Connected;
 			GetAllConnected(Connected);
 
 			float Result = 0;
 			for(int i = 0; i < Connected.Num(); i++)
 			{
-				float Value = WM::GetFunctionNumberResult(Connected[i]);
+				float Value = Connected[i].GetFloat();
 				Result = (i == 0) ? Value : Result * Value;
 			}
 
@@ -35,7 +35,7 @@ public:
 		//1 - Multiply all array elements
 		else if(CurrentStateIndex == 1)
 		{
-			auto Array = WM::GetNumberArray(GetConnection(0));
+			auto Array = GetConnection(0).GetFloatArray();
 
 			float Result = 0;
 			for(int i = 0; i < Array.Num(); i++)
@@ -47,8 +47,8 @@ public:
 		//2 - Multiply each array element by a value
 		else if(CurrentStateIndex == 2)
 		{
-			auto Array = WM::GetNumberArray(GetConnection(0));
-			float Value = WM_GetFloat(1);
+			auto Array = GetConnection(0).GetFloatArray();
+			float Value = GetConnection(1).GetFloat();;
 			for(int i = 0; i < Array.Num(); i++) Array[i] *= Value;
 
 			Out_Array = Array;
