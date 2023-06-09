@@ -2,725 +2,439 @@
 
 
 #include "WiremodReflection.h"
-
-#include "FGBuildableDoor.h"
-#include "FGGameState.h"
-#include "FGPipeConnectionComponent.h"
 #include "FGTrainStationIdentifier.h"
 #include "IConstantsDistributor.h"
 #include "ReflectionExternalFunctions.h"
 #include "Buildables/FGBuildableLightsControlPanel.h"
-#include "Buildables/FGBuildablePipeReservoir.h"
 #include "Buildables/FGBuildableRailroadStation.h"
 #include "Buildables/FGBuildableRailroadSwitchControl.h"
-#include "Buildables/FGBuildableWidgetSign.h"
-#include "Components/WidgetComponent.h"
-#include "Kismet/KismetTextLibrary.h"
 
-#define Dynamic IIConstantsDistributor::Execute_GetValue
-
-//TODO: Remove backwards compatibility patch for property reading. 
-
-static bool IsDynamic(UObject* Object)
+template <typename T>
+static T FromPropertyValue(const FConnectionData& Data, T DefaultValue)
 {
-	if(!Object) return false;
-
-	return Object->GetClass()->ImplementsInterface(IIConstantsDistributor::UClassType::StaticClass());
-}
-
-bool UWiremodReflection::GetFunctionBoolResult(const FNewConnectionData& data, bool defaultValue)
-{
-
-	if(data.FromProperty)
-		return FromProperty<bool>(data, defaultValue);
+	if(!Data.Object) return DefaultValue;
 		
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).StoredBool;
-	
-	
-	if(data.FunctionName == "WM_DOORCONTROL_FUNC")
-	{
-		if(auto door = Cast<AFGBuildableDoor>(data.Object)) 
-			return door->mDoorState == EDoorState::DS_Closed;
-	}
-	else if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))
-	{
-		if(data.FunctionName == "IsTimeOfDayAware")
-			return panel->GetLightControlData().IsTimeOfDayAware;
-	}
-
-	
-	struct{bool RetVal;} params{defaultValue};
-	if(!ProcessFunction(data, &params)) return FromProperty<bool>(data, defaultValue);
-	return params.RetVal;
+	auto Val = Data.Object->GetClass()->FindPropertyByName(Data.FunctionName);
+	if(!Val) return DefaultValue;
+	return *Val->ContainerPtrToValuePtr<T>(Data.Object);
 }
 
-FString UWiremodReflection::GetFunctionStringResult(const FNewConnectionData& data, FString defaultValue)
+template<typename T>
+static T GenericProcess(const FConnectionData& Data, T DefaultValue)
 {
+	if(!Data.Object) return DefaultValue;
+	
+	if(Data.FromProperty)
+		return FromPropertyValue(Data, DefaultValue);
+	
+	if(Data.Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
+	{
+		auto ValueBase = IDynamicValuePasser::Execute_GetValue(Data.Object, Data.FunctionName.ToString());
+		return FromPropertyValue(FConnectionData(ValueBase, "Value"), DefaultValue);
+	}
 
-	if(data.FromProperty)
-		return FromProperty<FString>(data, defaultValue);
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).StoredString;
-	
-	if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
-	{
-		if(sign->mTextElementToDataMap.Contains(data.FunctionName.ToString()))
-			return sign->mTextElementToDataMap[data.FunctionName.ToString()];
-		else return defaultValue;
-	}
-	else if(auto station = Cast<AFGBuildableRailroadStation>(data.Object))
-	{
-		return station->GetStationIdentifier()->GetStationName().ToString();
-	}
-	
-	
-	struct{FString RetVal;} params{defaultValue};
-	if(!ProcessFunction(data, &params))
-		return FromProperty<FString>(data, defaultValue);
-	return params.RetVal;
+	struct{T RetVal;} Params{DefaultValue};
+	if(!Data.ProcessFunction(&Params)) return FromPropertyValue(Data, DefaultValue);
+	return Params.RetVal;
 }
 
-
-float UWiremodReflection::GetFunctionNumberResult(const FNewConnectionData& data, float defaultValue)
+template<typename ValueType>
+static void GenericSet(const FConnectionData& Data, ValueType Value)
 {
-	if(data.FromProperty)
-	{
-		if(IsInteger(data))
-			return FromProperty<int>(data, defaultValue);
-		return FromProperty<float>(data, defaultValue);
-	}
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).StoredFloat;
-	
-	else if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))
+	struct{ValueType RetVal;} Params{Value};
+	Data.ProcessFunction(&Params);
+}
+
+bool FConnectionData::GetBool(bool DefaultValue) const
+{
+	if(FunctionName == "WM_DOORCONTROL_FUNC")
+		return UReflectionExternalFunctions::GetDoorIsLocked(Object);
+	else if(auto Panel = Cast<AFGBuildableLightsControlPanel>(Object); Panel && FunctionName == "IsTimeOfDayAware")
+		return Panel->GetLightControlData().IsTimeOfDayAware;
+	else
+		return GenericProcess(*this, DefaultValue);
+}
+
+float FConnectionData::GetFloat(float DefaultValue) const
+{
+	if(auto panel = Cast<AFGBuildableLightsControlPanel>(Object))
 	{
 		//Control panels store their data in struct, so to get the values we have to manually disassemble the struct.
-		if(data.FunctionName == "ColorSlotIndex") return panel->GetLightControlData().ColorSlotIndex;
-		else return panel->GetLightControlData().Intensity;
+		if(FunctionName == "ColorSlotIndex")
+			return panel->GetLightControlData().ColorSlotIndex;
+		else
+			return panel->GetLightControlData().Intensity;
 	}
-	else if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
+	else if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
+		return UReflectionExternalFunctions::GetSignIconId(Sign, FunctionName.ToString(), DefaultValue);
+	else if(auto FluidTank = Cast<AFGBuildablePipeReservoir>(Object))
 	{
-		if(sign->mIconElementToDataMap.Contains(data.FunctionName.ToString()))
-			return sign->mIconElementToDataMap[data.FunctionName.ToString()];
-		else return defaultValue;
+		if(FunctionName == "Content")
+			return FluidTank->GetFluidBox()->Content;
+		else
+			return FluidTank->GetFluidBox()->MaxContent;
 	}
-	else if(auto fluidTank = Cast<AFGBuildablePipeReservoir>(data.Object))
-	{
-		auto fluidBox = *fluidTank->GetFluidBox();
-		if(data.FunctionName == "Content") return fluidBox.Content;
-		else return fluidBox.MaxContent;
-	}
-	
-	if(IsInteger(data))
-	{
-		struct{int RetVal;} params{(int)defaultValue};
-		if(!ProcessFunction(data, &params))
-			return FromProperty<int>(data, defaultValue);
-		return params.RetVal;
-	}
+
+	return ConnectionType == Integer ? GenericProcess<int>(*this, DefaultValue) : GenericProcess(*this, DefaultValue);
+}
+
+FString FConnectionData::GetString(FString DefaultValue) const
+{
+	if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
+		return UReflectionExternalFunctions::GetSignText(Sign, FunctionName.ToString(), DefaultValue);
+	else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
+		return station->GetStationIdentifier()->GetStationName().ToString();
 	else
-	{
-		struct{float RetVal;} params{defaultValue};
-		if(!ProcessFunction(data, &params))
-			return FromProperty<float>(data, defaultValue);
-		return params.RetVal;
-	}
+		return GenericProcess(*this, DefaultValue);
 }
 
-FVector UWiremodReflection::GetFunctionVectorResult(const FNewConnectionData& data, FVector defaultValue)
+FVector FConnectionData::GetVector(FVector DefaultValue) const{ return GenericProcess(*this, DefaultValue); }
+UFGInventoryComponent* FConnectionData::GetInventory() const{ return GenericProcess<UFGInventoryComponent*>(*this, nullptr); }
+UFGPowerCircuit* FConnectionData::GetCircuit() const{ return GenericProcess<UFGPowerCircuit*>(*this, nullptr); }
+AActor* FConnectionData::GetEntity() const
 {
-	if(data.FromProperty)
-		return FromProperty<FVector>(data, defaultValue);
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).StoredVector;
-	
-	struct{FVector RetVal;} params{defaultValue};
-	if(!ProcessFunction(data, &params))
-		return FromProperty<FVector>(data, defaultValue);
-	return params.RetVal;
-}
-
-
-FLinearColor UWiremodReflection::GetFunctionColorResult(const FNewConnectionData& data, FLinearColor defaultValue)
-{
-	
-	if(data.FromProperty)
-		return FromProperty<FLinearColor>(data, defaultValue);
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).StoredColor;
-	
-	struct{FLinearColor RetVal;} params{defaultValue};
-	if(!ProcessFunction(data, &params))
-		return FromProperty<FLinearColor>(data, defaultValue);
-	return params.RetVal;
-}
-
-
-UFGInventoryComponent* UWiremodReflection::GetFunctionInventory(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<UFGInventoryComponent*>(data, nullptr);
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).Inventory;
-	
-	struct{ UFGInventoryComponent* RetVal; } params{};
-	if(!ProcessFunction(data, &params))
-		return FromProperty<UFGInventoryComponent*>(data, nullptr);
-	return params.RetVal;
-}
-
-
-FInventoryStack UWiremodReflection::GetFunctionStackResult(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<FInventoryStack>(data, FInventoryStack());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).Stack;
-    
-	struct{FInventoryStack RetVal;} params{};
-	if(!ProcessFunction(data, &params))
-		return FromProperty<FInventoryStack>(data, FInventoryStack());
-	return params.RetVal;
-}
-
-UFGPowerCircuit* UWiremodReflection::GetFunctionPowerCircuitResult(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<UFGPowerCircuit*>(data, nullptr);
-
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).PowerGrid;
-	
-	struct{ UFGPowerCircuit* RetVal; } params{};
-	if(!ProcessFunction(data, &params))
-		return FromProperty<UFGPowerCircuit*>(data, nullptr);
-	return params.RetVal;
-}
-
-AActor* UWiremodReflection::GetFunctionEntityResult(const FNewConnectionData& data)
-{
-	if(data.FunctionName == "Self") return Cast<AActor>(data.Object);
-
-	if(data.FromProperty)
-		return FromProperty<AActor*>(data, nullptr);
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).Entity;
-	
-	struct{ AActor* RetVal; } params{};
-	if(!ProcessFunction(data, &params))
-		return FromProperty<AActor*>(data, nullptr);
-	return params.RetVal;
-}
-
-TSubclassOf<UFGRecipe> UWiremodReflection::GetFunctionRecipeResult(const FNewConnectionData& data)
-{
-	TSubclassOf<UFGRecipe> out;
-
-	if(data.FromProperty)
-		out = FromProperty<TSubclassOf<UFGRecipe>>(data, nullptr);
-	else if(IsDynamic(data.Object))
-		out = Dynamic(data.Object, data.FunctionName.ToString()).Recipe; 
+	if(FunctionName == "Self")
+		return Cast<AActor>(Object);
 	else
+		return GenericProcess<AActor*>(*this, nullptr);
+}
+TSubclassOf<UFGRecipe> FConnectionData::GetRecipe() const
+{
+	TSubclassOf<UFGRecipe> Out = GenericProcess(*this, TSubclassOf<UFGRecipe>());
+	return Out.GetDefaultObject() ? Out.GetDefaultObject()->GetClass() : TSubclassOf<UFGRecipe>();
+}
+FLinearColor FConnectionData::GetColor(FLinearColor DefaultValue) const{ return GenericProcess(*this, DefaultValue); }
+FInventoryStack FConnectionData::GetStack() const{ return GenericProcess(*this, FInventoryStack()); }
+FItemAmount FConnectionData::GetItemAmount() const{ return GenericProcess(*this, FItemAmount()); }
+FCustomStruct FConnectionData::GetCustomStruct() const{ return GenericProcess(*this, FCustomStruct()); }
+TArray<bool> FConnectionData::GetBoolArray() const{ return GenericProcess(*this, TArray<bool>()); }
+TArray<float> FConnectionData::GetFloatArray() const{ return GenericProcess(*this, TArray<float>()); }
+TArray<FString> FConnectionData::GetStringArray() const{ return GenericProcess(*this, TArray<FString>()); }
+TArray<FVector> FConnectionData::GetVectorArray() const{ return GenericProcess(*this, TArray<FVector>()); }
+TArray<UFGInventoryComponent*> FConnectionData::GetInventoryArray() const{ return GenericProcess(*this, TArray<UFGInventoryComponent*>()); }
+TArray<UFGPowerCircuit*> FConnectionData::GetCircuitArray() const{ return GenericProcess(*this, TArray<UFGPowerCircuit*>()); }
+TArray<AActor*> FConnectionData::GetEntityArray() const{ return GenericProcess(*this, TArray<AActor*>()); }
+TArray<TSubclassOf<UFGRecipe>> FConnectionData::GetRecipeArray() const{ return GenericProcess(*this, TArray<TSubclassOf<UFGRecipe>>()); }
+TArray<FLinearColor> FConnectionData::GetColorArray() const{ return GenericProcess(*this, TArray<FLinearColor>()); }
+TArray<FInventoryStack> FConnectionData::GetStackArray() const{ return GenericProcess(*this, TArray<FInventoryStack>()); }
+TArray<FItemAmount> FConnectionData::GetItemAmountArray() const{ return GenericProcess(*this, TArray<FItemAmount>()); }
+TArray<FCustomStruct> FConnectionData::GetCustomStructArray() const{ return GenericProcess(*this, TArray<FCustomStruct>()); }
+
+void FConnectionData::SetBool(bool Value) const
+{
+	if(FromProperty)
 	{
-		struct{TSubclassOf<UFGRecipe> RetVal; } params{};	
-		if(!ProcessFunction(data, &params))
-			out = FromProperty<TSubclassOf<UFGRecipe>>(data, nullptr);
-		else out = params.RetVal;
-	}
-	
-	if(!out.GetDefaultObject()) return TSubclassOf<UFGRecipe>();
-	return TSubclassOf<UFGRecipe>(out.GetDefaultObject()->GetClass());
-}
-
-FItemAmount UWiremodReflection::GetItemAmount(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<FItemAmount>(data, FItemAmount());
-
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).ItemAmount; 
-	
-	struct{FItemAmount RetVal; } params{};	
-	if(!ProcessFunction(data, &params))
-		return FromProperty<FItemAmount>(data, FItemAmount());
-	return params.RetVal;
-}
-
-FCustomStruct UWiremodReflection::GetCustomStruct(const FNewConnectionData& Data)
-{
-	if(Data.FromProperty)
-		return FromProperty<FCustomStruct>(Data, FCustomStruct());
-	
-	struct{FCustomStruct RetVal; } params{};	
-	if(!ProcessFunction(Data, &params))
-		return FromProperty<FCustomStruct>(Data, FCustomStruct());
-	return params.RetVal;
-}
-
-
-TArray<bool> UWiremodReflection::GetBoolArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<bool>>(data, TArray<bool>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).BoolArr;
-		
-	struct{ TArray<bool> RetVal; } params;
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<bool>>(data, TArray<bool>());
-	return params.RetVal;
-}
-
-TArray<FString> UWiremodReflection::GetStringArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<FString>>(data, TArray<FString>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).StringArr;
-
-	struct{ TArray<FString> RetVal; } params;
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<FString>>(data, TArray<FString>());
-	return params.RetVal;
-}
-
-TArray<float> UWiremodReflection::GetNumberArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<float>>(data, TArray<float>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).NumberArr;
-	
-	struct{ TArray<float> RetVal; } params;
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<float>>(data, TArray<float>());
-	return params.RetVal;
-}
-
-TArray<FVector> UWiremodReflection::GetVectorArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<FVector>>(data, TArray<FVector>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).VectorArr;
-	
-	struct{ TArray<FVector> RetVal; } params;
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<FVector>>(data, TArray<FVector>());
-	return params.RetVal;
-}
-
-TArray<FLinearColor> UWiremodReflection::GetColorArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<FLinearColor>>(data, TArray<FLinearColor>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).ColorArr;
-	
-	struct{ TArray<FLinearColor> RetVal; } params;
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<FLinearColor>>(data, TArray<FLinearColor>());
-	return params.RetVal;
-}
-
-TArray<UFGInventoryComponent*> UWiremodReflection::GetInventoryArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<UFGInventoryComponent*>>(data, TArray<UFGInventoryComponent*>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).InventoryArr;
-	
-	struct{ TArray<UFGInventoryComponent*> RetVal; } params;
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<UFGInventoryComponent*>>(data, TArray<UFGInventoryComponent*>());
-	return params.RetVal;
-}
-
-TArray<FInventoryStack> UWiremodReflection::GetItemStackArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<FInventoryStack>>(data, TArray<FInventoryStack>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).StackArr;
-	
-	struct{ TArray<FInventoryStack> RetVal; } params;
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<FInventoryStack>>(data, TArray<FInventoryStack>());
-	return params.RetVal;
-}
-
-TArray<AActor*> UWiremodReflection::GetEntityArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<AActor*>>(data, TArray<AActor*>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).EntityArr;
-
-	struct{ TArray<AActor*> RetVal; } params;
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<AActor*>>(data, TArray<AActor*>());
-	return params.RetVal;
-}
-
-TArray<UFGPowerCircuit*> UWiremodReflection::GetPowerGridArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<UFGPowerCircuit*>>(data, TArray<UFGPowerCircuit*>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).PowerGridArr;
-
-	struct{ TArray<UFGPowerCircuit*> RetVal; } params;
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<UFGPowerCircuit*>>(data, TArray<UFGPowerCircuit*>());
-	return params.RetVal;
-}
-
-TArray< TSubclassOf<UFGRecipe> > UWiremodReflection::GetRecipeArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<TSubclassOf<UFGRecipe>>>(data, TArray<TSubclassOf<UFGRecipe>>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).RecipeArr;
-
-	struct{TArray< TSubclassOf<UFGRecipe> > RetVal; } params{};
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<TSubclassOf<UFGRecipe>>>(data, TArray<TSubclassOf<UFGRecipe>>());
-	return params.RetVal;
-}
-
-TArray<FItemAmount> UWiremodReflection::GetItemAmountArray(const FNewConnectionData& data)
-{
-	if(data.FromProperty)
-		return FromProperty<TArray<FItemAmount>>(data, TArray<FItemAmount>());
-	
-	if(IsDynamic(data.Object))
-		return Dynamic(data.Object, data.FunctionName.ToString()).ItemAmountArr;
-
-	struct{TArray<FItemAmount> RetVal; } params{};
-	if(!ProcessFunction(data, &params))
-		return FromProperty<TArray<FItemAmount>>(data, TArray<FItemAmount>());
-	return params.RetVal;
-}
-
-
-void UWiremodReflection::SetFunctionBoolValue(const FNewConnectionData& data, bool value_)
-{
-
-	if(data.FromProperty)
-	{
-		if(auto Property = Cast<FBoolProperty>(FindProperty(data)))
+		if(auto Property = Cast<FBoolProperty>(Object->GetClass()->FindPropertyByName(FunctionName)))
 		{
-			Property->SetPropertyValue_InContainer(data.Object, value_);
+			Property->SetPropertyValue_InContainer(Object, Value);
 			return;
 		}
 	}
 
-	if(data.FunctionName.ToString().StartsWith("WM_") && value_)
+	
+	if(FunctionName.ToString().StartsWith("WM_") && Value)
 	{
-		if(data.FunctionName == "WM_FLUSHTANK_FUNC") UReflectionExternalFunctions::FlushTank(data.Object);
-		else if(data.FunctionName == "WM_FLUSHNET_FUNC") UReflectionExternalFunctions::FlushNetwork(data.Object);
-		else if(data.FunctionName == "WM_ON_USE_FUNC") UReflectionExternalFunctions::ExecuteOnUse(data.Object);
+		if(FunctionName == "WM_FLUSHTANK_FUNC") UReflectionExternalFunctions::FlushTank(Object);
+		else if(FunctionName == "WM_FLUSHNET_FUNC") UReflectionExternalFunctions::FlushNetwork(Object);
+		else if(FunctionName == "WM_ON_USE_FUNC") UReflectionExternalFunctions::ExecuteOnUse(Object);
 	}
-	else if(data.FunctionName.ToString().StartsWith("WMCL_"))
+	else if(FunctionName.ToString().StartsWith("WMCL_"))
 	{
-		if(data.FunctionName == "WMCL_DOORCONTROL_FUNC") UReflectionExternalFunctions::ChangeDoorState(data.Object, value_);
-		else if(data.FunctionName == "WMCL_RAILSIGNAL_STOP") UReflectionExternalFunctions::ChangeRailroadSignalState(data.Object, value_);
-		else if(data.FunctionName == "WMCL_FF_DOGGODOOR") UReflectionExternalFunctions::ChangeDoggoHouseDoorState(data.Object, value_);
+		if(FunctionName == "WMCL_DOORCONTROL_FUNC") UReflectionExternalFunctions::ChangeDoorState(Object, Value);
+		else if(FunctionName == "WMCL_RAILSIGNAL_STOP") UReflectionExternalFunctions::ChangeRailroadSignalState(Object, Value);
+		else if(FunctionName == "WMCL_FF_DOGGODOOR") UReflectionExternalFunctions::ChangeDoggoHouseDoorState(Object, Value);
 	}
 	
-	if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))
+	if(auto panel = Cast<AFGBuildableLightsControlPanel>(Object))
 	{
 		
-		if(data.FunctionName == "IsLightEnabled")
+		if(FunctionName == "IsLightEnabled")
 		{
-			if(panel->IsLightEnabled() == value_) return;
+			if(panel->IsLightEnabled() == Value) return;
 			
-			panel->SetLightEnabled(value_);
+			panel->SetLightEnabled(Value);
 			auto affected = panel->GetControlledBuildables(AFGBuildableLightSource::StaticClass());
 			for (auto light : affected)
 			{
-				Cast<AFGBuildableLightSource>(light)->SetLightEnabled(value_);
+				Cast<AFGBuildableLightSource>(light)->SetLightEnabled(Value);
 			}
 		}
 		else
 		{
 			auto panelData = panel->GetLightControlData();
-			if(panelData.IsTimeOfDayAware == value_) return;
+			if(panelData.IsTimeOfDayAware == Value) return;
 			
-			panelData.IsTimeOfDayAware = value_;
+			panelData.IsTimeOfDayAware = Value;
 			panel->SetLightDataOnControlledLights(panelData);
 		}
 		
 
 		return;
 	}
-	
-	
-	struct{bool val;} params{value_};
-	ProcessFunction(data, &params);
+
+	GenericSet(*this, Value);
 }
 
-void UWiremodReflection::SetFunctionStringValue(const FNewConnectionData& data, FString value_)
+void FConnectionData::SetFloat(float Value) const
 {
-
-	if(data.FromProperty)
+	if(FromProperty)
 	{
-		if(auto Property = Cast<FStrProperty>(FindProperty(data)))
+		if(ConnectionType == Integer)
 		{
-			Property->SetPropertyValue_InContainer(data.Object, value_);
-			return;
-		}
-	}
-	
-	if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
-	{
-		FPrefabSignData signData;
-
-		sign->GetSignPrefabData(signData);
-		
-		if(signData.TextElementData.Contains(data.FunctionName.ToString()))
-			if(signData.TextElementData[data.FunctionName.ToString()] == value_) return;
-		
-		signData.TextElementData[data.FunctionName.ToString()] = value_;
-		sign->SetPrefabSignData(signData);
-		
-		return;
-	}
-	else if(auto station = Cast<AFGBuildableRailroadStation>(data.Object))
-	{
-		station->GetStationIdentifier()->SetStationName(FText::FromString(value_));
-		return;
-	}
-	
-	struct { FString val; } params{value_};
-	ProcessFunction(data, &params);
-}
-
-void UWiremodReflection::SetFunctionNumberValue(const FNewConnectionData& data, float value_)
-{
-
-	if(data.FromProperty)
-	{
-		if(IsInteger(data))
-		{
-			if(auto Property = Cast<FIntProperty>(FindProperty(data)))
+			if(auto Property = Cast<FIntProperty>(Object->GetClass()->FindPropertyByName(FunctionName)))
 			{
-				Property->SetPropertyValue_InContainer(data.Object, value_);
+				Property->SetPropertyValue_InContainer(Object, Value);
 				return;
 			}	
 		}
 		else
 		{
-			if(auto Property = Cast<FFloatProperty>(FindProperty(data)))
+			if(auto Property = Cast<FFloatProperty>(Object->GetClass()->FindPropertyByName(FunctionName)))
 			{
-				Property->SetPropertyValue_InContainer(data.Object, value_);
+				Property->SetPropertyValue_InContainer(Object, Value);
 				return;
 			}
 		}
 	}
+
 	
-	if(data.FunctionName == "WM_RAILSWITCH_FUNC")
+	if(FunctionName == "WM_RAILSWITCH_FUNC")
 	{
-		if(auto railSwitch = Cast<AFGBuildableRailroadSwitchControl>(data.Object))
+		if(auto RailSwitch = Cast<AFGBuildableRailroadSwitchControl>(Object))
 		{
 			//If switch is not in the position that we want, switch it to the next one.
-			if(railSwitch->GetSwitchPosition() != trunc(value_)) railSwitch->ToggleSwitchPosition();
+			if(RailSwitch->GetSwitchPosition() != trunc(Value)) RailSwitch->ToggleSwitchPosition();
 			return;
 		}
 	}
-	else if(auto panel = Cast<AFGBuildableLightsControlPanel>(data.Object))
+	else if(auto Panel = Cast<AFGBuildableLightsControlPanel>(Object))
 	{
-		auto panelData = panel->GetLightControlData();
+		auto PanelData = Panel->GetLightControlData();
 
-		if(data.FunctionName == "ColorSlotIndex")
+		if(FunctionName == "ColorSlotIndex")
 		{
-			if(panelData.ColorSlotIndex == trunc(value_)) return;
+			if(PanelData.ColorSlotIndex == trunc(Value)) return;
 			
-			panelData.ColorSlotIndex = trunc(value_);
+			PanelData.ColorSlotIndex = trunc(Value);
 		}
 		else
 		{
-			if(panelData.Intensity == value_) return;
+			if(PanelData.Intensity == Value) return;
 			
-			panelData.Intensity = value_;
+			PanelData.Intensity = Value;
 		}
 
-		panel->SetLightDataOnControlledLights(panelData);
+		Panel->SetLightDataOnControlledLights(PanelData);
 		return;
 	}
-	else if (auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
+	else if (auto sign = Cast<AFGBuildableWidgetSign>(Object))
 	{
 		FPrefabSignData signData;
 		sign->GetSignPrefabData(signData);
 		
-		if(data.FunctionName == "Emissive")
+		if(FunctionName == "Emissive")
 		{
-			if(signData.Emissive == value_) return;
-			signData.Emissive = value_;
+			if(signData.Emissive == Value) return;
+			signData.Emissive = Value;
 		}
-		else if(data.FunctionName == "Glossiness")
+		else if(FunctionName == "Glossiness")
 		{
-			if(signData.Glossiness == value_) return;
-			signData.Glossiness = value_;
+			if(signData.Glossiness == Value) return;
+			signData.Glossiness = Value;
 		}
 		else
 		{
-			if(signData.IconElementData.Contains(data.FunctionName.ToString()))
-				if(signData.IconElementData[data.FunctionName.ToString()] == trunc(value_)) return;
+			if(signData.IconElementData.Contains(FunctionName.ToString()))
+				if(signData.IconElementData[FunctionName.ToString()] == trunc(Value)) return;
 			
-			signData.IconElementData[data.FunctionName.ToString()] = trunc(value_);
+			signData.IconElementData[FunctionName.ToString()] = trunc(Value);
 		}
 
 		sign->SetPrefabSignData(signData);
 		return;
 	}
-	else if(data.FunctionName == "SetPendingPotential")
+	else if(FunctionName == "SetPendingPotential")
 	{
-		if(auto building = Cast<AFGBuildableFactory>(data.Object))
+		if(auto Building = Cast<AFGBuildableFactory>(Object))
 		{
-			if (building->GetPendingPotential() == value_) return;
+			if (Building->GetPendingPotential() == Value) return;
 		}
 	}
 
-	if(IsInteger(data))
-	{
-		struct {int val;} params {(int)value_};
-		ProcessFunction(data, &params);
-	}
+	if(ConnectionType == Integer)
+		GenericSet<int>(*this, Value);
 	else
-	{
-		struct {float val;} params {value_};
-		ProcessFunction(data, &params);
-	}
+		GenericSet(*this, Value);
 }
 
-void UWiremodReflection::SetFunctionColorValue(const FNewConnectionData& data, FLinearColor value_)
+void FConnectionData::SetString(FString Value) const
 {
-
-	if(data.FromProperty)
+	if(FromProperty)
 	{
-		if(auto Property = Cast<FStructProperty>(FindProperty(data)))
+		if(auto Property = Cast<FStrProperty>(Object->GetClass()->FindPropertyByName(FunctionName)))
 		{
-			auto Value = Property->ContainerPtrToValuePtr<FLinearColor>(data.Object);
-			Value->R = value_.R;
-			Value->G = value_.G;
-			Value->B = value_.B;
-			Value->A = value_.A;
+			Property->SetPropertyValue_InContainer(Object, Value);
 			return;
 		}
 	}
 	
-	if(auto sign = Cast<AFGBuildableWidgetSign>(data.Object))
+	if(auto sign = Cast<AFGBuildableWidgetSign>(Object))
+	{
+		FPrefabSignData signData;
+
+		sign->GetSignPrefabData(signData);
+		
+		if(signData.TextElementData.Contains(FunctionName.ToString()))
+			if(signData.TextElementData[FunctionName.ToString()] == Value) return;
+		
+		signData.TextElementData[FunctionName.ToString()] = Value;
+		sign->SetPrefabSignData(signData);
+		
+		return;
+	}
+	else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
+	{
+		station->GetStationIdentifier()->SetStationName(FText::FromString(Value));
+		return;
+	}
+	
+	GenericSet(*this, Value);
+}
+
+void FConnectionData::SetColor(FLinearColor Value) const
+{
+	if(FromProperty)
+	{
+		if(auto Property = Cast<FStructProperty>(Object->GetClass()->FindPropertyByName(FunctionName)))
+		{
+			auto StructValue = Property->ContainerPtrToValuePtr<FLinearColor>(Object);
+			StructValue->R = Value.R;
+			StructValue->G = Value.G;
+			StructValue->B = Value.B;
+			StructValue->A = Value.A;
+			return;
+		}
+	}
+	
+	if(auto sign = Cast<AFGBuildableWidgetSign>(Object))
 	{
 
 		FPrefabSignData signData;
 		sign->GetSignPrefabData(signData);
 		
-		if(data.FunctionName == "TextColor")
+		if(FunctionName == "TextColor")
 		{
-			if(signData.ForegroundColor == value_) return;
-			signData.ForegroundColor = value_;
+			if(signData.ForegroundColor == Value) return;
+			signData.ForegroundColor = Value;
 		}
-		else if(data.FunctionName == "BackgroundColor")
+		else if(FunctionName == "BackgroundColor")
 		{
-			if(signData.BackgroundColor == value_) return;
-			signData.BackgroundColor = value_;
+			if(signData.BackgroundColor == Value) return;
+			signData.BackgroundColor = Value;
 		}
-		else if(data.FunctionName == "AuxColor")
+		else if(FunctionName == "AuxColor")
 		{
-			if(signData.AuxiliaryColor == value_) return;
-			signData.AuxiliaryColor = value_;
+			if(signData.AuxiliaryColor == Value) return;
+			signData.AuxiliaryColor = Value;
 		}
 
 		sign->SetPrefabSignData(signData);
 		return;
 	}
-	
-	
-	struct {FLinearColor val;} params {value_};
-	ProcessFunction(data, &params);
+	GenericSet(*this, Value);
 }
 
-void UWiremodReflection::SetFunctionRecipeValue(const FNewConnectionData& data, TSubclassOf<UFGRecipe> value_)
+void FConnectionData::SetRecipe(TSubclassOf<UFGRecipe> Value) const
 {
-	if(!value_.GetDefaultObject()) return;
+	if(!Value.GetDefaultObject()) return;
 	
-	struct{TSubclassOf<UFGRecipe> val;} params{TSubclassOf<UFGRecipe>(value_.GetDefaultObject()->GetClass())};
-	ProcessFunction(data, &params);
+	GenericSet(*this, Value);
 }
 
-
-void UWiremodReflection::HandleDynamicConnection(const FNewConnectionData& transmitter, const FNewConnectionData& receiver)
+bool FConnectionData::ProcessFunction(void* Params) const
 {
-	switch (receiver.ConnectionType)
+	if(IsValid())
 	{
-	case Boolean:SetFunctionBoolValue(receiver, GetFunctionBoolResult(transmitter)); break;
-	case Number:
-	case Integer:SetFunctionNumberValue(receiver, GetFunctionNumberResult(transmitter)); break;
-	case String:SetFunctionStringValue(receiver, GetFunctionStringResult(transmitter)); break;
-	case Color:SetFunctionColorValue(receiver, GetFunctionColorResult(transmitter)); break;
-	case Recipe: SetFunctionRecipeValue(receiver, GetFunctionRecipeResult(transmitter)); break;
-	default: break;
+		if(auto Function = Object->FindFunction(FunctionName))
+		{
+			Object->ProcessEvent(Function, Params);
+			return true;
+		}
 	}
+	return false;
 }
 
-
-void UWiremodReflection::FillDynamicStructFromData(const FNewConnectionData& data, FDynamicValue& ReturnValue)
-{
-	if(!IsValid(data.Object)) return;
-	ReturnValue.ConnectionType = data.ConnectionType;
-	switch (data.ConnectionType)
+FString FConnectionData::GetStringifiedValue() const
 	{
-	case Unknown: break;
-	case Boolean:ReturnValue.StoredBool = GetFunctionBoolResult(data);break;
-	case Number:
-	case Integer:ReturnValue.StoredFloat = GetFunctionNumberResult(data); break;
-	case String: ReturnValue.StoredString = GetFunctionStringResult(data); break;
-	case Vector: ReturnValue.StoredVector = GetFunctionVectorResult(data); break;
-	case Inventory: ReturnValue.Inventory = GetFunctionInventory(data); break;
-	case PowerGrid: ReturnValue.PowerGrid = GetFunctionPowerCircuitResult(data);break;
-	case Entity: ReturnValue.Entity = GetFunctionEntityResult(data);break;
-	case Color: ReturnValue.StoredColor = GetFunctionColorResult(data);break;
-	case ArrayOfBoolean: ReturnValue.BoolArr = GetBoolArray(data); break;
-	case ArrayOfNumber: ReturnValue.NumberArr = GetNumberArray(data); break;
-	case ArrayOfString: ReturnValue.StringArr = GetStringArray(data); break;
-	case ArrayOfVector: ReturnValue.VectorArr = GetVectorArray(data); break;
-	case ArrayOfEntity: ReturnValue.EntityArr = GetEntityArray(data); break;
-	case ArrayOfColor: ReturnValue.ColorArr = GetColorArray(data); break;
-	case Stack: ReturnValue.Stack = GetFunctionStackResult(data); break;
-	case ArrayOfStack: ReturnValue.StackArr = GetItemStackArray(data); break;
-	case ArrayOfPowerGrid: ReturnValue.PowerGridArr = GetPowerGridArray(data); break;
-	case ArrayOfInventory: ReturnValue.InventoryArr = GetInventoryArray(data); break;
-	case Recipe: ReturnValue.Recipe = GetFunctionRecipeResult(data); break;
-	case ArrayOfRecipe: ReturnValue.RecipeArr = GetRecipeArray(data); break;
-	case ItemAmount: ReturnValue.ItemAmount = GetItemAmount(data); break;
-	case ArrayOfItemAmount: ReturnValue.ItemAmountArr = GetItemAmountArray(data); break;
-	default:
-		UE_LOG(LogTemp, Error, TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function FILL_DYNAMIC_STRUCT"), (int)data.ConnectionType);
-		break;
+		switch (ConnectionType)
+		{
+		case Unknown: return "?";
+		case Boolean: return GetBool() ? "true" : "false";
+		case Number: return FString::SanitizeFloat(GetFloat());
+		case String: return GetString();
+		case Vector: return GetVector().ToCompactString();
+		case Inventory:
+			{
+				auto inv = GetInventory();
+				if(!inv) return "Invalid Inv.";
+
+				TArray<FInventoryStack> Stacks;
+				inv->GetInventoryStacks(Stacks);
+				
+				return FString::FromInt(Stacks.Num()) + "/" + FString::FromInt(inv->GetSizeLinear()) + " slots occupied";
+			};
+		case PowerGrid: return "?";
+		case Entity:
+			{
+				auto Entity = GetEntity();
+				auto ObjectName = UKismetSystemLibrary::GetObjectName(Entity);
+				
+				if(auto Player = Cast<AFGCharacterPlayer>(Entity))
+				{
+					//Check if the player state is valid. If the player is offline it will be null and crash if not handled properly
+					if(auto State = Player->GetPlayerState()) return ObjectName + "(Player " + State->GetPlayerName() + ")";
+					return UKismetSystemLibrary::GetObjectName(Player) + "(Offline player)";
+				}
+				return UKismetSystemLibrary::GetObjectName(Entity);
+			}
+		case Recipe:
+			{
+				auto Recipe = GetRecipe();
+				return ::IsValid(Recipe) ? UFGRecipe::GetRecipeName(Recipe).ToString() : FString();
+			}
+		case Color: return GetColor().ToString();
+		case ArrayOfBoolean: return "[" + FString::FromInt(GetBoolArray().Num()) + " elements]";
+		case ArrayOfNumber: return "[" + FString::FromInt(GetFloatArray().Num()) + " elements]";
+		case ArrayOfString: return "[" + FString::FromInt(GetStringArray().Num()) + " elements]";
+		case ArrayOfVector: return "[" + FString::FromInt(GetVectorArray().Num()) + " elements]";
+		case ArrayOfEntity: return "[" + FString::FromInt(GetEntityArray().Num()) + " elements]";
+		case ArrayOfColor: return "[" + FString::FromInt(GetColorArray().Num()) + " elements]";
+		case ArrayOfInventory: return "[" + FString::FromInt(GetInventoryArray().Num()) + " elements]";
+		case ArrayOfPowerGrid: return "[" + FString::FromInt(GetCircuitArray().Num()) + " elements]";
+		case ArrayOfStack: return "[" + FString::FromInt(GetStackArray().Num()) + " elements]";
+		case ArrayOfRecipe: return "[" + FString::FromInt(GetRecipeArray().Num()) + " elements]";
+		case Stack:
+			{
+				auto Stack = GetStack();
+				return FString::FromInt(Stack.NumItems) + " " + UFGItemDescriptor::GetItemName(Stack.Item.GetItemClass()).ToString();
+			}
+		case Integer: return FString::FromInt(GetFloat());
+		case Any: return "?";
+		case AnyArray: return "?";
+		case AnyNonArray: return "?";
+		case ItemAmount:
+			{
+				auto Item = GetItemAmount();
+				return FString::FromInt(Item.Amount) + " of " + UFGItemDescriptor::GetItemName(Item.ItemClass).ToString();
+			}
+		case ArrayOfItemAmount: return "[" + FString::FromInt(GetItemAmountArray().Num()) + " elements]";
+		case CustomStruct:
+			{
+				auto Val = GetCustomStruct();
+				return  Val.Name + " [" + FString::FromInt(Val.Values.Num()) + " values]";
+			}
+		default:
+			UE_LOG(LogTemp, Error, TEXT("Failed to find switch case for EConnectionType::%d in function GET_STRINGIFIED_VALUE. Returning default value instead..."), (int)ConnectionType);
+			return "?";
+		}
 	}
-}
-
-
-
-

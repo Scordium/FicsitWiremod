@@ -3,14 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WiremodReflection.h"
 #include "WiremodUtils.h"
 #include "Buildables/FGBuildable.h"
 #include "Engine/DataTable.h"
-#include "Engine/Private/DataTableJSON.h"
 #include "HAL/FileManagerGeneric.h"
 #include "Kismet/DataTableFunctionLibrary.h"
-#include "Kismet/KismetStringLibrary.h"
 #include "Subsystem/ModSubsystem.h"
 #include "UObject/Object.h"
 #include "WiremodAPI.generated.h"

@@ -1,204 +1,16 @@
 // Copyright Coffee Stain Studios. All Rights Reserved.
 
 #pragma once
-
-#include "CoreMinimal.h"
+#include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
-#include "GeneratedCodeHelpers.h"
-#include "Buildables/FGBuildableFactory.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
+#include "FGRecipe.h"
+#include "CommonLib/ConnectionType.h"
+#include "CommonLib/CustomStruct.h"
+#include "CommonLib/ReflectionHelpers.h"
+#include "Engine/DataTable.h"
 #include "Utility/HelpModule/BaseHelpModule.h"
+
 #include "WiremodReflection.generated.h"
-
-UENUM(BlueprintType)
-enum EConnectionType
-{
-	Unknown,
-	Boolean,
-	Number,
-	String,
-	Vector,
-	Inventory,
-	PowerGrid,
-	Entity,
-	Recipe,
-	Color,
-	ArrayOfBoolean,
-	ArrayOfNumber,
-	ArrayOfString,
-	ArrayOfVector,
-	ArrayOfEntity,
-	ArrayOfColor,
-	Stack,
-	ArrayOfStack,
-	Any,
-	Integer,
-	CustomStruct,
-	AnyArray,
-	AnyNonArray,
-	ArrayOfPowerGrid,
-	ArrayOfInventory,
-	ArrayOfRecipe,
-	NonReferenceable,
-	ItemAmount,
-	ArrayOfItemAmount
-};
-
-USTRUCT(BlueprintType)
-struct FDynamicValue
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TEnumAsByte<EConnectionType> ConnectionType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool StoredBool;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<bool> BoolArr;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	float StoredFloat;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<float> NumberArr;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FString StoredString;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<FString> StringArr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FVector StoredVector;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<FVector> VectorArr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FLinearColor StoredColor;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<FLinearColor> ColorArr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, NotReplicated)
-	FInventoryStack Stack;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, NotReplicated)
-	TArray<FInventoryStack> StackArr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UFGInventoryComponent* Inventory = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UFGInventoryComponent*> InventoryArr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UFGPowerCircuit* PowerGrid = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UFGPowerCircuit*> PowerGridArr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	AActor* Entity = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<AActor*> EntityArr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TSubclassOf<UFGRecipe> Recipe;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray< TSubclassOf<UFGRecipe> > RecipeArr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FItemAmount ItemAmount;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<FItemAmount> ItemAmountArr;
-
-	FDynamicValue(){}
-	
-	FDynamicValue(bool Value)
-	{
-		ConnectionType = Boolean;
-		StoredBool = Value;
-	}
-
-	FDynamicValue(FString Value)
-	{
-		ConnectionType = String;
-		StoredString = Value;
-	}
-
-	FDynamicValue(float Value)
-	{
-		ConnectionType = Number;
-		StoredFloat = Value;
-	}
-	
-	FDynamicValue(int Value)
-	{
-		ConnectionType = Number;
-		StoredFloat = Value;
-	}
-
-	FDynamicValue(FVector Value)
-	{
-		ConnectionType = Vector;
-		StoredVector = Value;
-	}
-
-	FDynamicValue(FLinearColor Value)
-	{
-		ConnectionType = Color;
-		StoredColor = Value;
-	}
-};
-
-USTRUCT(BlueprintType)
-struct FNamedValue
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FString Name;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FDynamicValue Value = FDynamicValue();
-
-	FNamedValue(FString Name, FDynamicValue Value)
-	{
-		this->Name = Name;
-		this->Value = Value;
-	}
-
-	FNamedValue(){}
-
-	operator FDynamicValue() {return this->Value; }
-
-	bool operator ==(const FNamedValue& Other)
-	{
-		return Name != Other.Name || Value.ConnectionType != Other.Value.ConnectionType;
-	}
-
-	bool operator !=(const FNamedValue& Other) { return !(*this == Other); }
-};
-
-
-USTRUCT(BlueprintType)
-struct FCustomStruct
-{
-	GENERATED_BODY()
-
-	UPROPERTY(SaveGame, BlueprintReadWrite)
-	FString Name;
-
-	UPROPERTY(SaveGame, BlueprintReadWrite)
-	TArray<FNamedValue> Values;
-};
-
 
 USTRUCT(BlueprintType)
 struct FBuildingConnection : public FTableRowBase
@@ -327,9 +139,10 @@ struct FBuildingConnections : public FTableRowBase
 
 
 USTRUCT(BlueprintType)
-struct FNewConnectionData
+struct FConnectionData
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	UObject* Object;
@@ -345,7 +158,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FLinearColor WireColor = FLinearColor::White;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	bool WireHidden = false;
 	
@@ -358,7 +171,7 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, SaveGame)
 	bool UseLocalWirePosition = false;
 	
-	FNewConnectionData operator =(const FNewConnectionData& data)
+	FConnectionData operator =(const FConnectionData& data)
 	{
 		Object = data.Object;
 		DisplayName = data.DisplayName;
@@ -373,28 +186,33 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE bool operator ==(const FNewConnectionData& other) const
+	FORCEINLINE bool operator ==(const FConnectionData& other) const
 	{
 		return Object == other.Object
 		&& FunctionName == other.FunctionName
 		&& DisplayName == other.DisplayName;
 	}
 
+	operator FValueReflectionSource() const
+	{
+		return FValueReflectionSource(Object, FunctionName, FromProperty);
+	}
 
-	FNewConnectionData()
+
+	FConnectionData()
 	{
 		this->Object = NULL;
 	};
 
-	FNewConnectionData(UObject* object, FName functionName, EConnectionType Type = Unknown)
+	FConnectionData(UObject* Object, FName FunctionName, EConnectionType Type = Unknown)
 	{
-		this->Object = object;
-		this->FunctionName = functionName;
+		this->Object = Object;
+		this->FunctionName = FunctionName;
 		this->ConnectionType = Type;
 	}
 
 	//Constructor for updating to local positions
-	FNewConnectionData(const FNewConnectionData& Original, TArray<FVector> LocalPositions)
+	FConnectionData(const FConnectionData& Original, const TArray<FVector>& LocalPositions)
 	{
 		Object = Original.Object;
 		DisplayName = Original.DisplayName;
@@ -418,7 +236,45 @@ public:
 		return ::IsValid(Object);
 	}
 
+	bool IsA(EConnectionType Type) { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
+	bool IsA(EConnectionType Type) const { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	
+	bool GetBool(bool DefaultValue = false) const;
+	float GetFloat(float DefaultValue = 0) const;
+	FString GetString(FString DefaultValue = "") const;
+	FVector GetVector(FVector DefaultValue = FVector::ZeroVector) const;
+	UFGInventoryComponent* GetInventory() const;
+	UFGPowerCircuit* GetCircuit() const;
+	AActor* GetEntity() const;
+	TSubclassOf<UFGRecipe> GetRecipe() const;
+	FLinearColor GetColor(FLinearColor DefaultValue = FLinearColor::Black) const;
+	FInventoryStack GetStack() const;
+	FItemAmount GetItemAmount() const;
+	FCustomStruct GetCustomStruct() const;
+
+	TArray<bool> GetBoolArray() const;
+	TArray<float> GetFloatArray() const;
+	TArray<FString> GetStringArray() const;
+	TArray<FVector> GetVectorArray() const;
+	TArray<UFGInventoryComponent*> GetInventoryArray() const;
+	TArray<UFGPowerCircuit*> GetCircuitArray() const;
+	TArray<AActor*> GetEntityArray() const;
+	TArray<TSubclassOf<UFGRecipe>> GetRecipeArray() const;
+	TArray<FLinearColor> GetColorArray() const;
+	TArray<FInventoryStack> GetStackArray() const;
+	TArray<FItemAmount> GetItemAmountArray() const;
+	TArray<FCustomStruct> GetCustomStructArray() const;
+
+	void SetBool(bool Value) const;
+	void SetFloat(float Value) const;
+	void SetString(FString Value) const;
+	void SetColor(FLinearColor Value) const;
+	void SetRecipe(TSubclassOf<UFGRecipe> Value) const;
+
+	
+	bool ProcessFunction(void* Params) const;
+	
+	FString GetStringifiedValue() const;
 };
 
 
@@ -428,22 +284,22 @@ struct FDynamicConnectionData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FNewConnectionData Transmitter;
+	FConnectionData Transmitter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FNewConnectionData Receiver;
+	FConnectionData Receiver;
 
 
-	bool operator ==(const FDynamicConnectionData& other) const
+	bool operator ==(const FDynamicConnectionData& Other) const
 	{
 		return
-		Transmitter == other.Transmitter
-		&& Receiver == other.Receiver;
+		Transmitter == Other.Transmitter
+		&& Receiver == Other.Receiver;
 	}
 
 	FDynamicConnectionData(){}
 
-	FDynamicConnectionData(FNewConnectionData Transmitter, FNewConnectionData Receiver)
+	FDynamicConnectionData(FConnectionData Transmitter, FConnectionData Receiver)
 	{
 		this->Transmitter = Transmitter;
 		this->Receiver = Receiver;
@@ -454,161 +310,14 @@ struct FDynamicConnectionData
 };
 
 
-
 /**
  * 
  */
 UCLASS()
 class FICSITWIREMOD_API UWiremodReflection : public UBlueprintFunctionLibrary
 {
-	friend FNewConnectionData;
 	GENERATED_BODY()
 public:
 
-	//Get
-	UFUNCTION(BlueprintCallable)
-	static bool GetFunctionBoolResult(const FNewConnectionData& data, bool defaultValue = false);
-	
-	UFUNCTION(BlueprintCallable)
-	static FString GetFunctionStringResult(const FNewConnectionData& data, FString defaultValue = "");
-	
-	UFUNCTION(BlueprintCallable)
-	static float GetFunctionNumberResult(const FNewConnectionData& data, float defaultValue = 0);
-	
-	UFUNCTION(BlueprintCallable)
-	static FVector GetFunctionVectorResult(const FNewConnectionData& data, FVector defaultValue = FVector::ZeroVector);
-	
-	UFUNCTION(BlueprintCallable)
-	static FLinearColor GetFunctionColorResult(const FNewConnectionData& data, FLinearColor defaultValue = FLinearColor::Black);
-	
-	UFUNCTION(BlueprintCallable)
-	static UFGInventoryComponent* GetFunctionInventory(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static FInventoryStack GetFunctionStackResult(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static UFGPowerCircuit* GetFunctionPowerCircuitResult(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static AActor* GetFunctionEntityResult(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TSubclassOf<UFGRecipe> GetFunctionRecipeResult(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static FItemAmount GetItemAmount(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static FCustomStruct GetCustomStruct(const FNewConnectionData& Data);
-
-	//Array Get
-	UFUNCTION(BlueprintCallable)
-	static TArray<bool> GetBoolArray(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray<FString> GetStringArray(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray<float> GetNumberArray(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray<FVector> GetVectorArray(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray<FLinearColor> GetColorArray(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray<UFGInventoryComponent*> GetInventoryArray(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray<FInventoryStack> GetItemStackArray(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray<AActor*> GetEntityArray(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray<UFGPowerCircuit*> GetPowerGridArray(const FNewConnectionData& data);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray< TSubclassOf<UFGRecipe> > GetRecipeArray(const FNewConnectionData& data);
-
-	UFUNCTION(BlueprintCallable)
-	static TArray<FItemAmount> GetItemAmountArray(const FNewConnectionData& data);
-	
-	//Set
-	UFUNCTION(BlueprintCallable)
-	static void SetFunctionBoolValue(const FNewConnectionData& data, bool value_);
-
-	UFUNCTION(BlueprintCallable)
-	static void SetFunctionStringValue(const FNewConnectionData& data, FString value_);
-	
-	UFUNCTION(BlueprintCallable)
-	static void SetFunctionNumberValue(const FNewConnectionData& data, float value_);
-
-	UFUNCTION(BlueprintCallable)
-	static void SetFunctionColorValue(const FNewConnectionData& data, FLinearColor value_);
-
-	UFUNCTION(BlueprintCallable)
-	static void SetFunctionRecipeValue(const FNewConnectionData& data, TSubclassOf<UFGRecipe> recipe);
-
-	
-	
-	static void HandleDynamicConnection(const FNewConnectionData& transmitter, const FNewConnectionData& receiver);
-
-	UFUNCTION(BlueprintCallable)
-	static void FillDynamicStructFromData(const FNewConnectionData& data, FDynamicValue& Out);
-	
-	UFUNCTION(CallInEditor, BlueprintCallable)
-	static void MarkDirty(UObject* object) {object->Modify();};
-
-	static UFunction* GetFunction(const FNewConnectionData& data)
-	{
-		if(!data.Object) return nullptr;
-		if(!IsValid(data.Object)) return nullptr;
-		
-		UFunction* function = data.Object->FindFunction(data.FunctionName);
-		return function;
-	}
-
-	
-	static bool IsInteger(const FNewConnectionData& data)
-	{
-		return data.ConnectionType == Integer;
-	}
-
-
-	/**
-	 * Calls `ProcessEvent` on the object stored in data with params
-	 * @returns Whether the function was called successfully
-	 */
-	static bool ProcessFunction(const FNewConnectionData& data, void* params)
-	{
-		if(IsValid(data.Object))
-		{
-			auto function = GetFunction(data);
-			if(function)
-			{
-				data.Object->ProcessEvent(function, params);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	template<typename O>
-	static O FromProperty(const FNewConnectionData& data, O defaultValue)
-	{
-		if(!data.Object) return defaultValue;
-		
-		auto val = FindProperty(data);
-		if(!val) return defaultValue;
-		return *val->ContainerPtrToValuePtr<O>(data.Object);
-	}
-
-	static FProperty* FindProperty(const FNewConnectionData& data)
-	{
-		if(!data.Object) return nullptr;
-		return data.Object->GetClass()->FindPropertyByName(data.FunctionName);
-	}
+	static FLinearColor GetColor(const FConnectionData& Data) { return Data.GetColor(); }
 };

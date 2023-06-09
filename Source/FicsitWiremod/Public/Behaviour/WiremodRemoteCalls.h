@@ -4,11 +4,40 @@
 
 #include "CoreMinimal.h"
 #include "FGRemoteCallObject.h"
-#include "WiremodReflection.h"
+#include "CommonLib/BackwardsCompatibilityHandler.h"
 #include "Communications/RemoteControlReceiver.h"
 #include "Miscellaneous/CustomStructProcessor.h"
-#include "Utility/WiremodBlueprintUtils.h"
 #include "WiremodRemoteCalls.generated.h"
+
+
+USTRUCT(BlueprintType)
+struct FCustomStructReplicatable
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	FString Name;
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FNamedValue> Values;
+
+
+	FCustomStruct Convert(UObject* WorldContext) const
+	{
+		//This is used to replicate custom struct data from clients to server because the server doesn't know about client-sided uobjects which dynamic values derive from.
+		FCustomStruct Value;
+		Value.Name = Name;
+	
+		for(auto Val : Values)
+		{
+			auto Field = FNamedDynamicValue(Val.Name, Val.Value.Convert(WorldContext));
+			Value.Values.Add(Field);
+		}
+
+		return Value;
+	}
+	
+};
 
 /**
  * 
@@ -21,7 +50,7 @@ class FICSITWIREMOD_API UWiremodRemoteCalls : public UFGRemoteCallObject
 public:
 
 	UFUNCTION(BlueprintCallable, Reliable, WithValidation, Server)
-	void ConnectWiremodObject(UObject* Buildable, const FNewConnectionData& Data, int Index, UObject* Setter);
+	void ConnectWiremodObject(UObject* Buildable, const FConnectionData& Data, int Index, UObject* Setter);
 	
 	UFUNCTION(BlueprintCallable, Reliable, WithValidation, Server)
 	void ConnectNonWiremodObject(const FDynamicConnectionData& Connection, int Index, UObject* Setter);
@@ -36,7 +65,7 @@ public:
 	void SetBuildableOwner(AFGBuildable* Buildable, UObject* NewOwner, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
-	void SetCustomStructData(ACustomStructProcessor* Processor, const FCustomStruct& Data, UObject* Setter);
+	void SetCustomStructData(ACustomStructProcessor* Processor, const FCustomStructReplicatable& Data, UObject* Setter);
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{

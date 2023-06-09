@@ -76,7 +76,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	static TArray<FNewConnectionData> GetDataList(UObject* Object)
+	static TArray<FConnectionData> GetDataList(UObject* Object)
 	{
 		if(Object)
 		{
@@ -85,7 +85,7 @@ public:
 			
 			auto Connections = AWiremodVanillaConnections::Self->GetAllConnections(Object);
 				
-			TArray<FNewConnectionData> Data = TArray<FNewConnectionData>();
+			TArray<FConnectionData> Data = TArray<FConnectionData>();
 			for(auto Connection : Connections)
 			{
 				Data.Add(Connection.Transmitter);
@@ -94,7 +94,7 @@ public:
 			return Data;
 		}
 
-		return TArray<FNewConnectionData>();
+		return TArray<FConnectionData>();
 	}
 
 	UFUNCTION(BlueprintPure)
