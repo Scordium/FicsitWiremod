@@ -9,14 +9,14 @@
 #include "ArrayBreak.generated.h"
 
 UCLASS()
-class FICSITWIREMOD_API AArrayBreak : public AFGWiremodBuildable, public IIConstantsDistributor
+class FICSITWIREMOD_API AArrayBreak : public AFGWiremodBuildable, public IDynamicValuePasser
 {
 	GENERATED_BODY()
     
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		const EConnectionType ElementType = UWiremodUtils::ArrayToBase(GetConnection(0).ConnectionType);
+		const EConnectionType ElementType = UConnectionTypeFunctions::ArrayToBase(GetConnection(0).ConnectionType);
 		const int ElementsCount = AArrayLength::GetArrayLength(GetConnection(0));
 
 		ConnectionsInfo.Outputs.Empty();
@@ -25,7 +25,7 @@ public:
 			ConnectionsInfo.Outputs.Add(
 				FBuildingConnection(
 					ItemDisplayNameFormat.ToString() + " " + FString::FromInt(i),
-					STR::Conv_IntToString(i),
+					FString::FromInt(i),
 					ElementType
 					)
 				);
@@ -35,5 +35,5 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	FText ItemDisplayNameFormat = FText::FromString("Item");
 	
-	virtual FDynamicValue GetValue_Implementation(const FString& ValueName) override{ return AArrayGet::GetArrayElement(GetConnection(0), FCString::Atoi(*ValueName)); }
+	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override{ return AArrayGet::GetArrayElement(GetConnection(0), FCString::Atoi(*ValueName)); }
 };

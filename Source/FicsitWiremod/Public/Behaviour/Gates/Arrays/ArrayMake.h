@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "IConstantsDistributor.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "ArrayMake.generated.h"
 
 UCLASS()
-class FICSITWIREMOD_API AArrayMake : public AFGWiremodBuildable, public IIConstantsDistributor
+class FICSITWIREMOD_API AArrayMake : public AFGWiremodBuildable, public IDynamicValuePasser
 {
 	GENERATED_BODY()
 
@@ -22,73 +23,20 @@ public:
 	
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		TArray<FNewConnectionData> Elements;
+		TArray<FConnectionData> Elements;
 		GetAllConnected(Elements);
-		
-		if(Elements.Num() == 0) return;
-		
-		Out = FDynamicValue();
-		Out.ConnectionType = UWiremodUtils::BaseToArray(Elements[0].ConnectionType);
 
-		switch (Out.ConnectionType)
+		auto Array = Cast<UCCArrayValueBase>(Out);
+		if(Array) Array->Clear();
+		
+		if(Elements.Num() == 0 || !Array)
 		{
-		case ArrayOfBoolean:
-			for (FNewConnectionData element : Elements)
-				Out.BoolArr.Add(WM::GetFunctionBoolResult(element));
-			break;
-
-		case ArrayOfNumber:
-			for (FNewConnectionData element : Elements)
-				Out.NumberArr.Add(WM::GetFunctionNumberResult(element));
-			break;
-
-		case ArrayOfString:
-			for (FNewConnectionData element : Elements)
-				Out.StringArr.Add(WM::GetFunctionStringResult(element));
-			break;
-
-		case ArrayOfVector:
-			for (FNewConnectionData element : Elements)
-				Out.VectorArr.Add(WM::GetFunctionVectorResult(element));
-			break;
-
-		case ArrayOfColor:
-			for (FNewConnectionData element : Elements)
-				Out.ColorArr.Add(WM::GetFunctionColorResult(element));
-			break;
-
-		case ArrayOfEntity:
-			for (FNewConnectionData element : Elements)
-				Out.EntityArr.Add(WM::GetFunctionEntityResult(element));
-			break;
-
-		case ArrayOfStack:
-			for (FNewConnectionData element : Elements)
-				Out.StackArr.Add(WM::GetFunctionStackResult(element));
-			break;
-
-		case ArrayOfInventory:
-			for (FNewConnectionData element : Elements)
-				Out.InventoryArr.Add(WM::GetFunctionInventory(element));
-			break;
-
-		case ArrayOfRecipe:
-			for (FNewConnectionData element : Elements)
-				Out.RecipeArr.Add(WM::GetFunctionRecipeResult(element));
-			break;
-		
-		case ArrayOfPowerGrid:
-			for (FNewConnectionData element : Elements)
-				Out.PowerGridArr.Add(WM::GetFunctionPowerCircuitResult(element));
-			break;
-
-		case ArrayOfItemAmount:
-			for (FNewConnectionData element : Elements)
-				Out.ItemAmountArr.Add(WM::GetItemAmount(element));
-			break;
-			
-		default: break;
+			SetOutputType(0, Unknown);
+			return;
 		}
+
+		
+		for(auto Element : Elements) Array->AddElement(Element);
 	}
 
 
@@ -99,15 +47,23 @@ public:
 		DOREPLIFETIME(AArrayMake, Out);
 	}
 
-	virtual FDynamicValue GetValue_Implementation(const FString& ValueName) override{ return Out; }
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
+	{
+		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		Channel->ReplicateSubobject(Out, *Bunch, *RepFlags);
+
+		return Idk;
+	}
+
+	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override{ return Out; }
 	
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	FDynamicValue Out;
+	UCCDynamicValueBase* Out;
 
 	UPROPERTY(EditDefaultsOnly)
 	FText ItemDisplayNameFormat = FText::FromString("Item");
 
-	virtual void OnInputConnected_Implementation(const FNewConnectionData& Data, int Index, UObject* Setter) override
+	virtual void OnInputConnected_Implementation(const FConnectionData& Data, int Index, UObject* Setter) override
 	{
 		Super::OnInputConnected_Implementation(Data, Index, Setter);
 		MakeInputList();
@@ -149,6 +105,10 @@ public:
 		}
 
 		if(OfType == AnyNonArray) SetOutputType(0, Unknown);
-		else SetOutputType(0, UWiremodUtils::BaseToArray(OfType));
+		else
+		{
+			Out = UCCDynamicValueUtils::FromType(UConnectionTypeFunctions::BaseToArray(OfType), Out ? Out->GetWorld() : this->GetWorld());
+			SetOutputType(0, UConnectionTypeFunctions::BaseToArray(OfType));
+		}
 	}
 };

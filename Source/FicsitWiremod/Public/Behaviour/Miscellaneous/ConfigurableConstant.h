@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "IConstantsDistributor.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "CommonLib/DynamicValues/CCCustomStructValue.h"
 #include "ConfigurableConstant.generated.h"
 
 UCLASS()
@@ -15,13 +16,13 @@ class UConstantClipboardData : public UFGFactoryClipboardSettings
 public:
 
 	UPROPERTY()
-	TArray<FNamedValue> Values;
+	TArray<FNamedDynamicValue> Values;
 };
 
 
 
 UCLASS()
-class FICSITWIREMOD_API AConfigurableConstant : public AFGWiremodBuildable, public IIConstantsDistributor
+class FICSITWIREMOD_API AConfigurableConstant : public AFGWiremodBuildable, public IDynamicValuePasser
 {
 	GENERATED_BODY()
 
@@ -29,23 +30,38 @@ public:
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
-		ConvertDeprecatedConnections();
+		
+		//Pre 0.11.50 to 0.11.70 -> 0.11.80
+		for(auto Val : Values)
+			SavedValues.Add(FNamedDynamicValue(Val.Name, Val.Value.Convert(this)));
+
+		Values.Empty();
 	}
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-		DOREPLIFETIME(AConfigurableConstant, Values)
+		DOREPLIFETIME(AConfigurableConstant, SavedValues)
+	}
+
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
+	{
+		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+		for(auto Val : SavedValues)
+			Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
+
+		return Idk;
 	}
 	
 	UFUNCTION(BlueprintCallable)
-	FNamedValue FindValue(FString Name, bool AllowCached = true)
+	FNamedDynamicValue FindValue(FString Name, bool AllowCached = true)
 	{
 		if(AllowCached && CachedValues.Contains(Name))
-			return FNamedValue(Name, CachedValues[Name]);
+			return FNamedDynamicValue(Name, CachedValues[Name]);
 
-		for (FNamedValue Value : Values)
+		for (FNamedDynamicValue Value : SavedValues)
 		{
 			if(Value.Name == Name)
 			{
@@ -54,7 +70,7 @@ public:
 			}
 		}
 
-		return FNamedValue();
+		return FNamedDynamicValue();
 	}
 
 	virtual bool CanUseFactoryClipboard_Implementation() override{ return true; }
@@ -63,20 +79,20 @@ public:
 	virtual UFGFactoryClipboardSettings* CopySettings_Implementation() override
 	{
 		auto Settings = NewObject<UConstantClipboardData>(this);
-		Settings->Values = Values;
+		Settings->Values = SavedValues;
 
 		return Settings;
 	}
 	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard) override
 	{
 		auto Settings = Cast<UConstantClipboardData>(factoryClipboard);
-		Values = Settings->Values;
+		SavedValues = Settings->Values;
 		OnRep_ValuesUpdated();
 		return true;
 	}
 
 	
-	virtual FDynamicValue GetValue_Implementation(const FString& ValueName) override
+	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override
 	{
 		return FindValue(ValueName);
 	}
@@ -86,9 +102,9 @@ public:
 		if(direction == Input) return TArray<FBuildingConnection>();
 		
 		TArray<FBuildingConnection> Out;
-		for (FNamedValue Value : Values)
+		for (FNamedDynamicValue Value : SavedValues)
 		{
-			auto Connection = FBuildingConnection(Value.Name, Value.Name, Value.Value.ConnectionType);
+			auto Connection = FBuildingConnection(Value.Name, Value.Name, Value.Value->ConnectionType);
 			Out.Add(Connection);
 		}
 
@@ -107,12 +123,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RegisterValues(const TArray<FNamedValue>& NewValues)
 	{
-		this->Values = NewValues;
+		SavedValues.Empty();
+		for(auto Val : NewValues)
+			SavedValues.Add(FNamedDynamicValue(Val.Name, Val.Value.Convert(this)));
+		
 		OnRep_ValuesUpdated();
 	}
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void ConvertDeprecatedConnections();
 
 	UFUNCTION()
 	void netFunc_setBoolValue(FString Name, bool Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }
@@ -151,9 +167,13 @@ public:
 	}
 	
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, SaveGame, ReplicatedUsing=OnRep_ValuesUpdated)
+	//TODO: Remove this after everyone had a chance to save their game on 0.11.80
+	UPROPERTY(EditInstanceOnly, SaveGame)
 	TArray<FNamedValue> Values;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, SaveGame, ReplicatedUsing=OnRep_ValuesUpdated)
+	TArray<FNamedDynamicValue> SavedValues;
+	
 	UPROPERTY(EditInstanceOnly)
-	TMap<FString, FDynamicValue> CachedValues;
+	TMap<FString, UCCDynamicValueBase*> CachedValues;
 };

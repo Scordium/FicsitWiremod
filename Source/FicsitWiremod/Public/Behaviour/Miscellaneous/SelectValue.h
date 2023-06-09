@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "IConstantsDistributor.h"
 #include "Behaviour/MultistateWiremodBuildable.h"
+#include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "SelectValue.generated.h"
 
 UCLASS()
-class FICSITWIREMOD_API ASelectValue : public AMultistateWiremodBuildable, public IIConstantsDistributor
+class FICSITWIREMOD_API ASelectValue : public AMultistateWiremodBuildable, public IDynamicValuePasser
 {
 	GENERATED_BODY()
 
@@ -20,19 +21,19 @@ public:
 		//Default mode (aka IF TRUE RETURN TRUE_VAL ELSE RETURN FALSE_VAL)
 		if(CurrentStateIndex == 0)
 		{
-			if(WM_GetBool(0))
-				UWiremodReflection::FillDynamicStructFromData(GetConnection(2), Out);
+			if(GetConnection(0).GetBool())
+				Out = UCCDynamicValueUtils::FromValue(GetConnection(2), Out ? Out->GetWorld() : this->GetWorld());
 			else
-				UWiremodReflection::FillDynamicStructFromData(GetConnection(1), Out);
+				Out = UCCDynamicValueUtils::FromValue(GetConnection(1), Out ? Out->GetWorld() : this->GetWorld());
 		}
 		//Alt mode - Select one from a list
 		else if (CurrentStateIndex == 1)
 		{
-			int Value = WM_GetInt(0) + 1;
+			int Value = GetConnection(0).GetFloat() + 1;
 			if(IsConnected(Value))
-				UWiremodReflection::FillDynamicStructFromData(GetConnection(Value), Out);
+				Out = UCCDynamicValueUtils::FromValue(GetConnection(Value), Out ? Out->GetWorld() : this->GetWorld());
 			else
-				Out = FDynamicValue();
+				Out = nullptr;
 		}
 	}
 
@@ -43,7 +44,15 @@ public:
 		DOREPLIFETIME(ASelectValue, Out)
 	}
 
-	virtual FDynamicValue GetValue_Implementation(const FString& ValueName) override{ return Out; }
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
+	{
+		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		Channel->ReplicateSubobject(Out, *Bunch, *RepFlags);
+
+		return Idk;
+	}
+
+	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override{ return Out; }
 
 	int FindSelectorIndex()
 	{
@@ -130,5 +139,5 @@ public:
 
 
 	UPROPERTY(Replicated)
-	FDynamicValue Out;
+	UCCDynamicValueBase* Out;
 };

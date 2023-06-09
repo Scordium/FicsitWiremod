@@ -135,7 +135,7 @@ public:
 
 	static bool HandleDynamicConnections(TArray<FDynamicConnectionData> connections);
 
-	void FilterNullPointers(TArray<int> ClearIndexes);
+	void FilterNullPointers(const TArray<int>& ClearIndexes);
 
 	UFUNCTION(BlueprintCallable)
 	void AddConnection(FDynamicConnectionData Connection, int Index, UObject* Setter)

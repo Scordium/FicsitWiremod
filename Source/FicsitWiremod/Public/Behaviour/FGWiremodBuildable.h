@@ -8,15 +8,12 @@
 #include "WiremodBuildableHologram.h"
 #include "CircuitryInterface.h"
 #include "WiremodReflection.h"
-#include "WiremodUtils.h"
 #include "Buildables/FGBuildable.h"
-#include "Module/GameInstanceModuleManager.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Utility/WiremodDecalMesh.h"
 #include "Utility/WiremodGameWorldModule.h"
 #include "FGWiremodBuildable.generated.h"
-
-#define WM UWiremodReflection
 
 
 UENUM(BlueprintType)
@@ -160,7 +157,7 @@ class FICSITWIREMOD_API AFGWiremodBuildable : public AFGBuildable, public ICircu
 public:
 
 	// Begin IWiremodInterface
-	void OnInputConnected_Implementation(const FNewConnectionData& Data, int Index, UObject* Setter) override;
+	void OnInputConnected_Implementation(const FConnectionData& Data, int Index, UObject* Setter) override;
 	void OnInputDisconnected_Implementation(int Index, UObject* Setter) override;
 	TSubclassOf<UUserWidget> GetCompactWidget_Implementation() override;
 	virtual UTexture2D* GetTexture() override { return UFGItemDescriptor::GetBigIcon(GetBuiltWithDescriptor()); }
@@ -197,7 +194,7 @@ protected:
 		PostGateSetup();
 	}
 
-	virtual void OnInputConnected_Internal(const FNewConnectionData& Data, int Index);
+	virtual void OnInputConnected_Internal(const FConnectionData& Data, int Index);
 	virtual void OnInputDisconnected_Internal(int Index);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
@@ -228,53 +225,22 @@ protected:
 
 	UFUNCTION(BlueprintPure)
 	EConnectionType GetInputType(int Index);
-
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool WM_GetBool(int InputIndex, bool DefaultValue = false) { return WM::GetFunctionBoolResult(GetConnection(InputIndex), DefaultValue); }
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE float WM_GetFloat(int InputIndex, float DefaultValue = 0.f) { return WM::GetFunctionNumberResult(GetConnection(InputIndex), DefaultValue); }
+	FORCEINLINE float WM_GetFloat(int InputIndex, float DefaultValue = 0.f) { return GetConnection(InputIndex).GetFloat(DefaultValue); }
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE int WM_GetInt(int InputIndex, int DefaultValue = 0) { return WM::GetFunctionNumberResult(GetConnection(InputIndex), DefaultValue); }
-	
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE FLinearColor WM_GetColor(int InputIndex, FLinearColor DefaultValue = FLinearColor::Black) { return WM::GetFunctionColorResult(GetConnection(InputIndex), DefaultValue); }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE FString WM_GetString(int InputIndex, FString DefaultValue = "") { return WM::GetFunctionStringResult(GetConnection(InputIndex), DefaultValue); }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE FVector WM_GetVector(int InputIndex, FVector DefaultValue = FVector::ZeroVector) { return WM::GetFunctionVectorResult(GetConnection(InputIndex), DefaultValue); }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE FInventoryStack WM_GetStack(int InputIndex) { return WM::GetFunctionStackResult(GetConnection(InputIndex)); }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE AActor* WM_GetEntity(int InputIndex) { return WM::GetFunctionEntityResult(GetConnection(InputIndex)); }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE UFGInventoryComponent* WM_GetInventory(int InputIndex) { return WM::GetFunctionInventory(GetConnection(InputIndex)); }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE UFGPowerCircuit* WM_GetPowerCircuit(int InputIndex) { return WM::GetFunctionPowerCircuitResult(GetConnection(InputIndex)); }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE TSubclassOf<UFGRecipe> WM_GetRecipe(int InputIndex) { return WM::GetFunctionRecipeResult(GetConnection(InputIndex)); }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE FItemAmount WM_GetItemAmount(int InputIndex) { return WM::GetItemAmount(GetConnection(InputIndex)); }
+	FORCEINLINE FString WM_GetString(int InputIndex, FString DefaultValue = "") { return GetConnection(InputIndex).GetString(DefaultValue); }
 
 public:
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override;
 	
 
 	UFUNCTION(BlueprintPure)
-	UPARAM(DisplayName="Out") FNewConnectionData GetConnection(int Index);
+	UPARAM(DisplayName="Out") FConnectionData GetConnection(int Index);
 
 	UFUNCTION(BlueprintPure)
-	void GetAllConnected(TArray<FNewConnectionData>& Out);
+	void GetAllConnected(TArray<FConnectionData>& Out);
 
 	UFUNCTION(BlueprintPure)
 	bool IsConnected(int Index);
@@ -408,7 +374,7 @@ public:
 	FBuildingConnections ConnectionsInfo;
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, SaveGame, Replicated)
-	TArray<FNewConnectionData> InputConnections;
+	TArray<FConnectionData> InputConnections;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, SaveGame, Replicated)
 	FWiremodOwnerData OwnerData;
