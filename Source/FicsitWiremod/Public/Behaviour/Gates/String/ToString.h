@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Behaviour/MultistateWiremodBuildable.h"
+#include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "Kismet/KismetTextLibrary.h"
 #include "ToString.generated.h"
 
@@ -22,16 +23,16 @@ public:
 			//Number (Float)
 		case 1:
 			{
-				float Value = WM_GetFloat(0);
-				bool Truncate = WM_GetBool(1);
+				float Value = GetConnection(0).GetFloat();
+				bool Truncate = GetConnection(1).GetBool();
 				if(!Truncate)
 				{
 					Out = FString::SanitizeFloat(Value);
 					break;
 				}
 				
-				int MinFrac = WM_GetInt(2);
-				int MaxFrac = WM_GetInt(3);
+				int MinFrac = GetConnection(2).GetFloat();
+				int MaxFrac = GetConnection(3).GetFloat();
 
 				Out = UKismetTextLibrary::Conv_FloatToText(
 					Value,
@@ -46,12 +47,14 @@ public:
 			}
 
 		default:
-				Out = UWiremodUtils::GetStringifiedValue(GetConnection(0));
+			ValueParserCache = UCCDynamicValueUtils::FromValue(GetConnection(0), ValueParserCache ? ValueParserCache->GetWorld() : this->GetWorld());
+			if(ValueParserCache) Out = ValueParserCache->ToString();
+			else Out = "";
 			break;
 		}
 	}
 
-	virtual void OnInputConnected_Internal(const FNewConnectionData& Data, int Index) override
+	virtual void OnInputConnected_Internal(const FConnectionData& Data, int Index) override
 	{
 		if(Index == 0 && Data.ConnectionType != StoredType)
 		{
@@ -77,4 +80,10 @@ public:
 	
 	UPROPERTY(Replicated)
 	FString Out;
+
+
+	//Utility property so that we don't have to create a new object each time we need to read the value,
+	//because the value type will *not* change for 99.9% of the time this gate will function.
+	UPROPERTY()
+	UCCDynamicValueBase* ValueParserCache;
 };
