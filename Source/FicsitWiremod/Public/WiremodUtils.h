@@ -104,7 +104,11 @@ public:
 				return STR::Conv_IntToString(item.Amount) + " of " + UFGItemDescriptor::GetItemName(item.ItemClass).ToString();
 			}
 		case ArrayOfItemAmount: return "[" + STR::Conv_IntToString(WM::GetItemAmountArray(Value).Num()) + " elements]";
-		case CustomStruct: return "[" + FString::FromInt(WM::GetCustomStruct(Value).Values.Num()) + " values]"; 
+		case CustomStruct:
+			{
+				auto Val = WM::GetCustomStruct(Value);
+				return  Val.Name + " [" + FString::FromInt(Val.Values.Num()) + " values]";
+			}
 		default:
 			UE_LOG(LogTemp, Error, TEXT("Failed to find switch case for EConnectionType::%d in function GET_STRINGIFIED_VALUE. Returning default value instead..."), (int)Value.ConnectionType);
 			return "?";
