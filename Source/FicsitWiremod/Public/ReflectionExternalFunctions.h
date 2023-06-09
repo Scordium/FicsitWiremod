@@ -8,6 +8,7 @@
 #include "FGPipeSubsystem.h"
 #include "Buildables/FGBuildablePipeReservoir.h"
 #include "Buildables/FGBuildableRailroadSignal.h"
+#include "Buildables/FGBuildableWidgetSign.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ReflectionExternalFunctions.generated.h"
 
@@ -45,6 +46,28 @@ public:
 			}
 			return;
 		}
+	}
+
+	static bool GetDoorIsLocked(UObject* Actor)
+	{
+		if(auto Door = Cast<AFGBuildableDoor>(Actor))
+			return Door->mDoorState == EDoorState::DS_Closed;
+
+		return false;
+	}
+
+	static int GetSignIconId(AFGBuildableWidgetSign* Sign, FString IconName, int DefaultValue)
+	{
+		if(Sign->mIconElementToDataMap.Contains(IconName))
+			return Sign->mIconElementToDataMap[IconName];
+		else return DefaultValue;
+	}
+
+	static FString GetSignText(AFGBuildableWidgetSign* Sign, FString TextName, FString DefaultValue)
+	{
+		if(Sign->mTextElementToDataMap.Contains(TextName))
+			return Sign->mTextElementToDataMap[TextName];
+		else return DefaultValue;
 	}
 
 	static void ChangeRailroadSignalState(UObject* Actor, bool State)
