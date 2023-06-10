@@ -15,7 +15,7 @@ struct FNamedDynamicValue
 	FString Name;
 
 	UPROPERTY(SaveGame, BlueprintReadWrite)
-	UCCDynamicValueBase* Value;
+	UCCDynamicValueBase* Value = nullptr;
 
 	FNamedDynamicValue(){}
 	FNamedDynamicValue(FString Name, UCCDynamicValueBase* Value)
