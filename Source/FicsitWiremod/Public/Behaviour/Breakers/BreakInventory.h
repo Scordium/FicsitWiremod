@@ -62,7 +62,7 @@ public:
 	bool IsFull() const
 	{
 		if(!Inventory) return false;
-		return Inventory->HasEnoughSpaceForItem(ItemComparator);
+		return !Inventory->HasEnoughSpaceForItem(ItemComparator);
 	}
 
 	
