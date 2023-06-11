@@ -45,18 +45,15 @@ public:
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
-	TEnumAsByte<EConnectionType> ConnectionType;
+	TEnumAsByte<EConnectionType> ConnectionType = Unknown;
 
 	bool operator ==(UCCDynamicValueBase* Other) { return Equals(Other); }
 	bool operator !=(UCCDynamicValueBase* Other) { return !Equals(Other); }
-	
-protected:
-
 	virtual bool Equals(UCCDynamicValueBase* Other){ return this == Other; }
 };
 
 
-UINTERFACE()
+UINTERFACE(BlueprintType, Blueprintable)
 class UDynamicValuePasser : public UInterface
 {
 	GENERATED_BODY()

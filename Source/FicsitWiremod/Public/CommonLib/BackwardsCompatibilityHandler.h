@@ -348,7 +348,7 @@ public:
 		for(int i = 0; i < ValuesNew.Num(); i++)
 		{
 			if(ValuesOriginal[i].Name != ValuesNew[i].Name) return false;
-			if(ValuesOriginal[i].Value != ValuesNew[i].Value.Convert(WorldContext)) return false;
+			if(!ValuesOriginal[i].Value->Equals(ValuesNew[i].Value.Convert(WorldContext))) return false;
 		}
 
 		return true;
