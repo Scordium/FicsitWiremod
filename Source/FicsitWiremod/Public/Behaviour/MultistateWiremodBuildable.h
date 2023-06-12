@@ -63,6 +63,13 @@ public:
 		AllowStatelessEdit = false;
 	}
 
+	virtual void BeginPlay() override
+	{
+		Super::BeginPlay();
+
+		ConnectionsInfo = States[CurrentStateIndex].Connections;
+	}
+
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -77,6 +84,17 @@ public:
 		if(!States.IsValidIndex(Index)) return;
 		
 		OnStateSelected_Internal(Index);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	virtual TArray<FWiremodBuildableState> GetAvailableModes(bool IncludeHidden = false)
+	{
+		TArray<FWiremodBuildableState> Out;
+
+		for(auto State : States)
+			if(!State.IsHidden || IncludeHidden) Out.Add(State);
+
+		return Out;
 	}
 
 	virtual void OnStateSelected_Internal(int Index)

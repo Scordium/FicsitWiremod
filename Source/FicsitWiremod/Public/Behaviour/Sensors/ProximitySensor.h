@@ -7,7 +7,7 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "ProximitySensor.generated.h"
 
-#define SCALE GetConnection(0).GetVector()
+#define SCALE GetConnection(0).GetVector(FVector(10))
 #define AREA_VISIBLE GetConnection(1).GetBool()
 #define DETECT_PLAYER GetConnection(2).GetBool(true)
 #define DETECT_ENEMY GetConnection(3).GetBool(true)

@@ -12,7 +12,7 @@
 template <typename T>
 static T FromPropertyValue(const FConnectionData& Data, T DefaultValue)
 {
-	if(!Data.Object) return DefaultValue;
+	if(!IsValid(Data.Object)) return DefaultValue;
 		
 	auto Val = Data.Object->GetClass()->FindPropertyByName(Data.FunctionName);
 	if(!Val) return DefaultValue;
@@ -22,7 +22,7 @@ static T FromPropertyValue(const FConnectionData& Data, T DefaultValue)
 template<typename T>
 static T GenericProcess(const FConnectionData& Data, T DefaultValue)
 {
-	if(!Data.Object) return DefaultValue;
+	if(!IsValid(Data.Object)) return DefaultValue;
 	
 	if(Data.FromProperty)
 		return FromPropertyValue(Data, DefaultValue);
@@ -30,6 +30,7 @@ static T GenericProcess(const FConnectionData& Data, T DefaultValue)
 	if(Data.Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
 	{
 		auto ValueBase = IDynamicValuePasser::Execute_GetValue(Data.Object, Data.FunctionName.ToString());
+		if(!IsValid(ValueBase) || ValueBase->ConnectionType == Unknown) return DefaultValue;
 		return FromPropertyValue(FConnectionData(ValueBase, "Value"), DefaultValue);
 	}
 
@@ -285,7 +286,7 @@ void FConnectionData::SetString(FString Value) const
 		sign->GetSignPrefabData(signData);
 		
 		if(signData.TextElementData.Contains(FunctionName.ToString()))
-			if(signData.TextElementData[FunctionName.ToString()] == Value) return;
+			if(signData.TextElementData[FunctionName.ToString()].Equals(Value)) return;
 		
 		signData.TextElementData[FunctionName.ToString()] = Value;
 		sign->SetPrefabSignData(signData);

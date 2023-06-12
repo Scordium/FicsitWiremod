@@ -21,7 +21,7 @@ public:
 		{
 			Out = Array->GetElement(GetConnection(1).GetFloat());
 		}
-		else 
+		else Out = nullptr;
 		
 		SetOutputType(0, Out ? Out->ConnectionType : Unknown);
 	}

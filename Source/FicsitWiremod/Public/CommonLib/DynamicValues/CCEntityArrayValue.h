@@ -87,10 +87,10 @@ public:
 			if(auto Player = Cast<AFGCharacterPlayer>(Val))
 			{
 				//Check if the player state is valid. If the player is offline it will be null and crash if not handled properly
-				if(auto State = Player->GetPlayerState()) Out.Add(ObjectName + "(Player " + State->GetPlayerName() + ")");
-				Out.Add(UKismetSystemLibrary::GetObjectName(Player) + "(Offline player)");
+				if(auto State = Player->GetPlayerState()) Out.Add("Player " + State->GetPlayerName());
+				else Out.Add(UKismetSystemLibrary::GetObjectName(Player) + "(Offline player)");
 			}
-			Out.Add(UKismetSystemLibrary::GetObjectName(Val));
+			else Out.Add(UKismetSystemLibrary::GetObjectName(Val));
 		}
 
 		return Out;

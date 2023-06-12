@@ -198,7 +198,7 @@ public:
 		return FValueReflectionSource(Object, FunctionName, FromProperty);
 	}
 
-
+	
 	FConnectionData()
 	{
 		this->Object = NULL;

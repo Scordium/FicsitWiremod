@@ -31,6 +31,7 @@ public:
 		{
 			Out = true;
 			if(Loop) CurrentTime = 0;
+			else CurrentTime = Time;
 		}
 	}
 

@@ -32,12 +32,14 @@ public class FicsitWiremod : ModuleRules
             "Slate", 
             "SlateCore",
             "Json",
-            "AbstractInstance"
-            });
+            "AbstractInstance",
+            "AudioMixer", 
+            "Synthesis",
+		});
 
 
         if (Target.Type == TargetRules.TargetType.Editor) {
-			PublicDependencyModuleNames.AddRange(new string[] {"OnlineBlueprintSupport", "AnimGraph"});
+			PublicDependencyModuleNames.AddRange(new string[] {"OnlineBlueprintSupport", "AnimGraph", "SynthesisEditor"});
 		}
         PublicDependencyModuleNames.AddRange(new string[] {"FactoryGame", "SML" });
     }

@@ -49,6 +49,7 @@ class FICSITWIREMOD_API UCCDynamicValueUtils : public UBlueprintFunctionLibrary
 public:
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeBool(UObject* WorldContext, bool Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeFloat(UObject* WorldContext, float Value);
+	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeInt(UObject* WorldContext, int Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeString(UObject* WorldContext, FString Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeVector(UObject* WorldContext, FVector Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeInventory(UObject* WorldContext, UFGInventoryComponent* Value);
@@ -72,6 +73,7 @@ public:
 
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static bool ToBool(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static float ToFloat(UCCDynamicValueBase* Base);
+	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static int ToInt(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static FString ToString(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static FVector ToVector(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UFGInventoryComponent* ToInventory(UCCDynamicValueBase* Base);

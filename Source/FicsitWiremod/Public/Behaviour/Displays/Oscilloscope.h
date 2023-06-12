@@ -8,9 +8,9 @@
 
 #define DF_GET_X GetConnection(0).GetFloat()
 #define DF_GET_Y GetConnection(1).GetFloat()
-#define DF_LINE_COLOR GetConnection(2).GetColor()
-#define DF_BACKGROUND_COLOR GetConnection(3).GetColor()
-#define DF_MAX_POINTS GetConnection(4).GetFloat()
+#define DF_LINE_COLOR GetConnection(2).GetColor(DefaultLineColor)
+#define DF_BACKGROUND_COLOR GetConnection(3).GetColor(DefaultBGColor)
+#define DF_MAX_POINTS GetConnection(4).GetFloat(200)
 #define DF_NO_FADING GetConnection(5).GetBool()
 
 UCLASS()
@@ -38,4 +38,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetupWidgetVariables(FLinearColor BackgroundColor, int MaxPoints, bool NoFading);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FLinearColor DefaultLineColor = FLinearColor(0.783538, 0.291771, 0.059511); //Ficsit orange color
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FLinearColor DefaultBGColor = FLinearColor::Black;
 };

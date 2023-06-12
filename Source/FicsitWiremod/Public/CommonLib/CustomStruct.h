@@ -24,8 +24,8 @@ struct FNamedDynamicValue
 		this->Value = Value;
 	}
 	
-	bool operator ==(const FNamedDynamicValue& Other) { return Value == Other.Value; }
-	bool operator !=(const FNamedDynamicValue& Other) { return Value != Other.Value; }
+	bool operator ==(const FNamedDynamicValue& Other) { return Value ? Value->Equals(Other.Value) : false; }
+	bool operator !=(const FNamedDynamicValue& Other) { return Value ? !Value->Equals(Other.Value) : true; }
 
 	operator UCCDynamicValueBase* () { return Value; }
 };

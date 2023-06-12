@@ -53,6 +53,19 @@ UCCDynamicValueBase* UCCDynamicValueUtils::MakeFloat(UObject* WorldContext, floa
 	return Out;
 }
 
+UCCDynamicValueBase* UCCDynamicValueUtils::MakeInt(UObject* WorldContext, int Value)
+{
+		if(auto Out = Cast<UCCIntegerValue>(WorldContext))
+    	{
+    		Out->Value = Value;
+    		return Out;
+    	}
+    
+    	auto Out = NewObject<UCCIntegerValue>(WorldContext->GetWorld()->PersistentLevel);
+    	Out->Value = Value;
+    	return Out;
+}
+
 UCCDynamicValueBase* UCCDynamicValueUtils::MakeString(UObject* WorldContext, FString Value)
 {
 	if(auto Out = Cast<UCCStringValue>(WorldContext))
@@ -323,10 +336,24 @@ bool UCCDynamicValueUtils::ToBool(UCCDynamicValueBase* Base)
 
 float UCCDynamicValueUtils::ToFloat(UCCDynamicValueBase* Base)
 {
-	if(auto Out = Cast<UCCNumberValue>(Base))
-		return Out->Value;
+	if(Base)
+	{
+		if(auto Float = Cast<UCCNumberValue>(Base)) return Float->Value;
+		else if(auto Int = Cast<UCCIntegerValue>(Base)) return Int->Value;
+	}
 
 	return float();
+}
+
+int UCCDynamicValueUtils::ToInt(UCCDynamicValueBase* Base)
+{
+	if(Base)
+	{
+		if(auto Float = Cast<UCCNumberValue>(Base)) return Float->Value;
+		else if(auto Int = Cast<UCCIntegerValue>(Base)) return Int->Value;
+	}
+
+	return int();
 }
 
 FString UCCDynamicValueUtils::ToString(UCCDynamicValueBase* Base)

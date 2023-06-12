@@ -35,7 +35,7 @@ public:
 
 			for(int i = 0; i < Source.Len(); i++)
 			{
-				Out += i%2 ? FChar::ToLower(Source[0]) : FChar::ToUpper(Source[0]);;
+				Out += i%2 ? FChar::ToLower(Source[i]) : FChar::ToUpper(Source[i]);
 			}
 		}
 	}

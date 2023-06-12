@@ -14,7 +14,9 @@ class FICSITWIREMOD_API ANumberGreater : public AFGWiremodBuildable
 public:
 	virtual void Process_Implementation(float DeltaTime) override
 	{
-		Out = GetConnection(0).GetFloat() > GetConnection(1).GetFloat();
+		auto A = GetConnection(0).GetFloat();
+		auto B = GetConnection(1).GetFloat();
+		Out = A > B;
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

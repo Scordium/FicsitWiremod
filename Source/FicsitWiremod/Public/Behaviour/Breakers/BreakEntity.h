@@ -68,9 +68,10 @@ public:
 			//Train
 			if(auto Train = Cast<AFGFreightWagon>(Vehicle))
 				return Train->GetFreightInventory();
-
+			
 			//Default
-			return Cast<AFGWheeledVehicle>(Vehicle)->GetStorageInventory();
+			if(auto Default = Cast<AFGWheeledVehicle>(Vehicle))
+				return Default->GetStorageInventory();
 		}
 
 		//Lizard doggo
