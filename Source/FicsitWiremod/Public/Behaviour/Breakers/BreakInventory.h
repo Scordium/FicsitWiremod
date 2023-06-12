@@ -96,8 +96,15 @@ public:
 		if(!Inventory) return -1;
 		return Inventory->GetSizeLinear();
 	}
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
+	{
+		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+		DOREPLIFETIME(ABreakInventory, Inventory)
+	}
 	
-	UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly)
+	UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly, Replicated)
 	UFGInventoryComponent* Inventory;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

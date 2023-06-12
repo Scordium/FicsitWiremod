@@ -367,6 +367,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetInputOccupationStatus(EConnectionType AllowedType, TArray<TEnumAsByte<EConnectionOccupationState>>& Out);
 
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
+	{
+		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+		auto Objects = GatherReplicatedObjects();
+
+		for(auto Object : Objects)
+			Channel->ReplicateSubobject(Object, *Bunch, *RepFlags);
+
+		return Idk;
+	}
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	TArray<UObject*> GatherReplicatedObjects();
+
 	UPROPERTY(VisibleInstanceOnly, meta=(HideInDetailPanel=true))
 	bool AllowStatelessEdit = true;
 	
