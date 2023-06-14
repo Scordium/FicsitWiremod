@@ -1,4 +1,4 @@
-﻿// 
+// 
 
 #pragma once
 
@@ -60,7 +60,7 @@ public:
 	static bool IsValidConnectionPair(EConnectionType Input, EConnectionType Output)
 	{
 		if(Input == Unknown || Output == Unknown) return false;
-		if(Input == Any) return Output != CustomStruct;
+		if(Input == Any) return true;
 		if(Input == Output) return true;
 		if(Input == AnyArray) return IsArrayType(Output);
 		if(Input == AnyNonArray) return !IsArrayType(Output);
@@ -90,6 +90,7 @@ public:
 		case Any: return Any;
 		case AnyNonArray: return AnyArray;
 		case ItemAmount: return ArrayOfItemAmount;
+		case CustomStruct: return ArrayOfCustomStruct;
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function BASE_TO_ARRAY"), in);
 			return Unknown;
@@ -115,6 +116,7 @@ public:
 		case Any: return Any;
 		case AnyArray: return AnyNonArray;
 		case ArrayOfItemAmount: return ItemAmount;
+		case ArrayOfCustomStruct: return CustomStruct;
 		default:
 			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ARRAY_TO_BASE"), in);
 			return Unknown;
@@ -126,17 +128,33 @@ public:
 	{
 		switch (type)
 		{
-		case ArrayOfBoolean:
-		case ArrayOfVector:
-		case ArrayOfColor:
-		case ArrayOfEntity:
-		case ArrayOfInventory:
-		case ArrayOfNumber:
-		case ArrayOfStack:
-		case ArrayOfString:
-		case ArrayOfPowerGrid:
-		case ArrayOfRecipe:
-		case ArrayOfItemAmount:
+		case EConnectionType::ArrayOfBoolean:
+		case EConnectionType::ArrayOfVector:
+		case EConnectionType::ArrayOfColor:
+		case EConnectionType::ArrayOfEntity:
+		case EConnectionType::ArrayOfInventory:
+		case EConnectionType::ArrayOfNumber:
+		case EConnectionType::ArrayOfStack:
+		case EConnectionType::ArrayOfString:
+		case EConnectionType::ArrayOfPowerGrid:
+		case EConnectionType::ArrayOfRecipe:
+		case EConnectionType::ArrayOfItemAmount:
+		case EConnectionType::ArrayOfCustomStruct:
+			return true;
+
+		default: return false;
+		}
+	}
+
+	UFUNCTION(BlueprintPure)
+	static bool IsUtilityType(EConnectionType Type)
+	{
+		switch (Type)
+		{
+		case Any:
+		case AnyArray:
+		case AnyNonArray:
+		case NonReferenceable:
 			return true;
 
 		default: return false;
