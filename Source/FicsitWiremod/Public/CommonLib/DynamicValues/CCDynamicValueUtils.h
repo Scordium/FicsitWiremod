@@ -140,6 +140,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static UCCDynamicValueBase* FromValue(const FConnectionData& Data, UObject* WorldContext)
 	{
+		if(auto Dynamic = Cast<UCCDynamicValueBase>(Data.Object))
+			return Dynamic;
+		
 		auto Out = FromType(Data.ConnectionType, WorldContext);
 		if(Out) Out->SetValue(Data);
 		return Out;

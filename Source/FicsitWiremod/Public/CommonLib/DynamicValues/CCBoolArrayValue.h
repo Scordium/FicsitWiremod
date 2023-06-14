@@ -38,7 +38,7 @@ public:
 		
 		Source.SetByAddress(Value);
 	}
-	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(",")); }
+	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
 
 	
 

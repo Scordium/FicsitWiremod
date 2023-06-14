@@ -18,7 +18,7 @@ public:
 		if(CurrentStateIndex == 0)
 		{
 			TArray<FString> Values;
-			FString Separator = GetConnection(0).GetString();
+			FString Separator = GetConnection(0).GetString(", ");
 
 			for(int i = 1; i < InputConnections.Num(); i++)
 				Values.Add(GetConnection(i).GetString());
@@ -29,7 +29,7 @@ public:
 		else if(CurrentStateIndex == 1)
 		{
 			TArray<FString> Values = GetConnection(0).GetStringArray();
-			FString Separator = GetConnection(1).GetString();
+			FString Separator = GetConnection(1).GetString(", ");
 
 			Out = FString::Join(Values, *Separator);
 		}

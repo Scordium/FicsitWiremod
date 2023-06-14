@@ -74,7 +74,7 @@ public:
 		Value[Index] = Element.GetEntity();
 	}
 
-	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(",")); }
+	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
 
 	virtual TArray<FString> ToStringArray() override
 	{

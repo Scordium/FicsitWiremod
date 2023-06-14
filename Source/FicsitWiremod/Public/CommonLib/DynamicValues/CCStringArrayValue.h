@@ -73,7 +73,7 @@ public:
 		return false;
 	}
 
-	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(",")); }
+	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
 	virtual TArray<FString> ToStringArray() override { return Value; }
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
