@@ -19,7 +19,7 @@ public:
 	{
 		if(TransmitterReference)
 		{
-			DataReceived = UCCDynamicValueUtils::FromValue(TransmitterReference->GetConnection(0), DataReceived ? DataReceived->GetWorld() : this->GetWorld()); 
+			DataReceived = UCCDynamicValueUtils::FromValue(TransmitterReference->GetConnection(0), DataReceived ? DataReceived->GetWorld() : this->GetWorld());
 			SetOutputType(0, DataReceived ? DataReceived->ConnectionType : Unknown);
 		}
 	}

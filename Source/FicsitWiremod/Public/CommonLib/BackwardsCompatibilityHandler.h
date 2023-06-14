@@ -16,6 +16,7 @@
 #include "DynamicValues/CCDynamicValueBase.h"
 #include "DynamicValues/CCEntityArrayValue.h"
 #include "DynamicValues/CCEntityValue.h"
+#include "DynamicValues/CCIntegerValue.h"
 #include "DynamicValues/CCInventoryArrayValue.h"
 #include "DynamicValues/CCInventoryValue.h"
 #include "DynamicValues/CCItemAmountArrayValue.h"
@@ -39,16 +40,16 @@ struct FDynamicValue
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TEnumAsByte<EConnectionType> ConnectionType;
+	TEnumAsByte<EConnectionType> ConnectionType = Unknown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool StoredBool;
+	bool StoredBool = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<bool> BoolArr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	float StoredFloat;
+	float StoredFloat = 0;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<float> NumberArr;
@@ -60,13 +61,13 @@ struct FDynamicValue
 	TArray<FString> StringArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FVector StoredVector;
+	FVector StoredVector = FVector::ZeroVector;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FVector> VectorArr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FLinearColor StoredColor;
+	FLinearColor StoredColor = FLinearColor::Black;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FLinearColor> ColorArr;
@@ -174,6 +175,7 @@ struct FDynamicValue
 				Object->Value = Inventory;
 				return Object;
 			}
+		case Integer:
 		case EConnectionType::Number:
 			{
 				auto Object = NewObject<UCCNumberValue>(Level);
@@ -330,8 +332,10 @@ public:
 	static bool IsValueEqual(const FDynamicValue& Value, UCCDynamicValueBase* OtherValue)
 	{
 		if(!OtherValue) return false;
-		
-		return Value.Convert(OtherValue) == OtherValue;
+
+		auto Converted = Value.Convert(OtherValue);
+		if(!Converted) return false;
+		return Converted->Equals(OtherValue);
 	}
 
 	UFUNCTION(BlueprintPure)
@@ -348,7 +352,7 @@ public:
 		for(int i = 0; i < ValuesNew.Num(); i++)
 		{
 			if(ValuesOriginal[i].Name != ValuesNew[i].Name) return false;
-			if(!ValuesOriginal[i].Value->Equals(ValuesNew[i].Value.Convert(WorldContext))) return false;
+			if(!ValuesOriginal[i] || !ValuesOriginal[i].Value->Equals(ValuesNew[i].Value.Convert(WorldContext))) return false;
 		}
 
 		return true;
@@ -359,9 +363,12 @@ public:
 	{
 		FNamedValue Out;
 		Out.Name = Value.Name;
+		if(!Value.Value) return Out;
+		Out.Value.ConnectionType = Value.Value->ConnectionType;
 		switch (Value.Value->ConnectionType)
 		{
 		case Boolean: Out.Value = FDynamicValue(Cast<UCCBoolValue>(Value.Value)->Value); break;
+		case Integer: Out.Value = FDynamicValue(Cast<UCCIntegerValue>(Value.Value)->Value); break;
 		case Number: Out.Value = FDynamicValue(Cast<UCCNumberValue>(Value.Value)->Value); break;
 		case String: Out.Value = FDynamicValue(Cast<UCCStringValue>(Value.Value)->Value); break;
 		case Vector: Out.Value = FDynamicValue(Cast<UCCVectorValue>(Value.Value)->Value); break;

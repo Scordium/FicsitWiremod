@@ -33,6 +33,11 @@ static T GenericProcess(const FConnectionData& Data, T DefaultValue)
 		if(!IsValid(ValueBase) || ValueBase->ConnectionType == Unknown) return DefaultValue;
 		return FromPropertyValue(FConnectionData(ValueBase, "Value"), DefaultValue);
 	}
+	else if(auto ValueBase = Cast<UCCDynamicValueBase>(Data.Object))
+	{
+		if(!IsValid(ValueBase) || ValueBase->ConnectionType == Unknown) return DefaultValue;
+		return FromPropertyValue(Data, DefaultValue);
+	}
 
 	struct{T RetVal;} Params{DefaultValue};
 	if(!Data.ProcessFunction(&Params)) return FromPropertyValue(Data, DefaultValue);

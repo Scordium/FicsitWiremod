@@ -140,6 +140,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddConnection(FDynamicConnectionData Connection, int Index, UObject* Setter)
 	{
+		if(!Connection.Receiver.Object) return;
 		auto Entry = GetOrDefault(Connection.Receiver.Object);
 		
 		if(!Entry.Data.OwnerData.GetCanConnect(Setter)) return;
@@ -160,11 +161,9 @@ public:
 
 		if(!Data.Data.OwnerData.GetCanDisconnect(Setter)) return;
 
-		if(Index == -1)
-			Data.Data.Connections.Empty();
-
-		if(Data.Data.Connections.IsValidIndex(Index))
-			Data.Data.Connections[Index] = FDynamicConnectionData();
+		if(Index == -1) Data.Data.Connections.Empty();
+		else if(Data.Data.Connections.IsValidIndex(Index)) Data.Data.Connections[Index] = FDynamicConnectionData();
+		
 
 		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
 		DrawWiresForBuildable(Data);

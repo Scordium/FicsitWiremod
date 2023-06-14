@@ -2,7 +2,6 @@
 #include "Behaviour/FGWiremodBuildable.h"
 
 #include "WiremodReflection.h"
-#include "WiremodUtils.h"
 #include "Buildables/FGBuildableBlueprintDesigner.h"
 
 void AFGWiremodBuildable::Tick(float DeltaTime)
@@ -90,7 +89,7 @@ void AFGWiremodBuildable::OnInputConnected_Internal(const FConnectionData& Data,
 		//Check if the starting point is the object's location.
 		//If it is then it's safe to make adaptive wire. If not - don't do anything. The only thing that will change is that wire won't redraw after the objects were moved around.
 		//There's no need to bother making a wire at all if the object is not an actor, so check for that as well.
-		if(auto actor = Cast<AActor>(Data.Object); actor && Data.WirePositions[0] == actor->GetActorLocation()) ConvertedPositions.Empty();
+		if(auto actor = Cast<AActor>(Data.Object); actor && Data.WirePositions.Num() && Data.WirePositions[0] == actor->GetActorLocation()) ConvertedPositions.Empty();
 	}
 	InputConnections[Index] = FConnectionData(Data, ConvertedPositions);
 	
@@ -109,7 +108,7 @@ void AFGWiremodBuildable::OnInputDisconnected_Implementation(int Index, UObject*
 
 void AFGWiremodBuildable::OnInputDisconnected_Internal(int Index)
 {
-	if(Index == -1){ InputConnections.Empty(); }
+	if(Index == -1)InputConnections.Empty();
 	else
 	{
 		if(InputConnections.IsValidIndex(Index))
@@ -182,7 +181,7 @@ void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, 
 		}
 		else
 		{
-			if(false /*Connection.Object.IsA<GlobalConnectionDistributor>()*/) Out.Add(GlobalConnection);
+			if(Connection.Object->GetClass()->IsChildOf(UCCDynamicValueBase::StaticClass())) Out.Add(GlobalConnection);
 			else Out.Add(Connected);
 		}
 	}

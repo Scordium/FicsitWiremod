@@ -1,4 +1,4 @@
-// 
+﻿// 
 
 #pragma once
 
@@ -59,6 +59,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	static bool IsValidConnectionPair(EConnectionType Input, EConnectionType Output)
 	{
+		if(IsUtilityType(Output)) return false;
 		if(Input == Unknown || Output == Unknown) return false;
 		if(Input == Any) return true;
 		if(Input == Output) return true;
