@@ -50,7 +50,7 @@ public:
 	{
 		auto data = FConnectionData(Lift, "netFunc_GetFloorInfo");
 		struct {int floorIndex; float out_Height; FString out_Name; } params{FloorIndex};
-
+		data.ProcessFunction(&params);
 		return params.out_Name;
 	}
 
@@ -59,7 +59,7 @@ public:
 	{
 		auto data = FConnectionData(Lift, "netFunc_GetFloorInfo");
 		struct {int floorIndex; float out_Height; FString out_Name; } params{FloorIndex};
-
+		data.ProcessFunction(&params);
 		return params.out_Height;
 	}
 
