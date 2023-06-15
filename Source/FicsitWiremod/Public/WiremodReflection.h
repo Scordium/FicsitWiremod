@@ -236,6 +236,11 @@ public:
 		return ::IsValid(Object);
 	}
 
+	bool IsValidForWire() const
+	{
+		return ::IsValid(Object) && !Object->GetClass()->IsChildOf(UCCDynamicValueBase::StaticClass());
+	}
+
 	bool IsA(EConnectionType Type) { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	bool IsA(EConnectionType Type) const { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	
@@ -306,7 +311,7 @@ struct FDynamicConnectionData
 	}
 	
 	bool IsValid() { return Transmitter.IsValid() && Receiver.IsValid(); }
-	bool IsValidForWire() { return Transmitter.IsValid() && Receiver.IsValid() && !Transmitter.WireHidden; }
+	bool IsValidForWire() { return Transmitter.IsValidForWire() && Receiver.IsValidForWire() && !Transmitter.WireHidden; }
 };
 
 

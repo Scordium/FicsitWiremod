@@ -224,7 +224,7 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 	for (int i = 0; i < InputConnections.Num(); i++)
 	{
 		FConnectionData ConnectionData = GetConnection(i);
-		if(!ConnectionData.IsValid()) continue;
+		if(!ConnectionData.IsValidForWire()) continue;
 		if(ConnectionData.WireHidden) continue;
 		
 		//Create child actor component to store our wire actor. This should probably be optimized as it's a lot better for performance to just have 1 actor that handles all the wires.

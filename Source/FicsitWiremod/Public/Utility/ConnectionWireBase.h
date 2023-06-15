@@ -66,7 +66,7 @@ public:
 	{
 		TInlineComponentArray<UConnectionWireSplineMesh*> SplineMeshes;
 		GetComponents<UConnectionWireSplineMesh>(SplineMeshes);
-		for (auto SplineMesh : SplineMeshes) SplineMesh->DestroyComponent();
+		for (auto SplineMesh : SplineMeshes) if(SplineMesh) SplineMesh->DestroyComponent();
 	}
 
 	UFUNCTION(BlueprintCallable)
