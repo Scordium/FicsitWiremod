@@ -146,6 +146,23 @@ struct FDynamicValue
 		StoredColor = Value;
 	}
 
+	FDynamicValue(UCCDynamicValueBase* ReplicatedBase)
+	{
+		if(!ReplicatedBase) return;
+		ConnectionType = ReplicatedBase->ConnectionType;
+		switch (ReplicatedBase->ConnectionType)
+		{
+		case Boolean: StoredBool = Cast<UCCBoolValue>(ReplicatedBase)->Value; break;
+		case Integer: StoredFloat = Cast<UCCIntegerValue>(ReplicatedBase)->Value; break;
+		case Number: StoredFloat = Cast<UCCNumberValue>(ReplicatedBase)->Value; break;
+		case String: StoredString = Cast<UCCStringValue>(ReplicatedBase)->Value; break;
+		case Vector: StoredVector = Cast<UCCVectorValue>(ReplicatedBase)->Value; break;
+		case Color: StoredColor = Cast<UCCColorValue>(ReplicatedBase)->Value; break;
+		case EConnectionType::Recipe: Recipe = Cast<UCCRecipeValue>(ReplicatedBase)->Value; break;
+		default: break;
+		}
+	}
+
 	UCCDynamicValueBase* Convert(UObject* WorldContext) const
 	{
 		auto Level = WorldContext->GetWorld()->PersistentLevel;
@@ -359,23 +376,5 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	static FNamedValue ToClientValue(const FNamedDynamicValue& Value)
-	{
-		FNamedValue Out;
-		Out.Name = Value.Name;
-		if(!Value.Value) return Out;
-		Out.Value.ConnectionType = Value.Value->ConnectionType;
-		switch (Value.Value->ConnectionType)
-		{
-		case Boolean: Out.Value = FDynamicValue(Cast<UCCBoolValue>(Value.Value)->Value); break;
-		case Integer: Out.Value = FDynamicValue(Cast<UCCIntegerValue>(Value.Value)->Value); break;
-		case Number: Out.Value = FDynamicValue(Cast<UCCNumberValue>(Value.Value)->Value); break;
-		case String: Out.Value = FDynamicValue(Cast<UCCStringValue>(Value.Value)->Value); break;
-		case Vector: Out.Value = FDynamicValue(Cast<UCCVectorValue>(Value.Value)->Value); break;
-		case Color: Out.Value = FDynamicValue(Cast<UCCColorValue>(Value.Value)->Value); break;
-			default: break;
-		}
-
-		return Out;
-	}
+	static FNamedValue ToClientValue(const FNamedDynamicValue& Value) { return FNamedValue(Value.Name, FDynamicValue(Value.Value)); }
 };
