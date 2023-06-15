@@ -37,7 +37,11 @@ public:
 		if(!IsLocallyControlled()) return;
 		if(!Widget) return;
 		
-		if(!HasSelectedConnection()) UWiremodGameWorldModule::Self->WirePreviewActor->DestroyAllSplineMeshes();
+		if(!HasSelectedConnection())
+		{
+			if(auto WirePreview = UWiremodGameWorldModule::Self->WirePreviewActor)
+				WirePreview->DestroyAllSplineMeshes();
+		}
 		else
 		{
 			bool SuccessfulHit;
@@ -304,7 +308,8 @@ protected:
 		if(!IsLocallyControlled()) return;
 
 		ReturnToIdle(false);
-		UWiremodGameWorldModule::Self->WirePreviewActor->DestroyAllSplineMeshes();
+		if(auto WirePreview = UWiremodGameWorldModule::Self->WirePreviewActor)
+			WirePreview->DestroyAllSplineMeshes();
 	}
 	
 	void HandleUnknownTarget(AActor* Target)

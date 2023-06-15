@@ -64,9 +64,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DestroyAllSplineMeshes()
 	{
-		TInlineComponentArray<UConnectionWireSplineMesh*> SplineMeshes;
-		GetComponents<UConnectionWireSplineMesh>(SplineMeshes);
-		for (auto SplineMesh : SplineMeshes) if(SplineMesh) SplineMesh->DestroyComponent();
+		TArray<UActorComponent*> Components = GetComponents().Array();
+		for(auto Comp : Components)
+			if(auto SplineMesh = Cast<UConnectionWireSplineMesh>(Comp))
+				SplineMesh->DestroyComponent();
 	}
 
 	UFUNCTION(BlueprintCallable)
