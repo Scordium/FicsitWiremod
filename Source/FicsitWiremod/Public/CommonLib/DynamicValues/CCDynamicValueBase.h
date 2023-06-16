@@ -36,7 +36,7 @@ public:
 	
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual bool ShouldSave_Implementation() const override { return true; }
-
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);

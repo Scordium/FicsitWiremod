@@ -105,7 +105,7 @@ public:
 		if(auto Out = Cast<UCCDynamicValueBase>(WorldContext);
 			Out && UConnectionTypeFunctions::IsValidConnectionPair(Out->ConnectionType, Type)) return Out;
 		
-		auto Level = WorldContext->GetWorld()->PersistentLevel;
+		auto Level = WorldContext->GetClass()->IsChildOf(AActor::StaticClass()) ? WorldContext : WorldContext->GetWorld()->PersistentLevel;
 		switch (Type)
 		{
 		case Boolean: return NewObject<UCCBoolValue>(Level);

@@ -104,7 +104,7 @@ public:
 		TArray<FBuildingConnection> Out;
 		for (FNamedDynamicValue Value : SavedValues)
 		{
-			auto Connection = FBuildingConnection(Value.Name, Value.Name, Value.Value->ConnectionType);
+			auto Connection = FBuildingConnection(Value.Name, Value.Name, Value ? Value.Value->ConnectionType : Unknown);
 			Out.Add(Connection);
 		}
 

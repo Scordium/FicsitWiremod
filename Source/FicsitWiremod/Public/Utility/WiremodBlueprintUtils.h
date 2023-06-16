@@ -7,6 +7,7 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "..\Behaviour\CircuitryInterface.h"
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
+#include "CommonLib/BackwardsCompatibilityHandler.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "WiremodBlueprintUtils.generated.h"
 
@@ -115,4 +116,11 @@ public:
 
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="=="))
 	static bool IsOwnerDataEqual(const FWiremodOwnerData& Data1, const FWiremodOwnerData& Data2){return Data1 == Data2; }
+
+
+	UFUNCTION(BlueprintPure)
+	static FString GenerateNameFromValue(const FDynamicValue& Value)
+	{
+		return "";
+	}
 };

@@ -165,7 +165,9 @@ struct FDynamicValue
 
 	UCCDynamicValueBase* Convert(UObject* WorldContext) const
 	{
-		auto Level = WorldContext->GetWorld()->PersistentLevel;
+		if(!WorldContext) return nullptr;
+		
+		auto Level = WorldContext->GetClass()->IsChildOf(AActor::StaticClass()) ? WorldContext : WorldContext->GetWorld()->PersistentLevel;
 		switch (ConnectionType)
 		{
 		case EConnectionType::Boolean:
