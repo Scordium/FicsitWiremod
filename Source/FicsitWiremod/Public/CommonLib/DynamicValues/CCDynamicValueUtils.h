@@ -122,6 +122,8 @@ public:
 		case ArrayOfItemAmount: return NewObject<UCCItemAmountArrayValue>(Level);
 		case ArrayOfPowerGrid: return NewObject<UCCCircuitArrayValue>(Level);
 		case ArrayOfCustomStruct: return NewObject<UCCCustomStructArrayValue>(Level);
+		case ArrayOfPixelImage: return NewObject<UCCPixelImageArrayValue>(Level);
+		case ArrayOfTexture: return NewObject<UCCTextureArrayValue>(Level);
 		case Unknown: return nullptr;
 		default:
 			ACircuitryLogger::DispatchErrorEvent("Unknown connection type: " + FString::FromInt(Type) + ". Failed to create dynamic value.");
