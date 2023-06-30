@@ -1,38 +1,26 @@
-﻿// 
+// 
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CCBoolArrayValue.h"
 #include "CCBoolValue.h"
-#include "CCCircuitArrayValue.h"
 #include "CCCircuitValue.h"
-#include "CCColorArrayValue.h"
 #include "CCColorValue.h"
-#include "CCCustomStructArrayValue.h"
 #include "CCCustomStructValue.h"
 #include "CCDynamicValueBase.h"
-#include "CCEntityArrayValue.h"
 #include "CCEntityValue.h"
 #include "CCIntegerValue.h"
-#include "CCInventoryArrayValue.h"
 #include "CCInventoryValue.h"
-#include "CCItemAmountArrayValue.h"
 #include "CCItemAmountValue.h"
-#include "CCNumberArrayValue.h"
 #include "CCNumberValue.h"
-#include "CCRecipeArrayValue.h"
+#include "CCPixelImageValue.h"
 #include "CCRecipeValue.h"
-#include "CCStackArrayValue.h"
 #include "CCStackValue.h"
-#include "CCStringArrayValue.h"
 #include "CCStringValue.h"
-#include "CCVectorArrayValue.h"
 #include "CCVectorValue.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
 #include "FGRecipe.h"
-#include "WiremodUtils.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "CCDynamicValueUtils.generated.h"
 
@@ -101,9 +89,7 @@ public:
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* FromType(EConnectionType Type, UObject* WorldContext)
 	{
 		if(!WorldContext) return nullptr;
-		
-		if(auto Out = Cast<UCCDynamicValueBase>(WorldContext);
-			Out && UConnectionTypeFunctions::IsValidConnectionPair(Out->ConnectionType, Type)) return Out;
+		if(auto Out = Cast<UCCDynamicValueBase>(WorldContext); Out && Out->IsOfType(Type)) return Out;
 		
 		auto Level = WorldContext->GetClass()->IsChildOf(AActor::StaticClass()) ? WorldContext : WorldContext->GetWorld()->PersistentLevel;
 		switch (Type)
@@ -133,18 +119,18 @@ public:
 		case ArrayOfItemAmount: return NewObject<UCCItemAmountArrayValue>(Level);
 		case ArrayOfPowerGrid: return NewObject<UCCCircuitArrayValue>(Level);
 		case ArrayOfCustomStruct: return NewObject<UCCCustomStructArrayValue>(Level);
-		default: return nullptr;
+		case Unknown: return nullptr;
+		default:
+			ACircuitryLogger::DispatchErrorEvent("Unknown connection type: " + FString::FromInt(Type) + ". Failed to create dynamic value.");
+			return nullptr;
 		}
 	}
 
 	UFUNCTION(BlueprintCallable)
 	static UCCDynamicValueBase* FromValue(const FConnectionData& Data, UObject* WorldContext)
 	{
-		if(auto Dynamic = Cast<UCCDynamicValueBase>(Data.Object))
-			return Dynamic;
-		
 		auto Out = FromType(Data.ConnectionType, WorldContext);
-		if(Out) Out->SetValue(Data);
+		if(Out) Out->SetValue(Data.Object, Data.FunctionName, Data.FromProperty);
 		return Out;
 	}
 };

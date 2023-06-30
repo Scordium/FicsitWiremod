@@ -1,96 +1,102 @@
-﻿// 
-
-#pragma once
-
-#include "CoreMinimal.h"
+﻿#pragma once
+#include "CCArrayValueBase.h"
 #include "CCDynamicValueBase.h"
-#include "FGRecipe.h"
-#include "CCRecipeValue.generated.h"
+#include "Behaviour/Displays/PixelArtManager.h"
 
-/**
- * 
- */
+#include "CCPixelImageValue.generated.h"
+
+
 UCLASS(Blueprintable,BlueprintType)
-class FICSITWIREMOD_API UCCRecipeValue : public UCCDynamicValueBase
+class FICSITWIREMOD_API UCCPixelImageValue : public UCCDynamicValueBase
 {
 	GENERATED_BODY()
 
 public:
-	UCCRecipeValue() : Super(Recipe){}
+	UCCPixelImageValue() : Super(PixelImage){}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-		DOREPLIFETIME(UCCRecipeValue, Value)
+		DOREPLIFETIME(UCCPixelImageValue, Value)
 	}
 
 	virtual void SetValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCRecipeValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
+			if(auto SameType = Cast<UCCPixelImageValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
 			{
 				Value = SameType->Value;
 				return;
 			}
 		
-		Value = UReflectionUtilities::GetRecipe(REFLECTION_ARGS);
+		Value = UReflectionUtilities::GetUnmanaged<FPixelScreenData>(REFLECTION_ARGS);
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other) override
 	{
 		if(this == Other) return true;
 
-		if(auto OtherSource = Cast<UCCRecipeValue>(Other))
-			return OtherSource->Value == Value;
+		if(auto OtherSource = Cast<UCCPixelImageValue>(Other))
+			return Value == OtherSource->Value;
 
 		return false;
 	}
 
-	virtual FString ToString() override { return ::IsValid(Value) ? UFGRecipe::GetRecipeName(Value).ToString() : FString("N/A");}
+	virtual FString ToString() override { return FString::FromInt(Value.Width) + "x" + FString::FromInt(Value.Height);}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
-	TSubclassOf<UFGRecipe> Value;
+	FPixelScreenData Value;
 };
 
 
 UCLASS(Blueprintable,BlueprintType)
-class FICSITWIREMOD_API UCCRecipeArrayValue : public UCCArrayValueBase
+class FICSITWIREMOD_API UCCPixelImageArrayValue : public UCCArrayValueBase
 {
 	GENERATED_BODY()
 
-
 public:
-
-	UCCRecipeArrayValue() : Super(ArrayOfRecipe){}
+	UCCPixelImageArrayValue() : Super(ArrayOfPixelImage){}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-		DOREPLIFETIME(UCCRecipeArrayValue, Value)
+		DOREPLIFETIME(UCCPixelImageArrayValue, Value)
 	}
 
 	virtual void SetValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCRecipeArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
+			if(auto SameType = Cast<UCCPixelImageArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
 			{
 				Value = SameType->Value;
 				return;
 			}
 		
-		Value = UReflectionUtilities::GetRecipeArray(REFLECTION_ARGS);
+		Value = UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(REFLECTION_ARGS);
 	}
 
-	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetRecipe()); }
+	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TArray<FString> ToStringArray() override
+	{
+		TArray<FString> Out;
+
+		for(auto Val : Value)
+			Out.Add(FString::FromInt(Val.Width) + "x" + FString::FromInt(Val.Height));
+
+		return Out;
+	}
+
+	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetPixelImage()); }
 	virtual UCCDynamicValueBase* GetElement(int Index) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
 		
-		auto ValueOut = NewObject<UCCRecipeValue>(this->GetWorld()->PersistentLevel);
+		auto ValueOut = NewObject<UCCPixelImageValue>(this->GetWorld()->PersistentLevel);
 		ValueOut->Value = Value[Index];
 		return ValueOut;
 	}
@@ -98,7 +104,7 @@ public:
 	{
 		if(!Value.IsValidIndex(Index)) return;
 
-		Value.Insert(Element.GetRecipe(), Index);
+		Value.Insert(Element.GetPixelImage(), Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
@@ -107,31 +113,20 @@ public:
 	virtual void SetElement(const FConnectionData& Element, int Index) override
 	{
 		if(!Value.IsValidIndex(Index)) return;
-		Value[Index] = Element.GetRecipe();
+		Value[Index] = Element.GetPixelImage();
 	}
-	virtual bool Contains(const FConnectionData& Element) override { return Value.Contains(Element.GetRecipe()); }
-	
+	virtual bool Contains(const FConnectionData& Element) override { return Value.Contains(Element.GetPixelImage()); }
+
 	virtual bool Equals(UCCDynamicValueBase* Other) override
 	{
 		if(this == Other) return true;
 
-		if(auto OtherSource = Cast<UCCRecipeArrayValue>(Other))
+		if(auto OtherSource = Cast<UCCPixelImageArrayValue>(Other))
 			return OtherSource->Value == Value;
 
 		return false;
 	}
-
-	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
-	virtual TArray<FString> ToStringArray() override
-	{
-		TArray<FString> Out;
-
-		for(auto Val : Value)
-			Out.Add(IsValid(Val) ? UFGRecipe::GetRecipeName(Val).ToString() : "N/A");
-
-		return Out;
-	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
-	TArray<TSubclassOf<UFGRecipe>> Value;
+	TArray<FPixelScreenData> Value;
 };

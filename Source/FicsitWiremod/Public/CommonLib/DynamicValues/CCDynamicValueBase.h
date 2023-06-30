@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "FGSaveInterface.h"
 #include "CommonLib/ConnectionType.h"
-#include "CommonLib/ReflectionHelpers.h"
 #include "UObject/Object.h"
 #include "CCDynamicValueBase.generated.h"
 /**
@@ -26,13 +25,24 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	virtual void SetValue(const FValueReflectionSource& Source) { checkf(0, TEXT("Function SET_DYNAMIC_VALUE is not implemented for this class!")) }
+	virtual void SetValue(UObject* Object, FName SourceName, bool FromProperty)
+	{
+		DispatchNotImplemented("SET_DYNAMIC_VALUE");
+	}
 
 	UFUNCTION(BlueprintPure)
-	virtual FString ToString(){ checkf(0, TEXT("Function TO_STRING is not implemented for this class!")) return ""; }
+	virtual FString ToString()
+	{
+		DispatchNotImplemented("TO_STRING");
+		return "";
+	}
 
 	UFUNCTION(BlueprintPure)
-	virtual TArray<FString> ToStringArray() { checkf(0, TEXT("Function TO_STRING_ARRAY is not implemented for this class!")) return TArray<FString>(); }
+	virtual TArray<FString> ToStringArray()
+	{
+		DispatchNotImplemented("TO_STRING_ARRAY");
+		return TArray<FString>();
+	}
 	
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual bool ShouldSave_Implementation() const override { return true; }
@@ -43,6 +53,8 @@ public:
 
 		DOREPLIFETIME(UCCDynamicValueBase, ConnectionType)
 	}
+
+	bool IsOfType(EConnectionType Type) const { return Type == ConnectionType; }
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TEnumAsByte<EConnectionType> ConnectionType = Unknown;
@@ -50,21 +62,7 @@ public:
 	bool operator ==(UCCDynamicValueBase* Other) { return Equals(Other); }
 	bool operator !=(UCCDynamicValueBase* Other) { return !Equals(Other); }
 	virtual bool Equals(UCCDynamicValueBase* Other){ return this == Other; }
+
+	void DispatchNotImplemented(FString FuncName) const { ACircuitryLogger::DispatchErrorEvent("Function " + FuncName + " is not implemented for class " + GetClass()->GetName()); }
 };
 
-
-UINTERFACE(BlueprintType, Blueprintable)
-class UDynamicValuePasser : public UInterface
-{
-	GENERATED_BODY()
-};
-
-class IDynamicValuePasser
-{
-	GENERATED_BODY()
-
-public:
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UCCDynamicValueBase* GetValue(const FString& ValueName);
-};

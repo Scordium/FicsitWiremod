@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
+#include "CommonLib/ReflectionUtilities.h"
 #include "CCIntegerValue.generated.h"
 
 /**
@@ -26,17 +27,17 @@ public:
 		DOREPLIFETIME(UCCIntegerValue, Value)
 	}
 
-	virtual void SetValue(const FValueReflectionSource& Source) override
+	virtual void SetValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
-		if(!Source.Object) return;
-		if(Source.Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCIntegerValue>(IDynamicValuePasser::Execute_GetValue(Source.Object, Source.SourceName.ToString())))
+		if(!Object) return;
+		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
+			if(auto SameType = Cast<UCCIntegerValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
 			{
 				Value = SameType->Value;
 				return;
 			}
 		
-		Source.SetByAddress(Value);
+		Value = UReflectionUtilities::GetFloat(REFLECTION_ARGS, true, Value);
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other) override
