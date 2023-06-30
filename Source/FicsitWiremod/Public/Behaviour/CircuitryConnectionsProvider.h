@@ -13,12 +13,15 @@ USTRUCT(BlueprintType)
 struct FBuildingConnection : public FTableRowBase
 {
 	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(DeprecatedProperty=true))
+	FString DisplayName;
 
 	/**
 	 * Display name for this connection that circuitry will display to the user
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FString DisplayName;
+	FText DisplayedName = FText::FromString(DisplayName);
 
 	/**
 	 * Function/property name that circuitry will call/read to get/set the value
