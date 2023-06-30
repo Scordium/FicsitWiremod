@@ -1,4 +1,0 @@
-﻿// 
-
-
-#include "CommonLib/ConnectionType.h"
