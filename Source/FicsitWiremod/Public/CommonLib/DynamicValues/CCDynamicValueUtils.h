@@ -17,6 +17,7 @@
 #include "CCRecipeValue.h"
 #include "CCStackValue.h"
 #include "CCStringValue.h"
+#include "CCTextureValue.h"
 #include "CCVectorValue.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
@@ -107,6 +108,8 @@ public:
 		case CustomStruct: return NewObject<UCCCustomStructValue>(Level);
 		case ItemAmount: return NewObject<UCCItemAmountValue>(Level);
 		case PowerGrid: return NewObject<UCCCircuitValue>(Level);
+		case PixelImage: return NewObject<UCCPixelImageValue>(Level);
+		case Texture: return NewObject<UCCTextureValue>(Level);
 		case ArrayOfBoolean: return NewObject<UCCBoolArrayValue>(Level);
 		case ArrayOfColor: return NewObject<UCCColorArrayValue>(Level);
 		case ArrayOfEntity: return NewObject<UCCEntityArrayValue>(Level);
