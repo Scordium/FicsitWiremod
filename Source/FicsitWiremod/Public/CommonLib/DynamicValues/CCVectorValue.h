@@ -101,7 +101,7 @@ public:
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
-	virtual void RemoveElement(int Index) override { Value.RemoveAt(Index); }
+	virtual void RemoveElement(int Index) override { if(Value.IsValidIndex(Index)) Value.RemoveAt(Index); }
 	virtual void Resize(int NewSize) override { Value.SetNum(NewSize); }
 	virtual void SetElement(const FConnectionData& Element, int Index) override
 	{
