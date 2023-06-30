@@ -119,7 +119,7 @@ void AFGWiremodBuildable::OnInputDisconnected_Internal(int Index)
 }
 
 
-TArray<FBuildingConnection> AFGWiremodBuildable::GetAvailableConnections_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note)
+TArray<FBuildingConnection> AFGWiremodBuildable::GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note)
 {
 	Note = ConnectionsInfo.Note;
 	
@@ -148,7 +148,7 @@ TSubclassOf<UUserWidget> AFGWiremodBuildable::GetCompactWidget_Implementation()
 
 int AFGWiremodBuildable::netFunc_getFunctionReturnType(FString FunctionName)
 {
-	for(auto conn : GetAvailableConnections_Slim(Input))
+	for(auto conn : GetConnections_Implementation(Input))
 	{
 		if(conn.FunctionName.ToString() == FunctionName || conn.DisplayName == FunctionName)
 			return conn.ConnectionType.GetValue();
@@ -169,7 +169,7 @@ bool AFGWiremodBuildable::netFunc_isBlueprinted()
 
 void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, TArray<TEnumAsByte<EConnectionOccupationState>>& Out)
 {
-	auto Inputs = GetAvailableConnections_Slim(Input);
+	auto Inputs = GetConnections_Implementation(Input);
 
 	for(int i = 0; i < Inputs.Num(); i++)
 	{
@@ -189,7 +189,7 @@ void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, 
 
 void AFGWiremodBuildable::netFunc_getAllWiremodFuncs(TArray<FString>& Out)
 {
-	for(auto conn : GetAvailableConnections_Slim(Output))
+	for(auto conn : GetConnections_Implementation(Output))
 	{
 		Out.Add(conn.FunctionName.ToString());
 	}
@@ -214,7 +214,7 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 	}
 
 	//Get all inputs and if there are none, return.
-	auto InputInfoList = GetAvailableConnections_Slim(Input);
+	auto InputInfoList = GetConnections_Implementation(Input);
 	if(InputInfoList.Num() == 0) return;
 
 	//Visible wire class to use as wire

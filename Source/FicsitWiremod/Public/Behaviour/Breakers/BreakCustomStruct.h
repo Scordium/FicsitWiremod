@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IConstantsDistributor.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "BreakCustomStruct.generated.h"
 
@@ -39,7 +38,7 @@ public:
 		}
 	}
 
-	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override
 	{
 		if(Cached.Contains(ValueName))
 			return Cached[ValueName];
@@ -56,12 +55,12 @@ public:
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
-		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 		
 		for(auto Val : Saved.Values)
-			Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
+			WroteSomething |= Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
 
-		return Idk;
+		return WroteSomething;
 	}
 
 	UPROPERTY(Replicated)

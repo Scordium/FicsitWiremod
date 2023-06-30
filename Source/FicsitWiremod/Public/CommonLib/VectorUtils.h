@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include "VectorUtils.generated.h"
 
 UCLASS()

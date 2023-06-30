@@ -25,7 +25,7 @@ public:
 			return;
 		}
 
-		auto Data = FConnectionData(Value.Convert(this), FName("Value"), Value.ConnectionType);
+		auto Data = FConnectionData(Value.Convert(Buildable), FName("Value"), Value.ConnectionType);
 		Data.WireHidden = true;
 
 		if(Buildable->GetClass()->ImplementsInterface(ICircuitryProcessableInterface::UClassType::StaticClass()))

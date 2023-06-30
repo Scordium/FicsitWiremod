@@ -1,30 +1,18 @@
 ﻿// 
 
 
-#include "..\..\..\Public\CommonLib\DynamicValues\CCDynamicValueUtils.h"
+#include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 
-#include "CommonLib/DynamicValues/CCBoolArrayValue.h"
 #include "CommonLib/DynamicValues/CCBoolValue.h"
-#include "CommonLib/DynamicValues/CCCircuitArrayValue.h"
 #include "CommonLib/DynamicValues/CCCircuitValue.h"
-#include "CommonLib/DynamicValues/CCColorArrayValue.h"
 #include "CommonLib/DynamicValues/CCColorValue.h"
-#include "CommonLib/DynamicValues/CCCustomStructArrayValue.h"
-#include "CommonLib/DynamicValues/CCEntityArrayValue.h"
 #include "CommonLib/DynamicValues/CCEntityValue.h"
-#include "CommonLib/DynamicValues/CCInventoryArrayValue.h"
 #include "CommonLib/DynamicValues/CCInventoryValue.h"
-#include "CommonLib/DynamicValues/CCItemAmountArrayValue.h"
 #include "CommonLib/DynamicValues/CCItemAmountValue.h"
-#include "CommonLib/DynamicValues/CCNumberArrayValue.h"
 #include "CommonLib/DynamicValues/CCNumberValue.h"
-#include "CommonLib/DynamicValues/CCRecipeArrayValue.h"
 #include "CommonLib/DynamicValues/CCRecipeValue.h"
-#include "CommonLib/DynamicValues/CCStackArrayValue.h"
 #include "CommonLib/DynamicValues/CCStackValue.h"
-#include "CommonLib/DynamicValues/CCStringArrayValue.h"
 #include "CommonLib/DynamicValues/CCStringValue.h"
-#include "CommonLib/DynamicValues/CCVectorArrayValue.h"
 #include "CommonLib/DynamicValues/CCVectorValue.h"
 
 UCCDynamicValueBase* UCCDynamicValueUtils::MakeBool(UObject* WorldContext, bool Value)

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IConstantsDistributor.h"
 #include "Behaviour/MultistateWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "SelectValue.generated.h"
@@ -46,13 +45,13 @@ public:
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
-		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-		Channel->ReplicateSubobject(Out, *Bunch, *RepFlags);
+		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		WroteSomething |= Channel->ReplicateSubobject(Out, *Bunch, *RepFlags);
 
-		return Idk;
+		return WroteSomething;
 	}
 
-	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override{ return Out; }
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }
 
 	int FindSelectorIndex()
 	{

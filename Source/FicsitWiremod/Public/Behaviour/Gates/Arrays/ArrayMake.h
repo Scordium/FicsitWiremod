@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IConstantsDistributor.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "ArrayMake.generated.h"
@@ -27,15 +26,13 @@ public:
 		GetAllConnected(Elements);
 
 		auto Array = Cast<UCCArrayValueBase>(Out);
-		if(Array) Array->Clear();
-		
 		if(Elements.Num() == 0 || !Array)
 		{
 			SetOutputType(0, Unknown);
 			return;
 		}
 
-		
+		Array->Clear();
 		for(auto Element : Elements) Array->AddElement(Element);
 	}
 
@@ -49,13 +46,13 @@ public:
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
-		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-		Channel->ReplicateSubobject(Out, *Bunch, *RepFlags);
+		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		WroteSomething |= Channel->ReplicateSubobject(Out, *Bunch, *RepFlags);
 
-		return Idk;
+		return WroteSomething;
 	}
 
-	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override{ return Out; }
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }
 	
 	UPROPERTY(Replicated, VisibleInstanceOnly)
 	UCCDynamicValueBase* Out;

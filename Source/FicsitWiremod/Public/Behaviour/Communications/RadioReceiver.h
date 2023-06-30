@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IConstantsDistributor.h"
 #include "RadioTransmitter.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
@@ -35,11 +34,11 @@ public:
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
-		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 		
-		Channel->ReplicateSubobject(DataReceived, *Bunch, *RepFlags);
+		WroteSomething |= Channel->ReplicateSubobject(DataReceived, *Bunch, *RepFlags);
 
-		return Idk;
+		return WroteSomething;
 	}
 
 
@@ -51,7 +50,7 @@ public:
 		TransmitterReference = NewTransmitter;
 	}
 
-	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override{ return DataReceived; }
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return DataReceived; }
 
 
 	UPROPERTY(Replicated, VisibleInstanceOnly, BlueprintReadOnly, SaveGame)

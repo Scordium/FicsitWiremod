@@ -94,12 +94,12 @@ public:
 	
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
-		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
 		for(auto Val : Out.Values)
-			Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
+			WroteSomething |= Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
 
-		return Idk;
+		return WroteSomething;
 	}
 
 	UPROPERTY(SaveGame, BlueprintReadWrite, Replicated)

@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IConstantsDistributor.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "CommonLib/BackwardsCompatibilityHandler.h"
+#include "CommonLib/PlayerOwnedClipboardData.h"
 #include "CommonLib/DynamicValues/CCCustomStructValue.h"
 #include "ConfigurableConstant.generated.h"
 
 UCLASS()
-class UConstantClipboardData : public UFGFactoryClipboardSettings
+class UConstantClipboardData : public UPlayerOwnedClipboardData
 {
 	GENERATED_BODY()
 
@@ -47,12 +48,12 @@ public:
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
-		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
 		for(auto Val : SavedValues)
-			Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
+			WroteSomething |= Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
 
-		return Idk;
+		return WroteSomething;
 	}
 	
 	UFUNCTION(BlueprintCallable)
@@ -79,6 +80,7 @@ public:
 	virtual UFGFactoryClipboardSettings* CopySettings_Implementation() override
 	{
 		auto Settings = NewObject<UConstantClipboardData>(this);
+		Settings->Player = UGameplayStatics::GetPlayerController(this, 0);
 		Settings->Values = SavedValues;
 
 		return Settings;
@@ -92,12 +94,12 @@ public:
 	}
 
 	
-	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override
 	{
 		return FindValue(ValueName);
 	}
 
-	virtual TArray<FBuildingConnection> GetAvailableConnections_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
 	{
 		if(direction == Input) return TArray<FBuildingConnection>();
 		

@@ -5,9 +5,12 @@
 #include "CoreMinimal.h"
 #include "WiremodAPI.h"
 #include "Behaviour/FGWiremodBuildable.h"
-#include "..\Behaviour\CircuitryInterface.h"
+#include "Behaviour/CircuitryInterface.h"
+#include "Behaviour/MultistateWiremodBuildable.h"
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
 #include "CommonLib/BackwardsCompatibilityHandler.h"
+#include "Internationalization/StringTable.h"
+#include "Internationalization/StringTableCore.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "WiremodBlueprintUtils.generated.h"
 
@@ -26,16 +29,16 @@ public:
 	{
 		if(!Object) return false;
 
-		return Object->GetClass()->ImplementsInterface(ICircuitryProcessableInterface::UClassType::StaticClass());
+		return Object->GetClass()->ImplementsInterface(ICircuitryConnectionsProvider::UClassType::StaticClass());
 	}
 
 	UFUNCTION(BlueprintPure)
 	static void GetAvailableConnections(UObject* Object, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, int& Count, FBuildableNote& Note)
 	{
-		//Wiremod
-		if(auto WiremodBuildable = Cast<AFGWiremodBuildable>(Object))
+		//Circuitry
+		if(IsWiremod(Object))
 		{
-			Connections = WiremodBuildable->GetAvailableConnections(Direction, Count, Note);
+			Connections = ICircuitryConnectionsProvider::Execute_GetConnectionsInfo(Object, Direction, Count, Note);
 			return;
 		}
 		
@@ -47,7 +50,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	static bool IsRegistered(UObject* Object)
 	{
-		//Wiremod
+		//Circuitry
 		if(IsWiremod(Object)) return true;
 		
 		if(auto Buildable = Cast<AFGBuildable>(Object))
@@ -122,5 +125,41 @@ public:
 	static FString GenerateNameFromValue(const FDynamicValue& Value)
 	{
 		return "";
+	}
+
+
+	UFUNCTION(BlueprintCallable, CallInEditor)
+	static void GenerateStringTable(const TArray<UClass*>& Classes)
+	{
+		auto Table = FStringTable::NewStringTable();
+
+		for(auto Class : Classes)
+		{
+			if(auto Circuitry = TSubclassOf<AFGWiremodBuildable>(Class))
+			{
+				auto ClassName = UWiremodUtils::GetClassName(Class->GetDefaultObject()->GetClass()).ToString();
+				
+				auto KeyDisplayName = ClassName + "_DisplayName";
+				auto KeyDescription = ClassName + "_Description";
+				
+				//Table->SetSourceString(KeyDisplayName, Circuitry->GetDefaultObject<AFGWiremodBuildable>()->mDisplayName.ToString());	
+				//Table->SetSourceString(KeyDescription, Circuitry->GetDefaultObject<AFGWiremodBuildable>()->mDescription.ToString());
+
+				if(auto Multistate = TSubclassOf<AMultistateWiremodBuildable>(Circuitry))
+				{
+					auto States = Multistate->GetDefaultObject<AMultistateWiremodBuildable>()->States;
+					for(int i = 0; i < States.Num(); i++)
+					{
+						auto KeyModeDisplayName = ClassName + "_Modes_" + FString::FromInt(i) + "_DisplayName";
+						auto KeyModeDescription = ClassName + "_Modes_" + FString::FromInt(i) + "_Description";
+
+						Table->SetSourceString(KeyModeDisplayName, States[i].Name.ToString());
+						Table->SetSourceString(KeyModeDescription, States[i].Description.ToString());
+					}
+				}
+			}
+		}
+
+		Table->ExportStrings("C:/Users/SCRD/Desktop/SFModding/SatisfactoryModLoader/Plugins/FicsitWiremod/MultistateLoctable.csv");
 	}
 };

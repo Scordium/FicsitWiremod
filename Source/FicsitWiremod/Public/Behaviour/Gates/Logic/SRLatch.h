@@ -16,12 +16,7 @@ public:
 	{
 		auto S = GetConnection(0).GetBool();
 		auto R = GetConnection(1).GetBool();
-
-		if(!(Out && OutInverted))
-		{
-			Out = false;
-			OutInverted = true;
-		}
+		auto IsInvalidState = !Out && !OutInverted;
 		
 		if(S & R) Out = OutInverted = false;
 		else if (S)
@@ -29,7 +24,7 @@ public:
 			Out = true;
 			OutInverted = false;
 		}
-		else if (R)
+		else if (R || IsInvalidState)
 		{
 			Out = false;
 			OutInverted = true;
@@ -66,12 +61,7 @@ public:
 		
 		auto S = GetConnection(0).GetBool();
 		auto R = GetConnection(1).GetBool();
-
-		if(!(Out && OutInverted))
-		{
-			Out = false;
-			OutInverted = true;
-		}
+		auto IsInvalidState = !Out && !OutInverted;
 		
 		if(S & R) Out = OutInverted = false;
 		else if (S)
@@ -79,7 +69,7 @@ public:
 			Out = true;
 			OutInverted = false;
 		}
-		else if (R)
+		else if (R || IsInvalidState)
 		{
 			Out = false;
 			OutInverted = true;

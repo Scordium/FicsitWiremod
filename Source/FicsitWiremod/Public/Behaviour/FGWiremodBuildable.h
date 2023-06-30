@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CircuitryConnectionsProvider.h"
 #include "FGCharacterPlayer.h"
 #include "FGPlayerState.h"
 #include "WiremodBuildableHologram.h"
@@ -148,7 +149,7 @@ struct FWiremodOwnerData
 };
 
 UCLASS(Abstract)
-class FICSITWIREMOD_API AFGWiremodBuildable : public AFGBuildable, public ICircuitryProcessableInterface
+class FICSITWIREMOD_API AFGWiremodBuildable : public AFGBuildable, public ICircuitryProcessableInterface, public ICircuitryConnectionsProvider
 {
 	GENERATED_BODY()
 
@@ -157,9 +158,9 @@ class FICSITWIREMOD_API AFGWiremodBuildable : public AFGBuildable, public ICircu
 public:
 
 	// Begin IWiremodInterface
-	void OnInputConnected_Implementation(const FConnectionData& Data, int Index, UObject* Setter) override;
-	void OnInputDisconnected_Implementation(int Index, UObject* Setter) override;
-	TSubclassOf<UUserWidget> GetCompactWidget_Implementation() override;
+	virtual void OnInputConnected_Implementation(const FConnectionData& Data, int Index, UObject* Setter) override;
+	virtual void OnInputDisconnected_Implementation(int Index, UObject* Setter) override;
+	virtual TSubclassOf<UUserWidget> GetCompactWidget_Implementation() override;
 	virtual UTexture2D* GetTexture() override { return UFGItemDescriptor::GetBigIcon(GetBuiltWithDescriptor()); }
 	// End IWiremodInterface
 
@@ -353,15 +354,13 @@ public:
 	bool netFunc_isBlueprinted();
 #pragma endregion 
 	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	TArray<FBuildingConnection> GetAvailableConnections(EConnectionDirection direction, int& Count, FBuildableNote& Note);
-
-	UFUNCTION(BlueprintCallable)
-	TArray<FBuildingConnection> GetAvailableConnections_Slim(EConnectionDirection direction)
+	
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override;
+	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override
 	{
 		int a;
 		FBuildableNote b;
-		return GetAvailableConnections(direction, a, b);
+		return GetConnectionsInfo_Implementation(direction, a, b);
 	}
 	
 	UFUNCTION(BlueprintCallable)
@@ -369,14 +368,14 @@ public:
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
-		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
 		auto Objects = GatherReplicatedObjects();
 
 		for(auto Object : Objects)
-			Channel->ReplicateSubobject(Object, *Bunch, *RepFlags);
+			WroteSomething |= Channel->ReplicateSubobject(Object, *Bunch, *RepFlags);
 
-		return Idk;
+		return WroteSomething;
 	}
 	
 	UFUNCTION(BlueprintImplementableEvent)

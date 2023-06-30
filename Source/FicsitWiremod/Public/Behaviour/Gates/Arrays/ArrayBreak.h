@@ -35,5 +35,5 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	FText ItemDisplayNameFormat = FText::FromString("Item");
 	
-	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override{ return AArrayGet::GetArrayElement(GetConnection(0), FCString::Atoi(*ValueName)); }
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return AArrayGet::GetArrayElement(GetConnection(0), FCString::Atoi(*ValueName)); }
 };

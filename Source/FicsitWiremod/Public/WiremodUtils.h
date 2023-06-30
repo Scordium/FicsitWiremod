@@ -55,16 +55,16 @@ public:
 	static FName GetClassName(UClass* inClass)
 	{
 		auto unparsed = UKismetSystemLibrary::GetClassDisplayName(inClass);
+		unparsed.MidInline(0, unparsed.Len() - 2);
 		TArray<FString> Remove = {"Build_", "BP_", "SF+_", "RP_", "SF_", "MP_", "FF_"};
 		FString ReplaceWith = "";
+
 		for (FString Element : Remove)
 		{
-			unparsed = unparsed.Replace(*Element, *ReplaceWith);
+			unparsed.ReplaceInline(*Element, *ReplaceWith, ESearchCase::CaseSensitive);
 		}
-    
-		auto parsed = UKismetStringLibrary::GetSubstring(unparsed, 0, unparsed.Len() - 2);
-    		
-		return FName(parsed);
+		
+		return FName(unparsed);
 	}
 
 	

@@ -111,7 +111,8 @@ public:
 	//Ficsit farming compatibility func
 	static void ChangeDoggoHouseDoorState(UObject* Actor, bool State)
 	{
-		if(auto Property = Cast<FBoolProperty>(FindProperty(Actor, "mDoorState")))
+		//Using castfield instead of cast so UE fucks off with spamming compiler log
+		if(auto Property = CastField<FBoolProperty>(FindProperty(Actor, "mDoorState")))
 		{
 			Property->SetPropertyValue_InContainer(Actor, State);
 			ProcessFunction(Actor, "OnDoorStateChanged_Event", nullptr);

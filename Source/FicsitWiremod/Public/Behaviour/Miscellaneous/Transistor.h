@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IConstantsDistributor.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "Transistor.generated.h"
@@ -18,7 +17,7 @@ public:
 	{
 		if(GetConnection(2).GetBool()) Out = nullptr;
 		else if(GetConnection(1).GetBool())
-			Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? (UObject*)Out : (UObject*)GetWorld());
+			Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? (UObject*)Out : (UObject*)this);
 
 		SetOutputType(0, Out ? Out->ConnectionType : Unknown);
 	}
@@ -32,15 +31,15 @@ public:
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
-		bool Idk = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
-		Channel->ReplicateSubobject(Out, *Bunch, *RepFlags);
+		WroteSomething |= Channel->ReplicateSubobject(Out, *Bunch, *RepFlags);
 
-		return Idk;
+		return WroteSomething;
 	}
 
 
-	virtual UCCDynamicValueBase* GetValue_Implementation(const FString& ValueName) override{ return Out; }
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }
 
 	UPROPERTY(Replicated, SaveGame)
 	UCCDynamicValueBase* Out;

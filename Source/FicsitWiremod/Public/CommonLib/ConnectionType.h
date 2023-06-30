@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Utility/CircuitryLogger.h"
 #include "ConnectionType.generated.h"
 
 UENUM(BlueprintType)
@@ -37,7 +38,11 @@ enum EConnectionType
 	NonReferenceable,
 	ItemAmount,
 	ArrayOfItemAmount,
-	ArrayOfCustomStruct
+	ArrayOfCustomStruct,
+	PixelImage,
+	ArrayOfPixelImage,
+	Texture,
+	ArrayOfTexture
 };
 
 UENUM(BlueprintType)
@@ -66,7 +71,7 @@ public:
 		if(Input == AnyArray) return IsArrayType(Output);
 		if(Input == AnyNonArray) return !IsArrayType(Output);
 		if(Input == Number || Input == Integer) return Output == Number || Output == Integer;
-		if(Input == NonReferenceable) return Output != Inventory && Output != PowerGrid;
+		if(Input == NonReferenceable) return Output != Inventory && Output != PowerGrid && Output != Texture;
 		
 		return false;
 	}
@@ -92,8 +97,10 @@ public:
 		case AnyNonArray: return AnyArray;
 		case ItemAmount: return ArrayOfItemAmount;
 		case CustomStruct: return ArrayOfCustomStruct;
+		case PixelImage: return ArrayOfPixelImage;
+		case Texture: return ArrayOfTexture;
 		default:
-			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function BASE_TO_ARRAY"), in);
+			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + CC_INT(in) + " in function BASE_TO_ARRAY");
 			return Unknown;
 		}
 	}
@@ -118,8 +125,10 @@ public:
 		case AnyArray: return AnyNonArray;
 		case ArrayOfItemAmount: return ItemAmount;
 		case ArrayOfCustomStruct: return CustomStruct;
+		case ArrayOfPixelImage: return PixelImage;
+		case ArrayOfTexture: return Texture;
 		default:
-			UE_LOG(LogTemp, Error,TEXT("[WIREMOD] Failed to find a switch case for EConnectionType::%d in function ARRAY_TO_BASE"), in);
+			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + CC_INT(in) + " in function ARRAY_TO_BASE");
 			return Unknown;
 		}
 	}
@@ -141,6 +150,8 @@ public:
 		case EConnectionType::ArrayOfRecipe:
 		case EConnectionType::ArrayOfItemAmount:
 		case EConnectionType::ArrayOfCustomStruct:
+		case EConnectionType::ArrayOfPixelImage:
+		case EConnectionType::ArrayOfTexture:
 			return true;
 
 		default: return false;

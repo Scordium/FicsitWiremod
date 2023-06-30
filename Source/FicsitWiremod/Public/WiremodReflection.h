@@ -4,138 +4,14 @@
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
 #include "FGRecipe.h"
+#include "Behaviour/Displays/CCImageData.h"
 #include "CommonLib/ConnectionType.h"
 #include "CommonLib/CustomStruct.h"
-#include "CommonLib/ReflectionHelpers.h"
-#include "Engine/DataTable.h"
-#include "Utility/HelpModule/BaseHelpModule.h"
+#include "CommonLib/ReflectionUtilities.h"
+#include "Utility/CircuitryLogger.h"
 
 #include "WiremodReflection.generated.h"
 
-USTRUCT(BlueprintType)
-struct FBuildingConnection : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	/**
-	 * Display name for this connection that wiremod will display to the user
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FString DisplayName;
-
-	/**
-	 * Function/property name that wiremod will call/read to get/set the value
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FName FunctionName;
-	
-    /**
-     * The type of value this function/property returns/stores
-     * Setting this to an incorrect type might cause crashes
-     */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TEnumAsByte<EConnectionType> ConnectionType = Unknown;
-
-	/**
-	 * Whether wiremod should skip trying to find the function with "FunctionName" and just directly try to get the value from property.
-	 * Wiremod will try to find a property with such name anyway in case a function was not found.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool FromProperty = false;
-	
-	/**
-	 * Description that the user will see in the UI, pretty useless as localization is not possible unless set up by the dev.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(MultiLine="true"))
-	FText Description;
-
-
-	/* 
-	 * Module that should be executed when trying to receive help/tips for this connection
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	UBaseHelpModule* HelpInfo = nullptr;
-	
-	FBuildingConnection(){};
-
-	FBuildingConnection(FString DisplayName, FString FunctionName, EConnectionType ConnectionType, bool IsProperty = false)
-	{
-		this->DisplayName = DisplayName;
-		this->FunctionName = FName(FunctionName);
-		this->ConnectionType = ConnectionType;
-		this->FromProperty = IsProperty;
-	}
-};
-
-USTRUCT(BlueprintType)
-struct FBuildableNote
-{
-	GENERATED_BODY()
-
-	/**
-	 * Text for the note, pretty useless as localization is not possible unless set up by the dev.
-	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MultiLine="true"))
-	FText Text;
-
-	/**
-	 * Color for the note
-	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FLinearColor Color1 = FLinearColor(0.783538, 0.291771, 0.059511, 1);
-
-	/**
-	 * Whether note should "blink". This will be ignored if the user enabled photoepilepsy mode.
-	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool Animated = false;
-};
-
-USTRUCT(BlueprintType)
-struct FBuildingConnections : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	/**
-	 * The inputs this building has.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<FBuildingConnection> Inputs;
-
-
-	/**
-	 * The outputs this building has.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<FBuildingConnection> Outputs;
-
-	/**
-	 * Fill with the mod reference and name of the buildable, if this buildable uses a list of connections that already exists.
-	 * Schema: ModRef__BuildableName.
-	 * Note: You need to use double underscore (`_`) to separate mod reference from buildable name
-	 * Note: Buildable name should not contain the following prefixes: "Build_", "BP_". For example if your buildable is called "Build_SuperCoolSmelter", you should only leave the "SuperCoolSmelter" part.
-	 * Example: Satisfactory's mod reference is "Game"
-	 * Reduces the amount of work required to update each list when a new output/input is added to the vanilla buildings.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FName RedirectTo;
-
-	/**
-	 * Note to show to the user when they aim at the buildable
-	 * Useless to other mod devs unless shared with wiremod developer.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FBuildableNote Note;
-
-
-	/* 
-	 * Module that should be executed when trying to receive help/tips for this buildable
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-	UBaseHelpModule* HelpInfo = nullptr;
-
-	
-};
 
 
 USTRUCT(BlueprintType)
@@ -193,15 +69,10 @@ public:
 		&& DisplayName == other.DisplayName;
 	}
 
-	operator FValueReflectionSource() const
-	{
-		return FValueReflectionSource(Object, FunctionName, FromProperty);
-	}
-
 	
 	FConnectionData()
 	{
-		this->Object = NULL;
+		this->Object = nullptr;
 	};
 
 	FConnectionData(UObject* Object, FName FunctionName, EConnectionType Type = Unknown)
@@ -244,43 +115,140 @@ public:
 	bool IsA(EConnectionType Type) { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	bool IsA(EConnectionType Type) const { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	
-	bool GetBool(bool DefaultValue = false) const;
-	float GetFloat(float DefaultValue = 0) const;
-	FString GetString(FString DefaultValue = "") const;
-	FVector GetVector(FVector DefaultValue = FVector::ZeroVector) const;
-	UFGInventoryComponent* GetInventory() const;
-	UFGPowerCircuit* GetCircuit() const;
-	AActor* GetEntity() const;
-	TSubclassOf<UFGRecipe> GetRecipe() const;
-	FLinearColor GetColor(FLinearColor DefaultValue = FLinearColor::Black) const;
-	FInventoryStack GetStack() const;
-	FItemAmount GetItemAmount() const;
-	FCustomStruct GetCustomStruct() const;
+	bool GetBool(bool DefaultValue = false) const { return UReflectionUtilities::GetBool(Object, FunctionName, FromProperty, DefaultValue); }
+	float GetFloat(float DefaultValue = 0) const { return UReflectionUtilities::GetFloat(Object, FunctionName, FromProperty, ConnectionType == Integer, DefaultValue); }
+	FString GetString(FString DefaultValue = "") const { return UReflectionUtilities::GetString(Object, FunctionName, FromProperty, DefaultValue); }
+	FVector GetVector(FVector DefaultValue = FVector::ZeroVector) const { return UReflectionUtilities::GetVector(Object, FunctionName, FromProperty, DefaultValue); }
+	UFGInventoryComponent* GetInventory() const { return UReflectionUtilities::GetInventory(Object, FunctionName, FromProperty); }
+	UFGPowerCircuit* GetCircuit() const { return UReflectionUtilities::GetCircuit(Object, FunctionName, FromProperty); }
+	AActor* GetEntity() const { return UReflectionUtilities::GetEntity(Object, FunctionName, FromProperty); }
+	TSubclassOf<UFGRecipe> GetRecipe() const { return UReflectionUtilities::GetRecipe(Object, FunctionName, FromProperty); }
+	FLinearColor GetColor(FLinearColor DefaultValue = FLinearColor::Black) const { return UReflectionUtilities::GetColor(Object, FunctionName, FromProperty, DefaultValue); }
+	FInventoryStack GetStack() const { return UReflectionUtilities::GetStack(Object, FunctionName, FromProperty); }
+	FItemAmount GetItemAmount() const { return UReflectionUtilities::GetItemAmount(Object, FunctionName, FromProperty); }
+	FCustomStruct GetCustomStruct() const { return UReflectionUtilities::GetUnmanaged<FCustomStruct>(Object, FunctionName, FromProperty); }
+	FPixelScreenData GetPixelImage() const { return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Object, FunctionName, FromProperty); }
+	UTexture* GetTexture() const { return UReflectionUtilities::GetTexture(Object, FunctionName, FromProperty); }
 
-	TArray<bool> GetBoolArray() const;
-	TArray<float> GetFloatArray() const;
-	TArray<FString> GetStringArray() const;
-	TArray<FVector> GetVectorArray() const;
-	TArray<UFGInventoryComponent*> GetInventoryArray() const;
-	TArray<UFGPowerCircuit*> GetCircuitArray() const;
-	TArray<AActor*> GetEntityArray() const;
-	TArray<TSubclassOf<UFGRecipe>> GetRecipeArray() const;
-	TArray<FLinearColor> GetColorArray() const;
-	TArray<FInventoryStack> GetStackArray() const;
-	TArray<FItemAmount> GetItemAmountArray() const;
-	TArray<FCustomStruct> GetCustomStructArray() const;
-
-	void SetBool(bool Value) const;
-	void SetFloat(float Value) const;
-	void SetString(FString Value) const;
-	void SetColor(FLinearColor Value) const;
-	void SetRecipe(TSubclassOf<UFGRecipe> Value) const;
+	TArray<bool> GetBoolArray() const { return UReflectionUtilities::GetBoolArray(Object, FunctionName, FromProperty); }
+	TArray<float> GetFloatArray() const { return UReflectionUtilities::GetFloatArray(Object, FunctionName, FromProperty); }
+	TArray<FString> GetStringArray() const { return UReflectionUtilities::GetStringArray(Object, FunctionName, FromProperty); }
+	TArray<FVector> GetVectorArray() const { return UReflectionUtilities::GetVectorArray(Object, FunctionName, FromProperty); }
+	TArray<UFGInventoryComponent*> GetInventoryArray() const { return UReflectionUtilities::GetInventoryArray(Object, FunctionName, FromProperty); }
+	TArray<UFGPowerCircuit*> GetCircuitArray() const { return UReflectionUtilities::GetCircuitArray(Object, FunctionName, FromProperty); }
+	TArray<AActor*> GetEntityArray() const { return UReflectionUtilities::GetEntityArray(Object, FunctionName, FromProperty); }
+	TArray<TSubclassOf<UFGRecipe>> GetRecipeArray() const { return UReflectionUtilities::GetRecipeArray(Object, FunctionName, FromProperty); }
+	TArray<FLinearColor> GetColorArray() const { return UReflectionUtilities::GetColorArray(Object, FunctionName, FromProperty); }
+	TArray<FInventoryStack> GetStackArray() const { return UReflectionUtilities::GetStackArray(Object, FunctionName, FromProperty); }
+	TArray<FItemAmount> GetItemAmountArray() const { return UReflectionUtilities::GetItemAmountArray(Object, FunctionName, FromProperty); }
+	TArray<FCustomStruct> GetCustomStructArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FCustomStruct>>(Object, FunctionName, FromProperty); }
+	TArray<FPixelScreenData> GetPixelImageArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Object, FunctionName, FromProperty); }
+	TArray<UTexture*> GetTextureArray() const { return UReflectionUtilities::GetTextureArray(Object, FunctionName, FromProperty); }
+	
+	void SetBool(bool Value) const { UReflectionUtilities::SetBool(Object, FunctionName, FromProperty, Value); }
+	void SetFloat(float Value) const { UReflectionUtilities::SetFloat(Object, FunctionName, FromProperty, ConnectionType == Integer, Value); }
+	void SetString(FString Value) const { UReflectionUtilities::SetString(Object, FunctionName, FromProperty, Value); }
+	void SetColor(FLinearColor Value) const { UReflectionUtilities::SetColor(Object, FunctionName, FromProperty, Value); }
+	void SetRecipe(TSubclassOf<UFGRecipe> Value) const { UReflectionUtilities::SetRecipe(Object, FunctionName, FromProperty, Value); }
 
 	
-	bool ProcessFunction(void* Params) const;
+	bool ProcessFunction(void* Params) const
+	{
+		if(IsValid())
+		{
+			if(auto Function = Object->FindFunction(FunctionName))
+			{
+				Object->ProcessEvent(Function, Params);
+				return true;
+			}
+		}
+		return false;
+	}
 	
-	FString GetStringifiedValue() const;
+	FString GetStringifiedValue() const
+	{
+		switch (ConnectionType)
+		{
+		case Unknown: return "?";
+		case Boolean: return GetBool() ? "true" : "false";
+		case Number: return FString::SanitizeFloat(GetFloat());
+		case String: return GetString();
+		case Vector: return GetVector().ToCompactString();
+		case Inventory:
+			{
+				auto inv = GetInventory();
+				if(!inv) return "Invalid Inv.";
+
+				TArray<FInventoryStack> Stacks;
+				inv->GetInventoryStacks(Stacks);
+				
+				return CC_INT(Stacks.Num()) + "/" + CC_INT(inv->GetSizeLinear()) + " slots occupied";
+			};
+		case PowerGrid: return "?";
+		case Entity:
+			{
+				auto Entity = GetEntity();
+				auto ObjectName = UKismetSystemLibrary::GetObjectName(Entity);
+				
+				if(auto Player = Cast<AFGCharacterPlayer>(Entity))
+				{
+					//Check if the player state is valid. If the player is offline it will be null and crash if not handled properly
+					if(auto State = Player->GetPlayerState()) return ObjectName + "(Player " + State->GetPlayerName() + ")";
+					return UKismetSystemLibrary::GetObjectName(Player) + "(Offline player)";
+				}
+				return UKismetSystemLibrary::GetObjectName(Entity);
+			}
+		case Recipe:
+			{
+				auto Recipe = GetRecipe();
+				return ::IsValid(Recipe) ? UFGRecipe::GetRecipeName(Recipe).ToString() : FString();
+			}
+		case Color: return GetColor().ToString();
+		case ArrayOfBoolean: return "[" + CC_INT(GetBoolArray().Num()) + " elements]";
+		case ArrayOfNumber: return "[" + CC_INT(GetFloatArray().Num()) + " elements]";
+		case ArrayOfString: return "[" + CC_INT(GetStringArray().Num()) + " elements]";
+		case ArrayOfVector: return "[" + CC_INT(GetVectorArray().Num()) + " elements]";
+		case ArrayOfEntity: return "[" + CC_INT(GetEntityArray().Num()) + " elements]";
+		case ArrayOfColor: return "[" + CC_INT(GetColorArray().Num()) + " elements]";
+		case ArrayOfInventory: return "[" + CC_INT(GetInventoryArray().Num()) + " elements]";
+		case ArrayOfPowerGrid: return "[" + CC_INT(GetCircuitArray().Num()) + " elements]";
+		case ArrayOfStack: return "[" + CC_INT(GetStackArray().Num()) + " elements]";
+		case ArrayOfRecipe: return "[" + CC_INT(GetRecipeArray().Num()) + " elements]";
+		case Stack:
+			{
+				auto Stack = GetStack();
+				return CC_INT(Stack.NumItems) + " " + UFGItemDescriptor::GetItemName(Stack.Item.GetItemClass()).ToString();
+			}
+		case Integer: return CC_INT(GetFloat());
+		case Any: return "?";
+		case AnyArray: return "?";
+		case AnyNonArray: return "?";
+		case ItemAmount:
+			{
+				auto Item = GetItemAmount();
+				return CC_INT(Item.Amount) + " of " + UFGItemDescriptor::GetItemName(Item.ItemClass).ToString();
+			}
+		case ArrayOfItemAmount: return "[" + CC_INT(GetItemAmountArray().Num()) + " elements]";
+		case CustomStruct:
+			{
+				auto Val = GetCustomStruct();
+				return  Val.Name + " [" + CC_INT(Val.Values.Num()) + " values]";
+			}
+
+		case PixelImage:
+			{
+				auto Value = GetPixelImage();
+				return CC_INT(Value.Width) + "x" + CC_INT(Value.Height);
+			}
+
+		case ArrayOfPixelImage: return "[" + CC_INT(GetPixelImageArray().Num()) + " elements]";
+		case Texture: return "?";
+		case ArrayOfTexture: return "[" + CC_INT(GetTextureArray().Num()) + " elements]";
+		default:
 			ACircuitryLogger::DispatchErrorEvent("Failed to find switch case for EConnectionType::" + CC_INT(ConnectionType) + " in function GET_STRINGIFIED_VALUE. Returning default value instead...");
+			return "?";
+		}
+	}
 };
 
 
@@ -313,17 +281,4 @@ struct FDynamicConnectionData
 	
 	bool IsValid() { return Transmitter.IsValid() && Receiver.IsValid(); }
 	bool IsValidForWire() { return Transmitter.IsValidForWire() && Receiver.IsValidForWire() && !Transmitter.WireHidden; }
-};
-
-
-/**
- * 
- */
-UCLASS()
-class FICSITWIREMOD_API UWiremodReflection : public UBlueprintFunctionLibrary
-{
-	GENERATED_BODY()
-public:
-
-	static FLinearColor GetColor(const FConnectionData& Data) { return Data.GetColor(); }
 };

@@ -17,7 +17,7 @@ public:
 		auto H = GetConnection(0).GetFloat();
 		auto S = GetConnection(1).GetFloat();
 		auto V = GetConnection(2).GetFloat();
-		auto A = GetConnection(3).GetFloat();
+		auto A = GetConnection(3).GetFloat(1);
 		
 		Out = FLinearColor(H, S, V, A).HSVToLinearRGB();
 	}
