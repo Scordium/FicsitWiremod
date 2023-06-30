@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Subsystem/ModSubsystem.h"
+#include "Utility/CircuitryLogger.h"
 #include "WiremodVanillaConnections.generated.h"
 
 
@@ -111,14 +112,13 @@ protected:
 			
 			Game_VanillaBuildableData.Add(Data.Buildable, Data.Data);
 		}
-
-		UE_LOG(LogActor, Warning, TEXT("Loaded %d vanilla connections"), Game_VanillaBuildableData.Num())
+		ACircuitryLogger::DispatchEvent( "Loaded " + CC_INT(Game_VanillaBuildableData.Num()) + " vanilla connections", ELogVerbosity::Display);
 	}
 
 
 	/*
-	*Draw or redraw wires for all active buildables
-	*Do not call this without the need as it is very expensive to do this.
+	* Draw or redraw wires for all active buildables
+	* Do not call this every frame!
 	*/
 	void DrawWires(bool SkipDestruct = false)
 	{

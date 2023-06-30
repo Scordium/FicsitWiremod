@@ -280,6 +280,7 @@ public:
 	bool ProcessFunction(void* Params) const;
 	
 	FString GetStringifiedValue() const;
+			ACircuitryLogger::DispatchErrorEvent("Failed to find switch case for EConnectionType::" + CC_INT(ConnectionType) + " in function GET_STRINGIFIED_VALUE. Returning default value instead...");
 };
 
 

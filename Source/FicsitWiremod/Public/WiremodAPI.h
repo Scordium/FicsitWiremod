@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "WiremodUtils.h"
+#include "Behaviour/CircuitryConnectionsProvider.h"
 #include "Buildables/FGBuildable.h"
 #include "Engine/DataTable.h"
 #include "HAL/FileManagerGeneric.h"
@@ -85,7 +86,7 @@ public:
 			{
 				for (FString Error : parseErrors)
 				{
-					UE_LOG(LogTemp, Error, TEXT("[WIREMOD API] There was an error when trying to parse file %s: %s"), *File, *Error)
+					ACircuitryLogger::DispatchErrorEvent("[WIREMOD API] There was an error when trying to parse file " + File + ": " + Error);
 					ErrorList.Append("[" + File + "]: " + Error + "\n");
 				}
 				continue;
@@ -98,8 +99,8 @@ public:
 			
 			AddList(modRef, table, File.StartsWith(ForceFileUsePrefix) || ForceOverwrite);
 		}
-	
-		UE_LOG(LogTemp, Warning, TEXT("[WIREMOD API] Finished parsing lists. Parsed without errors %d out of %d lists"), successParse, Files.Num())
+
+		ACircuitryLogger::DispatchEvent("[WIREMOD API] Finished parsing lists. Parsed without errors " + CC_INT(successParse) + " out of " +CC_INT(Files.Num()) + " lists", ELogVerbosity::Display);
 		return ErrorList.Len() > 0 ? ErrorList : "Successfully parsed all lists!";
 	}
 	
@@ -121,7 +122,7 @@ public:
 	{
 		if(Data.ConnectionLists.Contains(modReference) && !allowOverwrite) return;
 
-		UE_LOG(LogTemp, Warning, TEXT("[WIREMOD API] New connections list was added at runtime. {Mod reference:%s | Entries count:%d}"), *modReference, list->GetRowNames().Num())
+		ACircuitryLogger::DispatchEvent("[CIRCUITRY API] New connections list was added at runtime. {Mod reference:" + modReference + " | Entries count:" + CC_INT(list->GetRowNames().Num()) + "}", ELogVerbosity::Display);
 		Data.ConnectionLists.Add(modReference, list);
 	}
 
