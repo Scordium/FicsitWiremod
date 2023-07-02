@@ -24,7 +24,7 @@ public:
 	UObject* Object;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FString DisplayName;
+	FText DisplayName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FName FunctionName;
@@ -66,7 +66,7 @@ public:
 	{
 		return Object == other.Object
 		&& FunctionName == other.FunctionName
-		&& DisplayName == other.DisplayName;
+		&& DisplayName.EqualTo(other.DisplayName);
 	}
 
 	

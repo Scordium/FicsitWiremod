@@ -238,7 +238,7 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 		//Create data for the wire
 		auto InputInfo = InputInfoList[i];
 		FConnectionData ReceiverData = FConnectionData(this, InputInfo.FunctionName, InputInfo.ConnectionType);
-		ReceiverData.DisplayName = InputInfo.DisplayName;
+		ReceiverData.DisplayName = InputInfo.DisplayedName;
 
 		//Assign data to the wire
 		FDynamicConnectionData AssignedConnection = FDynamicConnectionData();

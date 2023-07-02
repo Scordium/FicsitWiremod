@@ -6,16 +6,18 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Behaviour/MultistateWiremodBuildable.h"
 #include "Internationalization/StringTableCore.h"
+#include "Internationalization/StringTableRegistry.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Kismet/KismetStringTableLibrary.h"
 #include "LocalizationUtils.generated.h"
-
-#define ENTRY_CHK(Table, Key) UKismetStringTableLibrary::IsRegisteredTableEntry(Table, Key)
 /**
  * 
  */
 
 #if WITH_EDITOR
+
+#define ENTRY_CHK(Table, Key) UKismetStringTableLibrary::IsRegisteredTableEntry(Table, Key)
+#define SKIP(Key) IsAGenericString(Key)
 
 UCLASS()
 class FICSITWIREMOD_API ULocalizationUtils : public UBlueprintFunctionLibrary
@@ -38,90 +40,36 @@ class FICSITWIREMOD_API ULocalizationUtils : public UBlueprintFunctionLibrary
 				
 				auto KeyDisplayName = ClassName + "_DisplayName";
 				auto KeyDescription = ClassName + "_Description";
-
+				
 				if(ENTRY_CHK(LocTableName, KeyDisplayName)){ DefaultObject->mDisplayName = FText::FromStringTable(LocTableName, KeyDisplayName); }
-				else FailedAssignments.Add(KeyDisplayName);
-
+				else FailedAssignments.Add(KeyDisplayName);	
+				
 				if(ENTRY_CHK(LocTableName, KeyDescription)) { DefaultObject->mDescription = FText::FromStringTable(LocTableName, KeyDescription); }
 				else FailedAssignments.Add(KeyDescription);
 
 				if(auto Multistate = TSubclassOf<AMultistateWiremodBuildable>(Circuitry))
 				{
-					auto States = Multistate->GetDefaultObject<AMultistateWiremodBuildable>()->States;
+					auto& States = Multistate->GetDefaultObject<AMultistateWiremodBuildable>()->States;
 					for(int i = 0; i < States.Num(); i++)
 					{
 						auto& State = States[i];
 						auto KeyModeDisplayName = ClassName + "_Modes_" + FString::FromInt(i) + "_DisplayName";
 						auto KeyModeDescription = ClassName + "_Modes_" + FString::FromInt(i) + "_Description";
-
+						
 						if(ENTRY_CHK(LocTableName, KeyModeDisplayName)) State.Name = FText::FromStringTable(LocTableName, KeyModeDisplayName);
-						else FailedAssignments.Add(KeyModeDisplayName);
+						else FailedAssignments.Add(KeyModeDisplayName);	
 						
 						if(ENTRY_CHK(LocTableName, KeyModeDescription)) State.Description = FText::FromStringTable(LocTableName, KeyModeDescription);
-						else FailedAssignments.Add(KeyModeDescription);
+						else FailedAssignments.Add(KeyModeDescription);	
 
-						for(int x = 0; x < State.Connections.Inputs.Num(); x++)
-						{
-							auto& Input = State.Connections.Inputs[x];
-
-							auto KeyStateConnectionDisplayName = ClassName + "_Modes_" + FString::FromInt(i) + "_Inputs_" + FString::FromInt(x) + "_DisplayName";
-							auto KeyStateConnectionDescription = ClassName + "_Modes_" + FString::FromInt(i) + "_Inputs_" + FString::FromInt(x) + "_Description";
-
-							//TODO
-							//if(ENTRY_CHK(LocTableName, KeyStateConnectionDisplayName)) Input.DisplayName = FText::FromStringTable(LocTableName, KeyStateConnectionDisplayName);
-							//else FailedAssignments.Add(KeyStateConnectionDisplayName);
-
-							if(ENTRY_CHK(LocTableName, KeyStateConnectionDescription)) Input.Description = FText::FromStringTable(LocTableName, KeyStateConnectionDescription);
-							else FailedAssignments.Add(KeyStateConnectionDescription);
-						}
-
-						for(int x = 0; x < State.Connections.Outputs.Num(); x++)
-						{
-							auto& Output = State.Connections.Outputs[x];
-
-							auto KeyStateConnectionDisplayName = ClassName + "_Modes_" + FString::FromInt(i) + "_Outputs_" + FString::FromInt(x) + "_DisplayName";
-							auto KeyStateConnectionDescription = ClassName + "_Modes_" + FString::FromInt(i) + "_Outputs_" + FString::FromInt(x) + "_Description";
-
-							//TODO
-							//if(ENTRY_CHK(LocTableName, KeyStateConnectionDisplayName)) Input.DisplayName = FText::FromStringTable(LocTableName, KeyStateConnectionDisplayName);
-							//else FailedAssignments.Add(KeyStateConnectionDisplayName);
-
-							if(ENTRY_CHK(LocTableName, KeyStateConnectionDescription)) Output.Description = FText::FromStringTable(LocTableName, KeyStateConnectionDescription);
-							else FailedAssignments.Add(KeyStateConnectionDescription);
-						}
+						ParseMultistateConnectionList(LocTableName, ClassName, "_Inputs_", i, State.Connections.Inputs, FailedAssignments);
+						ParseMultistateConnectionList(LocTableName, ClassName, "_Outputs_", i, State.Connections.Outputs, FailedAssignments);
 					}
 				}
 				else
 				{
-					for(int x = 0; x < DefaultObject->ConnectionsInfo.Inputs.Num(); x++)
-					{
-						auto& Input = DefaultObject->ConnectionsInfo.Inputs[x];
-
-						auto KeyConnectionDisplayName = ClassName + "_Inputs_" + FString::FromInt(x) + "_DisplayName";
-						auto KeyConnectionDescription = ClassName + "_Inputs_" + FString::FromInt(x) + "_Description";
-
-						//TODO
-						//if(ENTRY_CHK(LocTableName, KeyStateConnectionDisplayName)) Input.DisplayName = FText::FromStringTable(LocTableName, KeyStateConnectionDisplayName);
-						//else FailedAssignments.Add(KeyStateConnectionDisplayName);
-
-						if(ENTRY_CHK(LocTableName, KeyConnectionDescription)) Input.Description = FText::FromStringTable(LocTableName, KeyConnectionDescription);
-						else FailedAssignments.Add(KeyConnectionDescription);
-					}
-
-					for(int x = 0; x < DefaultObject->ConnectionsInfo.Outputs.Num(); x++)
-					{
-						auto& Output = DefaultObject->ConnectionsInfo.Outputs[x];
-
-						auto KeyConnectionDisplayName = ClassName + "_Outputs_" + FString::FromInt(x) + "_DisplayName";
-						auto KeyConnectionDescription = ClassName + "_Outputs_" + FString::FromInt(x) + "_Description";
-
-						//TODO
-						//if(ENTRY_CHK(LocTableName, KeyStateConnectionDisplayName)) Input.DisplayName = FText::FromStringTable(LocTableName, KeyStateConnectionDisplayName);
-						//else FailedAssignments.Add(KeyStateConnectionDisplayName);
-
-						if(ENTRY_CHK(LocTableName, KeyConnectionDescription)) Output.Description = FText::FromStringTable(LocTableName, KeyConnectionDescription);
-						else FailedAssignments.Add(KeyConnectionDescription);
-					}
+					ParseConnectionList(LocTableName, ClassName, "_Inputs_", DefaultObject->ConnectionsInfo.Inputs, FailedAssignments);
+					ParseConnectionList(LocTableName, ClassName, "_Outputs_", DefaultObject->ConnectionsInfo.Outputs, FailedAssignments);
 				}
 
 				DefaultObject->Modify(true);
@@ -163,57 +111,99 @@ class FICSITWIREMOD_API ULocalizationUtils : public UBlueprintFunctionLibrary
 						Table->SetSourceString(KeyModeDisplayName, State.Name.ToString());
 						Table->SetSourceString(KeyModeDescription, State.Description.ToString());
 
-						for(int x = 0; x < State.Connections.Inputs.Num(); x++)
-						{
-							auto Input = State.Connections.Inputs[x];
-
-							auto KeyStateConnectionDisplayName = ClassName + "_Modes_" + FString::FromInt(i) + "_Inputs_" + FString::FromInt(x) + "_DisplayName";
-							auto KeyStateConnectionDescription = ClassName + "_Modes_" + FString::FromInt(i) + "_Inputs_" + FString::FromInt(x) + "_Description";
-
-							Table->SetSourceString(KeyStateConnectionDisplayName, Input.DisplayName);
-							Table->SetSourceString(KeyStateConnectionDescription, Input.Description.ToString());
-						}
-
-						for(int x = 0; x < State.Connections.Outputs.Num(); x++)
-						{
-							auto Output = State.Connections.Outputs[x];
-
-							auto KeyStateConnectionDisplayName = ClassName + "_Modes_" + FString::FromInt(i) + "_Outputs_" + FString::FromInt(x) + "_DisplayName";
-							auto KeyStateConnectionDescription = ClassName + "_Modes_" + FString::FromInt(i) + "_Outputs_" + FString::FromInt(x) + "_Description";
-
-							Table->SetSourceString(KeyStateConnectionDisplayName, Output.DisplayName);
-							Table->SetSourceString(KeyStateConnectionDescription, Output.Description.ToString());
-						}
+						ExportMultistateConnectionList(Table, ClassName, "_Inputs_", i, State.Connections.Inputs);
+						ExportMultistateConnectionList(Table, ClassName, "_Outputs_", i, State.Connections.Outputs);
 					}
 				}
 				else
 				{
-					for(int x = 0; x < DefaultObject->ConnectionsInfo.Inputs.Num(); x++)
-					{
-						auto Input = DefaultObject->ConnectionsInfo.Inputs[x];
-
-						auto KeyConnectionDisplayName = ClassName + "_Inputs_" + FString::FromInt(x) + "_DisplayName";
-						auto KeyConnectionDescription = ClassName + "_Inputs_" + FString::FromInt(x) + "_Description";
-
-						Table->SetSourceString(KeyConnectionDisplayName, Input.DisplayName);
-						Table->SetSourceString(KeyConnectionDescription, Input.Description.ToString());
-					}
-
-					for(int x = 0; x < DefaultObject->ConnectionsInfo.Outputs.Num(); x++)
-					{
-						auto Output = DefaultObject->ConnectionsInfo.Outputs[x];
-
-						auto KeyConnectionDisplayName = ClassName + "_Outputs_" + FString::FromInt(x) + "_DisplayName";
-						auto KeyConnectionDescription = ClassName + "_Outputs_" + FString::FromInt(x) + "_Description";
-
-						Table->SetSourceString(KeyConnectionDisplayName, Output.DisplayName);
-						Table->SetSourceString(KeyConnectionDescription, Output.Description.ToString());
-					}
+					ExportConnectionList(Table, ClassName, "_Inputs_", DefaultObject->ConnectionsInfo.Inputs);
+					ExportConnectionList(Table, ClassName, "_Outputs_", DefaultObject->ConnectionsInfo.Outputs);
 				}
 			}
 		}
 
 		Table->ExportStrings("C:/Users/SCRD/Desktop/SFModding/SatisfactoryModLoader/Plugins/FicsitWiremod/Buildables.csv");
+	}
+
+
+	static bool IsAGenericString(const FText& Text)
+	{
+		if(Text.IsEmptyOrWhitespace()) return false;
+		FName Table;
+		FString Key;
+		return FStringTableRegistry::Get().FindTableIdAndKey(Text, Table, Key) && Key.StartsWith("GENERICLOCALE__");
+	}
+
+	static void ParseMultistateConnectionList(FName TableId, FString ClassName, FString DirectionString, int StateIndex, TArray<FBuildingConnection>& Connections, TArray<FString>& FailedAssignments)
+	{
+		for(int x = 0; x < Connections.Num(); x++)
+		{
+			auto& Connection = Connections[x];
+			auto KeyStateConnectionDisplayName = ClassName + "_Modes_" + FString::FromInt(StateIndex) + DirectionString + FString::FromInt(x) + "_DisplayName";
+			auto KeyStateConnectionDescription = ClassName + "_Modes_" + FString::FromInt(StateIndex) + DirectionString + FString::FromInt(x) + "_Description";
+
+			if(!SKIP(Connection.DisplayedName))
+			{
+				if(ENTRY_CHK(TableId, KeyStateConnectionDisplayName)) Connection.DisplayedName = FText::FromStringTable(TableId, KeyStateConnectionDisplayName);
+				else FailedAssignments.Add(KeyStateConnectionDisplayName);	
+			}
+
+			if(!SKIP(Connection.Description))
+			{
+				if(ENTRY_CHK(TableId, KeyStateConnectionDescription)) Connection.Description = FText::FromStringTable(TableId, KeyStateConnectionDescription);
+				else FailedAssignments.Add(KeyStateConnectionDescription);	
+			}
+		}
+	}
+
+	static void ExportMultistateConnectionList(FStringTableRef Table, FString ClassName, FString DirectionString, int StateIndex, TArray<FBuildingConnection> Connections)
+	{
+		for(int x = 0; x < Connections.Num(); x++)
+		{
+			auto Connection = Connections[x];
+
+			auto KeyStateConnectionDisplayName = ClassName + "_Modes_" + FString::FromInt(StateIndex) + DirectionString + FString::FromInt(x) + "_DisplayName";
+			auto KeyStateConnectionDescription = ClassName + "_Modes_" + FString::FromInt(StateIndex) + DirectionString + FString::FromInt(x) + "_Description";
+
+			if(!SKIP(Connection.DisplayedName)) Table->SetSourceString(KeyStateConnectionDisplayName, Connection.DisplayName);
+			if(!SKIP(Connection.Description)) Table->SetSourceString(KeyStateConnectionDescription, Connection.Description.ToString());
+		}
+	}
+
+	static void ParseConnectionList(FName TableId, FString ClassName, FString DirectionString, TArray<FBuildingConnection>& Connections, TArray<FString>& FailedAssignments)
+	{
+		for(int x = 0; x < Connections.Num(); x++)
+		{
+			auto& Connection = Connections[x];
+			auto KeyStateConnectionDisplayName = ClassName + DirectionString + FString::FromInt(x) + "_DisplayName";
+			auto KeyStateConnectionDescription = ClassName + DirectionString + FString::FromInt(x) + "_Description";
+
+			if(!SKIP(Connection.DisplayedName))
+			{
+				if(ENTRY_CHK(TableId, KeyStateConnectionDisplayName)) Connection.DisplayedName = FText::FromStringTable(TableId, KeyStateConnectionDisplayName);
+				else FailedAssignments.Add(KeyStateConnectionDisplayName);	
+			}
+
+			if(!SKIP(Connection.Description))
+			{
+				if(ENTRY_CHK(TableId, KeyStateConnectionDescription)) Connection.Description = FText::FromStringTable(TableId, KeyStateConnectionDescription);
+				else FailedAssignments.Add(KeyStateConnectionDescription);	
+			}
+		}
+	}
+
+	static void ExportConnectionList(FStringTableRef Table, FString ClassName, FString DirectionString, TArray<FBuildingConnection> Connections)
+	{
+		for(int x = 0; x < Connections.Num(); x++)
+		{
+			auto Connection = Connections[x];
+			auto KeyConnectionDisplayName = ClassName + DirectionString + FString::FromInt(x) + "_DisplayName";
+			auto KeyConnectionDescription = ClassName + DirectionString + FString::FromInt(x) + "_Description";
+			
+			if(!SKIP(Connection.DisplayedName)) Table->SetSourceString(KeyConnectionDisplayName, Connection.DisplayName);
+			if(!SKIP(Connection.Description)) Table->SetSourceString(KeyConnectionDescription, Connection.Description.ToString());
+		}
 	}
 };
 
