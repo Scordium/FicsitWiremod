@@ -14,8 +14,6 @@
  * 
  */
 
-#if WITH_EDITOR
-
 #define ENTRY_CHK(Table, Key) UKismetStringTableLibrary::IsRegisteredTableEntry(Table, Key)
 #define SKIP(Key) IsAGenericString(Key)
 
@@ -108,8 +106,8 @@ class FICSITWIREMOD_API ULocalizationUtils : public UBlueprintFunctionLibrary
 						auto KeyModeDisplayName = ClassName + "_Modes_" + FString::FromInt(i) + "_DisplayName";
 						auto KeyModeDescription = ClassName + "_Modes_" + FString::FromInt(i) + "_Description";
 
-						Table->SetSourceString(KeyModeDisplayName, State.Name.ToString());
-						Table->SetSourceString(KeyModeDescription, State.Description.ToString());
+						if(!SKIP(State.Name)) Table->SetSourceString(KeyModeDisplayName, State.Name.ToString());
+						if(!SKIP(State.Description)) Table->SetSourceString(KeyModeDescription, State.Description.ToString());
 
 						ExportMultistateConnectionList(Table, ClassName, "_Inputs_", i, State.Connections.Inputs);
 						ExportMultistateConnectionList(Table, ClassName, "_Outputs_", i, State.Connections.Outputs);
@@ -206,5 +204,3 @@ class FICSITWIREMOD_API ULocalizationUtils : public UBlueprintFunctionLibrary
 		}
 	}
 };
-
-#endif
