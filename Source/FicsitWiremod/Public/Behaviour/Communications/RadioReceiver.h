@@ -5,8 +5,21 @@
 #include "CoreMinimal.h"
 #include "RadioTransmitter.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "CommonLib/PlayerOwnedClipboardData.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "RadioReceiver.generated.h"
+
+
+UCLASS()
+class URadioReceiverClipboard : public UPlayerOwnedClipboardData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	ARadioTransmitter* Transmitter;
+};
+
 
 UCLASS()
 class FICSITWIREMOD_API ARadioReceiver : public AFGWiremodBuildable, public IDynamicValuePasser
@@ -41,6 +54,27 @@ public:
 		return WroteSomething;
 	}
 
+	virtual bool CanUseFactoryClipboard_Implementation() override { return true; }
+	virtual TSubclassOf<UFGFactoryClipboardSettings> GetClipboardSettingsClass_Implementation() override { return URadioReceiverClipboard::StaticClass(); }
+	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return StaticClass(); }
+	virtual UFGFactoryClipboardSettings* CopySettings_Implementation() override
+	{
+		auto Settings = NewObject<URadioReceiverClipboard>(this);
+		Settings->Transmitter = TransmitterReference;
+
+		return Settings;
+	}
+
+	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard) override
+	{
+		if(auto Clipboard = Cast<URadioReceiverClipboard>(factoryClipboard))
+		{
+			TransmitterReference = Clipboard->Transmitter;
+			return true;
+		}
+
+		return false;
+	}
 
 	UFUNCTION(BlueprintCallable)
 	void SetTransmitter(ARadioTransmitter* NewTransmitter, UObject* Actor)
