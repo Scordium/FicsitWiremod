@@ -60,7 +60,7 @@ struct FBuildingConnection : public FTableRowBase
 
 	FBuildingConnection(FString DisplayName, FString FunctionName, EConnectionType ConnectionType, bool IsProperty = false)
 	{
-		this->DisplayName = DisplayName;
+		this->DisplayedName = FText::FromString(DisplayName);
 		this->FunctionName = FName(FunctionName);
 		this->ConnectionType = ConnectionType;
 		this->FromProperty = IsProperty;
