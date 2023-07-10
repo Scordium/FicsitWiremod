@@ -34,7 +34,7 @@ class FICSITWIREMOD_API ULocalizationUtils : public UBlueprintFunctionLibrary
 			if(auto Circuitry = TSubclassOf<AFGWiremodBuildable>(Class))
 			{
 				auto DefaultObject = Class->GetDefaultObject<AFGWiremodBuildable>();
-				auto ClassName = UWiremodUtils::GetClassName(DefaultObject->GetClass()).ToString();
+				auto ClassName = UWiremodUtils::GetClassName(DefaultObject->GetClass()).ToString() + "_";
 				
 				auto KeyDisplayName = ClassName + "_DisplayName";
 				auto KeyDescription = ClassName + "_Description";
@@ -89,7 +89,7 @@ class FICSITWIREMOD_API ULocalizationUtils : public UBlueprintFunctionLibrary
 			if(auto Circuitry = TSubclassOf<AFGWiremodBuildable>(Class))
 			{
 				auto DefaultObject = Class->GetDefaultObject<AFGWiremodBuildable>();
-				auto ClassName = UWiremodUtils::GetClassName(DefaultObject->GetClass()).ToString();
+				auto ClassName = UWiremodUtils::GetClassName(DefaultObject->GetClass()).ToString() + "_";
 				
 				auto KeyDisplayName = ClassName + "_DisplayName";
 				auto KeyDescription = ClassName + "_Description";
