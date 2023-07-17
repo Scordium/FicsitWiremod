@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGCharacterPlayer.h"
-#include "FGPlayerController.h"
+#include "EnhancedInputComponent.h"
 #include "WiremodUtils.h"
 #include "WiretoolWidget.h"
 #include "Behaviour/WiremodRemoteCalls.h"
@@ -12,19 +11,13 @@
 #include "Equipment/WiremodBaseTool.h"
 #include "Utility/WiremodBlueprintUtils.h"
 #include "Utility/WiremodGameWorldModule.h"
+#include "Utility/CircuitryInputMappings.h"
 #include "WiremodTool.generated.h"
 
 UCLASS()
 class FICSITWIREMOD_API AWiremodTool : public AWiremodBaseTool
 {
 	GENERATED_BODY()
-
-	AWiremodTool() : Super()
-	{
-		mEquipmentSlot = EEquipmentSlot::ES_ARMS;
-		mAttachSocket = FName("hand_rSocket");
-		mArmAnimation = EArmEquipment::AE_ShockShank;
-	}
 
 	void OnScrollDown(){ if(Widget) Widget->ScrollListDown(SelectedConnection.ConnectionType, HasSelectedConnection()); }
 	void OnScrollUp(){ if(Widget) Widget->ScrollListUp(SelectedConnection.ConnectionType, HasSelectedConnection()); }
@@ -74,7 +67,7 @@ public:
 	{
 		Widget->ClearUI();
 		auto Building = Cast<AFGBuildable>(NewTarget); 
-		if(!Building || !UWiremodBlueprintUtils::IsRegistered(Building)) HandleUnknownTarget(Building);
+		if(!Building || !UWiremodBlueprintUtils::IsObjectCompatible(Building)) HandleUnknownTarget(Building);
 		else
 		{
 			CurrentTarget = Building;
@@ -216,7 +209,7 @@ protected:
 		
 		if(HasSelectedConnection())
 		{
-			if(UWiremodBlueprintUtils::IsWiremod(CurrentTarget))
+			if(UWiremodBlueprintUtils::IsCircuitry(CurrentTarget))
 			{
 				RCO->ConnectWiremodObject(CurrentTarget, SelectedConnection, Index, Setter);
 			}
@@ -256,7 +249,7 @@ protected:
 		
 		if(HasSelectedConnection())
 		{
-			if(UWiremodBlueprintUtils::IsRegistered(CurrentTarget))
+			if(UWiremodBlueprintUtils::IsObjectCompatible(CurrentTarget))
 			{
 				auto RCO = Cast<UWiremodRemoteCalls>(Cast<AFGPlayerController>(GetWorld()->GetFirstPlayerController())->GetRemoteCallObjectOfClass(UWiremodRemoteCalls::StaticClass()));
 				auto Setter = UWiremodBlueprintUtils::GetSetterObject();
@@ -290,23 +283,28 @@ protected:
 	{
 		if(IsLocallyControlled())
 		{
+			Super::WasEquipped_Implementation();
 			DisplayHudHints();
-			InputComponent->BindAction("PrimaryFire", IE_Pressed, this, &AWiremodTool::OnConnectionSelected);
-			InputComponent->BindAction("SecondaryFire", IE_Pressed, this, &AWiremodTool::OnScrollDown);
-			InputComponent->BindAction("FicsitWiremod.ScrollDown", IE_Pressed, this, &AWiremodTool::OnScrollDown);
-			InputComponent->BindAction("FicsitWiremod.ScrollUp", IE_Pressed, this, &AWiremodTool::OnScrollUp);
-			InputComponent->BindAction("FicsitWiremod.NewWirePoint", IE_Pressed, this, &AWiremodTool::AddNewWirePoint);
-			InputComponent->BindAction("FicsitWiremod.RemoveWirePoint", IE_Pressed, this, &AWiremodTool::RemoveWirePoint);
-			InputComponent->BindAction("Reload", IE_Pressed, this, &AWiremodTool::OnResetPressed);
-			InputComponent->BindAction("FicsitWiremod.SpecialAction", IE_Pressed, this, &AWiremodTool::OnSwitchSnapMode);
-			InputComponent->BindAction("FicsitWiremod.SwitchConnectMode", IE_Pressed, this, &AWiremodTool::OnSwitchConnectMode);
+			
+			auto EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
+			auto InputsContext = GetFirstContextOfType<UCircuitryInputMappings>();
+			EnhancedInput->BindAction(InputsContext->PrimaryKey, ETriggerEvent::Triggered, this, &AWiremodTool::OnConnectionSelected);
+			EnhancedInput->BindAction(InputsContext->SecondaryKey, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollDown);
+			EnhancedInput->BindAction(InputsContext->ScrollDown, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollDown);
+			EnhancedInput->BindAction(InputsContext->ScrollUp, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollUp);
+			EnhancedInput->BindAction(InputsContext->AuxKey, ETriggerEvent::Triggered, this, &AWiremodTool::OnResetPressed);
+			EnhancedInput->BindAction(InputsContext->SpecialAction1, ETriggerEvent::Triggered, this, &AWiremodTool::OnSwitchSnapMode);
+			EnhancedInput->BindAction(InputsContext->SpecialAction2, ETriggerEvent::Triggered, this, &AWiremodTool::OnSwitchConnectMode);
+			EnhancedInput->BindAction(InputsContext->AltAction1, ETriggerEvent::Triggered, this, &AWiremodTool::AddNewWirePoint);
+			EnhancedInput->BindAction(InputsContext->AltAction2, ETriggerEvent::Triggered, this, &AWiremodTool::RemoveWirePoint);
 		}
 	}
 	
 	virtual void WasUnEquipped_Implementation() override
 	{
 		if(!IsLocallyControlled()) return;
-
+		Super::WasUnEquipped_Implementation();
+		
 		ReturnToIdle(false);
 		if(auto WirePreview = UWiremodGameWorldModule::Self->WirePreviewActor)
 			WirePreview->DestroyAllSplineMeshes();
@@ -353,5 +351,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	FText SelectTargetAsEntityText;
-	
 };

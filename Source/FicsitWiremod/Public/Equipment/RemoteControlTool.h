@@ -3,12 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "FGPlayerController.h"
 #include "WiremodBaseTool.h"
 #include "Behaviour/WiremodRemoteCalls.h"
 #include "Behaviour/Communications/RemoteControlReceiver.h"
+#include "Utility/CircuitryInputMappings.h"
 #include "Utility/WiremodBlueprintUtils.h"
 #include "RemoteControlTool.generated.h"
+
+
+UCLASS()
+class URemoteControlInputsContext : public UFGInputMappingContext
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) UInputAction* RemoteControlKey1;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) UInputAction* RemoteControlKey2;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) UInputAction* RemoteControlKey3;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) UInputAction* RemoteControlKey4;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) UInputAction* RemoteControlKey5;
+};
 
 UCLASS()
 class FICSITWIREMOD_API ARemoteControlTool : public AWiremodBaseTool
@@ -21,35 +38,32 @@ public:
 	{
 		if(IsLocallyControlled())
 		{
+			Super::WasEquipped_Implementation();
 			DisplayHudHints();
-			//Press
-			InputComponent->BindAction("PrimaryFire", IE_Pressed, this, &ARemoteControlTool::HandleKey1_Pressed);
-			InputComponent->BindAction("SecondaryFire", IE_Pressed, this, &ARemoteControlTool::HandleKey2_Pressed);
-			InputComponent->BindAction("FicsitWiremod.RemoteControlKey3", IE_Pressed, this, &ARemoteControlTool::HandleKey3_Pressed);
-			InputComponent->BindAction("FicsitWiremod.RemoteControlKey4", IE_Pressed, this, &ARemoteControlTool::HandleKey4_Pressed);
-			InputComponent->BindAction("FicsitWiremod.RemoteControlKey5", IE_Pressed, this, &ARemoteControlTool::HandleKey5_Pressed);
-
-			//Release
-			InputComponent->BindAction("PrimaryFire", IE_Released, this, &ARemoteControlTool::HandleKey1_Released);
-			InputComponent->BindAction("SecondaryFire", IE_Released, this, &ARemoteControlTool::HandleKey2_Released);
-			InputComponent->BindAction("FicsitWiremod.RemoteControlKey3", IE_Released, this, &ARemoteControlTool::HandleKey3_Released);
-			InputComponent->BindAction("FicsitWiremod.RemoteControlKey4", IE_Released, this, &ARemoteControlTool::HandleKey4_Released);
-			InputComponent->BindAction("FicsitWiremod.RemoteControlKey5", IE_Released, this, &ARemoteControlTool::HandleKey5_Released);
+			
+			auto EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
+			auto InputsContext = GetFirstContextOfType<URemoteControlInputsContext>();
+			EnhancedInput->BindAction(InputsContext->RemoteControlKey1, ETriggerEvent::Triggered, this, &ARemoteControlTool::HandleKey1);
+			EnhancedInput->BindAction(InputsContext->RemoteControlKey2, ETriggerEvent::Triggered, this, &ARemoteControlTool::HandleKey2);
+			EnhancedInput->BindAction(InputsContext->RemoteControlKey3, ETriggerEvent::Triggered, this, &ARemoteControlTool::HandleKey3);
+			EnhancedInput->BindAction(InputsContext->RemoteControlKey4, ETriggerEvent::Triggered, this, &ARemoteControlTool::HandleKey4);
+			EnhancedInput->BindAction(InputsContext->RemoteControlKey5, ETriggerEvent::Triggered, this, &ARemoteControlTool::HandleKey5);
 		}
 	}
-	virtual void WasUnEquipped_Implementation() override { if(IsLocallyControlled()) HideHudHints(); }
+	virtual void WasUnEquipped_Implementation() override
+	{
+		if(IsLocallyControlled())
+		{
+			Super::WasUnEquipped_Implementation();
+			HideHudHints();
+		}
+	}
 	
-	void HandleKey1_Pressed() { Data.Keys[0] = true; HandleDataUpdate(); }
-	void HandleKey2_Pressed() { Data.Keys[1] = true; HandleDataUpdate(); }
-	void HandleKey3_Pressed() { Data.Keys[2] = true; HandleDataUpdate(); }
-	void HandleKey4_Pressed() { Data.Keys[3] = true; HandleDataUpdate(); }
-	void HandleKey5_Pressed() { Data.Keys[4] = true; HandleDataUpdate(); }
-
-	void HandleKey1_Released() { Data.Keys[0] = false; HandleDataUpdate(); }
-	void HandleKey2_Released() { Data.Keys[1] = false; HandleDataUpdate(); }
-	void HandleKey3_Released() { Data.Keys[2] = false; HandleDataUpdate(); }
-	void HandleKey4_Released() { Data.Keys[3] = false; HandleDataUpdate(); }
-	void HandleKey5_Released() { Data.Keys[4] = false; HandleDataUpdate(); }
+	void HandleKey1(const FInputActionValue& Value) { Data.Keys[0] = Value.Get<bool>(); HandleDataUpdate(); }
+	void HandleKey2(const FInputActionValue& Value) { Data.Keys[1] = Value.Get<bool>(); HandleDataUpdate(); }
+	void HandleKey3(const FInputActionValue& Value) { Data.Keys[2] = Value.Get<bool>(); HandleDataUpdate(); }
+	void HandleKey4(const FInputActionValue& Value) { Data.Keys[3] = Value.Get<bool>(); HandleDataUpdate(); }
+	void HandleKey5(const FInputActionValue& Value) { Data.Keys[4] = Value.Get<bool>(); HandleDataUpdate(); }
 
 	UFUNCTION(BlueprintCallable)
 	void SetText(FString Text){ Data.TextInput = Text; HandleDataUpdate(); }

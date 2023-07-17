@@ -5,6 +5,10 @@
 #include "WiremodUtils.h"
 #include "CoreMinimal.h"
 #include "Equipment/FGEquipment.h"
+#include "Kismet/GameplayStatics.h"
+#include "Utility/CircuitryInputMappings.h"
+#include "EnhancedInputSubsystems.h"
+#include "FGPlayerController.h"
 #include "WiremodBaseTool.generated.h"
 
 UCLASS()
@@ -15,7 +19,7 @@ class FICSITWIREMOD_API AWiremodBaseTool : public AFGEquipment
 public:
 
 	UFUNCTION(BlueprintCallable)
-	AActor* GetTargetLookAt(float TraceDistance, TEnumAsByte<ETraceTypeQuery> Channel, FVector& Location, bool& Success)
+	AActor* GetTargetLookAt(double TraceDistance, TEnumAsByte<ETraceTypeQuery> Channel, FVector& Location, bool& Success)
 	{
 		auto camera = UGameplayStatics::GetPlayerCameraManager(this, 0);
 
@@ -27,6 +31,65 @@ public:
 		return UWiremodUtils::GetActualHitTarget(Result, Location);
 	}
 
+	
+	virtual void WasEquipped_Implementation() override
+	{
+		Super::WasEquipped_Implementation();
+		InjectMappings();
+	}
+
+	virtual void WasUnEquipped_Implementation() override
+	{
+		Super::WasUnEquipped_Implementation();
+		EjectMappings();
+	}
+
+	virtual void OnInteractWidgetAddedOrRemoved(UFGInteractWidget* widget, bool added) override
+	{
+		Super::OnInteractWidgetAddedOrRemoved(widget, added);
+		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
+		auto EnhancedInputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player->GetLocalPlayer());
+		if(added) InjectMappings();
+		else EjectMappings();
+	}
+
+	virtual void Destroyed() override
+	{
+		EjectMappings();
+		Super::Destroyed();
+	}
+
+	template<class T>
+	T* GetFirstContextOfType()
+	{
+		for(auto InputsContext : InputsContexts)
+		{
+			if(InputsContext.Value->IsA<T>()) return Cast<T>(InputsContext.Value);
+		}
+
+		return nullptr;
+	}
+		
+
+	void InjectMappings()
+	{
+		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
+		auto EnhancedInputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player->GetLocalPlayer());
+		for(auto InputsContext : InputsContexts) EnhancedInputSystem->AddMappingContext(InputsContext.Value, MappingContextPriority);
+	}
+
+	void EjectMappings()
+	{
+		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
+		auto EnhancedInputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player->GetLocalPlayer());
+		for(auto InputsContext : InputsContexts) EnhancedInputSystem->RemoveMappingContext(InputsContext.Value);
+	}
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int MappingContextPriority = 10000;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<FName, UFGInputMappingContext*> InputsContexts;
 
 protected:
 
