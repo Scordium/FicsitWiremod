@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AArrayInsert : public AFGWiremodBuildable, public IDynam
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		const int Index = GetConnection(2).GetFloat();
 
@@ -21,7 +21,7 @@ public:
 		if(auto Array = Cast<UCCArrayValueBase>(Out))
 			Array->InsertElement(GetConnection(1), Index);
 		
-		SetOutputType(0, Out ? Out->ConnectionType : Unknown);
+		SetOutputType(0, Out ? Out->ConnectionType.GetValue() : Unknown);
 	}
     
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

@@ -12,12 +12,12 @@ class FICSITWIREMOD_API ANumberAverage_Array : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto Array = GetConnection(0).GetFloatArray();
-		float Result = 0;
+		double Result = 0;
 
-		for(float Element : Array)
+		for(double Element : Array)
 			Result += Element;
 
 		Out = Result / Array.Num();
@@ -31,5 +31,5 @@ public:
 	}
 	
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	float Out;
+	double Out;
 };

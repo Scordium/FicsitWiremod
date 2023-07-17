@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AVectorDotProduct : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto const V1 = GetConnection(0).GetVector();
 		auto const V2 = GetConnection(1).GetVector();
@@ -28,5 +28,5 @@ public:
 
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out;
+	double Out;
 };

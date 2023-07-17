@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ABreakItemStack : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Stack = GetConnection(0).GetStack();
 	}
@@ -37,7 +37,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	float GetStackSize() const
+	double GetStackSize() const
 	{
 		return UFGItemDescriptor::GetStackSizeConverted(Stack.Item.GetItemClass());
 	}

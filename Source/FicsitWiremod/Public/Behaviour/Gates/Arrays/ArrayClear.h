@@ -13,12 +13,12 @@ class FICSITWIREMOD_API AArrayClear : public AFGWiremodBuildable, public IDynami
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Out = UCCDynamicValueUtils::FromType(GetConnection(0).ConnectionType, Out ? Out->GetWorld() : this->GetWorld());
 		if(auto Array = Cast<UCCArrayValueBase>(Out)) Array->Clear();
 		
-		SetOutputType(0, Out ? Out->ConnectionType : Unknown);
+		SetOutputType(0, Out ? Out->ConnectionType.GetValue() : Unknown);
 	}
     
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

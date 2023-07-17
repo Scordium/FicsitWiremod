@@ -31,7 +31,7 @@ public:
 	}
 
 	
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		MaxDistance = GetConnection(0).GetFloat(1000);
 		
@@ -108,7 +108,7 @@ public:
 
 
 	UFUNCTION()
-	float Distance() {return HitInfo.Distance;}
+	double Distance() {return HitInfo.Distance;}
 
 	UFUNCTION()
 	FVector GetHitPoint(){ return HitInfo.ImpactPoint; }
@@ -117,7 +117,7 @@ public:
 	AActor* GetEntityHit() {FVector Loc; return UWiremodUtils::GetActualHitTarget(HitInfo, Loc); }
 	
 	UPROPERTY(Replicated)
-	float MaxDistance;
+	double MaxDistance;
 
 	UPROPERTY(Replicated)
 	bool HasTarget;

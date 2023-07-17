@@ -19,7 +19,7 @@ class FICSITWIREMOD_API AIncrementDecrement : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		if(DF_DO_RESET_VALUE) Out = DF_DEFAULT_VALUE;
 		else
@@ -38,5 +38,5 @@ public:
 
 
 	UPROPERTY(Replicated, VisibleInstanceOnly, SaveGame)
-	float Out;
+	double Out;
 };

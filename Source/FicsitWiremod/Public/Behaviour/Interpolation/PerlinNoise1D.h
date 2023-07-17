@@ -13,11 +13,11 @@ class FICSITWIREMOD_API APerlinNoise1D : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
-		float Value = GetConnection(0).GetFloat();;
-		float Min = GetConnection(1).GetFloat();;
-		float Max = GetConnection(2).GetFloat();;
+		auto Value = GetConnection(0).GetFloat();;
+		auto Min = GetConnection(1).GetFloat();;
+		auto Max = GetConnection(2).GetFloat();;
 		
 		Out = UKismetAnimationLibrary::K2_MakePerlinNoiseAndRemap(Value, Min, Max);
 	}
@@ -29,5 +29,5 @@ public:
 	}
 
 	UPROPERTY(VisibleInstanceOnly, Replicated)
-	float Out;
+	double Out;
 };

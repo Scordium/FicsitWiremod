@@ -28,13 +28,13 @@ public:
 	int GetPointsTillNextCoupon() { return AFGResourceSinkSubsystem::Get(this)->GetNumPointsToNextCoupon(EResourceSinkTrack::RST_Default); }
 
 	UFUNCTION()
-	float GetProgress() { return AFGResourceSinkSubsystem::Get(this)->GetProgressionTowardsNextCoupon(EResourceSinkTrack::RST_Default); }
+	double GetProgress() { return AFGResourceSinkSubsystem::Get(this)->GetProgressionTowardsNextCoupon(EResourceSinkTrack::RST_Default); }
 
 	UFUNCTION()
-	TArray<float> GetPointsGraph()
+	TArray<double> GetPointsGraph()
 	{
 		auto Graph = AFGResourceSinkSubsystem::Get(this)->GetGlobalPointHistory(EResourceSinkTrack::RST_Default);
-		TArray<float> Out;
+		TArray<double> Out;
 
 		for (int32 Element : Graph)
 			Out.Add(Element);
@@ -58,13 +58,13 @@ public:
 	int GetPointsTillNextCoupon_Exploration() { return AFGResourceSinkSubsystem::Get(this)->GetNumPointsToNextCoupon(EResourceSinkTrack::RST_Exploration); }
 
 	UFUNCTION()
-	float GetProgress_Exploration() { return AFGResourceSinkSubsystem::Get(this)->GetProgressionTowardsNextCoupon(EResourceSinkTrack::RST_Exploration); }
+	double GetProgress_Exploration() { return AFGResourceSinkSubsystem::Get(this)->GetProgressionTowardsNextCoupon(EResourceSinkTrack::RST_Exploration); }
 
 	UFUNCTION()
-	TArray<float> GetPointsGraph_Exploration()
+	TArray<double> GetPointsGraph_Exploration()
 	{
 		auto Graph = AFGResourceSinkSubsystem::Get(this)->GetGlobalPointHistory(EResourceSinkTrack::RST_Exploration);
-		TArray<float> Out;
+		TArray<double> Out;
 
 		for (int32 Element : Graph)
 			Out.Add(Element);

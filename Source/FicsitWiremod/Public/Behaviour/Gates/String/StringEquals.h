@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AStringEquals : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto A = GetConnection(0).GetString();
 		auto B = GetConnection(1).GetString();

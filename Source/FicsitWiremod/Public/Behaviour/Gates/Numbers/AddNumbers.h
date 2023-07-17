@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AAddNumbers : public AMultistateWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 
 		//0 - Sum of all connected inputs
@@ -22,7 +22,7 @@ public:
 			TArray<FConnectionData> Connected;
 			GetAllConnected(Connected);
 
-			float Output = 0;
+			double Output = 0;
 			for (auto Data : Connected)
 			{
 				Output += Data.GetFloat();
@@ -35,7 +35,7 @@ public:
 		else if(CurrentStateIndex == 1)
 		{
 			auto Array = GetConnection(0).GetFloatArray();
-			float Output = 0;
+			double Output = 0;
 
 			for(auto Element : Array) Output += Element;
 			Out = Output;
@@ -45,7 +45,7 @@ public:
 		else if(CurrentStateIndex == 2)
 		{
 			auto Array = GetConnection(0).GetFloatArray();
-			float Value = GetConnection(1).GetFloat();;
+			double Value = GetConnection(1).GetFloat();;
 
 			for(int i = 0; i < Array.Num(); i++) Array[i] += Value;
 
@@ -63,8 +63,8 @@ public:
 
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	float Out;
+	double Out;
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	TArray<float> Out_Array;
+	TArray<double> Out_Array;
 };

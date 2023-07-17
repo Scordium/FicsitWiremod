@@ -26,7 +26,7 @@ public:
 	}
 
 
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		SetupWidgetVariables(DF_BACKGROUND_COLOR, DF_MAX_POINTS, DF_NO_FADING);
 		DrawPoint(DF_GET_X, DF_GET_Y, DF_LINE_COLOR);
@@ -34,7 +34,7 @@ public:
 
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void DrawPoint(float X, float Y, FLinearColor Color);
+	void DrawPoint(double X, double Y, FLinearColor Color);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetupWidgetVariables(FLinearColor BackgroundColor, int MaxPoints, bool NoFading);

@@ -12,10 +12,10 @@ class FICSITWIREMOD_API ABreakVector : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto Val = GetConnection(0).GetVector();
-
+		
 		Out_X = Val.X;
 		Out_Y = Val.Y;
 		Out_Z = Val.Z;
@@ -32,11 +32,11 @@ public:
 
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out_X;
+	double Out_X;
 	
 	UPROPERTY(Replicated, SaveGame)
-	float Out_Y;
+	double Out_Y;
 	
 	UPROPERTY(Replicated, SaveGame)
-	float Out_Z;
+	double Out_Z;
 };

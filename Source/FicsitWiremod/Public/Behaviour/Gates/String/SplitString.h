@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ASplitString : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto Source = GetConnection(0).GetString();
 		auto Separator = GetConnection(1).GetString();

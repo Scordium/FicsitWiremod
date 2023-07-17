@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AGraphScreen : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto Points = GetConnection(0).GetFloatArray();
 		auto LineColor = GetConnection(1).GetColor(DefaultLineColor);
@@ -23,13 +23,13 @@ public:
 		SetPointsAndBackground(ParsedPoints, BackgroundColor);
 	}
 
-	TArray<FScreenDrawSegment> ResolveData(TArray<float> Points, FLinearColor LineColor)
+	TArray<FScreenDrawSegment> ResolveData(TArray<double> Points, FLinearColor LineColor)
 	{
 		TArray<FScreenDrawSegment> Out;
 		auto ScreenSize = GetScreenDimensions() / 2;
 		
-		float Min = FMath::Min(FMath::Min(Points), -ScreenSize.Y);
-		float Max = FMath::Max(FMath::Max(Points), ScreenSize.Y);
+		double Min = FMath::Min(FMath::Min(Points), -ScreenSize.Y);
+		double Max = FMath::Max(FMath::Max(Points), ScreenSize.Y);
 		
 		auto InputRange = FVector2D(Min, Max);
 		auto OutputRange = FVector2D(-ScreenSize.Y, ScreenSize.Y) * .95;
@@ -40,8 +40,8 @@ public:
 			FVector2D Start;
 			FVector2D End;
 			
-			Start.X =  (ScreenSize.X - ScreenSize.X * ((float) (i - 1) / PointsCount)) * 2;
-			End.X = (ScreenSize.X - ScreenSize.X * ((float) i / PointsCount)) * 2;
+			Start.X =  (ScreenSize.X - ScreenSize.X * ((double) (i - 1) / PointsCount)) * 2;
+			End.X = (ScreenSize.X - ScreenSize.X * ((double) i / PointsCount)) * 2;
 			
 			Start.Y = FMath::GetMappedRangeValueClamped(InputRange, OutputRange, Points[i - 1]) + ScreenSize.Y;
 			End.Y = FMath::GetMappedRangeValueClamped(InputRange, OutputRange, Points[i]) + ScreenSize.Y;

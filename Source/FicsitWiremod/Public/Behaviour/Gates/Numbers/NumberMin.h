@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ANumberMin : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Out = FMath::Min(GetConnection(0).GetFloat(), GetConnection(1).GetFloat());
 	}
@@ -26,5 +26,5 @@ public:
 
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	float Out;
+	double Out;
 };

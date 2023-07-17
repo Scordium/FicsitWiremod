@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ATFlipFlop : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		bool Clock = GetConnection(1).GetBool();
 

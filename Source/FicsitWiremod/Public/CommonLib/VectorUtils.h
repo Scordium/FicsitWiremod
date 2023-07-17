@@ -8,13 +8,13 @@ class FICSITWIREMOD_API UVectorUtils : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 	UFUNCTION(BlueprintPure)
-	static FVector SetX(FVector In, float Val){ return FVector(Val, In.Y, In.Z); }
+	static FVector SetX(FVector In, double Val){ return FVector(Val, In.Y, In.Z); }
 	
 	UFUNCTION(BlueprintPure)
-	static FVector SetY(FVector In, float Val){ return FVector(In.X, Val, In.Z); }
+	static FVector SetY(FVector In, double Val){ return FVector(In.X, Val, In.Z); }
 
 	UFUNCTION(BlueprintPure)
-	static FVector SetZ(FVector In, float Val){ return FVector(In.X, In.Y, Val); }
+	static FVector SetZ(FVector In, double Val){ return FVector(In.X, In.Y, Val); }
 	
 	
 };

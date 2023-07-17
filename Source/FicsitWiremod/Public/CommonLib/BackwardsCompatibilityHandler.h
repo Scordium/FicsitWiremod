@@ -38,10 +38,10 @@ struct FDynamicValue
 	TArray<bool> BoolArr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	float StoredFloat = 0;
+	double StoredFloat = 0;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<float> NumberArr;
+	TArray<double> NumberArr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FString StoredString;
@@ -111,7 +111,7 @@ struct FDynamicValue
 		StoredString = Value;
 	}
 
-	FDynamicValue(float Value)
+	FDynamicValue(double Value)
 	{
 		ConnectionType = Number;
 		StoredFloat = Value;

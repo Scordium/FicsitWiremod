@@ -14,10 +14,10 @@ class FICSITWIREMOD_API AArrayContains : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto Connection = GetConnection(0);
-		ArrayCache = UCCDynamicValueUtils::FromValue(Connection, ArrayCache ? (UObject*) ArrayCache : (UObject*) this);
+		ArrayCache = UCCDynamicValueUtils::FromValue(Connection, ArrayCache);
 
 		if(auto Array = Cast<UCCArrayValueBase>(ArrayCache))
 			Out = Array->Contains(GetConnection(1));

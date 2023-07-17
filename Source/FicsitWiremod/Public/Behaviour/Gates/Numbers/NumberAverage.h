@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ANumberAverage : public AMultistateWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		//0 - Average of all connected inputs
 		if(CurrentStateIndex == 0)
@@ -21,7 +21,7 @@ public:
 			TArray<FConnectionData> Connected;
 			GetAllConnected(Connected);
 
-			float Result = 0;
+			double Result = 0;
 			for(auto Data : Connected)
 			{
 				Result += Data.GetFloat();
@@ -35,7 +35,7 @@ public:
 		{
 			auto Array = GetConnection(0).GetFloatArray();
 
-			float Sum = 0;
+			double Sum = 0;
 			for (auto Element : Array) Sum += Element;
 			
 			Out = Sum / Array.Num();
@@ -51,5 +51,5 @@ public:
 
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	float Out;
+	double Out;
 };

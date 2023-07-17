@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
+#include "Engine/ActorChannel.h"
 #include "ArrayResize.generated.h"
 
 UCLASS()
@@ -13,14 +14,14 @@ class FICSITWIREMOD_API AArrayResize : public AFGWiremodBuildable, public IDynam
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		const int NewSize = GetConnection(1).GetFloat();
-
+		
 		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? Out->GetWorld() : this->GetWorld());
 		if(auto Array = Cast<UCCArrayValueBase>(Out)) Array->Resize(NewSize);
 		
-		SetOutputType(0, Out ? Out->ConnectionType : Unknown);
+		SetOutputType(0, Out ? Out->ConnectionType.GetValue() : Unknown);
 	}
     
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
@@ -38,7 +39,7 @@ public:
 		return WroteSomething;
 	}
 
-	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }
+	virtual UObject* GetValue_Implementation(const class FString& ValueName) override{ return Out; }
     	
 	UPROPERTY(Replicated, VisibleInstanceOnly)
 	UCCDynamicValueBase* Out;

@@ -52,7 +52,7 @@ public:
 	virtual FString ToString() override { return FString::SanitizeFloat(Value); }
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
-	float Value;
+	double Value;
 };
 
 
@@ -133,5 +133,5 @@ public:
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
-	TArray<float> Value;
+	TArray<double> Value;
 };

@@ -20,7 +20,7 @@ public:
 		MakeInputList();
 	}
 	
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		TArray<FConnectionData> Elements;
 		GetAllConnected(Elements);

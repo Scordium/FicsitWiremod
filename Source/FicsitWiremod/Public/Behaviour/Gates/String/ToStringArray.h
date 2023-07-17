@@ -14,7 +14,7 @@ class FICSITWIREMOD_API AToStringArray : public AMultistateWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Out.Empty();
 		switch (CurrentStateIndex)
@@ -22,7 +22,7 @@ public:
 		//Number (Float)
 			case 1:
 				{
-					float Value = GetConnection(0).GetFloat();
+					auto Value = GetConnection(0).GetFloat();
 					bool Truncate = GetConnection(1).GetBool();
 					if(!Truncate)
 					{
@@ -33,7 +33,7 @@ public:
 					int MinFrac = GetConnection(2).GetFloat();
 					int MaxFrac = GetConnection(3).GetFloat();
 
-					Out.Add(UKismetTextLibrary::Conv_FloatToText(
+					Out.Add(UKismetTextLibrary::Conv_DoubleToText(
 						Value,
 						HalfToZero,
 						false,
@@ -47,7 +47,7 @@ public:
 				}
 
 		default:
-			ValueParserCache = UCCDynamicValueUtils::FromValue(GetConnection(0), ValueParserCache ? ValueParserCache->GetWorld() : this->GetWorld());
+			ValueParserCache = UCCDynamicValueUtils::FromValue(GetConnection(0), ValueParserCache);
 			if(ValueParserCache) Out = ValueParserCache->ToStringArray();
 			break;
 		}

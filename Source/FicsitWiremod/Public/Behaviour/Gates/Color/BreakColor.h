@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ABreakColor : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto Color = GetConnection(0).GetColor().LinearRGBToHSV();
 		
@@ -34,16 +34,16 @@ public:
 	}
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out_H;
+	double Out_H;
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out_S;
+	double Out_S;
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out_V;
+	double Out_V;
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out_A;
+	double Out_A;
 };
 
 
@@ -53,7 +53,7 @@ class FICSITWIREMOD_API ABreakColorRGBA : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto Color = GetConnection(0).GetColor();
 		
@@ -75,14 +75,14 @@ public:
 	}
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out_R;
+	double Out_R;
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out_G;
+	double Out_G;
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out_B;
+	double Out_B;
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out_A;
+	double Out_A;
 };

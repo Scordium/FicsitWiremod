@@ -37,7 +37,7 @@ class FICSITWIREMOD_API UCCDynamicValueUtils : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeBool(UObject* WorldContext, bool Value);
-	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeFloat(UObject* WorldContext, float Value);
+	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeFloat(UObject* WorldContext, double Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeInt(UObject* WorldContext, int Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeString(UObject* WorldContext, FString Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeVector(UObject* WorldContext, FVector Value);
@@ -49,7 +49,7 @@ public:
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeStack(UObject* WorldContext, FInventoryStack Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeItemAmount(UObject* WorldContext, FItemAmount Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeBoolArray(UObject* WorldContext, TArray<bool> Value);
-	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeFloatArray(UObject* WorldContext, TArray<float> Value);
+	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeFloatArray(UObject* WorldContext, TArray<double> Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeStringArray(UObject* WorldContext, TArray<FString> Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeVectorArray(UObject* WorldContext, TArray<FVector> Value);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeInventoryArray(UObject* WorldContext, TArray<UFGInventoryComponent*> Value);
@@ -61,7 +61,7 @@ public:
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static UCCDynamicValueBase* MakeItemAmountArray(UObject* WorldContext, TArray<FItemAmount> Value);
 
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static bool ToBool(UCCDynamicValueBase* Base);
-	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static float ToFloat(UCCDynamicValueBase* Base);
+	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static double ToFloat(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static int ToInt(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static FString ToString(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static FVector ToVector(UCCDynamicValueBase* Base);
@@ -74,7 +74,7 @@ public:
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static FItemAmount ToItemAmount(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static FCustomStruct ToCustomStruct(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static TArray<bool> ToBoolArray(UCCDynamicValueBase* Base);
-	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static TArray<float> ToFloatArray(UCCDynamicValueBase* Base);
+	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static TArray<double> ToFloatArray(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static TArray<FString> ToStringArray(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static TArray<FVector> ToVectorArray(UCCDynamicValueBase* Base);
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="->")) static TArray<UFGInventoryComponent*> ToInventoryArray(UCCDynamicValueBase* Base);
@@ -134,7 +134,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static UCCDynamicValueBase* FromValue(const FConnectionData& Data, UObject* WorldContext)
 	{
-		auto Out = FromType(Data.ConnectionType, WorldContext);
+		auto Out = FromType(Data.ConnectionType, WorldContext ? WorldContext : Data.Object);
 		if(Out) Out->SetValue(Data.Object, Data.FunctionName, Data.FromProperty);
 		return Out;
 	}

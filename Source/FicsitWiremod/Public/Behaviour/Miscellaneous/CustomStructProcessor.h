@@ -25,7 +25,7 @@ class FICSITWIREMOD_API ACustomStructProcessor : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		for(int i = 0; i < Out.Values.Num(); i++)
 		{

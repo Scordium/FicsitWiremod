@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ANOT : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Out = !GetConnection(0).GetBool();
 	}

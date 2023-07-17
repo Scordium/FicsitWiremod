@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AReverseString : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Out = GetConnection(0).GetString().Reverse();
 	}

@@ -16,7 +16,7 @@ class FICSITWIREMOD_API ABreakEntity : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	void Process_Implementation(float DeltaTime) override
+	void Process_Implementation(double DeltaTime) override
 	{
 		Entity = GetConnection(0).GetEntity();
 	}

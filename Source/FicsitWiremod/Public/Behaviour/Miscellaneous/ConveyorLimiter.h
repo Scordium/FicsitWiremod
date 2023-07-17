@@ -20,7 +20,7 @@ public:
 		TempStorage = CreateDefaultSubobject<UFGInventoryComponent>("TempStorage");
 	}
 	
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Enabled = GetConnection(0).GetBool(EnabledByDefault());
 
@@ -60,7 +60,7 @@ public:
 		//Calculate average with history
 		int Sum = 0;
 		for(int Element : PassedHistory) Sum += Element;
-		float Avg = Sum / (PassedHistory.Num() + 0.f);
+		auto Avg = Sum / (PassedHistory.Num() + 0.0);
 
 		// (60 * (1s / LoopTime)) * Avg
 		Throughput = MaxElements * FMath::CeilToInt(Avg);
@@ -124,10 +124,10 @@ public:
 	int Throughput;
 
 	UPROPERTY(VisibleInstanceOnly, Replicated, SaveGame)
-	TArray<float> PassedHistory;
+	TArray<double> PassedHistory;
 
 	UPROPERTY(EditDefaultsOnly)
-	float LoopTime = 1;
+	double LoopTime = 1;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

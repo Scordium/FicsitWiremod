@@ -27,12 +27,12 @@ class FICSITWIREMOD_API ARadioReceiver : public AFGWiremodBuildable, public IDyn
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		if(TransmitterReference)
 		{
 			DataReceived = UCCDynamicValueUtils::FromValue(TransmitterReference->GetConnection(0), DataReceived ? DataReceived->GetWorld() : this->GetWorld());
-			SetOutputType(0, DataReceived ? DataReceived->ConnectionType : Unknown);
+			SetOutputType(0, DataReceived ? DataReceived->ConnectionType.GetValue() : Unknown);
 		}
 	}
 

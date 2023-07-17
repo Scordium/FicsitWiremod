@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ABreakPixelImage : public AFGWiremodBuildable, public ID
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Data = GetConnection(0).GetPixelImage();
 	}

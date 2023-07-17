@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ALinearMotionAdapter : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Lift = GetConnection(0).GetEntity();
 		FloorIndex = GetConnection(1).GetFloat();
@@ -40,7 +40,7 @@ public:
 		if(Height == GetFloorHeight()) return;
 		
 		auto data = FConnectionData(Lift, "netFunc_SetFloorHeight");
-		struct { int floorIndex; float height; } params {FloorIndex, Height};
+		struct { int floorIndex; double height; } params {FloorIndex, Height};
 		data.ProcessFunction(&params);
 	}
 	
@@ -49,16 +49,16 @@ public:
 	FString GetFloorName()
 	{
 		auto data = FConnectionData(Lift, "netFunc_GetFloorInfo");
-		struct {int floorIndex; float out_Height; FString out_Name; } params{FloorIndex};
+		struct {int floorIndex; double out_Height; FString out_Name; } params{FloorIndex};
 		data.ProcessFunction(&params);
 		return params.out_Name;
 	}
 
 	UFUNCTION()
-	float GetFloorHeight()
+	double GetFloorHeight()
 	{
 		auto data = FConnectionData(Lift, "netFunc_GetFloorInfo");
-		struct {int floorIndex; float out_Height; FString out_Name; } params{FloorIndex};
+		struct {int floorIndex; double out_Height; FString out_Name; } params{FloorIndex};
 		data.ProcessFunction(&params);
 		return params.out_Height;
 	}

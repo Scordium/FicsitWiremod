@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ABreakRecipe : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Recipe = GetConnection(0).GetRecipe();
 	}
@@ -29,7 +29,7 @@ public:
 	TArray<FItemAmount> GetProducts() { return IsValid(Recipe) ? UFGRecipe::GetProducts(Recipe) : TArray<FItemAmount>(); }
 
 	UFUNCTION()
-	float GetManufacturingTime() { return IsValid(Recipe) ? UFGRecipe::GetManufacturingDuration(Recipe) : 0; }
+	double GetManufacturingTime() { return IsValid(Recipe) ? UFGRecipe::GetManufacturingDuration(Recipe) : 0; }
 
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override

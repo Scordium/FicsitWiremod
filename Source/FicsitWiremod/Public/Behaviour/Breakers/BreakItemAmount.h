@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ABreakItemAmount : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		ItemAmount = GetConnection(0).GetItemAmount();
 	}
@@ -37,7 +37,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	float GetItemAmountSize() const
+	double GetItemAmountSize() const
 	{
 		return UFGItemDescriptor::GetStackSizeConverted(ItemAmount.ItemClass);
 	}

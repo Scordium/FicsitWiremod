@@ -12,13 +12,13 @@ class FICSITWIREMOD_API ARemapNumber : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
-		float Value = GetConnection(0).GetFloat();;
-		float InMin = GetConnection(1).GetFloat();;
-		float InMax = GetConnection(2).GetFloat();;
-		float OutMin = GetConnection(3).GetFloat();;
-		float OutMax = GetConnection(4).GetFloat();;
+		double Value = GetConnection(0).GetFloat();;
+		double InMin = GetConnection(1).GetFloat();;
+		double InMax = GetConnection(2).GetFloat();;
+		double OutMin = GetConnection(3).GetFloat();;
+		double OutMax = GetConnection(4).GetFloat();;
 
 		Out = FMath::GetMappedRangeValueUnclamped(
 			FVector2D(InMin, InMax),
@@ -35,5 +35,5 @@ public:
 	}
 	
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	float Out;
+	double Out;
 };

@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AMakeColor : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto H = GetConnection(0).GetFloat();
 		auto S = GetConnection(1).GetFloat();
@@ -39,7 +39,7 @@ class FICSITWIREMOD_API AMakeColorRGBA : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto R = GetConnection(0).GetFloat();
 		auto G = GetConnection(1).GetFloat();

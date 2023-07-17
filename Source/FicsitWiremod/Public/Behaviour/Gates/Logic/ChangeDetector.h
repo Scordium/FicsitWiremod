@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AChangeDetector : public AFGWiremodBuildable
 	GENERATED_BODY()
 	
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		bool Value = GetConnection(0).GetBool();
 

@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ASelectValue : public AMultistateWiremodBuildable, publi
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		GenerateInputList();
 		
@@ -99,7 +99,7 @@ public:
 		else
 		{
 			auto FoundIndex = FindSelectorIndex();
-			auto Type = FoundIndex > 0 ? GetConnection(FoundIndex).ConnectionType : Any;
+			auto Type = FoundIndex > 0 ? GetConnection(FoundIndex).ConnectionType.GetValue() : Any;
 
 			//I don't even know what i'm doing at this point, but all this shit basically prevents selectors from pointlessly recreating their connection list.
 			//I'd prefer to just do it on input connect/disconnect, but then cases when the output building was destroyed remain unhandled.

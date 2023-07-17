@@ -7,7 +7,10 @@
 #include "CommonLib/BackwardsCompatibilityHandler.h"
 #include "CommonLib/PlayerOwnedClipboardData.h"
 #include "CommonLib/DynamicValues/CCCustomStructValue.h"
+#include "Kismet/GameplayStatics.h"
 #include "ConfigurableConstant.generated.h"
+
+class UFGFactoryClipboardSettings;
 
 UCLASS()
 class UConstantClipboardData : public UPlayerOwnedClipboardData
@@ -94,7 +97,7 @@ public:
 	}
 
 	
-	virtual UObject* GetValue_Implementation(const FString& ValueName) override
+	virtual UObject* GetValue_Implementation(const class FString& ValueName) override
 	{
 		return FindValue(ValueName);
 	}
@@ -106,7 +109,7 @@ public:
 		TArray<FBuildingConnection> Out;
 		for (FNamedDynamicValue Value : SavedValues)
 		{
-			auto Connection = FBuildingConnection(Value.Name, Value.Name, Value ? Value.Value->ConnectionType : Unknown);
+			auto Connection = FBuildingConnection(Value.Name, Value.Name, Value ? Value.Value->ConnectionType.GetValue() : Unknown);
 			Out.Add(Connection);
 		}
 
@@ -139,7 +142,7 @@ public:
 	void netFunc_setStringValue(FString Name, FString Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }
 
 	UFUNCTION()
-	void netFunc_setFloatValue(FString Name, float Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }
+	void netFunc_setFloatValue(FString Name, double Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }
 
 	UFUNCTION()
 	void netFunc_setColorValue(FString Name, FLinearColor Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }

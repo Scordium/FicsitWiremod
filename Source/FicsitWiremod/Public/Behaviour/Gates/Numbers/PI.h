@@ -12,5 +12,5 @@ class FICSITWIREMOD_API API : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 	UFUNCTION()
-	float Out() {return PI;}
+	double Out() {return PI;}
 };

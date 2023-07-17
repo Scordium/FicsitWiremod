@@ -22,7 +22,7 @@ public:
 		DOREPLIFETIME(ANAND, Out);
 	}
 
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		//Default state - N+ inputs, 1 output
 		if(CurrentStateIndex == 0)

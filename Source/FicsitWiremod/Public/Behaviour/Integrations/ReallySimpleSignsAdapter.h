@@ -14,7 +14,7 @@ class FICSITWIREMOD_API AReallySimpleSignsAdapter : public AMultistateWiremodBui
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		ElementIndex = GetConnection(1).GetFloat();
 
@@ -94,7 +94,7 @@ public:
 	
 	void SetElementRotation(AFGBuildable* Sign)
 	{
-		struct{ float arg1; int32 elementIndex; } params{ GetConnection(5).GetFloat(), ElementIndex};
+		struct{ double arg1; int32 elementIndex; } params{ GetConnection(5).GetFloat(), ElementIndex};
 		
 		auto data = FConnectionData(Sign, "netFunc_Element_SetRotation");
 		data.ProcessFunction(&params);
@@ -118,7 +118,7 @@ public:
 	
 	void SetElementOpacity(AFGBuildable* Sign)
 	{
-		struct{ float arg1; int32 elementIndex; } params{GetConnection(8).GetFloat(), ElementIndex};
+		struct{ double arg1; int32 elementIndex; } params{GetConnection(8).GetFloat(), ElementIndex};
 		
 		auto data = FConnectionData(Sign, "netFunc_Element_SetOpacity");
 		data.ProcessFunction(&params);
@@ -134,7 +134,7 @@ public:
 	
 	void SetSignEmission(AFGBuildable* Sign)
 	{
-		struct{ float arg1; } params{GetConnection(10).GetFloat()};
+		struct{ double arg1; } params{GetConnection(10).GetFloat()};
 		
 		auto data = FConnectionData(Sign, "netFunc_SetSignEmmisive");
 		data.ProcessFunction(&params);
@@ -198,7 +198,7 @@ public:
 	
 	void SetPannerStepFrequency(AFGBuildable* Sign)
 	{
-		struct{ float arg1; int32 elementIndex; } params{ GetConnection(18).GetFloat(), ElementIndex};
+		struct{ double arg1; int32 elementIndex; } params{ GetConnection(18).GetFloat(), ElementIndex};
 		
 		auto data = FConnectionData(Sign, "netFunc_Element_SetStepFrequenz");
 		data.ProcessFunction(&params);

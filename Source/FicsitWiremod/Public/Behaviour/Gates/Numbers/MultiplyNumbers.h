@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AMultiplyNumbers : public AMultistateWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 
 		//0 - Multiply all connected
@@ -22,10 +22,10 @@ public:
 			TArray<FConnectionData> Connected;
 			GetAllConnected(Connected);
 
-			float Result = 0;
+			double Result = 0;
 			for(int i = 0; i < Connected.Num(); i++)
 			{
-				float Value = Connected[i].GetFloat();
+				double Value = Connected[i].GetFloat();
 				Result = (i == 0) ? Value : Result * Value;
 			}
 
@@ -37,7 +37,7 @@ public:
 		{
 			auto Array = GetConnection(0).GetFloatArray();
 
-			float Result = 0;
+			double Result = 0;
 			for(int i = 0; i < Array.Num(); i++)
 			{
 				Result = (i == 0) ? Array[i] : Result * Array[i];
@@ -48,7 +48,7 @@ public:
 		else if(CurrentStateIndex == 2)
 		{
 			auto Array = GetConnection(0).GetFloatArray();
-			float Value = GetConnection(1).GetFloat();;
+			double Value = GetConnection(1).GetFloat();;
 			for(int i = 0; i < Array.Num(); i++) Array[i] *= Value;
 
 			Out_Array = Array;
@@ -65,8 +65,8 @@ public:
 
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	float Out;
+	double Out;
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	TArray<float> Out_Array;
+	TArray<double> Out_Array;
 };

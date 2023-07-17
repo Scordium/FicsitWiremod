@@ -13,7 +13,7 @@ class FICSITWIREMOD_API APixel : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		const auto Color = GetConnection(0).GetColor();
 		const auto Emission = GetConnection(1).GetFloat();
@@ -28,13 +28,13 @@ public:
 	}
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetColorAndEmission(FLinearColor Color, float Emission);
+	void SetColorAndEmission(FLinearColor Color, double Emission);
 	
 	UPROPERTY()
 	FLinearColor ColorCache;
 
 	UPROPERTY()
-	float EmissionCache;
+	double EmissionCache;
 };
 
 UCLASS()
@@ -44,7 +44,7 @@ class FICSITWIREMOD_API ABoolPixel : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		auto Value = GetConnection(0).GetBool();
 		auto Color = Value
@@ -63,11 +63,11 @@ public:
 	}
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetColorAndEmission(FLinearColor Color, float Emission);
+	void SetColorAndEmission(FLinearColor Color, double Emission);
 	
 	UPROPERTY()
 	FLinearColor ColorCache;
 
 	UPROPERTY()
-	float EmissionCache;
+	double EmissionCache;
 };

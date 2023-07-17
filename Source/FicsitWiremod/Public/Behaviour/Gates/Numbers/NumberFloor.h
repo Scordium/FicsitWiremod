@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ANumberFloor : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Out = FMath::FloorToInt(GetConnection(0).GetFloat());
 	}

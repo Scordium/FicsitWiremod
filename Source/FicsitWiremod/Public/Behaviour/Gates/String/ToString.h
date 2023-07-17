@@ -16,14 +16,14 @@ class FICSITWIREMOD_API AToString : public AMultistateWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		switch (CurrentStateIndex)
 		{
 			//Number (Float)
 		case 1:
 			{
-				float Value = GetConnection(0).GetFloat();
+				double Value = GetConnection(0).GetFloat();
 				bool Truncate = GetConnection(1).GetBool();
 				if(!Truncate)
 				{

@@ -20,15 +20,15 @@ public:
 		DOREPLIFETIME(AQuadraticFormula, OutNeg);
 	}
 
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
-		float a = GetConnection(0).GetFloat();;
-		float b = GetConnection(1).GetFloat();;
-		float c = GetConnection(2).GetFloat();;
+		double a = GetConnection(0).GetFloat();;
+		double b = GetConnection(1).GetFloat();;
+		double c = GetConnection(2).GetFloat();;
 
 		if(a == 0 || b == 0 || c == 0) return;
 
-		float D = b*b - 4*a*c;
+		double D = b*b - 4*a*c;
 		if(D == 0) return;
 
 		OutPos = (-b + sqrtf(D)) / (2*a);
@@ -37,8 +37,8 @@ public:
 
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	float OutPos;
+	double OutPos;
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	float OutNeg;
+	double OutNeg;
 };

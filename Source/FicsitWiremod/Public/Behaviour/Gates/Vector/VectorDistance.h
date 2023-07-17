@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AVectorDistance : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Out = FVector::Distance(GetConnection(0).GetVector(), GetConnection(1).GetVector());
 	}
@@ -25,5 +25,5 @@ public:
 	}
 
 	UPROPERTY(Replicated, SaveGame)
-	float Out;
+	double Out;
 };

@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ALerpColor : public AMultistateWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		//Default mode - lerp from A to B
 		if(CurrentStateIndex == 0)

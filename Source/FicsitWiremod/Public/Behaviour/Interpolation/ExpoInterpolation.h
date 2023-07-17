@@ -12,11 +12,11 @@ class FICSITWIREMOD_API AExpoInterpolation : public AMultistateWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
-		float A = GetConnection(0).GetFloat();
-		float B = GetConnection(1).GetFloat();
-		float Alpha = GetConnection(2).GetFloat();
+		auto A = GetConnection(0).GetFloat();
+		auto B = GetConnection(1).GetFloat();
+		auto Alpha = GetConnection(2).GetFloat();
 		
 		//0 - Expo IN
 		if(CurrentStateIndex == 0) Out = FMath::InterpExpoIn(A, B, Alpha);
@@ -33,5 +33,5 @@ public:
 	}
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
-	float Out;
+	double Out;
 };

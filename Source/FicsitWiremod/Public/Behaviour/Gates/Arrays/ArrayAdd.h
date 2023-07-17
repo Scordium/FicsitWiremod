@@ -13,14 +13,14 @@ class FICSITWIREMOD_API AArrayAdd : public AFGWiremodBuildable, public IDynamicV
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? Out->GetWorld() : this->GetWorld());
 		
 		if(auto Array = Cast<UCCArrayValueBase>(Out))
 			Array->AddElement(GetConnection(1));
 		
-		SetOutputType(0, Out ? Out->ConnectionType : Unknown);
+		SetOutputType(0, Out ? Out->ConnectionType.GetValue() : Unknown);
 	}
     
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
@@ -30,7 +30,7 @@ public:
 		DOREPLIFETIME(AArrayAdd, Out);
 	}
 
-	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }
+	virtual UObject* GetValue_Implementation(const class FString& ValueName) override{ return Out; }
 
 	virtual void OnInputConnected_Implementation(const FConnectionData& Data, int Index, UObject* Setter) override
 	{

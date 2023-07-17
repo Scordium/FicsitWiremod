@@ -15,7 +15,7 @@ class FICSITWIREMOD_API ABreakPowerCircuit : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(float DeltaTime) override
+	virtual void Process_Implementation(double DeltaTime) override
 	{
 		Circuit = GetConnection(0).GetCircuit();
 
@@ -43,56 +43,56 @@ public:
 						battery->mBatteryInfo->SetPowerStore(0);
 					}
 				}	
-			} //No idea what to do here
+			}
 		}
 		else CachedStats = FPowerCircuitStats();
 	}
 
 
 	UFUNCTION()
-	FORCEINLINE float GetBatterySumInput()
+	FORCEINLINE double GetBatterySumInput()
 	{
 		if(!Circuit) return 0;
 		return Circuit->GetBatterySumPowerInput();
 	}
 
 	UFUNCTION()
-	FORCEINLINE float GetBatterySumOutput()
+	FORCEINLINE double GetBatterySumOutput()
 	{
 		if(!Circuit) return 0;
 		return Circuit->GetBatterySumPowerOutput();
 	}
 
 	UFUNCTION()
-	FORCEINLINE float GetBatteryStoredPower()
+	FORCEINLINE double GetBatteryStoredPower()
 	{
 		if(!Circuit) return 0;
 		return Circuit->GetBatterySumPowerStore();
 	}
 	
 	UFUNCTION()
-	FORCEINLINE float GetBatteryStorageCapacity()
+	FORCEINLINE double GetBatteryStorageCapacity()
 	{
 		if(!Circuit) return 0;
 		return Circuit->GetBatterySumPowerStoreCapacity();
 	}
 
 	UFUNCTION()
-	FORCEINLINE float GetBatteryStoredPowerPercent()
+	FORCEINLINE double GetBatteryStoredPowerPercent()
 	{
 		if(!Circuit) return 0;
 		return Circuit->GetBatterySumPowerStorePercent();
 	}
 
 	UFUNCTION()
-	FORCEINLINE float GetTimeTillBatteriesFull()
+	FORCEINLINE double GetTimeTillBatteriesFull()
 	{
 		if(!Circuit) return -1;
 		return Circuit->GetTimeToBatteriesFull();
 	}
 
 	UFUNCTION()
-	FORCEINLINE float GetTimeTillBatteriesEmpty()
+	FORCEINLINE double GetTimeTillBatteriesEmpty()
 	{
 		if(!Circuit) return -1;
 		return Circuit->GetTimeToBatteriesEmpty();
@@ -120,57 +120,57 @@ public:
 	}
 
 	UFUNCTION()
-	FORCEINLINE float GetPowerProduced()
+	FORCEINLINE double GetPowerProduced()
 	{
 		return CachedStats.PowerProduced;
 	}
 
 	UFUNCTION()
-	FORCEINLINE float GetPowerConsumed()
+	FORCEINLINE double GetPowerConsumed()
 	{
 		return CachedStats.PowerConsumed;
 	}
 	
 	UFUNCTION()
-	FORCEINLINE float GetMaximumPowerConsumption()
+	FORCEINLINE double GetMaximumPowerConsumption()
 	{
 		return CachedStats.MaximumPowerConsumption;
 	}
 
 	UFUNCTION()
-	FORCEINLINE float GetBatteryPowerInput()
+	FORCEINLINE double GetBatteryPowerInput()
 	{
 		return CachedStats.BatteryPowerInput;
 	}
 
 	UFUNCTION()
-	FORCEINLINE float GetPowerProductionCapacity()
+	FORCEINLINE double GetPowerProductionCapacity()
 	{
 		return CachedStats.PowerProductionCapacity;
 	}
 
 	UFUNCTION()
-	void GetProductionGraph(TArray<float>& Out)
-	{
-		CachedStats.GetPoints<&FPowerGraphPoint::Produced>(Out);
-	}
+	TArray<double> GetProductionGraph() { return GetPoints<&FPowerGraphPoint::Produced>(); }
 
 	UFUNCTION()
-	void GetConsumptionGraph(TArray<float>& Out)
-	{
-		CachedStats.GetPoints<&FPowerGraphPoint::Consumed>(Out);
-	}
+	TArray<double> GetConsumptionGraph(){ return GetPoints<&FPowerGraphPoint::Consumed>(); }
 
 	UFUNCTION()
-	void GetMaxConsumptionGraph(TArray<float>& Out)
-	{
-		CachedStats.GetPoints<&FPowerGraphPoint::MaximumConsumption>(Out);
-	}
+	TArray<double> GetMaxConsumptionGraph(){ return GetPoints<&FPowerGraphPoint::MaximumConsumption>(); }
 
 	UFUNCTION()
-	void GetCapacityGraph(TArray<float>& Out)
+	TArray<double> GetCapacityGraph(){ return GetPoints<&FPowerGraphPoint::ProductionCapacity>(); }
+
+	template<float FPowerGraphPoint::*Member>
+	TArray<double> GetPoints()
 	{
-		CachedStats.GetPoints<&FPowerGraphPoint::ProductionCapacity>(Out);
+		TArray<double> Out;
+
+		TArray<float> Values;
+		CachedStats.GetPoints<Member>(Values);
+		for(auto Value : Values) Out.Add(Value);
+
+		return Out;
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
