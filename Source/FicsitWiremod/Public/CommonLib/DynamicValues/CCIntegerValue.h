@@ -37,7 +37,7 @@ public:
 				return;
 			}
 		
-		Value = UReflectionUtilities::GetFloat(REFLECTION_ARGS, true, Value);
+		Value = UReflectionUtilities::GetFloat(REFLECTION_ARGS, Value);
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other) override

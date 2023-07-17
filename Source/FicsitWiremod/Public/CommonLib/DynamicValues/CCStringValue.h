@@ -131,6 +131,29 @@ public:
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
 	virtual TArray<FString> ToStringArray() override { return Value; }
+
+	virtual int FindFirst(const FConnectionData& Element) override
+	{
+		auto SearchValue = Element.GetString();
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			if(Value[i] == SearchValue) return i; 
+		}
+
+		return -1;
+	}
+
+	virtual TArray<double> FindAll(const FConnectionData& Element) override
+	{
+		auto Out = TArray<double>();
+		auto SearchValue = Element.GetString();
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			if(Value[i] == SearchValue) Out.Add(i);
+		}
+
+		return Out;
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FString> Value;

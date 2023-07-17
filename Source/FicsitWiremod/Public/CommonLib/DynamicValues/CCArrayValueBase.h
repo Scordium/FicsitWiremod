@@ -76,4 +76,18 @@ public:
 		DispatchNotImplemented("ARRAY_CONTAINS");
 		return false;
 	}
+
+	UFUNCTION(BlueprintCallable)
+	virtual int FindFirst(const FConnectionData& Element)
+	{
+		DispatchNotImplemented("ARRAY_FIND");
+		return -1;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	virtual TArray<double> FindAll(const FConnectionData& Element)
+	{
+		DispatchNotImplemented("ARRAY_FIND_ALL");
+		return TArray<double>();
+	}
 };

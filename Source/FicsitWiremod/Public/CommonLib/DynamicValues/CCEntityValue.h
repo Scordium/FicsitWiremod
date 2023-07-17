@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
+#include "CCArrayValueBase.h"
 #include "FGCharacterPlayer.h"
 #include "CCEntityValue.generated.h"
 
@@ -148,6 +149,29 @@ public:
 				else Out.Add(UKismetSystemLibrary::GetObjectName(Player) + "(Offline player)");
 			}
 			else Out.Add(UKismetSystemLibrary::GetObjectName(Val));
+		}
+
+		return Out;
+	}
+
+	virtual int FindFirst(const FConnectionData& Element) override
+	{
+		auto SearchValue = Element.GetEntity();
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			if(Value[i] == SearchValue) return i; 
+		}
+
+		return -1;
+	}
+
+	virtual TArray<double> FindAll(const FConnectionData& Element) override
+	{
+		auto Out = TArray<double>();
+		auto SearchValue = Element.GetEntity();
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			if(Value[i] == SearchValue) Out.Add(i);
 		}
 
 		return Out;

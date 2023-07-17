@@ -151,6 +151,33 @@ public:
 
 		return Out;
 	}
+
+	virtual int FindFirst(const FConnectionData& Element) override
+	{
+		auto SearchValue = Element.GetItemAmount();
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			auto A = Value[i];
+			bool Equal = A.Amount == SearchValue.Amount && A.ItemClass == SearchValue.ItemClass;
+			if(Equal) return i; 
+		}
+
+		return -1;
+	}
+
+	virtual TArray<double> FindAll(const FConnectionData& Element) override
+	{
+		auto Out = TArray<double>();
+		auto SearchValue = Element.GetItemAmount();
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			auto A = Value[i];
+			bool Equal = A.Amount == SearchValue.Amount && A.ItemClass == SearchValue.ItemClass;
+			if(Equal) Out.Add(i);
+		}
+
+		return Out;
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FItemAmount> Value;

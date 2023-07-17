@@ -135,6 +135,29 @@ public:
 		return false;
 	}
 
+	virtual int FindFirst(const FConnectionData& Element) override
+	{
+		auto SearchValue = Element.GetBool();
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			if(Value[i] == SearchValue) return i; 
+		}
+
+		return -1;
+	}
+
+	virtual TArray<double> FindAll(const FConnectionData& Element) override
+	{
+		auto Out = TArray<double>();
+		auto SearchValue = Element.GetBool();
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			if(Value[i] == SearchValue) Out.Add(i);
+		}
+
+		return Out;
+	}
+
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<bool> Value;
 };
