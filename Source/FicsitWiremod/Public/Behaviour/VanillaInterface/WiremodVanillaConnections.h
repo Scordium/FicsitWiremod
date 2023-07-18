@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "CommonLib/OwnerData/OwnerData.h"
 #include "Subsystem/ModSubsystem.h"
 #include "Utility/CircuitryLogger.h"
 #include "WiremodVanillaConnections.generated.h"

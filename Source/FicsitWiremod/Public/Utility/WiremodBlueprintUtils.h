@@ -59,23 +59,6 @@ public:
 		return AWiremodAPI::Self->IsBuildableRegistered(Object);
 	}
 
-
-	UFUNCTION(BlueprintPure)
-	static FWiremodOwnerData GetOwnerInfo(UObject* Object)
-	{
-		if(Object)
-		{
-			//Wiremod
-			if(auto WiremodBuildable = Cast<AFGWiremodBuildable>(Object)) return WiremodBuildable->OwnerData;
-
-			//Vanilla
-			return AWiremodVanillaConnections::Self->GetOwnerData(Object);
-			
-		}
-
-		return FWiremodOwnerData();
-	}
-
 	UFUNCTION(BlueprintPure)
 	static TArray<FConnectionData> GetDataList(UObject* Object)
 	{
@@ -113,7 +96,4 @@ public:
 	{
 		return UGameplayStatics::GetPlayerCharacter(UWiremodGameWorldModule::Self->GetWorld(), 0);
 	}
-
-	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="=="))
-	static bool IsOwnerDataEqual(const FWiremodOwnerData& Data1, const FWiremodOwnerData& Data2){return Data1 == Data2; }
 };

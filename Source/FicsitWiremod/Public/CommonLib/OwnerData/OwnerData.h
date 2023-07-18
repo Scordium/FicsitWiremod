@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 #include "FGCharacterPlayer.h"
 #include "FGPlayerState.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "OwnerDataFunctions.generated.h"
+#include "UObject/Object.h"
+#include "OwnerData.generated.h"
+
 
 UENUM(BlueprintType)
 enum EWiremodInteractionRule
@@ -42,7 +43,7 @@ struct FWiremodOwnerData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	bool AllowDismantle = true;
 
-	bool IsOwner(UObject* entity) const { return OwnerId == GetUserIDOrDefault(entity); }
+	bool IsOwner(UObject* Entity) const { return OwnerId == GetUserIDOrDefault(Entity); }
 	bool HasOwner() const {return !OwnerId.IsEmpty();}
 	
 	bool GetCanConfigure(UObject* Actor) const
@@ -129,25 +130,3 @@ struct FWiremodOwnerData
 
 };
 
-/**
- * 
- */
-UCLASS()
-class FICSITWIREMOD_API UOwnerDataFunctions : public UBlueprintFunctionLibrary
-{
-	GENERATED_BODY()
-
-public:
-
-	UFUNCTION(BlueprintPure)
-	static bool GetCanConfigure(const FWiremodOwnerData& Data, UObject* Actor)
-	{
-		return Data.GetCanConfigure(Actor);
-	}
-
-	UFUNCTION(BlueprintPure)
-	static bool HasOwner(const FWiremodOwnerData& Data){ return Data.HasOwner(); }
-
-	UFUNCTION(BlueprintPure)
-	static bool IsOwner(const FWiremodOwnerData& Data, UObject* Actor) { return Data.IsOwner(Actor); }
-};
