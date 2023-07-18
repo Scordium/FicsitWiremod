@@ -16,7 +16,7 @@ public:
 	virtual void Process_Implementation(double DeltaTime) override
 	{
 		const auto Color = GetConnection(0).GetColor();
-		const auto Emission = GetConnection(1).GetFloat();
+		const auto Emission = GetConnection(1).GetFloat(1);
 
 		if(Color != ColorCache || Emission != EmissionCache)
 		{
