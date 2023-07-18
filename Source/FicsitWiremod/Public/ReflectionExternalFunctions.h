@@ -56,11 +56,13 @@ public:
 		return false;
 	}
 
-	static int GetSignIconId(AFGBuildableWidgetSign* Sign, FString IconName, int DefaultValue)
+	static int GetSignValue(AFGBuildableWidgetSign* Sign, FString IconName, int DefaultValue)
 	{
-		if(Sign->mIconElementToDataMap.Contains(IconName))
-			return Sign->mIconElementToDataMap[IconName];
-		else return DefaultValue;
+		if(IconName == "mEmissive") return Sign->mEmissive;
+		if(IconName == "mGlossiness") return Sign->mGlossiness;
+		if(Sign->mIconElementToDataMap.Contains(IconName)) return Sign->mIconElementToDataMap[IconName];
+
+		return DefaultValue;
 	}
 
 	static FString GetSignText(AFGBuildableWidgetSign* Sign, FString TextName, FString DefaultValue)

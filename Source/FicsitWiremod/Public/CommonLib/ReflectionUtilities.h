@@ -12,6 +12,7 @@
 #include "Buildables/FGBuildableRailroadStation.h"
 #include "Buildables/FGBuildableRailroadSwitchControl.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Utility/CircuitryLogger.h"
 #include "ReflectionUtilities.generated.h"
 
 #define REFLECTION_PARAMS UObject* Object, FName SourceName, bool FromProperty
@@ -53,7 +54,7 @@ public:
 			return GenericProcess(REFLECTION_ARGS,  DefaultValue);
 	}
 	
-	static float GetFloat(REFLECTION_PARAMS, bool IsInt, float DefaultValue = 0) 
+	static double GetFloat(REFLECTION_PARAMS, double DefaultValue = 0) 
 	{
 		if(auto panel = Cast<AFGBuildableLightsControlPanel>(Object))
 		{
@@ -64,7 +65,7 @@ public:
 				return panel->GetLightControlData().Intensity;
 		}
 		else if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
-			return UReflectionExternalFunctions::GetSignIconId(Sign, SourceName.ToString(), DefaultValue);
+			return UReflectionExternalFunctions::GetSignValue(Sign, SourceName.ToString(), DefaultValue);
 		else if(auto FluidTank = Cast<AFGBuildablePipeReservoir>(Object))
 		{
 			if(SourceName == "Content")
@@ -73,7 +74,7 @@ public:
 				return FluidTank->GetFluidBox()->MaxContent;
 		}
 
-		return IsInt ? GenericProcess<int>(REFLECTION_ARGS, DefaultValue) : GenericProcess(REFLECTION_ARGS, DefaultValue);
+		return NumericProcess(REFLECTION_ARGS, DefaultValue);
 	}
 	
 	static FString GetString(REFLECTION_PARAMS, FString DefaultValue = "") 
@@ -100,7 +101,7 @@ public:
 	static TSubclassOf<UFGRecipe> GetRecipe(REFLECTION_PARAMS) 
 	{
 		TSubclassOf<UFGRecipe> Out = GenericProcess(REFLECTION_ARGS,  TSubclassOf<UFGRecipe>());
-		return Out.GetDefaultObject() ? Out.GetDefaultObject()->GetClass() : TSubclassOf<UFGRecipe>();
+		return Out.GetDefaultObject() ? TSubclassOf<UFGRecipe>(Out.GetDefaultObject()->GetClass()) : TSubclassOf<UFGRecipe>();
 	}
 	static FLinearColor GetColor(REFLECTION_PARAMS, FLinearColor DefaultValue = FLinearColor::Black) { return GenericProcess(REFLECTION_ARGS,  DefaultValue); }
 	static FInventoryStack GetStack(REFLECTION_PARAMS) { return GenericProcess<FInventoryStack>(REFLECTION_ARGS); }
@@ -108,7 +109,7 @@ public:
 	static UTexture* GetTexture(REFLECTION_PARAMS) { return GenericProcess<UTexture*>(REFLECTION_ARGS); }
 
 	static TArray<bool> GetBoolArray(REFLECTION_PARAMS) { return GenericProcess<TArray<bool>>(REFLECTION_ARGS); }
-	static TArray<float> GetFloatArray(REFLECTION_PARAMS) { return GenericProcess<TArray<float>>(REFLECTION_ARGS); }
+	static TArray<double> GetFloatArray(REFLECTION_PARAMS) { return GenericProcess<TArray<double>>(REFLECTION_ARGS); }
 	static TArray<FString> GetStringArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FString>>(REFLECTION_ARGS); }
 	static TArray<FVector> GetVectorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FVector>>(REFLECTION_ARGS); }
 	static TArray<UFGInventoryComponent*> GetInventoryArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UFGInventoryComponent*>>(REFLECTION_ARGS); }
@@ -168,7 +169,7 @@ public:
 		GenericSet(REFLECTION_ARGS, Value);
 	}
 
-	static void SetFloat(REFLECTION_PARAMS, bool IsInt, float Value)
+	static void SetFloat(REFLECTION_PARAMS, bool IsInt, double Value)
 	{
 		if(SourceName == "WM_RAILSWITCH_FUNC")
 		{
@@ -316,6 +317,16 @@ public:
 		return *Val->ContainerPtrToValuePtr<T>(Object);
 	}
 
+	static double FromNumericPropertyValue(REFLECTION_PARAMS, double DefaultValue)
+	{
+		if(!IsValid(Object)) return DefaultValue;
+		
+		auto Val = CastField<FNumericProperty>(Object->GetClass()->FindPropertyByName(SourceName));
+		if(!Val) return DefaultValue;
+		if(Val->IsInteger()) return Val->GetSignedIntPropertyValue(Val->ContainerPtrToValuePtr<void>(Object));
+		return Val->GetFloatingPointPropertyValue(Val->ContainerPtrToValuePtr<void>(Object));
+	}
+
 	template<typename T>
 	static T GenericProcess(REFLECTION_PARAMS, T DefaultValue = T())
 	{
@@ -333,6 +344,30 @@ public:
 		struct{T RetVal;} Params{DefaultValue};
 		if(!ProcessFunction(Object, SourceName, &Params)) return FromPropertyValue(REFLECTION_ARGS, DefaultValue);
 		return Params.RetVal;
+	}
+
+	static double NumericProcess(REFLECTION_PARAMS, double DefaultValue)
+	{
+		//Explicit return value check because UE5 now uses double, but some code still uses float so we have to account for that,
+		//Not to mention int returns as well, i am so fucking done with this code.
+		if(!Object) return DefaultValue;
+
+		if(FromProperty)
+			return FromNumericPropertyValue(REFLECTION_ARGS, DefaultValue);
+
+		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
+		{
+			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString());
+			return FromNumericPropertyValue(ValueBase, "Value", true, DefaultValue);
+		}
+		
+		auto Function = Object->FindFunction(SourceName);
+		if(!Function) return FromNumericPropertyValue(REFLECTION_ARGS, DefaultValue);
+		auto FuncProperty = Function->ChildProperties;
+		
+		if(auto IntegerProp = Cast<FIntProperty>(FuncProperty)) return GenericProcess<int>(REFLECTION_ARGS, DefaultValue);
+		else if(auto FloatProp = Cast<FFloatProperty>(FuncProperty)) return GenericProcess<float>(REFLECTION_ARGS, DefaultValue);
+		else return GenericProcess(REFLECTION_ARGS, DefaultValue);
 	}
 
 	template<typename T>

@@ -18,8 +18,8 @@ void AWiremodBuildableHologram::SetHologramLocationAndRotation(const FHitResult&
 	FVector RotationAxis = FVector::CrossProduct(FVector::UpVector, hitResult.ImpactNormal);
 	RotationAxis.Normalize();
 	
-	float DotProduct = FVector::DotProduct(FVector::UpVector, hitResult.ImpactNormal);
-	float RotationAngle = acosf(DotProduct);
+	double DotProduct = FVector::DotProduct(FVector::UpVector, hitResult.ImpactNormal);
+	double RotationAngle = acosf(DotProduct);
 	FQuat Quat = FQuat(RotationAxis, RotationAngle);
 	
 	FQuat NewRotQuat = Quat * FRotator(0, GetScrollRotateValue(), 0).Quaternion();

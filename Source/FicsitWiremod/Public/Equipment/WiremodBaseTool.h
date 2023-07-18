@@ -35,29 +35,30 @@ public:
 	virtual void WasEquipped_Implementation() override
 	{
 		Super::WasEquipped_Implementation();
-		InjectMappings();
+		if(IsLocallyControlled()) InjectMappings();
 	}
 
 	virtual void WasUnEquipped_Implementation() override
 	{
 		Super::WasUnEquipped_Implementation();
-		EjectMappings();
+		if(IsLocallyControlled()) EjectMappings();
 	}
 
 	virtual void OnInteractWidgetAddedOrRemoved(UFGInteractWidget* widget, bool added) override
 	{
 		Super::OnInteractWidgetAddedOrRemoved(widget, added);
-		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
-		auto EnhancedInputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player->GetLocalPlayer());
-		if(added) InjectMappings();
-		else EjectMappings();
+		if(added) EjectMappings();
+		else InjectMappings();
 	}
 
+#if !WITH_EDITOR
 	virtual void Destroyed() override
 	{
-		EjectMappings();
+		if(IsLocallyControlled()) EjectMappings();
 		Super::Destroyed();
 	}
+#endif
+	
 
 	template<class T>
 	T* GetFirstContextOfType()
@@ -103,5 +104,5 @@ protected:
 	void DisplayHudHints();
 
 
-	FORCEINLINE bool IsLocallyControlled() const { return GetInstigator()->IsLocallyControlled(); }
+	FORCEINLINE bool IsLocallyControlled() const { return GetInstigator() ? GetInstigator()->IsLocallyControlled() : false; }
 };

@@ -64,7 +64,7 @@ struct FPixelScreenData
 		return Height * Width * sizeof(FLinearColor);
 	}
 
-	float GetSizeInMegabytes() const
+	double GetSizeInMegabytes() const
 	{
 		return GetSizeInBytes() / 1000000.0f;
 	}
@@ -102,7 +102,7 @@ struct FPixelScreenData
 		);
 	
 		// Lock the texture so it can be modified
-		uint8* MipData = static_cast<uint8*>(Texture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+		uint8* MipData = static_cast<uint8*>(Texture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
 
 		// Create base mip.
 		uint8* DestPtr = NULL;
@@ -120,9 +120,10 @@ struct FPixelScreenData
 		}
 
 		// Unlock the texture
-		Texture->PlatformData->Mips[0].BulkData.Unlock();
+		Texture->GetPlatformData()->Mips[0].BulkData.Unlock();
 		Texture->MipLoadOptions = ETextureMipLoadOptions::OnlyFirstMip;
 		Texture->LODGroup = TextureGroup::TEXTUREGROUP_Pixels2D;
+		Texture->LODBias = 0;
 		Texture->CompressionSettings = TC_Alpha;
 		Texture->UpdateResource();
 		
@@ -151,7 +152,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	static float GetSizeInMegabytes(const FPixelScreenData& Data){ return Data.GetSizeInMegabytes(); }
+	static double GetSizeInMegabytes(const FPixelScreenData& Data){ return Data.GetSizeInMegabytes(); }
 
 	UFUNCTION(BlueprintPure)
 	static int GetSizeInBytes(const FPixelScreenData& Data){ return Data.GetSizeInBytes(); }

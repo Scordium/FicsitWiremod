@@ -11,15 +11,21 @@ struct FRemoteControlData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	TArray<bool> Keys;
 	
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	FString TextInput;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	AActor* HitActor = nullptr;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	int CurrentSet = 0;
 
 	FRemoteControlData()
 	{
-		Keys.SetNum(5);
+		Keys.SetNum(10);
 	}
 };
 
@@ -46,26 +52,28 @@ public:
 		RemoteControlData = NewData;
 	}
 
-	UFUNCTION()
-	bool GetKey1(){ return RemoteControlData.Keys[0]; }
-
-	UFUNCTION()
-	bool GetKey2(){ return RemoteControlData.Keys[1]; }
-
-	UFUNCTION()
-	bool GetKey3(){ return RemoteControlData.Keys[2]; }
-
-	UFUNCTION()
-	bool GetKey4(){ return RemoteControlData.Keys[3]; }
-
-	UFUNCTION()
-	bool GetKey5(){ return RemoteControlData.Keys[4]; }
+	UFUNCTION() bool GetKey1(){ return RemoteControlData.Keys[0]; }
+	UFUNCTION() bool GetKey2(){ return RemoteControlData.Keys[1]; }
+	UFUNCTION() bool GetKey3(){ return RemoteControlData.Keys[2]; }
+	UFUNCTION() bool GetKey4(){ return RemoteControlData.Keys[3]; }
+	UFUNCTION() bool GetKey5(){ return RemoteControlData.Keys[4]; }
+	UFUNCTION() bool GetKey6(){ return RemoteControlData.Keys[5]; }
+	UFUNCTION() bool GetKey7(){ return RemoteControlData.Keys[6]; }
+	UFUNCTION() bool GetKey8(){ return RemoteControlData.Keys[7]; }
+	UFUNCTION() bool GetKey9(){ return RemoteControlData.Keys[8]; }
+	UFUNCTION() bool GetKey10(){ return RemoteControlData.Keys[9]; }
 
 	UFUNCTION()
 	FString GetText() { return RemoteControlData.TextInput; }
 
 	UFUNCTION()
 	TArray<bool> GetAllKeys() { return RemoteControlData.Keys; }
+
+	UFUNCTION()
+	AActor* GetEntity() { return RemoteControlData.HitActor; }
+
+	UFUNCTION()
+	int GetCurrentSet() { return RemoteControlData.CurrentSet; }
 
 	UPROPERTY(Replicated, EditInstanceOnly, BlueprintReadWrite)
 	FRemoteControlData RemoteControlData;

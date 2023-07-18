@@ -116,7 +116,7 @@ public:
 	bool IsA(EConnectionType Type) const { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	
 	bool GetBool(bool DefaultValue = false) const { return UReflectionUtilities::GetBool(Object, FunctionName, FromProperty, DefaultValue); }
-	float GetFloat(float DefaultValue = 0) const { return UReflectionUtilities::GetFloat(Object, FunctionName, FromProperty, ConnectionType == Integer, DefaultValue); }
+	double GetFloat(double DefaultValue = 0) const { return UReflectionUtilities::GetFloat(Object, FunctionName, FromProperty, DefaultValue); }
 	FString GetString(FString DefaultValue = "") const { return UReflectionUtilities::GetString(Object, FunctionName, FromProperty, DefaultValue); }
 	FVector GetVector(FVector DefaultValue = FVector::ZeroVector) const { return UReflectionUtilities::GetVector(Object, FunctionName, FromProperty, DefaultValue); }
 	UFGInventoryComponent* GetInventory() const { return UReflectionUtilities::GetInventory(Object, FunctionName, FromProperty); }
@@ -131,7 +131,7 @@ public:
 	UTexture* GetTexture() const { return UReflectionUtilities::GetTexture(Object, FunctionName, FromProperty); }
 
 	TArray<bool> GetBoolArray() const { return UReflectionUtilities::GetBoolArray(Object, FunctionName, FromProperty); }
-	TArray<float> GetFloatArray() const { return UReflectionUtilities::GetFloatArray(Object, FunctionName, FromProperty); }
+	TArray<double> GetFloatArray() const { return UReflectionUtilities::GetFloatArray(Object, FunctionName, FromProperty); }
 	TArray<FString> GetStringArray() const { return UReflectionUtilities::GetStringArray(Object, FunctionName, FromProperty); }
 	TArray<FVector> GetVectorArray() const { return UReflectionUtilities::GetVectorArray(Object, FunctionName, FromProperty); }
 	TArray<UFGInventoryComponent*> GetInventoryArray() const { return UReflectionUtilities::GetInventoryArray(Object, FunctionName, FromProperty); }
@@ -146,7 +146,7 @@ public:
 	TArray<UTexture*> GetTextureArray() const { return UReflectionUtilities::GetTextureArray(Object, FunctionName, FromProperty); }
 	
 	void SetBool(bool Value) const { UReflectionUtilities::SetBool(Object, FunctionName, FromProperty, Value); }
-	void SetFloat(float Value) const { UReflectionUtilities::SetFloat(Object, FunctionName, FromProperty, ConnectionType == Integer, Value); }
+	void SetFloat(double Value) const { UReflectionUtilities::SetFloat(Object, FunctionName, FromProperty, ConnectionType == Integer, Value); }
 	void SetString(FString Value) const { UReflectionUtilities::SetString(Object, FunctionName, FromProperty, Value); }
 	void SetColor(FLinearColor Value) const { UReflectionUtilities::SetColor(Object, FunctionName, FromProperty, Value); }
 	void SetRecipe(TSubclassOf<UFGRecipe> Value) const { UReflectionUtilities::SetRecipe(Object, FunctionName, FromProperty, Value); }

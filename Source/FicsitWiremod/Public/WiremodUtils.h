@@ -2,12 +2,9 @@
 
 #pragma once
 #include "AbstractInstanceManager.h"
-#include "FGCharacterPlayer.h"
-#include "FGTimeSubsystem.h"
 #include "Behaviour/CircuitryInterface.h"
 #include "Buildables/FGBuildable.h"
 #include "Configuration/Properties/ConfigPropertySection.h"
-#include "Kismet/KismetStringLibrary.h"
 #include "Utility/WiremodGameWorldModule.h"
 
 #include "WiremodUtils.generated.h"
@@ -27,13 +24,13 @@ public:
 	static AActor* GetActualHitTarget(const FHitResult& hit, FVector& Location)
 	{
 		Location = hit.Location;
-		if(auto abstractHit = Cast<AAbstractInstanceManager>(hit.Actor))
+		if(auto abstractHit = Cast<AAbstractInstanceManager>(hit.GetActor()))
 		{
 			FInstanceHandle handle;
 			abstractHit->ResolveHit(hit, handle);
 			return handle.GetOwner<AActor>();
 		}
-		return hit.Actor.Get();
+		return hit.GetActor();
 	}
 	
 	UFUNCTION(BlueprintPure)
@@ -67,11 +64,6 @@ public:
 		return FName(unparsed);
 	}
 
-	
-
-	UFUNCTION(BlueprintCallable)
-	static void CopyTextToClipboard(FString text) { FPlatformMisc::ClipboardCopy(*text); }
-
 	UFUNCTION(BlueprintPure)
 	static UTexture2D* GetTexture(AFGBuildable* Buildable)
 	{
@@ -87,7 +79,7 @@ public:
 
 
 	UFUNCTION(BlueprintPure)
-	static FORCEINLINE float TraceDistance()
+	static FORCEINLINE double TraceDistance()
 	{
 		return Cast<UConfigPropertyFloat>(Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["WiremodTool_RaycastDistance"])->Value;
 	}
@@ -98,9 +90,9 @@ public:
 		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
 		auto ColorProperty = Cast<UConfigPropertyArray>(Config->SectionProperties["Wire_Color"]);
 
-		float R = Cast<UConfigPropertyFloat>(ColorProperty->Values[0])->Value;
-		float G = Cast<UConfigPropertyFloat>(ColorProperty->Values[1])->Value;
-		float B = Cast<UConfigPropertyFloat>(ColorProperty->Values[2])->Value;
+		double R = Cast<UConfigPropertyFloat>(ColorProperty->Values[0])->Value;
+		double G = Cast<UConfigPropertyFloat>(ColorProperty->Values[1])->Value;
+		double B = Cast<UConfigPropertyFloat>(ColorProperty->Values[2])->Value;
 		
 		Color = FLinearColor(R, G, B);
 		return ColorProperty;
@@ -125,7 +117,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	static UConfigPropertyFloat* WireEmission(float& Out)
+	static UConfigPropertyFloat* WireEmission(double& Out)
 	{
 		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
 		auto FloatProperty = Cast<UConfigPropertyFloat>(Config->SectionProperties["Wire_Emission"]);

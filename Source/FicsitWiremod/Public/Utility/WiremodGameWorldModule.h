@@ -8,8 +8,8 @@
 #include "Configuration/ModConfiguration.h"
 #include "ModLoading/ModLoadingLibrary.h"
 #include "Module/GameWorldModule.h"
-#include "Util/RuntimeBlueprintFunctionLibrary.h"
 #include "Util/SemVersion.h"
+#include <Kismet/RuntimeBlueprintFunctionLibrary.h>
 #include "WiremodGameWorldModule.generated.h"
 
 
@@ -79,7 +79,7 @@ public:
 			if(!Compare(Version, Mod.Version)) continue;
 
 			if(ModRef.Value.Schematic.GetDefaultObject())
-				SchematicManager->GiveAccessToSchematic(ModRef.Value.Schematic);
+				SchematicManager->GiveAccessToSchematic(ModRef.Value.Schematic, Cast<AFGCharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0)));
 		}
 	}
 

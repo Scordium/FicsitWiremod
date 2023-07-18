@@ -20,18 +20,18 @@ class FICSITWIREMOD_API UWiremodBlueprintUtils : public UBlueprintFunctionLibrar
 public:
 
 	UFUNCTION(BlueprintPure)
-	static FORCEINLINE bool IsWiremod(UObject* Object)
+	static FORCEINLINE bool IsCircuitry(UObject* Object)
 	{
 		if(!Object) return false;
 
-		return Object->GetClass()->ImplementsInterface(ICircuitryConnectionsProvider::UClassType::StaticClass());
+		return Object->GetClass()->ImplementsInterface(ICircuitryProcessableInterface::UClassType::StaticClass());
 	}
 
 	UFUNCTION(BlueprintPure)
 	static void GetAvailableConnections(UObject* Object, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, int& Count, FBuildableNote& Note)
 	{
 		//Circuitry
-		if(IsWiremod(Object))
+		if(Object->GetClass()->ImplementsInterface(ICircuitryConnectionsProvider::UClassType::StaticClass()))
 		{
 			Connections = ICircuitryConnectionsProvider::Execute_GetConnectionsInfo(Object, Direction, Count, Note);
 			return;
@@ -42,19 +42,21 @@ public:
 		if(Buildable) AWiremodAPI::Self->GetConnections(Buildable, Direction, Connections, Count, Note);
 	}
 
+	///Whether the object is compatible for displaying inputs or outputs.
+	///This returns true if the object implements ICircuitryConnectionsProvider, is itself a circuitry object, or is registered with the API.
 	UFUNCTION(BlueprintPure)
-	static bool IsRegistered(UObject* Object)
+	static bool IsObjectCompatible(UObject* Object)
 	{
-		//Circuitry
-		if(IsWiremod(Object)) return true;
+		if(!Object) return false;
 		
-		if(auto Buildable = Cast<AFGBuildable>(Object))
-		{
-			//Vanilla
-			return AWiremodAPI::Self->IsBuildableRegistered(Buildable);
-		}
+		//Circuitry
+		if(IsCircuitry(Object)) return true;
 
-		return false;
+		//Interface
+		if(Object->GetClass()->ImplementsInterface(ICircuitryConnectionsProvider::UClassType::StaticClass())) return true;
+
+		//Vanilla
+		return AWiremodAPI::Self->IsBuildableRegistered(Object);
 	}
 
 

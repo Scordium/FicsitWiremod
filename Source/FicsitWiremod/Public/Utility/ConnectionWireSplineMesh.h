@@ -14,13 +14,14 @@ class FICSITWIREMOD_API UConnectionWireSplineMesh : public USplineMeshComponent
 
 public:
 	// Sets default values for this component's properties
-	UConnectionWireSplineMesh();
+	UConnectionWireSplineMesh()
+	{
+		PrimaryComponentTick.bCanEverTick = false;
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+		Mobility = EComponentMobility::Movable;
+		ForwardAxis = ESplineMeshAxis::Y;
+		SetStartScale(FVector2D(0.03, 0.03));
+		SetEndScale(FVector2D(0.03, 0.03));
+		bHiddenInGame = false;
+	}
 };

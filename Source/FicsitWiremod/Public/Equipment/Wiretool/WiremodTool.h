@@ -9,9 +9,9 @@
 #include "Behaviour/WiremodRemoteCalls.h"
 #include "Buildables/FGBuildable.h"
 #include "Equipment/WiremodBaseTool.h"
+#include "Utility/CircuitryInputMappings.h"
 #include "Utility/WiremodBlueprintUtils.h"
 #include "Utility/WiremodGameWorldModule.h"
-#include "Utility/CircuitryInputMappings.h"
 #include "WiremodTool.generated.h"
 
 UCLASS()
@@ -19,6 +19,9 @@ class FICSITWIREMOD_API AWiremodTool : public AWiremodBaseTool
 {
 	GENERATED_BODY()
 
+	void OnScrollDownPress(const FInputActionValue& Value){ if(Value.Get<bool>()) OnScrollDown(); }
+	void OnScrollUpPress(const FInputActionValue& Value){ if(Value.Get<bool>()) OnScrollUp(); }
+	
 	void OnScrollDown(){ if(Widget) Widget->ScrollListDown(SelectedConnection.ConnectionType, HasSelectedConnection()); }
 	void OnScrollUp(){ if(Widget) Widget->ScrollListUp(SelectedConnection.ConnectionType, HasSelectedConnection()); }
 	void OnSwitchSnapMode() { SnapToCenter = !SnapToCenter; }
@@ -290,8 +293,8 @@ protected:
 			auto InputsContext = GetFirstContextOfType<UCircuitryInputMappings>();
 			EnhancedInput->BindAction(InputsContext->PrimaryKey, ETriggerEvent::Triggered, this, &AWiremodTool::OnConnectionSelected);
 			EnhancedInput->BindAction(InputsContext->SecondaryKey, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollDown);
-			EnhancedInput->BindAction(InputsContext->ScrollDown, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollDown);
-			EnhancedInput->BindAction(InputsContext->ScrollUp, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollUp);
+			EnhancedInput->BindAction(InputsContext->ScrollDown, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollDownPress);
+			EnhancedInput->BindAction(InputsContext->ScrollUp, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollUpPress);
 			EnhancedInput->BindAction(InputsContext->AuxKey, ETriggerEvent::Triggered, this, &AWiremodTool::OnResetPressed);
 			EnhancedInput->BindAction(InputsContext->SpecialAction1, ETriggerEvent::Triggered, this, &AWiremodTool::OnSwitchSnapMode);
 			EnhancedInput->BindAction(InputsContext->SpecialAction2, ETriggerEvent::Triggered, this, &AWiremodTool::OnSwitchConnectMode);

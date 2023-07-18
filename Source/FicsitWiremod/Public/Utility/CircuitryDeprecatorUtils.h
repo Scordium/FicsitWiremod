@@ -21,10 +21,11 @@ class FICSITWIREMOD_API UCircuitryDeprecatorUtils : public UBlueprintFunctionLib
 public:
 
 	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf="Old"))
-	static void GenerateMultistateBuildable(AFGWiremodBuildable* Old, TSubclassOf<AMultistateWiremodBuildable> Class, int StateIndex)
+	static void GenerateMultistateBuildable(AFGWiremodBuildable* Old, TSubclassOf<AMultistateWiremodBuildable> Class, int StateIndex, TSubclassOf<UFGRecipe> WithRecipe)
 	{
 		auto const Transform = Old->GetActorTransform();
 		auto NewBuildable = Cast<AMultistateWiremodBuildable>(Old->GetWorld()->SpawnActor(Class.GetDefaultObject()->GetClass(), &Transform));
+		NewBuildable->SetBuiltWithRecipe(WithRecipe);
 		
 		//Calling this *before* setting owner data to avoid problems with object ownership getting in the way
 		NewBuildable->OnStateSelected(StateIndex, NULL); //Set the state index
@@ -47,7 +48,8 @@ public:
 
 			Gate->DrawWires_Implementation();
 		}
-		
+
+		ACircuitryLogger::DispatchWarningEvent(Old->GetName() + " was converted into " + NewBuildable->GetName());
 		// "Do not directly call Event functions in Interfaces" my ass, UE.
 		IFGDismantleInterface::Execute_Dismantle(Old);
 		

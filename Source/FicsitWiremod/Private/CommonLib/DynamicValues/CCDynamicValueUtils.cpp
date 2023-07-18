@@ -28,7 +28,7 @@ UCCDynamicValueBase* UCCDynamicValueUtils::MakeBool(UObject* WorldContext, bool 
 	return Out;
 }
 
-UCCDynamicValueBase* UCCDynamicValueUtils::MakeFloat(UObject* WorldContext, float Value)
+UCCDynamicValueBase* UCCDynamicValueUtils::MakeFloat(UObject* WorldContext, double Value)
 {
 	if(auto Out = Cast<UCCNumberValue>(WorldContext))
 	{
@@ -184,7 +184,7 @@ UCCDynamicValueBase* UCCDynamicValueUtils::MakeBoolArray(UObject* WorldContext, 
 	return Out;
 }
 
-UCCDynamicValueBase* UCCDynamicValueUtils::MakeFloatArray(UObject* WorldContext, TArray<float> Value)
+UCCDynamicValueBase* UCCDynamicValueUtils::MakeFloatArray(UObject* WorldContext, TArray<double> Value)
 {
 	if(auto Out = Cast<UCCNumberArrayValue>(WorldContext))
 	{
@@ -322,7 +322,7 @@ bool UCCDynamicValueUtils::ToBool(UCCDynamicValueBase* Base)
 	return bool();
 }
 
-float UCCDynamicValueUtils::ToFloat(UCCDynamicValueBase* Base)
+double UCCDynamicValueUtils::ToFloat(UCCDynamicValueBase* Base)
 {
 	if(Base)
 	{
@@ -330,7 +330,7 @@ float UCCDynamicValueUtils::ToFloat(UCCDynamicValueBase* Base)
 		else if(auto Int = Cast<UCCIntegerValue>(Base)) return Int->Value;
 	}
 
-	return float();
+	return double();
 }
 
 int UCCDynamicValueUtils::ToInt(UCCDynamicValueBase* Base)
@@ -432,12 +432,12 @@ TArray<bool> UCCDynamicValueUtils::ToBoolArray(UCCDynamicValueBase* Base)
 	return TArray<bool>();
 }
 
-TArray<float> UCCDynamicValueUtils::ToFloatArray(UCCDynamicValueBase* Base)
+TArray<double> UCCDynamicValueUtils::ToFloatArray(UCCDynamicValueBase* Base)
 {
 	if(auto Out = Cast<UCCNumberArrayValue>(Base))
 		return Out->Value;
 
-	return TArray<float>();
+	return TArray<double>();
 }
 
 TArray<FString> UCCDynamicValueUtils::ToStringArray(UCCDynamicValueBase* Base)

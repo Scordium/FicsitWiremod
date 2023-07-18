@@ -23,7 +23,7 @@ class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 
 	virtual bool IsValidHitResult(const FHitResult& hitResult) const override
 	{
-		return hitResult.Actor.IsValid();
+		return IsValid(hitResult.GetActor());
 	};
 
 	UPROPERTY(EditDefaultsOnly)

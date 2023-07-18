@@ -206,14 +206,20 @@ protected:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void DrawWires();
-
-	bool IsActiveEntity(){ return ProcessLocally || this->HasAuthority(); }
 	
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintNativeEvent, meta=(DeprecatedFunction, DeprecationMessage="Use server and client process functions instead!"))
+	void Process(double DeltaTime);
+	virtual void Process_Implementation(double DeltaTime) {}
+
 	UFUNCTION(BlueprintNativeEvent)
-	void Process(float DeltaTime);
-	virtual void Process_Implementation(float DeltaTime) {}
+	void ServerProcess(double DeltaTime);
+	virtual void ServerProcess_Implementation(double DeltaTime){}
+
+	UFUNCTION(BlueprintNativeEvent)
+	void ClientProcess(double DeltaTime);
+	virtual void ClientProcess_Implementation(double DeltaTime){}
 
 	UFUNCTION(BlueprintCallable)
 	void SetOutputType(int Index, EConnectionType Type);
@@ -228,7 +234,7 @@ protected:
 	EConnectionType GetInputType(int Index);
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE float WM_GetFloat(int InputIndex, float DefaultValue = 0.f) { return GetConnection(InputIndex).GetFloat(DefaultValue); }
+	FORCEINLINE double WM_GetFloat(int InputIndex, double DefaultValue = 0.f) { return GetConnection(InputIndex).GetFloat(DefaultValue); }
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE FString WM_GetString(int InputIndex, FString DefaultValue = "") { return GetConnection(InputIndex).GetString(DefaultValue); }
@@ -333,7 +339,7 @@ public:
 	bool netFunc_getWireBool(FString FunctionName, bool DefaultValue = false);
 
 	UFUNCTION(BlueprintCallable)
-	float netFunc_getWireNumber(FString FunctionName, float DefaultValue = 0);
+	double netFunc_getWireNumber(FString FunctionName, double DefaultValue = 0);
 
 	UFUNCTION(BlueprintCallable)
 	FString netFunc_getWireString(FString FunctionName, FString DefaultValue = "");
@@ -393,7 +399,7 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, SaveGame, Replicated)
 	FWiremodOwnerData OwnerData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(DeprecatedProperty, DeprecationMessage="Use server and client process functions instead!"))
 	bool ProcessLocally;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

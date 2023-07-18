@@ -82,7 +82,7 @@ void AConnectionWireBase::UpdateWireVisuals()
 	
 	auto Color = AssignedConnection.Transmitter.WireColor;
 
-	float Emission;
+	double Emission;
 	UWiremodUtils::WireEmission(Emission);
 
 

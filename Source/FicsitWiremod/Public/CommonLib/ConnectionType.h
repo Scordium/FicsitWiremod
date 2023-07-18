@@ -129,7 +129,7 @@ public:
 		case ArrayOfTexture: return Texture;
 		default:
 			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + CC_INT(in) + " in function ARRAY_TO_BASE");
-			return Unknown;
+			return in;
 		}
 	}
 

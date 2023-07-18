@@ -13,18 +13,15 @@ USTRUCT(BlueprintType)
 struct FBuildingConnection : public FTableRowBase
 {
 	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(DeprecatedProperty=true))
-	FString DisplayName;
 
 	/**
 	 * Display name for this connection that circuitry will display to the user
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FText DisplayedName = FText::FromString(DisplayName);
+	FText DisplayedName;
 
 	/**
-	 * Function/property name that circuitry will call/read to get/set the value
+	 * Function/property name that circuitry will look for to get/set the value
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FName FunctionName;
@@ -44,7 +41,7 @@ struct FBuildingConnection : public FTableRowBase
 	bool FromProperty = false;
 	
 	/**
-	 * Description that the user will see in the UI, pretty useless as localization is not possible unless set up by the dev.
+	 * Description that the user will see in the UI
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(MultiLine="true"))
 	FText Description;
@@ -73,19 +70,19 @@ struct FBuildableNote
 	GENERATED_BODY()
 
 	/**
-	 * Text for the note, pretty useless as localization is not possible unless set up by the dev.
+	 * Text for the note.
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MultiLine="true"))
 	FText Text;
 
 	/**
-	 * Color for the note
+	 * Color for the note.
 	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, DisplayName="Background color")
 	FLinearColor Color1 = FLinearColor(0.783538, 0.291771, 0.059511, 1);
 
 	/**
-	 * Whether note should "blink". This will be ignored if the user enabled photoepilepsy mode.
+	 * Whether note should "blink". This will be ignored if the user enabled photo epilepsy mode.
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool Animated = false;

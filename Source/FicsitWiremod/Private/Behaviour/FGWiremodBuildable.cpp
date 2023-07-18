@@ -7,7 +7,12 @@
 void AFGWiremodBuildable::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(IsActiveEntity()) Process(DeltaTime);
+	
+	if(HasAuthority()) ServerProcess(DeltaTime);
+	ClientProcess(DeltaTime);
+
+	//TODO: DEPRECATED!
+	if(ProcessLocally || this->HasAuthority()) Process(DeltaTime);
 }
 
 FConnectionData AFGWiremodBuildable::GetConnection(int Index)
@@ -150,14 +155,14 @@ int AFGWiremodBuildable::netFunc_getFunctionReturnType(FString FunctionName)
 {
 	for(auto conn : GetConnections_Implementation(Input))
 	{
-		if(conn.FunctionName.ToString() == FunctionName || conn.DisplayName == FunctionName)
+		if(conn.FunctionName.ToString() == FunctionName || conn.DisplayedName.ToString() == FunctionName)
 			return conn.ConnectionType.GetValue();
 	}
 
 	return -1;
 }
 bool AFGWiremodBuildable::netFunc_getWireBool(FString FunctionName, bool DefaultValue){ return FConnectionData(this, FName(FunctionName), Boolean).GetBool(DefaultValue); }
-float AFGWiremodBuildable::netFunc_getWireNumber(FString FunctionName, float DefaultValue) { return FConnectionData(this, FName(FunctionName), Number).GetFloat(DefaultValue); }
+double AFGWiremodBuildable::netFunc_getWireNumber(FString FunctionName, double DefaultValue) { return FConnectionData(this, FName(FunctionName), Number).GetFloat(DefaultValue); }
 FString AFGWiremodBuildable::netFunc_getWireString(FString FunctionName, FString DefaultValue) { return FConnectionData(this, FName(FunctionName), String).GetString(DefaultValue); }
 FVector AFGWiremodBuildable::netFunc_getWireVector(FString FunctionName, FVector DefaultValue) { return FConnectionData(this, FName(FunctionName), Vector).GetVector(DefaultValue); }
 FLinearColor AFGWiremodBuildable::netFunc_getWireColor(FString FunctionName, FLinearColor DefaultValue) { return FConnectionData(this, FName(FunctionName), Color).GetColor(DefaultValue); }
