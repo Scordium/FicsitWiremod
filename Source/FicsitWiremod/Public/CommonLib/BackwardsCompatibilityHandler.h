@@ -367,5 +367,45 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
+	static TArray<FNamedValue> SortValues(TArray<FNamedValue> Values)
+	{
+		auto Out = Values;
+		Out.StableSort([](const FNamedValue& Lhs, const FNamedValue& Rhs) -> bool
+		{
+			auto LeftType = Lhs.Value.ConnectionType;
+			auto RightType = Rhs.Value.ConnectionType;
+
+			if(LeftType != RightType) return LeftType < RightType;
+			else return Lhs.Name < Rhs.Name;
+		});
+		
+		return Out;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FNamedValue> SortByType(TArray<FNamedValue> Values)
+	{
+		auto Out = Values;
+		Out.StableSort([](const FNamedValue& Lhs, const FNamedValue& Rhs) -> bool
+		{
+			return Lhs.Value.ConnectionType < Rhs.Value.ConnectionType;
+		});
+		
+		return Out;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FNamedValue> SortByName(TArray<FNamedValue> Values)
+	{
+		auto Out = Values;
+		Out.StableSort([](const FNamedValue& Lhs, const FNamedValue& Rhs) -> bool
+		{
+			return Lhs.Name < Rhs.Name;
+		});
+		
+		return Out;
+	}
+
+	UFUNCTION(BlueprintPure)
 	static FNamedValue ToClientValue(const FNamedDynamicValue& Value) { return FNamedValue(Value.Name, FDynamicValue(Value.Value)); }
 };
