@@ -79,6 +79,7 @@ struct FWiremodOwnerData
 		OwnerName = GetUsernameOrDefault(NewOwner);
 		Connecting = IsValid(NewOwner) ? OwnerOnly : Anyone;
 		Disconnecting = IsValid(NewOwner) ? OwnerOnly : Anyone;
+		Configuring = IsValid(NewOwner) ? OwnerOnly : Anyone;
 	}
 
 	void SetConnectingRule(EWiremodInteractionRule Rule, UObject* Setter)
