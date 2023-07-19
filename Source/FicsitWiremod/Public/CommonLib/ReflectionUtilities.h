@@ -363,10 +363,12 @@ public:
 		
 		auto Function = Object->FindFunction(SourceName);
 		if(!Function) return FromNumericPropertyValue(REFLECTION_ARGS, DefaultValue);
-		auto FuncProperty = Function->ChildProperties;
 		
-		if(auto IntegerProp = Cast<FIntProperty>(FuncProperty)) return GenericProcess<int>(REFLECTION_ARGS, DefaultValue);
-		else if(auto FloatProp = Cast<FFloatProperty>(FuncProperty)) return GenericProcess<float>(REFLECTION_ARGS, DefaultValue);
+		auto FuncProperty = Function->ChildProperties;
+		if(!FuncProperty) return FromNumericPropertyValue(REFLECTION_ARGS, DefaultValue);
+		
+		if(FuncProperty->IsA<FIntProperty>()) return GenericProcess<int>(REFLECTION_ARGS, DefaultValue);
+		else if(FuncProperty->IsA<FFloatProperty>()) return GenericProcess<float>(REFLECTION_ARGS, DefaultValue);
 		else return GenericProcess(REFLECTION_ARGS, DefaultValue);
 	}
 
