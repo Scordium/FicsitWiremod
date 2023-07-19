@@ -121,10 +121,13 @@ struct FPixelScreenData
 
 		// Unlock the texture
 		Texture->GetPlatformData()->Mips[0].BulkData.Unlock();
+
+		//Configure texture for pixel art style rendering
 		Texture->MipLoadOptions = ETextureMipLoadOptions::OnlyFirstMip;
-		Texture->LODGroup = TextureGroup::TEXTUREGROUP_Pixels2D;
-		Texture->LODBias = 0;
+		Texture->LODGroup = TextureGroup::TEXTUREGROUP_UI;
 		Texture->CompressionSettings = TC_Alpha;
+		Texture->Filter = TF_Nearest;
+		
 		Texture->UpdateResource();
 		
 		return Texture;
