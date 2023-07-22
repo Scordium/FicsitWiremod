@@ -169,7 +169,7 @@ public:
 		GenericSet(REFLECTION_ARGS, Value);
 	}
 
-	static void SetFloat(REFLECTION_PARAMS, bool IsInt, double Value)
+	static void SetFloat(REFLECTION_PARAMS, double Value)
 	{
 		if(SourceName == "WM_RAILSWITCH_FUNC")
 		{
@@ -234,10 +234,7 @@ public:
 			}
 		}
 
-		if(IsInt)
-			GenericSet<int>(REFLECTION_ARGS, Value);
-		else
-			GenericSet(REFLECTION_ARGS, Value);
+		NumericSet(REFLECTION_ARGS, Value);
 	}
 
 	static void SetString(REFLECTION_PARAMS, FString Value)
@@ -384,6 +381,39 @@ public:
 		
 		struct{T SetVal;} Params{Value};
 		ProcessFunction(Object, SourceName, &Params);
+	}
+
+	static void NumericSet(REFLECTION_PARAMS, double Value)
+	{
+		if(FromProperty)
+		{
+			auto Val = CastField<FNumericProperty>(Object->GetClass()->FindPropertyByName(SourceName));
+			if(!Val) return;
+			if(Val->IsInteger()) Val->SetIntPropertyValue(Val->ContainerPtrToValuePtr<void>(Object), (int64) Value);
+			else Val->SetFloatingPointPropertyValue(Val->ContainerPtrToValuePtr<void>(Object), Value);
+		}
+
+		auto Function = Object->FindFunction(SourceName);
+		if(!Function) return;
+		
+		auto FuncProperty = Function->ChildProperties;
+		if(!FuncProperty) return;
+
+		if(FuncProperty->IsA<FIntProperty>())
+		{
+			struct { int Value; } params{(int) Value};
+			ProcessFunction(Object, SourceName, &params);
+		}
+		else if(FuncProperty->IsA<FFloatProperty>())
+		{
+			struct { float Value; } params{(float) Value};
+			ProcessFunction(Object, SourceName, &params);
+		}
+		else
+		{
+			struct { double Value; } params{Value};
+			ProcessFunction(Object, SourceName, &params);
+		}
 	}
 
 
