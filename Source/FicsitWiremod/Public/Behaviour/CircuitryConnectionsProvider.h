@@ -62,6 +62,14 @@ struct FBuildingConnection : public FTableRowBase
 		this->ConnectionType = ConnectionType;
 		this->FromProperty = IsProperty;
 	}
+
+	FBuildingConnection(FText DisplayName, FString FunctionName, EConnectionType ConnectionType, bool IsProperty = false)
+	{
+		this->DisplayedName = DisplayName;
+		this->FunctionName = FName(FunctionName);
+		this->ConnectionType = ConnectionType;
+		this->FromProperty = IsProperty;
+	}
 };
 
 USTRUCT(BlueprintType)

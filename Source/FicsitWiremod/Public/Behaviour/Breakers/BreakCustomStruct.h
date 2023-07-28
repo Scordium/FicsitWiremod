@@ -27,15 +27,7 @@ public:
 		
 		if(NewStruct == Saved) return;
 		Saved = NewStruct;
-		
 		Cached.Empty();
-		ConnectionsInfo.Outputs.Empty();
-
-		for(auto Value : Saved.Values)
-		{
-			auto Connection = FBuildingConnection(Value.Name, Value.Name, Value.Value->ConnectionType);
-			ConnectionsInfo.Outputs.Add(Connection);
-		}
 	}
 
 	virtual UObject* GetValue_Implementation(const FString& ValueName) override
@@ -61,6 +53,21 @@ public:
 			WroteSomething |= Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
 
 		return WroteSomething;
+	}
+
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
+	{
+		if(direction == Input) return Super::GetConnectionsInfo_Implementation(direction, Count, Note);
+		else
+		{
+			auto Out = TArray<FBuildingConnection>();
+			for(auto Value : Saved.Values)
+			{
+				Out.Add(FBuildingConnection(Value.Name, Value.Name, Value.Value->ConnectionType));
+			}
+
+			return Out;
+		}
 	}
 
 	UPROPERTY(Replicated)
