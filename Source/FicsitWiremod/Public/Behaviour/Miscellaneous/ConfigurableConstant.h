@@ -10,8 +10,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "ConfigurableConstant.generated.h"
 
-class UFGFactoryClipboardSettings;
-
 UCLASS()
 class UConstantClipboardData : public UPlayerOwnedClipboardData
 {

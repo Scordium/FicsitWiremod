@@ -119,7 +119,7 @@ struct FBuildingConnections : public FTableRowBase
 	 * Schema: ModRef__BuildableName.
 	 * Note: You need to use double underscore (`_`) to separate mod reference from buildable name
 	 * Note: Buildable name should not contain the following prefixes: "Build_", "BP_". For example if your buildable is called "Build_SuperCoolSmelter", you should only leave the "SuperCoolSmelter" part.
-	 * Example: Satisfactory's mod reference is "Game"
+	 * Example: Satisfactory's mod reference is "Game", so Build_SmelterMk1 would have a reference of "Game__SmelterMk1"
 	 * Reduces the amount of work required to update each list when a new output/input is added to the vanilla buildings.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
@@ -127,7 +127,7 @@ struct FBuildingConnections : public FTableRowBase
 
 	/**
 	 * Note to show to the user when they aim at the buildable
-	 * Useless to other mod devs unless shared with wiremod developer.
+	 * Cannot be used with the API, only via circuitry provider interface.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FBuildableNote Note;
