@@ -30,6 +30,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	static void GetAvailableConnections(UObject* Object, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, int& Count, FBuildableNote& Note)
 	{
+		if(!Object) return;
+		
 		//Circuitry
 		if(Object->GetClass()->ImplementsInterface(ICircuitryConnectionsProvider::UClassType::StaticClass()))
 		{
@@ -38,8 +40,7 @@ public:
 		}
 		
 		//Vanilla
-		auto Buildable = Cast<AFGBuildable>(Object);
-		if(Buildable) AWiremodAPI::Self->GetConnections(Buildable, Direction, Connections, Count, Note);
+		if(auto Buildable = Cast<AFGBuildable>(Object)) AWiremodAPI::Self->GetConnections(Buildable, Direction, Connections, Count, Note);
 	}
 
 	///Whether the object is compatible for displaying inputs or outputs.
