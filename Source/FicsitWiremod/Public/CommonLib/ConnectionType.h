@@ -42,7 +42,9 @@ enum EConnectionType
 	PixelImage,
 	ArrayOfPixelImage,
 	Texture,
-	ArrayOfTexture
+	ArrayOfTexture,
+	SplitterRule,
+	ArrayOfSplitterRule
 };
 
 UENUM(BlueprintType)
@@ -99,6 +101,7 @@ public:
 		case CustomStruct: return ArrayOfCustomStruct;
 		case PixelImage: return ArrayOfPixelImage;
 		case Texture: return ArrayOfTexture;
+		case SplitterRule: return ArrayOfSplitterRule;
 		default:
 			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + CC_INT(in) + " in function BASE_TO_ARRAY");
 			return Unknown;
@@ -127,6 +130,7 @@ public:
 		case ArrayOfCustomStruct: return CustomStruct;
 		case ArrayOfPixelImage: return PixelImage;
 		case ArrayOfTexture: return Texture;
+		case ArrayOfSplitterRule: return SplitterRule;
 		default:
 			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + CC_INT(in) + " in function ARRAY_TO_BASE");
 			return in;
@@ -152,6 +156,7 @@ public:
 		case EConnectionType::ArrayOfCustomStruct:
 		case EConnectionType::ArrayOfPixelImage:
 		case EConnectionType::ArrayOfTexture:
+		case EConnectionType::ArrayOfSplitterRule:
 			return true;
 
 		default: return false;

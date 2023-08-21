@@ -129,6 +129,7 @@ public:
 	FCustomStruct GetCustomStruct() const { return UReflectionUtilities::GetUnmanaged<FCustomStruct>(Object, FunctionName, FromProperty); }
 	FPixelScreenData GetPixelImage() const { return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Object, FunctionName, FromProperty); }
 	UTexture* GetTexture() const { return UReflectionUtilities::GetTexture(Object, FunctionName, FromProperty); }
+	FSplitterSortRule GetSplitterRule() const { return UReflectionUtilities::GetSplitterRule(Object, FunctionName, FromProperty); }
 
 	TArray<bool> GetBoolArray() const { return UReflectionUtilities::GetBoolArray(Object, FunctionName, FromProperty); }
 	TArray<double> GetFloatArray() const { return UReflectionUtilities::GetFloatArray(Object, FunctionName, FromProperty); }
@@ -144,6 +145,7 @@ public:
 	TArray<FCustomStruct> GetCustomStructArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FCustomStruct>>(Object, FunctionName, FromProperty); }
 	TArray<FPixelScreenData> GetPixelImageArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Object, FunctionName, FromProperty); }
 	TArray<UTexture*> GetTextureArray() const { return UReflectionUtilities::GetTextureArray(Object, FunctionName, FromProperty); }
+	TArray<FSplitterSortRule> GetSplitterRuleArray() const { return UReflectionUtilities::GetSplitterRuleArray(Object, FunctionName, FromProperty); }
 	
 	void SetBool(bool Value) const { UReflectionUtilities::SetBool(Object, FunctionName, FromProperty, Value); }
 	void SetFloat(double Value) const { UReflectionUtilities::SetFloat(Object, FunctionName, FromProperty, Value); }
@@ -151,6 +153,8 @@ public:
 	void SetColor(FLinearColor Value) const { UReflectionUtilities::SetColor(Object, FunctionName, FromProperty, Value); }
 	void SetRecipe(TSubclassOf<UFGRecipe> Value) const { UReflectionUtilities::SetRecipe(Object, FunctionName, FromProperty, Value); }
 
+	template<typename T>
+	void Set(T Value) const { UReflectionUtilities::SetUnmanaged(Object, FunctionName, FromProperty, Value); }
 	
 	bool ProcessFunction(void* Params) const
 	{
@@ -244,6 +248,15 @@ public:
 		case ArrayOfPixelImage: return "[" + CC_INT(GetPixelImageArray().Num()) + " elements]";
 		case Texture: return "?";
 		case ArrayOfTexture: return "[" + CC_INT(GetTextureArray().Num()) + " elements]";
+		case SplitterRule:
+			{
+				auto Val = GetSplitterRule();
+				auto Name = FStringFormatArg(Val.ItemClass == nullptr ? "N/A" : UFGItemDescriptor::GetItemName(Val.ItemClass).ToString());
+				auto Index = FStringFormatArg(Val.OutputIndex);
+				auto Args = FStringFormatOrderedArguments(TArray{Name, Index});
+				return FString::Format(*FString("{0} [{1}]"), Args);
+			}
+		case ArrayOfSplitterRule: return "[" + CC_INT(GetSplitterRuleArray().Num()) + " elements]"; 
 		default:
 			ACircuitryLogger::DispatchErrorEvent("Failed to find switch case for EConnectionType::" + CC_INT(ConnectionType) + " in function GET_STRINGIFIED_VALUE. Returning default value instead...");
 			return "?";

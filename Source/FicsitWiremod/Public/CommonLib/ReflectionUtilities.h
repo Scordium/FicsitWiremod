@@ -11,6 +11,7 @@
 #include "Buildables/FGBuildableLightsControlPanel.h"
 #include "Buildables/FGBuildableRailroadStation.h"
 #include "Buildables/FGBuildableRailroadSwitchControl.h"
+#include "Buildables/FGBuildableSplitterSmart.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Utility/CircuitryLogger.h"
 #include "ReflectionUtilities.generated.h"
@@ -42,6 +43,11 @@ class FICSITWIREMOD_API UReflectionUtilities : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
+private:
+	inline static FName SignTextColorName = FName("TextColor");
+	inline static FName SignBackgroundColorName = FName("BackgroundColor");
+	inline static FName SignAuxColorName = FName("AuxColor");
+	
 public:
 	
 	static bool GetBool(REFLECTION_PARAMS, bool DefaultValue = false) 
@@ -107,6 +113,7 @@ public:
 	static FInventoryStack GetStack(REFLECTION_PARAMS) { return GenericProcess<FInventoryStack>(REFLECTION_ARGS); }
 	static FItemAmount GetItemAmount(REFLECTION_PARAMS) { return GenericProcess<FItemAmount>(REFLECTION_ARGS); }
 	static UTexture* GetTexture(REFLECTION_PARAMS) { return GenericProcess<UTexture*>(REFLECTION_ARGS); }
+	static FSplitterSortRule GetSplitterRule(REFLECTION_PARAMS) { return GenericProcess<FSplitterSortRule>(REFLECTION_ARGS); }
 
 	static TArray<bool> GetBoolArray(REFLECTION_PARAMS) { return GenericProcess<TArray<bool>>(REFLECTION_ARGS); }
 	static TArray<double> GetFloatArray(REFLECTION_PARAMS) { return GenericProcess<TArray<double>>(REFLECTION_ARGS); }
@@ -120,6 +127,7 @@ public:
 	static TArray<FInventoryStack> GetStackArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FInventoryStack>>(REFLECTION_ARGS); }
 	static TArray<FItemAmount> GetItemAmountArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FItemAmount>>(REFLECTION_ARGS); }
 	static TArray<UTexture*> GetTextureArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UTexture*>>(REFLECTION_ARGS); }
+	static TArray<FSplitterSortRule> GetSplitterRuleArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FSplitterSortRule>>(REFLECTION_ARGS); }
 
 	template<typename T>
 	static T GetUnmanaged(REFLECTION_PARAMS, T DefaultValue = T()){ return GenericProcess(REFLECTION_ARGS, DefaultValue); }
@@ -270,17 +278,17 @@ public:
 			FPrefabSignData signData;
 			sign->GetSignPrefabData(signData);
 		
-			if(SourceName == "TextColor")
+			if(SourceName.Compare(SignTextColorName))
 			{
 				if(signData.ForegroundColor == Value) return;
 				signData.ForegroundColor = Value;
 			}
-			else if(SourceName == "BackgroundColor")
+			else if(SourceName.Compare(SignBackgroundColorName))
 			{
 				if(signData.BackgroundColor == Value) return;
 				signData.BackgroundColor = Value;
 			}
-			else if(SourceName == "AuxColor")
+			else if(SourceName.Compare(SignAuxColorName))
 			{
 				if(signData.AuxiliaryColor == Value) return;
 				signData.AuxiliaryColor = Value;
@@ -298,6 +306,8 @@ public:
 	
 		GenericSet(REFLECTION_ARGS, Value);
 	}
+
+	static void SetSplitterRules(REFLECTION_PARAMS, TArray<FSplitterSortRule> Value) { GenericSet(REFLECTION_ARGS, Value); }
 
 	template<typename T>
 	static void SetUnmanaged(REFLECTION_PARAMS, T Value) { GenericSet(REFLECTION_ARGS, Value); }

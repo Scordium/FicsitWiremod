@@ -100,6 +100,7 @@ bool AWiremodVanillaConnections::HandleDynamicConnections(TArray<FDynamicConnect
 		case String: ConnectionData.Receiver.SetString(ConnectionData.Transmitter.GetString()); break;
 		case Color: ConnectionData.Receiver.SetColor(ConnectionData.Transmitter.GetColor()); break;
 		case Recipe: ConnectionData.Receiver.SetRecipe(ConnectionData.Transmitter.GetRecipe()); break;
+		case ArrayOfSplitterRule: ConnectionData.Receiver.Set(ConnectionData.Transmitter.GetSplitterRule());
 		default: break;
 		}
 	}

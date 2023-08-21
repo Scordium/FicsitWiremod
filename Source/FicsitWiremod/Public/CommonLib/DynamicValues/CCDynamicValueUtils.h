@@ -19,6 +19,7 @@
 #include "CCStringValue.h"
 #include "CCTextureValue.h"
 #include "CCVectorValue.h"
+#include "CCSplitterRuleValue.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
 #include "FGRecipe.h"
@@ -110,6 +111,7 @@ public:
 		case PowerGrid: return NewObject<UCCCircuitValue>(Level);
 		case PixelImage: return NewObject<UCCPixelImageValue>(Level);
 		case Texture: return NewObject<UCCTextureValue>(Level);
+		case SplitterRule: return NewObject<UCCSplitterRuleValue>(Level);
 		case ArrayOfBoolean: return NewObject<UCCBoolArrayValue>(Level);
 		case ArrayOfColor: return NewObject<UCCColorArrayValue>(Level);
 		case ArrayOfEntity: return NewObject<UCCEntityArrayValue>(Level);
@@ -124,6 +126,7 @@ public:
 		case ArrayOfCustomStruct: return NewObject<UCCCustomStructArrayValue>(Level);
 		case ArrayOfPixelImage: return NewObject<UCCPixelImageArrayValue>(Level);
 		case ArrayOfTexture: return NewObject<UCCTextureArrayValue>(Level);
+		case ArrayOfSplitterRule: return NewObject<UCCSplitterRuleArrayValue>(Level);
 		case Unknown: return nullptr;
 		default:
 			ACircuitryLogger::DispatchErrorEvent("Unknown connection type: " + FString::FromInt(Type) + ". Failed to create dynamic value.");

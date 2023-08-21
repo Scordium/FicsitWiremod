@@ -17,6 +17,7 @@
 #include "DynamicValues/CCItemAmountValue.h"
 #include "DynamicValues/CCNumberValue.h"
 #include "DynamicValues/CCRecipeValue.h"
+#include "DynamicValues/CCSplitterRuleValue.h"
 #include "DynamicValues/CCStackValue.h"
 #include "DynamicValues/CCStringValue.h"
 #include "DynamicValues/CCVectorValue.h"
@@ -97,6 +98,12 @@ struct FDynamicValue
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FItemAmount> ItemAmountArr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FSplitterSortRule SplitterSortRule;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<FSplitterSortRule> SplitterSortRules;
+
 	FDynamicValue(){}
 	
 	FDynamicValue(bool Value)
@@ -148,6 +155,8 @@ struct FDynamicValue
 		case Vector: StoredVector = Cast<UCCVectorValue>(ReplicatedBase)->Value; break;
 		case Color: StoredColor = Cast<UCCColorValue>(ReplicatedBase)->Value; break;
 		case EConnectionType::Recipe: Recipe = Cast<UCCRecipeValue>(ReplicatedBase)->Value; break;
+		case SplitterRule: SplitterSortRule = Cast<UCCSplitterRuleValue>(ReplicatedBase)->Value; break;
+		case ArrayOfSplitterRule: SplitterSortRules = Cast<UCCSplitterRuleArrayValue>(ReplicatedBase)->Value; break;
 		default: break;
 		}
 	}
@@ -292,6 +301,20 @@ struct FDynamicValue
 				Object->Value = PowerGridArr;
 				return Object;
 			}
+		case EConnectionType::SplitterRule:
+			{
+				auto Object = NewObject<UCCSplitterRuleValue>(Level);
+				Object->Value = SplitterSortRule;
+				return Object;
+			}
+
+		case EConnectionType::ArrayOfSplitterRule:
+			{
+				auto Object = NewObject<UCCSplitterRuleArrayValue>(Level);
+				Object->Value = SplitterSortRules;
+				return Object;
+			}
+		
 		default: return nullptr;
 		}
 	}
