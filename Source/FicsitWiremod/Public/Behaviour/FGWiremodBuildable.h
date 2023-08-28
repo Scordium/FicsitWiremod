@@ -8,6 +8,7 @@
 #include "FGPlayerState.h"
 #include "WiremodBuildableHologram.h"
 #include "CircuitryInterface.h"
+#include "CircuitryStatics.h"
 #include "WiremodReflection.h"
 #include "Buildables/FGBuildable.h"
 #include "CommonLib/OwnerData/OwnerData.h"
@@ -56,10 +57,11 @@ public:
 		
 		//Visuals
 		Mesh->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-		Mesh->SetStaticMesh(UWiremodGameWorldModule::Self->WiremodGateMesh);
+		Mesh->SetStaticMesh(UCircuitryStatics::GetGateMesh());
 		Mesh->SetRelativeScale3D(FVector(20, 20, 20));
 
 		mHologramClass = AWiremodBuildableHologram::StaticClass();
+		mDecoratorClass = UCircuitryStatics::GetDefaultDecoratorClass();
 		
 		BuildableDecal->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 		FINConnector->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));

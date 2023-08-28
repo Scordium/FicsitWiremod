@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "WiremodGameWorldModule.h"
 #include "WiremodUtils.h"
+#include "Behaviour/CircuitryStatics.h"
 #include "Buildables/FGBuildable.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
@@ -29,7 +30,7 @@ public:
 		if(!Buildable) return;
 
 		const auto Texture = UWiremodUtils::GetTexture(Buildable);
-		if(!Texture || Texture == UWiremodGameWorldModule::DecalDefaultTexture) SetTexture(nullptr);
+		if(!Texture || Texture == UCircuitryStatics::GetDefaultDecalTexture()) SetTexture(nullptr);
 		else SetTexture(Texture);
 	}
 

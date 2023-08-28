@@ -4,6 +4,7 @@
 #include "Utility/WiremodDecalMesh.h"
 
 #include "WiremodUtils.h"
+#include "Behaviour/CircuitryStatics.h"
 #include "Utility/WiremodGameWorldModule.h"
 
 
@@ -16,8 +17,8 @@ UWiremodDecalMesh::UWiremodDecalMesh() : Super()
 	
 	SetRelativeLocation(FVector(0, 0, 8.5));
 	SetRelativeScale3D(FVector(0.35, 0.35, 0.35));
-	SetStaticMesh(UWiremodGameWorldModule::GateDecalMesh);
-	SetMaterial(0, UWiremodGameWorldModule::GateDecalMaterial);
+	SetStaticMesh(UCircuitryStatics::GetGateDecalMesh());
+	SetMaterial(0, UCircuitryStatics::GetGateDecalMaterial());
 	
 	// ...
 }
