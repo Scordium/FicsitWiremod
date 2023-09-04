@@ -295,3 +295,116 @@ struct FDynamicConnectionData
 	bool IsValid() { return Transmitter.IsValid() && Receiver.IsValid(); }
 	bool IsValidForWire() { return Transmitter.IsValidForWire() && Receiver.IsValidForWire() && !Transmitter.WireHidden; }
 };
+
+UCLASS()
+class UBlueprintReflectionFunctions : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintCallable)
+	static bool GetBool(const FConnectionData& Data, bool DefaultValue = false) { return Data.GetBool(DefaultValue); }
+
+	UFUNCTION(BlueprintCallable)
+	static double GetFloat(const FConnectionData& Data, double DefaultValue = 0) { return Data.GetFloat(DefaultValue); }
+	
+	UFUNCTION(BlueprintCallable)
+	static FString GetString(const FConnectionData& Data, FString DefaultValue = "") { return Data.GetString(DefaultValue); }
+	
+	UFUNCTION(BlueprintCallable)
+	static FVector GetVector(const FConnectionData& Data, FVector DefaultValue = FVector::ZeroVector) { return Data.GetVector(DefaultValue); }
+	
+	UFUNCTION(BlueprintCallable)
+	static UFGInventoryComponent* GetInventory(const FConnectionData& Data) { return Data.GetInventory(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static UFGPowerCircuit* GetCircuit(const FConnectionData& Data) { return Data.GetCircuit(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static AActor* GetEntity(const FConnectionData& Data) { return Data.GetEntity(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TSubclassOf<UFGRecipe> GetRecipe(const FConnectionData& Data) { return Data.GetRecipe(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static FLinearColor GetColor(const FConnectionData& Data, FLinearColor DefaultValue = FLinearColor::Black) { return Data.GetColor(DefaultValue); }
+	
+	UFUNCTION(BlueprintCallable)
+	static FInventoryStack GetStack(const FConnectionData& Data) { return Data.GetStack(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static FItemAmount GetItemAmount(const FConnectionData& Data) { return Data.GetItemAmount(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static FCustomStruct GetCustomStruct(const FConnectionData& Data) { return Data.GetCustomStruct(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static FPixelScreenData GetPixelImage(const FConnectionData& Data) { return Data.GetPixelImage(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static UTexture* GetTexture(const FConnectionData& Data) { return Data.GetTexture(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static FSplitterSortRule GetSplitterRule(const FConnectionData& Data) { return Data.GetSplitterRule(); }
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<bool> GetBoolArray(const FConnectionData& Data) { return Data.GetBoolArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<double> GetFloatArray(const FConnectionData& Data) { return Data.GetFloatArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<FString> GetStringArray(const FConnectionData& Data) { return Data.GetStringArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<FVector> GetVectorArray(const FConnectionData& Data) { return Data.GetVectorArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<UFGInventoryComponent*> GetInventoryArray(const FConnectionData& Data) { return Data.GetInventoryArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<UFGPowerCircuit*> GetCircuitArray(const FConnectionData& Data) { return Data.GetCircuitArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<AActor*> GetEntityArray(const FConnectionData& Data) { return Data.GetEntityArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<TSubclassOf<UFGRecipe>> GetRecipeArray(const FConnectionData& Data) { return Data.GetRecipeArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<FLinearColor> GetColorArray(const FConnectionData& Data) { return Data.GetColorArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<FInventoryStack> GetStackArray(const FConnectionData& Data) { return Data.GetStackArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<FItemAmount> GetItemAmountArray(const FConnectionData& Data) { return Data.GetItemAmountArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<FCustomStruct> GetCustomStructArray(const FConnectionData& Data) { return Data.GetCustomStructArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<FPixelScreenData> GetPixelImageArray(const FConnectionData& Data) { return Data.GetPixelImageArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<UTexture*> GetTextureArray(const FConnectionData& Data) { return Data.GetTextureArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<FSplitterSortRule> GetSplitterRuleArray(const FConnectionData& Data) { return Data.GetSplitterRuleArray(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static void SetBool(const FConnectionData& Data, bool Value) { Data.SetBool(Value); }
+	
+	UFUNCTION(BlueprintCallable)
+	static void SetFloat(const FConnectionData& Data, double Value) { Data.SetFloat(Value); }
+	
+	UFUNCTION(BlueprintCallable)
+	static void SetString(const FConnectionData& Data, FString Value) { Data.SetString(Value); }
+	
+	UFUNCTION(BlueprintCallable)
+	static void SetColor(const FConnectionData& Data, FLinearColor Value) { Data.SetColor(Value); }
+	
+	UFUNCTION(BlueprintCallable)
+	static void SetRecipe(const FConnectionData& Data, TSubclassOf<UFGRecipe> Value) { Data.SetRecipe(Value); }
+};

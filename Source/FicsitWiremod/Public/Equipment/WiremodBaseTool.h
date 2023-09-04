@@ -58,7 +58,8 @@ public:
 		Super::Destroyed();
 	}
 #endif
-	
+
+	virtual bool ShouldSaveState() const override { return true; }
 
 	template<class T>
 	T* GetFirstContextOfType()
