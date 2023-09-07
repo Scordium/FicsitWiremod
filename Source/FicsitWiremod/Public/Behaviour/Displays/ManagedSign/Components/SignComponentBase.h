@@ -19,7 +19,7 @@ class FICSITWIREMOD_API USignEditorComponentBase : public UUserWidget
 	
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FSignComponentVariableData> Variables;
 
 	UFUNCTION(BlueprintPure, BlueprintImplementableEvent)
@@ -37,6 +37,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void InstantiateVariableEditors(UWidget* VariableEditorsContainer);
 
+	UFUNCTION(BlueprintCallable)
+	void LoadVariableValues(TArray<FSignComponentVariableData> SavedVariables)
+	{
+		for (auto SavedVariable : SavedVariables)
+		{
+			UpdateVariableValue(SavedVariable.Name, SavedVariable.Data);
+		}
+	}
+	
 protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)

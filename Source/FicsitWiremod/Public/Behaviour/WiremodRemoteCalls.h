@@ -6,6 +6,7 @@
 #include "FGRemoteCallObject.h"
 #include "CommonLib/BackwardsCompatibilityHandler.h"
 #include "Communications/RemoteControlReceiver.h"
+#include "Displays/ManagedSign/ManagedSign.h"
 #include "Miscellaneous/CustomStructProcessor.h"
 #include "WiremodRemoteCalls.generated.h"
 
@@ -66,6 +67,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
 	void SetCustomStructData(ACustomStructProcessor* Processor, const FCustomStructReplicatable& Data, UObject* Setter);
+
+	UFUNCTION(BlueprintCallable, Reliable, Server)
+	void SetSignLayout(AManagedSign* Sign, const FManagedSignData& Data, UObject* Setter);
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{

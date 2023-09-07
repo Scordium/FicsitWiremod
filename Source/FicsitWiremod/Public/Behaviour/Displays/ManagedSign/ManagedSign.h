@@ -9,20 +9,6 @@
 #include "ManagedSign.generated.h"
 
 USTRUCT(BlueprintType)
-struct FManagedSignConnectionSettings
-{
-	GENERATED_BODY()
-
-public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FString Name;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TEnumAsByte<EConnectionType> Type;
-};
-
-USTRUCT(BlueprintType)
 struct FManagedSignData
 {
 	GENERATED_BODY()
@@ -56,6 +42,33 @@ public:
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
+		OnGenerateSign();
+	}
+	
+	void ApplySignLayout(FManagedSignData NewData, UObject* Setter)
+	{
+		if(!GetCanConfigure(Setter)) return;
+		Data = NewData;
+
+		InitSign();
+	}
+
+	virtual void ClientProcess_Implementation(double DeltaTime) override
+	{
+		for (auto Component : ActiveComponents)
+		{
+			if(Component) Component->OnUpdate(this);
+		}
+	}
+
+	void InitSign()
+	{
+		ConnectionsInfo.Inputs.Empty();
+		for (auto Connection : Data.Connections)
+		{
+			ConnectionsInfo.Inputs.Add(FBuildingConnection(Connection.Name, "", Connection.Type.GetValue()));
+		}
+
 		OnGenerateSign();
 	}
 	

@@ -52,3 +52,8 @@ void UWiremodRemoteCalls::SetCustomStructData_Implementation(ACustomStructProces
 {
 	Processor->SetCustomStruct(Data.Convert(Processor), Setter);
 }
+
+void UWiremodRemoteCalls::SetSignLayout_Implementation(AManagedSign* Sign, const FManagedSignData& Data, UObject* Setter)
+{
+	if(Sign) Sign->ApplySignLayout(Data, Setter);
+}
