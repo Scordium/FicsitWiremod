@@ -95,6 +95,12 @@ public:
 	static FString GetBindingPrefixString() { return "\u25C8"; }
 
 	UFUNCTION(BlueprintPure)
+	static UUserWidget* GetTooltipWidget(TSubclassOf<USignComponentDescriptor> Descriptor)
+	{
+		return Descriptor.GetDefaultObject()->GetEditorComponentTooltipWidget();
+	}
+
+	UFUNCTION(BlueprintPure)
 	static TSubclassOf<UUserWidget> GetEditorWidget(TSubclassOf<USignComponentDescriptor> Descriptor)
 	{
 		return Descriptor.GetDefaultObject()->EditorWidget;
