@@ -28,28 +28,27 @@ public:
 		{
 			auto Colors = GetConnection(0).GetColorArray();
 			auto NumColors = Colors.Num();
-			
-			if(NumColors == 0)
+
+			switch (NumColors)
 			{
-				Out = FLinearColor::Black;
-			}
-			else if(NumColors == 1)
-			{
-				Out = Colors[0];
-			}
-			else
-			{
+			case 0: Out = FLinearColor::Black; break;
+			case 1: Out = Colors[0]; break;
+			default:
 				auto Alpha = GetConnection(1).GetFloat();
-				auto AlphaPerIndex = 1.f / Colors.Num();
-
-				//This is so fucking stupid
-				auto AIndex = FMath::Clamp((int)(Alpha / AlphaPerIndex - 1), 0, NumColors - 2);
-				auto BIndex = FMath::Clamp((int)(Alpha / AlphaPerIndex + 1), 1, NumColors - 1);
+				auto MagicNumber = Alpha * (NumColors - 1);
 				
-				auto A = Colors[AIndex];
-				auto B = Colors[BIndex];
-
-				Out = UKismetMathLibrary::LinearColorLerp(A, B, Alpha);
+				auto A = Colors[FMath::Max(MagicNumber, 0)];
+				auto B = Colors[FMath::Min(MagicNumber + 1, NumColors - 1)];
+				
+				// //This is so fucking stupid
+				// auto AIndex = FMath::Clamp((int)(Alpha / AlphaPerColor), 0, NumColors - 1);
+				// auto BIndex = FMath::Clamp((int)(Alpha / AlphaPerColor + 1), 1, NumColors - 1);
+				//
+				// auto A = Colors[AIndex];
+				// auto B = Colors[BIndex];
+				
+				Out = UKismetMathLibrary::LinearColorLerp(A, B, FMath::Fractional(MagicNumber));
+				break;
 			}
 		}
 	}
