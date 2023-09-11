@@ -42,11 +42,6 @@ UCLASS()
 class FICSITWIREMOD_API UReflectionUtilities : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
-
-private:
-	inline static FName SignTextColorName = FName("TextColor");
-	inline static FName SignBackgroundColorName = FName("BackgroundColor");
-	inline static FName SignAuxColorName = FName("AuxColor");
 	
 public:
 	
@@ -278,17 +273,17 @@ public:
 			FPrefabSignData signData;
 			sign->GetSignPrefabData(signData);
 		
-			if(SourceName.Compare(SignTextColorName))
+			if(SourceName == "TextColor")
 			{
 				if(signData.ForegroundColor == Value) return;
 				signData.ForegroundColor = Value;
 			}
-			else if(SourceName.Compare(SignBackgroundColorName))
+			else if(SourceName == "BackgroundColor")
 			{
 				if(signData.BackgroundColor == Value) return;
 				signData.BackgroundColor = Value;
 			}
-			else if(SourceName.Compare(SignAuxColorName))
+			else if(SourceName == "AuxColor")
 			{
 				if(signData.AuxiliaryColor == Value) return;
 				signData.AuxiliaryColor = Value;
