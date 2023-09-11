@@ -66,7 +66,10 @@ public:
 	void InitializeEditor(const FString& Value);
 
 protected:
-
+	
+	/*
+	 * Broadcasts an update to the component and editor when called, can be called to update a displayed value or to simply refresh the current one
+	 */
 	UFUNCTION(BlueprintCallable)
 	void CallChanged() { OnComponentVariableValueChanged.Broadcast(this, Name, Data); }
 

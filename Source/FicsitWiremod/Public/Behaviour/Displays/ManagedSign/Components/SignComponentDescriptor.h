@@ -103,13 +103,15 @@ public:
 	UFUNCTION(BlueprintPure)
 	static TSubclassOf<UUserWidget> GetEditorWidget(TSubclassOf<USignComponentDescriptor> Descriptor)
 	{
-		return Descriptor.GetDefaultObject()->EditorWidget;
+		if(auto CDO = Descriptor.GetDefaultObject()) return CDO->EditorWidget;
+		return nullptr;
 	}
 
 	UFUNCTION(BlueprintPure)
 	static TSubclassOf<UUserWidget> GetRuntimeWidget(TSubclassOf<USignComponentDescriptor> Descriptor)
 	{
-		return Descriptor.GetDefaultObject()->SignWidget;
+		if(auto CDO = Descriptor.GetDefaultObject()) return CDO->SignWidget;
+		return nullptr;
 	}
 
 	UFUNCTION(BlueprintPure, meta=(ScriptOperator="=="), DisplayName="Compare sign component variable")
