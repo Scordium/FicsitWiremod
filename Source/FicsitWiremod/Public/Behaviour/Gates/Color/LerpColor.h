@@ -40,13 +40,6 @@ public:
 				auto A = Colors[FMath::Max(MagicNumber, 0)];
 				auto B = Colors[FMath::Min(MagicNumber + 1, NumColors - 1)];
 				
-				// //This is so fucking stupid
-				// auto AIndex = FMath::Clamp((int)(Alpha / AlphaPerColor), 0, NumColors - 1);
-				// auto BIndex = FMath::Clamp((int)(Alpha / AlphaPerColor + 1), 1, NumColors - 1);
-				//
-				// auto A = Colors[AIndex];
-				// auto B = Colors[BIndex];
-				
 				Out = UKismetMathLibrary::LinearColorLerp(A, B, FMath::Fractional(MagicNumber));
 				break;
 			}
