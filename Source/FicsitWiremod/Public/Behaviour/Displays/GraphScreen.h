@@ -7,7 +7,7 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "GraphScreen.generated.h"
 
-UCLASS()
+UCLASS(meta=(DeprecationMessage="Graph screens are now part of managed signs"))
 class FICSITWIREMOD_API AGraphScreen : public AFGWiremodBuildable
 {
 	GENERATED_BODY()

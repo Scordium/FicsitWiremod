@@ -31,6 +31,18 @@ struct FModlockedSchematic
 	TSubclassOf<UFGSchematic> Schematic;
 };
 
+USTRUCT(BlueprintType)
+struct FDeprecatedCircuitryData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<AFGBuildable> Class;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FText DeprecationText;
+};
+
 /**
  * 
  */
@@ -94,12 +106,12 @@ public:
 		if(!Player || !Player->HasAuthority()) return;
 		if(DeprecatedClasses.Num() == 0) return;
 
-		TArray<FText> Result;
-		for(auto deprecatedClass : DeprecatedClasses)
+		TArray<FDeprecatedCircuitryData> Result;
+		for(auto DeprecatedData : DeprecatedClasses)
 		{
-			if(auto actor = Cast<AFGBuildable>(UGameplayStatics::GetActorOfClass(this, deprecatedClass)))
+			if(UGameplayStatics::GetActorOfClass(this, DeprecatedData.Class))
 			{
-				Result.Add(actor->mDisplayName);
+				Result.Add(DeprecatedData);
 			}
 		}
 
@@ -107,7 +119,7 @@ public:
 	}
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	void CreateWiremodDeprecationNotifier(const TArray<FText>& Deprecated);
+	void CreateWiremodDeprecationNotifier(const TArray<FDeprecatedCircuitryData>& Deprecated);
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor> DebuggerGimbal;
@@ -128,7 +140,7 @@ protected:
 	TMap<FString, FModlockedSchematic> ModLockedSchematics;
 
 	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<AFGBuildable>> DeprecatedClasses;
+	TArray<FDeprecatedCircuitryData> DeprecatedClasses;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UModConfiguration> WiremodConfig;
