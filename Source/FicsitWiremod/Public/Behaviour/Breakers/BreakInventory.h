@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ABreakInventory : public AFGWiremodBuildable
 
 public:
 	
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Inventory = GetConnection(0).GetInventory();
 

@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ABreakRecipe : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Recipe = GetConnection(0).GetRecipe();
 	}

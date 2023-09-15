@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ADivideNumbers : public AMultistateWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		//0 - Divide all connected
 		if(CurrentStateIndex == 0)

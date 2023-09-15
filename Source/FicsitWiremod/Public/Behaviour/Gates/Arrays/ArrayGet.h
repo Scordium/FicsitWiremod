@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AArrayGet : public AFGWiremodBuildable, public IDynamicV
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto Value = UCCDynamicValueUtils::FromValue(GetConnection(0), this);
 		if(auto Array = Cast<UCCArrayValueBase>(Value))

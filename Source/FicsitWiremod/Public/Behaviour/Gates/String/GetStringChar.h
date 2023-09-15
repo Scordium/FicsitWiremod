@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AGetStringChar : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto String = GetConnection(0).GetString();
 		int Index = GetConnection(1).GetFloat();

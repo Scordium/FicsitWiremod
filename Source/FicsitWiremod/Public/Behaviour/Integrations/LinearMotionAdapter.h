@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ALinearMotionAdapter : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Lift = GetConnection(0).GetEntity();
 		FloorIndex = GetConnection(1).GetFloat();

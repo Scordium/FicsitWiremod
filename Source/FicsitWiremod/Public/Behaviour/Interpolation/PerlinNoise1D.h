@@ -13,7 +13,7 @@ class FICSITWIREMOD_API APerlinNoise1D : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto Value = GetConnection(0).GetFloat();;
 		auto Min = GetConnection(1).GetFloat();;

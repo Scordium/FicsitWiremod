@@ -14,7 +14,7 @@ class FICSITWIREMOD_API AArrayBreak : public AFGWiremodBuildable, public IDynami
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		const EConnectionType ElementType = UConnectionTypeFunctions::ArrayToBase(GetConnection(0).ConnectionType);
 		const int ElementsCount = AArrayLength::GetArrayLength(GetConnection(0));

@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AStringToNumber : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Out = FCString::Atof(*WM_GetString(0));
 	}

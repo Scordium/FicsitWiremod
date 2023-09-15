@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AArrayClear : public AFGWiremodBuildable, public IDynami
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Out = UCCDynamicValueUtils::FromType(GetConnection(0).ConnectionType, Out ? Out->GetWorld() : this->GetWorld());
 		if(auto Array = Cast<UCCArrayValueBase>(Out)) Array->Clear();

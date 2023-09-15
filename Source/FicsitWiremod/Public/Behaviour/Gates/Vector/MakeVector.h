@@ -12,13 +12,11 @@ class FICSITWIREMOD_API AMakeVector : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		auto X = GetConnection(0).GetFloat();
-		auto Y = GetConnection(1).GetFloat();
-		auto Z = GetConnection(2).GetFloat();
-
-		Out = FVector(X, Y, Z);
+		Out.X = GetConnection(0).GetFloat();
+		Out.Y = GetConnection(1).GetFloat();
+		Out.Z = GetConnection(2).GetFloat();
 	}
 
 

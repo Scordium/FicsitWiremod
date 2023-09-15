@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ANumberAverage : public AMultistateWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		//0 - Average of all connected inputs
 		if(CurrentStateIndex == 0)

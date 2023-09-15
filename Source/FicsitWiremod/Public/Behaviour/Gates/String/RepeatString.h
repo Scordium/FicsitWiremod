@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ARepeatString : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		FString String = GetConnection(0).GetString();
 		int RepeatCount = GetConnection(1).GetFloat();

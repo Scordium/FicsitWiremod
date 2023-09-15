@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AATan_Rad : public AFGWiremodBuildable
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Out = UKismetMathLibrary::Atan(GetConnection(0).GetFloat());
 	}

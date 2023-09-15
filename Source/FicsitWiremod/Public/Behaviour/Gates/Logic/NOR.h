@@ -20,7 +20,7 @@ public:
 		DOREPLIFETIME(ANOR, Out)
 	};
 
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		//Default state - N+ inputs, 1 output
 		if(CurrentStateIndex == 0)

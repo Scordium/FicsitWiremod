@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ARemapNumber : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		double Value = GetConnection(0).GetFloat();;
 		double InMin = GetConnection(1).GetFloat();;

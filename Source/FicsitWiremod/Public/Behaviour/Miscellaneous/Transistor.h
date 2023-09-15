@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ATransistor : public AFGWiremodBuildable, public IDynami
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		if(GetConnection(2).GetBool()) Out = nullptr;
 		else if(GetConnection(1).GetBool())

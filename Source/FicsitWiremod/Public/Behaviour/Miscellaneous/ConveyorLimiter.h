@@ -20,7 +20,7 @@ public:
 		TempStorage = CreateDefaultSubobject<UFGInventoryComponent>("TempStorage");
 	}
 	
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Enabled = GetConnection(0).GetBool(EnabledByDefault());
 

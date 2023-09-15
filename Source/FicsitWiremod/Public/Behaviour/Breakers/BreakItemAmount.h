@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ABreakItemAmount : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		ItemAmount = GetConnection(0).GetItemAmount();
 	}

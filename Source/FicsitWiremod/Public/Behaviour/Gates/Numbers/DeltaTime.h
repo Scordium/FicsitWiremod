@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ADeltaTime : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override { Out = DeltaTime; }
+	virtual void ServerProcess_Implementation(double DeltaTime) override { Out = DeltaTime; }
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
 	{

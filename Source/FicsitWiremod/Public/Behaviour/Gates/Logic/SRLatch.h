@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ASRLatch : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto S = GetConnection(0).GetBool();
 		auto R = GetConnection(1).GetBool();
@@ -55,7 +55,7 @@ class FICSITWIREMOD_API ASRLatchWithEnable : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		if(!GetConnection(2).GetBool()) return;
 		

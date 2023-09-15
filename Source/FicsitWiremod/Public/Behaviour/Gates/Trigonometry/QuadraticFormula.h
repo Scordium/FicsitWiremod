@@ -20,7 +20,7 @@ public:
 		DOREPLIFETIME(AQuadraticFormula, OutNeg);
 	}
 
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		double a = GetConnection(0).GetFloat();;
 		double b = GetConnection(1).GetFloat();;

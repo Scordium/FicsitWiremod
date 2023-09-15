@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ANumberSubtract : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Out = GetConnection(0).GetFloat() - GetConnection(1).GetFloat();
 	}

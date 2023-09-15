@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ATextureRenderer : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ClientProcess_Implementation(double DeltaTime) override
 	{
 		auto Image = GetConnection(0).GetPixelImage();
 		auto Scale = GetConnection(1).GetVector(FVector(1)) / 5; // Dividing by 5 to make the widget smaller 

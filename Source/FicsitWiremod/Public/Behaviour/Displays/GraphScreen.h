@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AGraphScreen : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ClientProcess_Implementation(double DeltaTime) override
 	{
 		auto Points = GetConnection(0).GetFloatArray();
 		auto LineColor = GetConnection(1).GetColor(DefaultLineColor);

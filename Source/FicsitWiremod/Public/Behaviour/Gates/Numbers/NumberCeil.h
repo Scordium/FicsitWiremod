@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ANumberCeil : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Out = FMath::CeilToInt(GetConnection(0).GetFloat());
 	}

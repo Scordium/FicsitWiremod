@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ANotificator : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ClientProcess_Implementation(double DeltaTime) override
 	{
 		auto Fire = GetConnection(0).GetBool();
 

@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AVectorToColor : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto Vector = GetConnection(0).GetVector();
 		auto Alpha = GetConnection(1).GetFloat();

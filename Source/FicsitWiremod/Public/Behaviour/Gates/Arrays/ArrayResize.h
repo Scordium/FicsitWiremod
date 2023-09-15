@@ -14,7 +14,7 @@ class FICSITWIREMOD_API AArrayResize : public AFGWiremodBuildable, public IDynam
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		const int NewSize = GetConnection(1).GetFloat();
 		

@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AVectorDotProduct : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto const V1 = GetConnection(0).GetVector();
 		auto const V2 = GetConnection(1).GetVector();

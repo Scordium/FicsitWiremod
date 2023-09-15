@@ -21,7 +21,7 @@ class FICSITWIREMOD_API AProximitySensor : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		SetProximityData(SCALE, OFFSET, AREA_VISIBLE);
 	}

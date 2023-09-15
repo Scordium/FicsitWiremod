@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ABreakCustomStruct : public AFGWiremodBuildable, public 
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		CacheValues(GetConnection(0).GetCustomStruct());
 	}

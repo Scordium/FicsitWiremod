@@ -1,4 +1,0 @@
-﻿// 
-
-
-#include "CommonLib/TextureUtilities.h"

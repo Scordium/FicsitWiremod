@@ -13,7 +13,7 @@ class FICSITWIREMOD_API ASubstring : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto Source = GetConnection(0).GetString();
 		int StartIndex = GetConnection(1).GetFloat();

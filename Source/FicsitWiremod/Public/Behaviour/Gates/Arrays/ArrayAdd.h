@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AArrayAdd : public AFGWiremodBuildable, public IDynamicV
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? Out->GetWorld() : this->GetWorld());
 		

@@ -90,10 +90,6 @@ protected:
 	
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintNativeEvent, meta=(DeprecatedFunction, DeprecationMessage="Use server and client process functions instead!"))
-	void Process(double DeltaTime);
-	virtual void Process_Implementation(double DeltaTime) {}
-
 	UFUNCTION(BlueprintNativeEvent)
 	void ServerProcess(double DeltaTime);
 	virtual void ServerProcess_Implementation(double DeltaTime){}
@@ -280,13 +276,9 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, SaveGame, Replicated)
 	FWiremodOwnerData OwnerData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, meta=(DeprecatedProperty, DeprecationMessage="Use server and client process functions instead!"))
-	bool ProcessLocally;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UUserWidget> CompactWidget;
-
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	

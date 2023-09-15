@@ -31,12 +31,16 @@ public:
 	}
 
 	
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		MaxDistance = GetConnection(0).GetFloat(1000);
 		
 		auto ActorIgnoreList = TArray<AActor*>();
 		TraceForHit(ActorIgnoreList);
+	}
+
+	virtual void ClientProcess_Implementation(double DeltaTime) override
+	{
 		RenderLaser();
 	}
 

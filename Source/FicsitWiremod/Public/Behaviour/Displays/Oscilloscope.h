@@ -19,14 +19,7 @@ class FICSITWIREMOD_API AOscilloscope : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-
-	AOscilloscope(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
-	{
-		ProcessLocally = true;
-	}
-
-
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ClientProcess_Implementation(double DeltaTime) override
 	{
 		SetupWidgetVariables(DF_BACKGROUND_COLOR, DF_MAX_POINTS, DF_NO_FADING);
 		DrawPoint(DF_GET_X, DF_GET_Y, DF_LINE_COLOR);

@@ -12,7 +12,7 @@ class FICSITWIREMOD_API AVectorDivide : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Out = GetConnection(0).GetVector() / GetConnection(1).GetVector();
 	}

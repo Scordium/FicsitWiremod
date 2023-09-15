@@ -13,7 +13,7 @@ class FICSITWIREMOD_API APixel : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ClientProcess_Implementation(double DeltaTime) override
 	{
 		const auto Color = GetConnection(0).GetColor();
 		const auto Emission = GetConnection(1).GetFloat(1);
@@ -44,7 +44,7 @@ class FICSITWIREMOD_API ABoolPixel : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ClientProcess_Implementation(double DeltaTime) override
 	{
 		auto Value = GetConnection(0).GetBool();
 		auto Color = Value

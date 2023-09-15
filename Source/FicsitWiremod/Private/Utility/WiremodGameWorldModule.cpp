@@ -1,4 +1,0 @@
-﻿// 
-
-
-#include "Utility/WiremodGameWorldModule.h"

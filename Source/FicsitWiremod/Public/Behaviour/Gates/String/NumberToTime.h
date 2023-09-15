@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ANumberToTime : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Out = UFGBlueprintFunctionLibrary::SecondsToTimeString(GetConnection(0).GetFloat());
 	}

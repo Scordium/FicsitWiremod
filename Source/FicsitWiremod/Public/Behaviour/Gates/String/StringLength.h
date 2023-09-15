@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AStringLength : public AFGWiremodBuildable
 
 public:
 
-	virtual void Process_Implementation(double DeltaTime) override { Out = GetConnection(0).GetString().Len(); }
+	virtual void ServerProcess_Implementation(double DeltaTime) override { Out = GetConnection(0).GetString().Len(); }
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{

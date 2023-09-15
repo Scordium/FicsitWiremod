@@ -15,7 +15,7 @@ class FICSITWIREMOD_API ABreakPowerCircuit : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		Circuit = GetConnection(0).GetCircuit();
 

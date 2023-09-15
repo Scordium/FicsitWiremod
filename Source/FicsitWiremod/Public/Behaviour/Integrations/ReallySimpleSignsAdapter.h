@@ -14,7 +14,7 @@ class FICSITWIREMOD_API AReallySimpleSignsAdapter : public AMultistateWiremodBui
 	GENERATED_BODY()
 
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		ElementIndex = GetConnection(1).GetFloat();
 

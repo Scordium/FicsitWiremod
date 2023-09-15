@@ -13,7 +13,7 @@ class FICSITWIREMOD_API AArrayInsert : public AFGWiremodBuildable, public IDynam
 	GENERATED_BODY()
     
 public:
-	virtual void Process_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		const int Index = GetConnection(2).GetFloat();
 
