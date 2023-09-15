@@ -10,9 +10,6 @@ void AFGWiremodBuildable::Tick(float DeltaTime)
 	
 	if(HasAuthority()) ServerProcess(DeltaTime);
 	ClientProcess(DeltaTime);
-
-	//TODO: DEPRECATED!
-	if(ProcessLocally || this->HasAuthority()) Process(DeltaTime);
 }
 
 FConnectionData AFGWiremodBuildable::GetConnection(int Index)
