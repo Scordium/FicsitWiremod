@@ -3,6 +3,18 @@
 
 #include "WiremodReflection.h"
 #include "Buildables/FGBuildableBlueprintDesigner.h"
+#include "CommonLib/DynamicValues/CCBoolValue.h"
+#include "CommonLib/DynamicValues/CCCircuitValue.h"
+#include "CommonLib/DynamicValues/CCColorValue.h"
+#include "CommonLib/DynamicValues/CCEntityValue.h"
+#include "CommonLib/DynamicValues/CCInventoryValue.h"
+#include "CommonLib/DynamicValues/CCItemAmountValue.h"
+#include "CommonLib/DynamicValues/CCNumberValue.h"
+#include "CommonLib/DynamicValues/CCRecipeValue.h"
+#include "CommonLib/DynamicValues/CCSplitterRuleValue.h"
+#include "CommonLib/DynamicValues/CCStackValue.h"
+#include "CommonLib/DynamicValues/CCStringValue.h"
+#include "CommonLib/DynamicValues/CCVectorValue.h"
 
 void AFGWiremodBuildable::Tick(float DeltaTime)
 {
@@ -158,12 +170,218 @@ int AFGWiremodBuildable::netFunc_getFunctionReturnType(FString FunctionName)
 
 	return -1;
 }
-bool AFGWiremodBuildable::netFunc_getWireBool(FString FunctionName, bool DefaultValue){ return FConnectionData(this, FName(FunctionName), Boolean).GetBool(DefaultValue); }
-double AFGWiremodBuildable::netFunc_getWireNumber(FString FunctionName, double DefaultValue) { return FConnectionData(this, FName(FunctionName), Number).GetFloat(DefaultValue); }
-FString AFGWiremodBuildable::netFunc_getWireString(FString FunctionName, FString DefaultValue) { return FConnectionData(this, FName(FunctionName), String).GetString(DefaultValue); }
-FVector AFGWiremodBuildable::netFunc_getWireVector(FString FunctionName, FVector DefaultValue) { return FConnectionData(this, FName(FunctionName), Vector).GetVector(DefaultValue); }
-FLinearColor AFGWiremodBuildable::netFunc_getWireColor(FString FunctionName, FLinearColor DefaultValue) { return FConnectionData(this, FName(FunctionName), Color).GetColor(DefaultValue); }
-FString AFGWiremodBuildable::netFunc_getDebuggerOutputString(FString FunctionName) { return FConnectionData(this, FName(FunctionName), (EConnectionType) netFunc_getFunctionReturnType(FunctionName)).GetStringifiedValue(); }
+
+void AFGWiremodBuildable::netFunc_setBool(int InputIndex, bool Value)
+{
+	auto InputObject = NewObject<UCCBoolValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setBoolArray(int InputIndex, TArray<bool> Value)
+{
+	auto InputObject = NewObject<UCCBoolArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setNumber(int InputIndex, double Value)
+{
+	auto InputObject = NewObject<UCCNumberValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setNumberArray(int InputIndex, TArray<double> Value)
+{
+	auto InputObject = NewObject<UCCNumberArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setString(int InputIndex, FString Value)
+{
+	auto InputObject = NewObject<UCCStringValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setStringArray(int InputIndex, TArray<FString> Value)
+{
+	auto InputObject = NewObject<UCCStringArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setVector(int InputIndex, FVector Value)
+{
+	auto InputObject = NewObject<UCCVectorValue>(this);
+	InputObject->Value = Value;
+	
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setVectorArray(int InputIndex, TArray<FVector> Value)
+{
+	auto InputObject = NewObject<UCCVectorArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setInventory(int InputIndex, UFGInventoryComponent* Value)
+{
+	auto InputObject = NewObject<UCCInventoryValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setInventoryArray(int InputIndex, TArray<UFGInventoryComponent*> Value)
+{
+	auto InputObject = NewObject<UCCInventoryArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setPowerGrid(int InputIndex, UFGPowerCircuit* Value)
+{
+	auto InputObject = NewObject<UCCCircuitValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setPowerGridArray(int InputIndex, TArray<UFGPowerCircuit*> Value)
+{
+	auto InputObject = NewObject<UCCCircuitArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setEntity(int InputIndex, AActor* Value)
+{
+	auto InputObject = NewObject<UCCEntityValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setEntityArray(int InputIndex, TArray<AActor*> Value)
+{
+	auto InputObject = NewObject<UCCEntityArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setRecipe(int InputIndex, TSubclassOf<UFGRecipe> Value)
+{
+	auto InputObject = NewObject<UCCRecipeValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setRecipeArray(int InputIndex, TArray<TSubclassOf<UFGRecipe>> Value)
+{
+	auto InputObject = NewObject<UCCRecipeArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setColor(int InputIndex, FLinearColor Value)
+{
+	auto InputObject = NewObject<UCCColorValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setColorArray(int InputIndex, TArray<FLinearColor> Value)
+{
+	auto InputObject = NewObject<UCCColorArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setStack(int InputIndex, FInventoryStack Value)
+{
+	auto InputObject = NewObject<UCCStackValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setStackArray(int InputIndex, TArray<FInventoryStack> Value)
+{
+	auto InputObject = NewObject<UCCStackArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setItemAmount(int InputIndex, FItemAmount Value)
+{
+	auto InputObject = NewObject<UCCItemAmountValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+void AFGWiremodBuildable::netFunc_setItemAmountArray(int InputIndex, TArray<FItemAmount> Value)
+{
+	auto InputObject = NewObject<UCCItemAmountArrayValue>(this);
+	InputObject->Value = Value;
+
+	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
+	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+
+bool AFGWiremodBuildable::netFunc_getBool(FString FunctionName, bool DefaultValue){ return FConnectionData(this, FName(FunctionName), Boolean).GetBool(DefaultValue); }
+double AFGWiremodBuildable::netFunc_getNumber(FString FunctionName, double DefaultValue) { return FConnectionData(this, FName(FunctionName), Number).GetFloat(DefaultValue); }
+FString AFGWiremodBuildable::netFunc_getString(FString FunctionName, FString DefaultValue) { return FConnectionData(this, FName(FunctionName), String).GetString(DefaultValue); }
+FVector AFGWiremodBuildable::netFunc_getVector(FString FunctionName, FVector DefaultValue) { return FConnectionData(this, FName(FunctionName), Vector).GetVector(DefaultValue); }
+FLinearColor AFGWiremodBuildable::netFunc_getColor(FString FunctionName, FLinearColor DefaultValue) { return FConnectionData(this, FName(FunctionName), Color).GetColor(DefaultValue); }
+FString AFGWiremodBuildable::netFunc_getOutputString(FString FunctionName) { return FConnectionData(this, FName(FunctionName), (EConnectionType) netFunc_getFunctionReturnType(FunctionName)).GetStringifiedValue(); }
+
+FString AFGWiremodBuildable::netFunc_getInputValueString(int InputIndex)
+{
+	return GetConnection(InputIndex).GetStringifiedValue();
+}
+
 bool AFGWiremodBuildable::netFunc_isBlueprinted()
 {
 	return IsValid(mBlueprintDesigner);
@@ -189,7 +407,7 @@ void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, 
 	}
 }
 
-void AFGWiremodBuildable::netFunc_getAllWiremodFuncs(TArray<FString>& Out)
+void AFGWiremodBuildable::netFunc_getAllCircuitryFuncs(TArray<FString>& Out)
 {
 	for(auto conn : GetConnections_Implementation(Output))
 	{

@@ -213,26 +213,68 @@ public:
 	int netFunc_getFunctionReturnType(FString FunctionName);
 
 	UFUNCTION(BlueprintCallable)
-	bool netFunc_getWireBool(FString FunctionName, bool DefaultValue = false);
+	bool netFunc_getBool(FString FunctionName, bool DefaultValue = false);
 
 	UFUNCTION(BlueprintCallable)
-	double netFunc_getWireNumber(FString FunctionName, double DefaultValue = 0);
+	double netFunc_getNumber(FString FunctionName, double DefaultValue = 0);
 
 	UFUNCTION(BlueprintCallable)
-	FString netFunc_getWireString(FString FunctionName, FString DefaultValue = "");
+	FString netFunc_getString(FString FunctionName, FString DefaultValue = "");
 
 	UFUNCTION(BlueprintCallable)
-	FVector netFunc_getWireVector(FString FunctionName, FVector DefaultValue = FVector::ZeroVector);
+	FVector netFunc_getVector(FString FunctionName, FVector DefaultValue = FVector::ZeroVector);
 
 	UFUNCTION(BlueprintCallable)
-	FLinearColor netFunc_getWireColor(FString FunctionName, FLinearColor DefaultValue = FLinearColor::Black);
+	FLinearColor netFunc_getColor(FString FunctionName, FLinearColor DefaultValue = FLinearColor::Black);
+	
+	UFUNCTION() void netFunc_setBool(int InputIndex, bool Value);
+	UFUNCTION() void netFunc_setBoolArray(int InputIndex, TArray<bool> Value);
+	
+	UFUNCTION() void netFunc_setNumber(int InputIndex, double Value);
+	UFUNCTION() void netFunc_setNumberArray(int InputIndex, TArray<double> Value);
+	
+	UFUNCTION() void netFunc_setString(int InputIndex, FString Value);
+	UFUNCTION() void netFunc_setStringArray(int InputIndex, TArray<FString> Value);
+	
+	UFUNCTION() void netFunc_setVector(int InputIndex, FVector Value);
+	UFUNCTION() void netFunc_setVectorArray(int InputIndex, TArray<FVector> Value);
+	
+	UFUNCTION() void netFunc_setInventory(int InputIndex, UFGInventoryComponent* Value);
+	UFUNCTION() void netFunc_setInventoryArray(int InputIndex, TArray<UFGInventoryComponent*> Value);
+	
+	UFUNCTION() void netFunc_setPowerGrid(int InputIndex, UFGPowerCircuit* Value);
+	UFUNCTION() void netFunc_setPowerGridArray(int InputIndex, TArray<UFGPowerCircuit*> Value);
+	
+	UFUNCTION() void netFunc_setEntity(int InputIndex, AActor* Value);
+	UFUNCTION() void netFunc_setEntityArray(int InputIndex, TArray<AActor*> Value);
+	
+	UFUNCTION() void netFunc_setRecipe(int InputIndex, TSubclassOf<UFGRecipe> Value);
+	UFUNCTION() void netFunc_setRecipeArray(int InputIndex, TArray<TSubclassOf<UFGRecipe>> Value);
+	
+	UFUNCTION() void netFunc_setColor(int InputIndex, FLinearColor Value);
+	UFUNCTION() void netFunc_setColorArray(int InputIndex, TArray<FLinearColor> Value);
+
+	UFUNCTION() void netFunc_setStack(int InputIndex, FInventoryStack Value);
+	UFUNCTION() void netFunc_setStackArray(int InputIndex, TArray<FInventoryStack> Value);
+
+	UFUNCTION() void netFunc_setItemAmount(int InputIndex, FItemAmount Value);
+	UFUNCTION() void netFunc_setItemAmountArray(int InputIndex, TArray<FItemAmount> Value);
+
+	//Unsupported by FIN
+	//UFUNCTION() void netFunc_setSplitterRule(int InputIndex, FSplitterSortRule Value);
+	//UFUNCTION() void netFunc_setSplitterRuleArray(int InputIndex, TArray<FSplitterSortRule> Value);
+	
+	
+	
+	UFUNCTION(BlueprintCallable)
+	void netFunc_getAllCircuitryFuncs(TArray<FString>& Out);
 
 	UFUNCTION(BlueprintCallable)
-	void netFunc_getAllWiremodFuncs(TArray<FString>& Out);
+	FString netFunc_getOutputString(FString FunctionName);
 
-	UFUNCTION(BlueprintCallable)
-	FString netFunc_getDebuggerOutputString(FString FunctionName);
-
+	UFUNCTION()
+	FString netFunc_getInputValueString(int InputIndex);
+	
 	UFUNCTION(BlueprintPure, DisplayName="Is Blueprinted")
 	bool netFunc_isBlueprinted();
 #pragma endregion 
