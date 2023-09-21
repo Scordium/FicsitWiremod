@@ -10,8 +10,6 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnComponentFocusChanged, UUserWidget*, Component, bool, Focused);
 
-
-
 UCLASS(BlueprintType, Blueprintable)
 class FICSITWIREMOD_API USignEditorComponentBase : public UUserWidget
 {
@@ -74,6 +72,38 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void InitializeComponent();
 };
+
+
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnComponentVariableUpdate, FConnectionData, Data, const TArray<FSignComponentVariableMetaData>&, Meta);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnRegisteredConstantVariable, FString, Data, const TArray<FSignComponentVariableMetaData>&, MetaData);
+
+USTRUCT()
+struct FVariableValueBindingData
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY()
+	int InputIndex;
+
+	UPROPERTY()
+	FOnComponentVariableUpdate Event;
+
+	UPROPERTY()
+	TArray<FSignComponentVariableMetaData> MetaData;
+
+	void Call(AFGWiremodBuildable* Sign) const { if(Sign) Event.ExecuteIfBound(Sign->GetConnection(InputIndex), MetaData); }
+
+	FVariableValueBindingData(){}
+	
+	FVariableValueBindingData(int InputIndex, FOnComponentVariableUpdate Event, TArray<FSignComponentVariableMetaData> MetaData)
+	{
+		this->InputIndex = InputIndex;
+		this->Event = Event;
+		this->MetaData = MetaData;
+	}
+};
 /**
  * 
  */
@@ -86,8 +116,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void InitializeComponent();
 	
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnUpdate(AFGWiremodBuildable* Sign);
+	void OnUpdate_Implementation(AFGWiremodBuildable* Sign)
+	{
+		for(auto EventData : VariableToBuildableInputMap)
+		{
+			EventData.Value.Call(Sign);
+		}
+	}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
 	TArray<FSignComponentVariableData> Variables;
@@ -104,4 +141,37 @@ public:
 
 		return FString();
 	}
+
+protected:
+
+	UFUNCTION(BlueprintCallable, meta=(AutoCreateRefTerm="ConstantValueFallback"))
+	void TryBindFunctionToUpdate(FOnComponentVariableUpdate Event, FOnRegisteredConstantVariable ConstantValueFallback, TSubclassOf<USignComponentVariableName> VariableName)
+	{
+		auto const BindingString = USignComponentUtilityFunctions::GetBindingPrefixString();
+		for(auto& Var : Variables)
+		{
+			if(Var.Name == VariableName)
+			{
+
+				//If the value is not an input binding, call the constant value fallback
+				if(!Var.Data.StartsWith(BindingString))
+				{
+					ConstantValueFallback.ExecuteIfBound(Var.Data, Var.MetaData);
+					return;
+				}
+
+
+				//Otherwise add it to the bindings array to be called later during updates
+				auto VariableBindingValue = Var.Data.Replace(*BindingString, *FString());
+
+				int Input = FCString::Atoi(*VariableBindingValue);
+
+				VariableToBuildableInputMap.Add(VariableName, FVariableValueBindingData(Input, Event, Var.MetaData));
+				return;
+			}
+		}
+	}
+
+	UPROPERTY()
+	TMap<TSubclassOf<USignComponentVariableName>, FVariableValueBindingData> VariableToBuildableInputMap;
 };

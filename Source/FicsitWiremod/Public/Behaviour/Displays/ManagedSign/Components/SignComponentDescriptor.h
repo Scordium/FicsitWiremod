@@ -38,6 +38,20 @@ public:
 };
 
 USTRUCT(BlueprintType)
+struct FSignComponentVariableMetaData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Value;
+	
+};
+
+USTRUCT(BlueprintType)
 struct FSignComponentVariableData
 {
 	GENERATED_BODY()
@@ -49,6 +63,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FString Data;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	TArray<FSignComponentVariableMetaData> MetaData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, NotReplicated)
 	TSubclassOf<USignComponentVariableEditor> ValueEditorClass;
