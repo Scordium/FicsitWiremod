@@ -10,12 +10,49 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnComponentFocusChanged, UUserWidget*, Component, bool, Focused);
 
+UINTERFACE(Blueprintable, BlueprintType)
+class UManagedSignEditorWindow : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class IManagedSignEditorWindow
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	FVector2D GetCanvasSize();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	double GetCanvasScale();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	TScriptInterface<ISignComponentVariableBindingsProvider> GetBindingsProvider();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	double GetCanvasGridSize();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	UPanelWidget* GetVariablesContainer();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void UpdateVariable(TSubclassOf<USignComponentVariableName> Name, const FString& NewValue);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void UpdateMetaData(TSubclassOf<USignComponentVariableName> Name, const TArray<FSignComponentVariableMetaData>& NewMetaData);
+	
+};
+
 UCLASS(BlueprintType, Blueprintable)
 class FICSITWIREMOD_API USignEditorComponentBase : public UUserWidget
 {
 	GENERATED_BODY()
 	
 public:
+
+	//For some reason UE refuses to tick with blueprint function, so i have to do this shit...
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override { CustomTick(MyGeometry, InDeltaTime); }
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FSignComponentVariableData> Variables;
@@ -25,6 +62,9 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnComponentFocusChanged OnComponentFocusChanged;
+
+	UPROPERTY(BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
+	TScriptInterface<IManagedSignEditorWindow> Parent;
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void OnComponentTargeted();
@@ -45,6 +85,9 @@ public:
 	}
 	
 protected:
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void CustomTick(const FGeometry& MyGeometry, double DeltaTime);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void UpdateVariableValue(TSubclassOf<USignComponentVariableName> Name, const FString& Value);
