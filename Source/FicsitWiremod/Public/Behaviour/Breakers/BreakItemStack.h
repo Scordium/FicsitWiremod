@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FGResourceSettings.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/TextureUtilities.h"
 #include "BreakItemStack.generated.h"
@@ -24,36 +25,84 @@ public:
 		return Stack.NumItems;
 	}
 
-	UFUNCTION(BlueprintPure)
-	FString GetItemName() const
+	UFUNCTION()
+	FString GetItemName()
 	{
-		return UFGItemDescriptor::GetItemName(Stack.Item.GetItemClass()).ToString();
+		VerifyCache();
+		if(CDOCache) return CDOCache->mDisplayName.ToString();
+		return "";
 	}
 
-	UFUNCTION(BlueprintPure)
-	FString GetItemDesc() const
+	UFUNCTION()
+	FString GetItemDesc()
 	{
-		return UFGItemDescriptor::GetItemDescription(Stack.Item.GetItemClass()).ToString();
+		VerifyCache();
+		if(CDOCache) return CDOCache->mDescription.ToString();
+		return "";
 	}
 
-	UFUNCTION(BlueprintPure)
-	double GetStackSize() const
+	UFUNCTION()
+	double GetStackSize()
 	{
-		return UFGItemDescriptor::GetStackSizeConverted(Stack.Item.GetItemClass());
+		VerifyCache();
+		if(CDOCache) return UFGResourceSettings::Get()->GetStackSizeFromEnum(CDOCache->mStackSize);
+		return -1;
 	}
 
-	UFUNCTION(BlueprintPure)
-	bool GetCanDiscard() const
+	UFUNCTION()
+	bool GetCanDiscard()
 	{
-		return UFGItemDescriptor::CanBeDiscarded(Stack.Item.GetItemClass());
+		VerifyCache();
+		if(CDOCache) return CDOCache->mCanBeDiscarded;
+		return false;
 	}
 
-	UFUNCTION(BlueprintCallable)
-	int GetIconId() const
+	UFUNCTION()
+	int GetIconId()
 	{
-		return UTextureUtilities::GetIconFromStack(Stack);
+		VerifyCache();
+		if(CDOCache) return UTextureUtilities::GetIconFromTexture(CDOCache->GetBigIconFromInstance());
+		return -1;
 	}
 
+	UFUNCTION()
+	int GetItemType()
+	{
+		VerifyCache();
+		if(CDOCache) return (int) CDOCache->Form();
+		return -1;
+	}
+
+	UFUNCTION()
+	bool GetIsSolid()
+	{
+		VerifyCache();
+		if(CDOCache) return CDOCache->Form() == EResourceForm::RF_SOLID;
+		return false;
+	}
+
+	UFUNCTION()
+	bool GetIsLiquid()
+	{
+		VerifyCache();
+		if(CDOCache) return CDOCache->Form() == EResourceForm::RF_LIQUID;
+		return false;
+	}
+
+	UFUNCTION()
+	bool GetIsGas()
+	{
+		VerifyCache();
+		if(CDOCache) return CDOCache->Form() == EResourceForm::RF_GAS;
+		return false;
+	}
+
+	void VerifyCache()
+	{
+		if(!CDOCache || CDOCache->GetClass() != Stack.Item.GetItemClass())
+			CDOCache = Stack.Item.GetItemClass().GetDefaultObject();
+	}
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -64,4 +113,7 @@ public:
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)
 	FInventoryStack Stack;
+
+	UPROPERTY()
+	UFGItemDescriptor* CDOCache;
 };
