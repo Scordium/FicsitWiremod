@@ -271,9 +271,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FString netFunc_getOutputString(FString FunctionName);
+	UFUNCTION()
+	void netFuncMeta_getOutputString(int& Runtime) { Runtime = 0; }
 
 	UFUNCTION()
 	FString netFunc_getInputValueString(int InputIndex);
+	UFUNCTION()
+	void netFuncMeta_getInputValueString(int& Runtime) { Runtime = 0; }
 	
 	UFUNCTION(BlueprintPure, DisplayName="Is Blueprinted")
 	bool netFunc_isBlueprinted();

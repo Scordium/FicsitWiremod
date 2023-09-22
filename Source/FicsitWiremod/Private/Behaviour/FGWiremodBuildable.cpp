@@ -162,9 +162,10 @@ TSubclassOf<UUserWidget> AFGWiremodBuildable::GetCompactWidget_Implementation()
 
 int AFGWiremodBuildable::netFunc_getFunctionReturnType(FString FunctionName)
 {
-	for(auto conn : GetConnections_Implementation(Input))
+	for(auto conn : Execute_GetConnections(this, Output))
 	{
-		if(conn.FunctionName.ToString() == FunctionName || conn.DisplayedName.ToString() == FunctionName)
+		bool IsMatch = conn.FunctionName.ToString().Equals(FunctionName, ESearchCase::IgnoreCase) || conn.DisplayedName.ToString().Equals(FunctionName, ESearchCase::IgnoreCase);
+		if(IsMatch)
 			return conn.ConnectionType.GetValue();
 	}
 
@@ -376,6 +377,7 @@ FString AFGWiremodBuildable::netFunc_getString(FString FunctionName, FString Def
 FVector AFGWiremodBuildable::netFunc_getVector(FString FunctionName, FVector DefaultValue) { return FConnectionData(this, FName(FunctionName), Vector).GetVector(DefaultValue); }
 FLinearColor AFGWiremodBuildable::netFunc_getColor(FString FunctionName, FLinearColor DefaultValue) { return FConnectionData(this, FName(FunctionName), Color).GetColor(DefaultValue); }
 FString AFGWiremodBuildable::netFunc_getOutputString(FString FunctionName) { return FConnectionData(this, FName(FunctionName), (EConnectionType) netFunc_getFunctionReturnType(FunctionName)).GetStringifiedValue(); }
+
 
 FString AFGWiremodBuildable::netFunc_getInputValueString(int InputIndex)
 {
