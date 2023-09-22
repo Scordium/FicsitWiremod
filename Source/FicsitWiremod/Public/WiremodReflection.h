@@ -258,7 +258,8 @@ public:
 			}
 		case ArrayOfSplitterRule: return "[" + CC_INT(GetSplitterRuleArray().Num()) + " elements]"; 
 		default:
-			ACircuitryLogger::DispatchErrorEvent("Failed to find switch case for EConnectionType::" + CC_INT(ConnectionType) + " in function GET_STRINGIFIED_VALUE. Returning default value instead...");
+			auto TypeString = UEnum::GetValueAsString<EConnectionType>(ConnectionType);
+			ACircuitryLogger::DispatchErrorEvent("Failed to find switch case for EConnectionType::" + TypeString + " in function GET_STRINGIFIED_VALUE. Returning default value instead...");
 			return "?";
 		}
 	}

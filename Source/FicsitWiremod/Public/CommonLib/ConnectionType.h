@@ -103,7 +103,8 @@ public:
 		case Texture: return ArrayOfTexture;
 		case SplitterRule: return ArrayOfSplitterRule;
 		default:
-			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + CC_INT(in) + " in function BASE_TO_ARRAY");
+			auto TypeString = UEnum::GetValueAsString<EConnectionType>(in);
+			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + TypeString + " in function BASE_TO_ARRAY");
 			return Unknown;
 		}
 	}
@@ -132,7 +133,8 @@ public:
 		case ArrayOfTexture: return Texture;
 		case ArrayOfSplitterRule: return SplitterRule;
 		default:
-			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + CC_INT(in) + " in function ARRAY_TO_BASE");
+			auto TypeString = UEnum::GetValueAsString<EConnectionType>(in);
+			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + TypeString + " in function ARRAY_TO_BASE");
 			return in;
 		}
 	}

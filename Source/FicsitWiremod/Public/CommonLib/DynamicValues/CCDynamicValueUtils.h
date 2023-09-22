@@ -129,7 +129,8 @@ public:
 		case ArrayOfSplitterRule: return NewObject<UCCSplitterRuleArrayValue>(Level);
 		case Unknown: return nullptr;
 		default:
-			ACircuitryLogger::DispatchErrorEvent("Unknown connection type: " + FString::FromInt(Type) + ". Failed to create dynamic value.");
+			auto TypeString = UEnum::GetValueAsString<EConnectionType>(Type);
+			ACircuitryLogger::DispatchErrorEvent("Unknown connection type: " + TypeString + ". Failed to create dynamic value.");
 			return nullptr;
 		}
 	}
