@@ -38,20 +38,6 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FSignComponentVariableMetaData
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Name;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Value;
-	
-};
-
-USTRUCT(BlueprintType)
 struct FSignComponentVariableData
 {
 	GENERATED_BODY()
@@ -136,4 +122,15 @@ public:
 
 	UFUNCTION(BlueprintPure, meta=(ScriptOperator="=="), DisplayName="Compare sign component")
 	static bool ComponentEquals(const FSignComponentData& Data1, const FSignComponentData& Data2) { return Data1 == Data2; }
+
+	UFUNCTION(BlueprintPure)
+	static FString FindMetadataValue(const TArray<FSignComponentVariableMetaData>& MetadataArray, FName MetadataName)
+	{
+		for(auto MetaEntry : MetadataArray)
+		{
+			if(MetaEntry.Name == MetadataName) return MetaEntry.Value;
+		}
+
+		return "";
+	}
 };

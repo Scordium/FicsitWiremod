@@ -99,6 +99,26 @@ protected:
 		}
 	}
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void UpdateVariableMetadata(TSubclassOf<USignComponentVariableName> Name, FName MetadataName, const FString& Value);
+	void UpdateVariableMetadata_Implementation(TSubclassOf<USignComponentVariableName> Name, FName MetadataName, const FString& Value)
+	{
+		for(auto& Var : Variables)
+		{
+			if(Var.Name == Name)
+			{
+				for(auto& Meta : Var.MetaData)
+				{
+					if(Meta.Name == MetadataName)
+					{
+						Meta.Value = Value;
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	UFUNCTION(BlueprintCallable)
 	FString GetVariableValue(TSubclassOf<USignComponentVariableName> Name, bool& Success)
 	{
@@ -107,6 +127,24 @@ protected:
 			// ಠ_ಠ
 			Success = Var.Name == Name;
 			if(Success) return Var.Data;
+		}
+
+		return FString();
+	}
+
+	UFUNCTION(BlueprintPure)
+	FString GetVariableMeta(TSubclassOf<USignComponentVariableName> Name, FName MetadataName, bool& Success)
+	{
+		for(auto& Var : Variables)
+		{
+			if(Var.Name == Name)
+			{
+				for(auto Meta : Var.MetaData)
+				{
+					Success = Meta.Name == MetadataName;
+					if(Success) return Meta.Value;
+				}
+			}
 		}
 
 		return FString();
@@ -185,6 +223,24 @@ public:
 		return FString();
 	}
 
+	UFUNCTION(BlueprintPure)
+	FString GetVariableMeta(TSubclassOf<USignComponentVariableName> Name, FName MetadataName, bool& Success)
+	{
+		for(auto& Var : Variables)
+		{
+			if(Var.Name == Name)
+			{
+				for(auto Meta : Var.MetaData)
+				{
+					Success = Meta.Name == MetadataName;
+					if(Success) return Meta.Value;
+				}
+			}
+		}
+
+		return FString();
+	}
+
 protected:
 
 	UFUNCTION(BlueprintCallable, meta=(AutoCreateRefTerm="ConstantValueFallback"))
@@ -218,3 +274,4 @@ protected:
 	UPROPERTY()
 	TMap<TSubclassOf<USignComponentVariableName>, FVariableValueBindingData> VariableToBuildableInputMap;
 };
+

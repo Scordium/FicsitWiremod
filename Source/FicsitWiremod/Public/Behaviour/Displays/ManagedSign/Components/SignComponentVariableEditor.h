@@ -8,7 +8,23 @@
 #include "CommonLib/ConnectionType.h"
 #include "SignComponentVariableEditor.generated.h"
 
+USTRUCT(BlueprintType)
+struct FSignComponentVariableMetaData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Value;
+	
+};
+
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnComponentVariableValueChanged, UUserWidget*, VariableEditorWidget, TSubclassOf<USignComponentVariableName>, Name, FString, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnComponentVariableMetadataChanged, UUserWidget*, VariableEditorWidget, TSubclassOf<USignComponentVariableName>, Name, FName, MetadataName, FString, NewValue);
 
 USTRUCT(BlueprintType)
 struct FManagedSignConnectionSettings
@@ -56,8 +72,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
 	FString Data;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
+	TArray<FSignComponentVariableMetaData> Metadata;
+	
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnComponentVariableValueChanged OnComponentVariableValueChanged;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnComponentVariableMetadataChanged OnComponentVariableMetadataChanged;
 
 	/* 
 	 *	Call this after constructing the widget if some of your components (such as spin boxes) don't work properly
@@ -68,10 +90,45 @@ public:
 protected:
 	
 	/*
-	 * Broadcasts an update to the component and editor when called, can be called to update a displayed value or to simply refresh the current one
+	 * Broadcasts an update to the component when called, can be used to update a displayed value or to simply refresh the current one
 	 */
 	UFUNCTION(BlueprintCallable)
 	void CallChanged() { OnComponentVariableValueChanged.Broadcast(this, Name, Data); }
+
+	/* 
+	 * Updates metadata, then broadcasts a metadata update to the component when called, can be used to update some extra parameter 
+	 */
+	UFUNCTION(BlueprintCallable)
+	void UpdateMetadata(FName MetadataName, FString Value)
+	{
+		SetMetadata(MetadataName, Value);
+		OnComponentVariableMetadataChanged.Broadcast(this, Name, MetadataName, Value);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void SetMetadata(FName MetadataName, FString Value)
+	{
+		for(auto& MetadataEntry : Metadata)
+		{
+			if(MetadataEntry.Name == MetadataName)
+			{
+				MetadataEntry.Value = Value;
+				return;
+			}
+		}
+		ACircuitryLogger::DispatchWarningEvent("Failed to find metadata with name \"" + MetadataName.ToString() + "\" for variable " + Name->GetName());
+	}
+
+	UFUNCTION(BlueprintPure)
+	FString GetMetadata(FName MetadataName)
+	{
+		for(auto& MetadataEntry : Metadata)
+		{
+			if(MetadataEntry.Name == MetadataName) return MetadataEntry.Value;
+		}
+
+		return "";
+	}
 
 	UFUNCTION(BlueprintPure)
 	FText GetName() { return Name.GetDefaultObject()->GetName(); }
