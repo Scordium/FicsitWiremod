@@ -90,7 +90,7 @@ struct FPixelScreenData
 		return Data == Other.Data;
 	}
 
-	UTexture2D* MakeTexture()
+	UTexture2D* MakeTexture() const
 	{
 		if(!IsValid()) return nullptr;
 		
@@ -100,7 +100,8 @@ struct FPixelScreenData
 		Width, 
 		Height
 		);
-	
+
+		Texture->CreateResource();
 		// Lock the texture so it can be modified
 		uint8* MipData = static_cast<uint8*>(Texture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
 
@@ -171,6 +172,23 @@ public:
 	{
 		//TODO
 		return FPixelScreenData();
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static UTexture2D* ToTexture(const FPixelScreenData& Data)
+	{
+		return Data.MakeTexture();
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static bool IsTextureReadyForExport(UTexture* Texture)
+	{
+		if (!Texture || !Texture->GetResource() || !Texture->GetResource()->TextureRHI)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	UFUNCTION(BlueprintPure)
