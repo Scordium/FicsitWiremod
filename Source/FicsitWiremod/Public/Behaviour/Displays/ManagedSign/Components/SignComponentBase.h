@@ -44,6 +44,8 @@ public:
 	
 };
 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FUpdateEditorVariableValue, const FString&, NewValue);
+
 UCLASS(BlueprintType, Blueprintable)
 class FICSITWIREMOD_API USignEditorComponentBase : public UUserWidget
 {
@@ -93,6 +95,9 @@ protected:
 	void UpdateVariableValue(TSubclassOf<USignComponentVariableName> Name, const FString& Value);
 	void UpdateVariableValue_Implementation(TSubclassOf<USignComponentVariableName> Name, const FString& Value)
 	{
+		auto Delegate = EditorVariableBindings.Find(Name);
+		if(Delegate) Delegate->ExecuteIfBound(Value);
+		
 		for(auto& Var : Variables)
 		{
 			if(Var.Name == Name) Var.Data = Value;
@@ -152,6 +157,17 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void InitializeComponent();
+
+	UFUNCTION(BlueprintCallable)
+	void BindVariableToDelegate(TSubclassOf<USignComponentVariableName> Variable, FUpdateEditorVariableValue Event)
+	{
+		EditorVariableBindings.Add(Variable, Event);
+	}
+
+private:
+
+	UPROPERTY()
+	TMap<TSubclassOf<USignComponentVariableName>, FUpdateEditorVariableValue> EditorVariableBindings;
 };
 
 
