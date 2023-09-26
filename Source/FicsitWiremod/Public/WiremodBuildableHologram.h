@@ -20,6 +20,7 @@ class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 	{
 		mNeedsValidFloor = false;
 		mAttachmentPointSnapDistanceThreshold = 3000;
+		
 	}
 
 	virtual void BeginPlay() override
@@ -37,8 +38,11 @@ class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 
 	virtual void ScrollRotate(int32 delta, int32 step) override
 	{
-		mScrollRotation += delta * step;
+		int32 NewRot = mScrollRotation + delta * step;
+		mScrollRotation = NewRot - NewRot%step;
 	}
+
+	virtual int32 GetRotationStep() const override { return 5; }
 
 	UPROPERTY(EditDefaultsOnly)
 	bool UseConfigGridSize = true;
