@@ -120,11 +120,12 @@ protected:
 	}
 
 	UFUNCTION(BlueprintPure)
-	FString GetMetadata(FName MetadataName)
+	FString GetMetadata(FName MetadataName, bool& Success)
 	{
 		for(auto& MetadataEntry : Metadata)
 		{
-			if(MetadataEntry.Name == MetadataName) return MetadataEntry.Value;
+			Success = MetadataEntry.Name == MetadataName;
+			if(Success) return MetadataEntry.Value;
 		}
 
 		return "";

@@ -124,11 +124,12 @@ public:
 	static bool ComponentEquals(const FSignComponentData& Data1, const FSignComponentData& Data2) { return Data1 == Data2; }
 
 	UFUNCTION(BlueprintPure)
-	static FString FindMetadataValue(const TArray<FSignComponentVariableMetaData>& MetadataArray, FName MetadataName)
+	static FString FindMetadataValue(const TArray<FSignComponentVariableMetaData>& MetadataArray, FName MetadataName, bool& Success)
 	{
 		for(auto MetaEntry : MetadataArray)
 		{
-			if(MetaEntry.Name == MetadataName) return MetaEntry.Value;
+			Success = MetaEntry.Name == MetadataName;
+			if(Success) return MetaEntry.Value;
 		}
 
 		return "";
