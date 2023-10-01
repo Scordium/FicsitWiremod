@@ -7,7 +7,7 @@
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "CircuitryDownloadImage.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCircuitryDownloadImageDelegate, UTexture*, Texture);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FCircuitryDownloadImageDelegate, UTexture*, Texture, bool, Success);
 /**
  * 
  */
@@ -17,25 +17,20 @@ class FICSITWIREMOD_API UCircuitryDownloadImage : public UBlueprintAsyncActionBa
 	GENERATED_BODY()
 	
 	UFUNCTION(BlueprintCallable, meta=( BlueprintInternalUseOnly="true" ))
-	static UCircuitryDownloadImage* StartDownloadImage(FString URL, UTexture* FallbackValue);
+	static UCircuitryDownloadImage* StartDownloadImage(FString URL, FCircuitryDownloadImageDelegate OnFinish, bool AllowCache = true);
 
-	void StartDownload(FString URL, UTexture* FallbackValue);
+	void StartDownload(FString URL, bool AllowCache);
 
 	void HandleImageDownload(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void OnFail()
 	{
 		RemoveFromRoot();
-		Finished.Broadcast(TextureFallbackValue);
+		Finished.Execute(nullptr, false);
 	}
 public:
-	inline static TMap<FString, UTexture*> CachedDownloads;
-	
-	UPROPERTY(BlueprintAssignable)
 	FCircuitryDownloadImageDelegate Finished;
-
-	UPROPERTY()
-	UTexture* TextureFallbackValue;
+	inline static TMap<FString, UTexture*> CachedDownloads;
 };
 
 UCLASS()
@@ -46,14 +41,5 @@ class UCircuitryImageDownloaderFunctions : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable)
-	static bool GetImageFromCache(FString URL, UTexture*& OutTexture)
-	{
-		if(auto Image = UCircuitryDownloadImage::CachedDownloads.Find(URL))
-		{
-			OutTexture = *Image;
-			return true;
-		}
-
-		return false;
-	}
+	static void AddImageToDownloaderCache(FString URL, UTexture* Texture){ UCircuitryDownloadImage::CachedDownloads.Add(URL, Texture); }
 };

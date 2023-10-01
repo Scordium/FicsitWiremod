@@ -9,23 +9,31 @@
 #include "Interfaces/IHttpResponse.h"
 
 
-UCircuitryDownloadImage* UCircuitryDownloadImage::StartDownloadImage(FString URL, UTexture* FallbackValue)
+UCircuitryDownloadImage* UCircuitryDownloadImage::StartDownloadImage(FString URL, FCircuitryDownloadImageDelegate OnFinish, bool AllowCache)
 {
 	UCircuitryDownloadImage* DownloadTask = NewObject<UCircuitryDownloadImage>();
-	DownloadTask->StartDownload(URL, FallbackValue);
+	DownloadTask->Finished = OnFinish;
+	DownloadTask->StartDownload(URL, AllowCache);
 
 	return DownloadTask;
 	
 }
 
-void UCircuitryDownloadImage::StartDownload(FString URL, UTexture* FallbackValue)
+void UCircuitryDownloadImage::StartDownload(FString URL, bool AllowCache)
 {
-	TextureFallbackValue = FallbackValue;
 	if(URL.Len() == 0)
 	{
 		OnFail();
 		return;
 	}
+
+	if(AllowCache)
+		if(auto Cache = CachedDownloads.Find(URL); Cache && *Cache)
+		{
+			Finished.ExecuteIfBound(*Cache, true);
+			return;
+		}
+	
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UCircuitryDownloadImage::HandleImageDownload);
@@ -74,7 +82,7 @@ void UCircuitryDownloadImage::HandleImageDownload(FHttpRequestPtr HttpRequest, F
 								});
 						}
 						CachedDownloads.Add(HttpRequest->GetURL(), Texture);
-						Finished.Broadcast(Texture);						
+						Finished.ExecuteIfBound(Texture, true);					
 						return;
 					}
 				}
@@ -82,7 +90,7 @@ void UCircuitryDownloadImage::HandleImageDownload(FHttpRequestPtr HttpRequest, F
 		}
 	}
 
-	Finished.Broadcast(TextureFallbackValue);
+	Finished.ExecuteIfBound(nullptr, false);
 
 #endif
 }
