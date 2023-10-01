@@ -42,4 +42,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void AddImageToDownloaderCache(FString URL, UTexture* Texture){ UCircuitryDownloadImage::CachedDownloads.Add(URL, Texture); }
+
+	UFUNCTION(BlueprintCallable)
+	static void DestroyAllCache() { UCircuitryDownloadImage::CachedDownloads.Empty(); }
 };
