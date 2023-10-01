@@ -18,12 +18,6 @@ public:
 	FVector2D Size;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FLinearColor BackgroundColor;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool IsStatic;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentData> Components;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
@@ -50,7 +44,13 @@ public:
 		if(!GetCanConfigure(Setter)) return;
 		Data = NewData;
 
-		InitSign();
+		ConnectionsInfo.Inputs.Empty();
+		for (auto Connection : Data.Connections)
+		{
+			ConnectionsInfo.Inputs.Add(FBuildingConnection(Connection.Name, "", Connection.Type.GetValue()));
+		}
+		
+		OnRep_SignData();
 	}
 
 	virtual void ClientProcess_Implementation(double DeltaTime) override
@@ -61,21 +61,16 @@ public:
 		}
 	}
 
-	void InitSign()
+	UFUNCTION()
+	void OnRep_SignData()
 	{
-		ConnectionsInfo.Inputs.Empty();
-		for (auto Connection : Data.Connections)
-		{
-			ConnectionsInfo.Inputs.Add(FBuildingConnection(Connection.Name, "", Connection.Type.GetValue()));
-		}
-
 		OnGenerateSign();
 	}
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void OnGenerateSign();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Replicated)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, ReplicatedUsing=OnRep_SignData)
 	FManagedSignData Data;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

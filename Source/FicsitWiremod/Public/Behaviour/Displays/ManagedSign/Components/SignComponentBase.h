@@ -117,9 +117,10 @@ protected:
 					if(Meta.Name == MetadataName)
 					{
 						Meta.Value = Value;
-						break;
+						return;
 					}
 				}
+				Var.MetaData.Add(FSignComponentVariableMetaData(MetadataName, Value));
 			}
 		}
 	}
