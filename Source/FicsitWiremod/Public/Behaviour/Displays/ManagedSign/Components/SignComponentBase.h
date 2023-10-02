@@ -82,7 +82,9 @@ public:
 	{
 		for (auto SavedVariable : SavedVariables)
 		{
+			//This is a ridiculously ineffective implementation, but i don't think anyone will reach a scenario where this would introduce noticeable lag spike.
 			UpdateVariableValue(SavedVariable.Name, SavedVariable.Data);
+			for(auto Metadata : SavedVariable.MetaData) UpdateVariableMetadata(SavedVariable.Name, Metadata.Name, Metadata.Value);
 		}
 	}
 	
