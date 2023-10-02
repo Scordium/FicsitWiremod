@@ -56,11 +56,19 @@ public:
 	//For some reason UE refuses to tick with blueprint function, so i have to do this shit...
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override { CustomTick(MyGeometry, InDeltaTime); }
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
+	TSubclassOf<USignComponentDescriptor> ComponentDescriptor;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FSignComponentVariableData> Variables;
 
-	UFUNCTION(BlueprintPure, BlueprintImplementableEvent)
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
+	FString GetComponentName();
+	FString GetComponentName_Implementation(){ return ComponentDescriptor.GetDefaultObject()->DisplayName.ToString(); }
+	
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
 	FSignComponentData CompileComponent();
+	FSignComponentData CompileComponent_Implementation() { return FSignComponentData(ComponentDescriptor, Variables); }
 	
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnComponentFocusChanged OnComponentFocusChanged;
