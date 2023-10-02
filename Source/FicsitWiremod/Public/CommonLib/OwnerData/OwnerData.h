@@ -109,12 +109,20 @@ struct FWiremodOwnerData
 	}
 	static FString GetUserIDOrDefault(UObject* entity)
 	{
-		if(auto state = GetState(entity)) return state ? state->GetUserID() : FString();
+		if(auto state = GetState(entity))
+		{
+			bool NetIdIsValid = state->GetUniqueNetId().GetV1().IsValid();
+			return NetIdIsValid ? state->GetUserID() : FString();
+		}
 		return "";
 	}
 	static FString GetUsernameOrDefault(UObject* entity)
 	{
-		if(auto state = GetState(entity)) return state ? state->GetPlayerName() : FString();
+		if(auto state = GetState(entity))
+		{
+			bool NetIdIsValid = state->GetUniqueNetId().GetV1().IsValid();
+			return NetIdIsValid ? state->GetPlayerName() : FString();
+		}
 		return "";
 	}
 

@@ -48,4 +48,22 @@ public:
 
 		return FWiremodOwnerData();
 	}
+
+	UFUNCTION(BlueprintPure)
+	static FString GetUserIdSafe(AFGPlayerState* PlayerState)
+	{
+		if(!PlayerState) return "";
+		//TODO: Find a way to actually make these safe
+		bool NetIdIsValid = PlayerState->GetUniqueNetId().GetV1().IsValid();
+		return NetIdIsValid ? PlayerState->GetUserID() : FString();
+	}
+
+	UFUNCTION(BlueprintPure)
+	static FString GetUsernameSafe(AFGPlayerState* PlayerState)
+	{
+		if(!PlayerState) return "";
+		
+		bool NetIdIsValid = PlayerState->GetUniqueNetId().GetV1().IsValid();
+		return NetIdIsValid ? PlayerState->GetPlayerName() : FString();
+	}
 };

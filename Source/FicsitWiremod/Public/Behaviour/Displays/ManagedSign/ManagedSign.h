@@ -25,6 +25,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentVariableData> Variables;
+
+	bool operator==(const FManagedSignData& Other) const
+	{
+		return Size == Other.Size
+		&& Components == Other.Components
+		&& Connections == Other.Connections
+		&& Variables == Other.Variables;
+	}
 };
 
 UCLASS()
@@ -85,4 +93,16 @@ public:
 
 		DOREPLIFETIME(AManagedSign, Data)
 	}
+};
+
+
+UCLASS()
+class UManagedSignUtilityFunctions : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintPure, meta=(ScriptOperator="=="), DisplayName="Sign layout equals")
+	static bool SignLayoutEquals(const FManagedSignData& Data1, const FManagedSignData& Data2) { return Data1 == Data2; }	
 };

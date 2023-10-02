@@ -116,7 +116,7 @@ public:
 		if(auto CDO = Descriptor.GetDefaultObject()) return CDO->SignWidget;
 		return nullptr;
 	}
-
+	
 	UFUNCTION(BlueprintPure, meta=(ScriptOperator="=="), DisplayName="Compare sign component variable")
 	static bool VariableEquals(const FSignComponentVariableData& Data1, const FSignComponentVariableData& Data2){ return Data1 == Data2; }
 

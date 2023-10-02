@@ -38,6 +38,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TEnumAsByte<EConnectionType> Type;
+
+
+	bool operator==(const FManagedSignConnectionSettings& Other) const
+	{
+		return Name == Other.Name && Type == Other.Type;
+	}
 };
 
 UINTERFACE(BlueprintType, Blueprintable)
