@@ -19,49 +19,53 @@ public:
 
 		if(IsConnected(2)) SetFloorName();
 		if(IsConnected(3)) SetFloorHeight();
-	}
-
-	UFUNCTION()
-	void SetFloorName()
-	{
-		auto Name = GetConnection(2).GetString();
-		if(Name == GetFloorName()) return;
-
-		
-		auto data = FConnectionData(Lift, "netFunc_SetFloorName");
-		struct { int floorIndex; FString name; } params {FloorIndex, Name};
-		data.ProcessFunction(&params);
-	}
-
-	UFUNCTION()
-	void SetFloorHeight()
-	{
-		auto Height = GetConnection(3).GetFloat();
-		if(Height == GetFloorHeight()) return;
-		
-		auto data = FConnectionData(Lift, "netFunc_SetFloorHeight");
-		struct { int floorIndex; double height; } params {FloorIndex, Height};
-		data.ProcessFunction(&params);
+		if(IsConnected(4)) SetFloorIndex();
 	}
 	
-
-	UFUNCTION()
-	FString GetFloorName()
+	void SetFloorName()
 	{
-		auto data = FConnectionData(Lift, "netFunc_GetFloorInfo");
-		struct {int floorIndex; double out_Height; FString out_Name; } params{FloorIndex};
-		data.ProcessFunction(&params);
-		return params.out_Name;
+		const auto Name = GetConnection(2).GetString();
+		if(Name == GetFloorName()) return;
+		
+		struct { int FloorIndex; FString Name; } Params {FloorIndex, Name};
+		FConnectionData(Lift, "netFunc_SetFloorName").ProcessFunction(&Params);
+	}
+	
+	void SetFloorHeight()
+	{
+		const auto Height = GetConnection(3).GetFloat();
+		if(Height == GetFloorHeight()) return;
+		
+		struct { int FloorIndex; double Height; } Params {FloorIndex, Height};
+		FConnectionData(Lift, "netFunc_SetFloorHeight").ProcessFunction(&Params);
+	}
+	
+	void SetFloorIndex()
+	{
+		const int NewFloor = GetConnection(4).GetFloat();
+		if(NewFloor == GetCurrentFloor()) return;
+
+		FConnectionData(Lift, "serverMoveToFloor").SetFloat(NewFloor);
 	}
 
 	UFUNCTION()
-	double GetFloorHeight()
+	FString GetFloorName() const
 	{
-		auto data = FConnectionData(Lift, "netFunc_GetFloorInfo");
-		struct {int floorIndex; double out_Height; FString out_Name; } params{FloorIndex};
-		data.ProcessFunction(&params);
-		return params.out_Height;
+		struct {int FloorIndex; double Out_Height; FString Out_Name; } Params{FloorIndex};
+		FConnectionData(Lift, "netFunc_GetFloorInfo").ProcessFunction(&Params);
+		return Params.Out_Name;
 	}
+
+	UFUNCTION()
+	double GetFloorHeight() const
+	{
+		struct {int FloorIndex; double Out_Height; FString Out_Name; } Params{FloorIndex};
+		FConnectionData(Lift, "netFunc_GetFloorInfo").ProcessFunction(&Params);
+		return Params.Out_Height;
+	}
+
+	UFUNCTION()
+	int GetCurrentFloor() const { return (int) FConnectionData(Lift, "CurrentFloor", Integer, true).GetFloat(); }
 
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override

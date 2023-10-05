@@ -75,11 +75,12 @@ public:
 		this->Object = nullptr;
 	};
 
-	FConnectionData(UObject* Object, FName FunctionName, EConnectionType Type = Unknown)
+	FConnectionData(UObject* Object, FName FunctionName, EConnectionType Type = Unknown, bool IsProperty = false)
 	{
 		this->Object = Object;
 		this->FunctionName = FunctionName;
 		this->ConnectionType = Type;
+		this->FromProperty = IsProperty;
 	}
 
 	//Constructor for updating to local positions
