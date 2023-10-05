@@ -299,10 +299,14 @@ public:
 	{
 		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
-		auto Objects = GatherReplicatedObjects();
-
-		for(auto Object : Objects)
+		for(const auto Object : GatherReplicatedObjects())
 			WroteSomething |= Channel->ReplicateSubobject(Object, *Bunch, *RepFlags);
+
+		for(const auto Connection : InputConnections)
+		{
+			if(Connection.Object && Connection.Object->GetClass()->IsChildOf<UCCDynamicValueBase>())
+				WroteSomething |= Channel->ReplicateSubobject(Connection.Object, *Bunch, *RepFlags);
+		}
 
 		return WroteSomething;
 	}
