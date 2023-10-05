@@ -134,7 +134,7 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	static bool HandleDynamicConnections(TArray<FDynamicConnectionData> connections);
+	static bool HandleDynamicConnections(const TArray<FDynamicConnectionData>& Connections);
 
 	void FilterNullPointers(const TArray<int>& ClearIndexes);
 
@@ -234,7 +234,7 @@ public:
 		
 		if(!element) SavedVanillaBuildableData.Add(FVanillaBuildingDataKeyValuePair(Buildable, FVanillaInterfaceData(Connections, OwnerData)));
 		else element->Data = FVanillaInterfaceData(Connections, OwnerData);
-		OnRep_SavedVanillaData();
+		UpdateConnectionData();
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -243,7 +243,7 @@ public:
 		auto element = SavedVanillaBuildableData.FindByPredicate([Buildable](const FVanillaBuildingDataKeyValuePair& X){ return X.Buildable == Buildable; });
 		if(!element) return; // This should never happen, but this is checked just in case it somehow does
 		SavedVanillaBuildableData.Remove(*element);
-		OnRep_SavedVanillaData();
+		UpdateConnectionData();
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -283,9 +283,6 @@ public:
 		UpdateBuildable(Buildable, Data.Connections, Data.OwnerData);
 		DrawWiresForBuildable(FVanillaBuildingDataKeyValuePair(Buildable, Data));
 	}
-	
-	UFUNCTION()
-	void OnRep_SavedVanillaData() { LoadConnections(); }
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
 	{
@@ -294,7 +291,11 @@ public:
 		DOREPLIFETIME(AWiremodVanillaConnections, SavedVanillaBuildableData);
 	}
 
-	UPROPERTY(VisibleInstanceOnly, SaveGame, ReplicatedUsing=OnRep_SavedVanillaData, BlueprintReadWrite)
+	UFUNCTION(NetMulticast, Reliable)
+	void UpdateConnectionData();
+	void UpdateConnectionData_Implementation(){ LoadConnections(); }
+
+	UPROPERTY(VisibleInstanceOnly, SaveGame, Replicated, BlueprintReadWrite)
 	TArray<FVanillaBuildingDataKeyValuePair> SavedVanillaBuildableData;
 
 	UPROPERTY(VisibleInstanceOnly, SaveGame, BlueprintReadWrite)

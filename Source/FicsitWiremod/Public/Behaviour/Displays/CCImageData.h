@@ -196,4 +196,11 @@ public:
 
 	UFUNCTION(BlueprintPure, meta=(CompactNodeTitle="=="))
 	static bool Equals(const FPixelScreenData& Data1, const FPixelScreenData& Data2) { return Data1 == Data2; }
+
+	UFUNCTION(BlueprintCallable)
+	static void SetTextureParam_Safe(UMaterialInstanceDynamic* Material, FName ParameterName, UTexture* Value)
+	{
+		if(!Material || !Value) return;
+		Material->SetTextureParameterValue(ParameterName, Value);
+	}
 };

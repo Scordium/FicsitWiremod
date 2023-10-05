@@ -53,7 +53,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentVariableMetaData> MetaData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, NotReplicated)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TSubclassOf<USignComponentVariableEditor> ValueEditorClass;
 
 	bool operator==(const FSignComponentVariableData& Other) const

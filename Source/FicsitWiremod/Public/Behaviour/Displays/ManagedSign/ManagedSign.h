@@ -44,10 +44,10 @@ public:
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
-		OnGenerateSign();
+		OnGenerateSign(Data);
 	}
 	
-	void ApplySignLayout(FManagedSignData NewData, UObject* Setter)
+	void ApplySignLayout(const FManagedSignData& NewData, UObject* Setter)
 	{
 		if(!GetCanConfigure(Setter)) return;
 		Data = NewData;
@@ -58,7 +58,7 @@ public:
 			ConnectionsInfo.Inputs.Add(FBuildingConnection(Connection.Name, "", Connection.Type.GetValue()));
 		}
 		
-		OnRep_SignData();
+		OnSignDataChanged(NewData);
 	}
 
 	virtual void ClientProcess_Implementation(double DeltaTime) override
@@ -69,16 +69,14 @@ public:
 		}
 	}
 
-	UFUNCTION()
-	void OnRep_SignData()
-	{
-		OnGenerateSign();
-	}
+	UFUNCTION(NetMulticast, Reliable)
+	void OnSignDataChanged(const FManagedSignData& NewData);
+	void OnSignDataChanged_Implementation(const FManagedSignData& NewData){ OnGenerateSign(NewData); }
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void OnGenerateSign();
+	void OnGenerateSign(const FManagedSignData& NewData);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, ReplicatedUsing=OnRep_SignData)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Replicated)
 	FManagedSignData Data;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

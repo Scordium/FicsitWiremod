@@ -67,26 +67,22 @@ void AWiremodVanillaConnections::Tick(float DeltaTime)
 		if(!Data.Buildable)
 		{
 			FilterNulls = true;
+			ClearIndexes.Add(i);
 			continue;
 		}
 			
 		if(Data.Data.Connections.Num() == 0) continue;
-		
-		if(!HandleDynamicConnections(Data.Data.Connections))
-		{
-			FilterNulls = true;
-			ClearIndexes.Add(i);
-		}
+		HandleDynamicConnections(Data.Data.Connections);
 	}
 
-	if(FilterNulls) FilterNullPointers(ClearIndexes);
+	if(FilterNulls)	FilterNullPointers(ClearIndexes);
 }
 
 
-bool AWiremodVanillaConnections::HandleDynamicConnections(TArray<FDynamicConnectionData> connections)
+bool AWiremodVanillaConnections::HandleDynamicConnections(const TArray<FDynamicConnectionData>& Connections)
 {
 	bool HadValid = false;
-	for (auto ConnectionData : connections)
+	for (auto ConnectionData : Connections)
 	{
 		if(!ConnectionData.Transmitter.Object || !ConnectionData.Receiver.Object) continue;
 
@@ -120,5 +116,5 @@ void AWiremodVanillaConnections::FilterNullPointers(const TArray<int>& ClearInde
 	}
 
 	SavedVanillaBuildableData = Filtered;
-	OnRep_SavedVanillaData();
+	UpdateConnectionData();
 }
