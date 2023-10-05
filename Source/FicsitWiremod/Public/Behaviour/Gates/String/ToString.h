@@ -34,7 +34,7 @@ public:
 				int MinFrac = GetConnection(2).GetFloat();
 				int MaxFrac = GetConnection(3).GetFloat();
 
-				Out = UKismetTextLibrary::Conv_FloatToText(
+				Out = UKismetTextLibrary::Conv_DoubleToText(
 					Value,
 					HalfToZero,
 					false,
