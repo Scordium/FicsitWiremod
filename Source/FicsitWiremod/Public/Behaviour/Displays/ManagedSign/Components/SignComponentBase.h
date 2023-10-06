@@ -41,6 +41,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void UpdateMetaData(TSubclassOf<USignComponentVariableName> Name, const TArray<FSignComponentVariableMetaData>& NewMetaData);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	bool CanOpenContextMenu();
 	
 };
 
