@@ -26,7 +26,7 @@ class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
-		if(UseConfigGridSize) mGridSnapSize = Cast<UConfigPropertyFloat>(Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["WiremodHolo_SnapSize"])->Value;
+		mGridSnapSize = Cast<UConfigPropertyFloat>(Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["WiremodHolo_SnapSize"])->Value;
 	}
 	
 	virtual void SetHologramLocationAndRotation(const FHitResult& hitResult) override;
@@ -44,6 +44,9 @@ class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 
 	virtual int32 GetRotationStep() const override { return 5; }
 
-	UPROPERTY(EditDefaultsOnly)
-	bool UseConfigGridSize = true;
+public:
+
+	UFUNCTION(BlueprintNativeEvent)
+	double GetGridSize();
+	double GetGridSize_Implementation() { return mGridSnapSize; }
 };

@@ -6,7 +6,7 @@
 
 void AWiremodBuildableHologram::SetHologramLocationAndRotation(const FHitResult& hitResult)
 {
-	if(!TrySnapToActor(hitResult)) SetActorLocation(hitResult.ImpactPoint.GridSnap(mGridSnapSize));
+	if(!TrySnapToActor(hitResult)) SetActorLocation(hitResult.ImpactPoint.GridSnap(GetGridSize()));
 
 	auto ImpactNormal = hitResult.ImpactNormal;
 	ImpactNormal.Normalize();
