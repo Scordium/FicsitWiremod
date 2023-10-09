@@ -19,6 +19,7 @@ class FICSITWIREMOD_API UTextureUtilities : public UBlueprintFunctionLibrary
 
 public:
 
+	UFUNCTION(BlueprintPure)
 	static UTexture2D* GetTextureFromIconId(int Id)
 	{
 		if(!IconToTextureMap.Contains(Id))
@@ -32,7 +33,8 @@ public:
 
 		return IconToTextureMap[Id].Get();
 	}
-	
+
+	UFUNCTION(BlueprintPure)
 	static int32 GetIconFromTexture(UTexture2D* Texture)
 	{
 		if(!Texture) return -1;
@@ -49,20 +51,30 @@ public:
 		return TextureToIconMap[Texture];
 	}
 
+	UFUNCTION(BlueprintCallable)
 	static int32 GetIconFromDescriptor(TSubclassOf<UFGItemDescriptor> ItemDescriptor)
 	{
 		if(!ItemDescriptor) return -1;
 		return GetIconFromTexture(UFGItemDescriptor::GetBigIcon(ItemDescriptor));
 	}
 
+	UFUNCTION(BlueprintCallable)
 	static int32 GetIconFromStack(FInventoryStack Stack)
 	{
 		return GetIconFromDescriptor(Stack.Item.GetItemClass());
 	}
 
+	UFUNCTION(BlueprintCallable)
 	static int32 GetIconFromItemAmount(FItemAmount ItemAmount)
 	{
 		return GetIconFromDescriptor(ItemAmount.ItemClass);
+	}
+
+	UFUNCTION(BlueprintPure)
+	static FVector2D GetTextureSize(UTexture* Texture)
+	{
+		if(!Texture) return FVector2D::ZeroVector;
+		return FVector2D(Texture->GetSurfaceWidth(), Texture->GetSurfaceHeight());
 	}
 
 
