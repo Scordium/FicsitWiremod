@@ -13,25 +13,15 @@ class FICSITWIREMOD_API AConveyorLimiter : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-
-	AConveyorLimiter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer)
-	{
-		mFactoryTickFunction.bCanEverTick = true;
-		TempStorage = CreateDefaultSubobject<UFGInventoryComponent>("TempStorage");
-	}
-	
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		Enabled = GetConnection(0).GetBool(EnabledByDefault());
-
-		if(GetConnection(1).GetBool()) TotalPassed = 0;
+		if(GetConnection(0).GetBool()) TotalPassed = 0;
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-		DOREPLIFETIME(AConveyorLimiter, Enabled);
+		
 		DOREPLIFETIME(AConveyorLimiter, TotalPassed);
 		DOREPLIFETIME(AConveyorLimiter, Throughput);
 		DOREPLIFETIME(AConveyorLimiter, PassedHistory);
@@ -60,54 +50,26 @@ public:
 		//Calculate average with history
 		int Sum = 0;
 		for(int Element : PassedHistory) Sum += Element;
-		auto Avg = Sum / (PassedHistory.Num() + 0.0);
+		auto Avg = Sum / (double)PassedHistory.Num();
 
 		// (60 * (1s / LoopTime)) * Avg
 		Throughput = MaxElements * FMath::CeilToInt(Avg);
 	}
-
-	virtual void Factory_Tick(float dt) override
-	{
-		if(!HasAuthority()) return;
-
-		if(!Enabled) return;
-		if(!IsValid(Input) || !IsValid(TempStorage)) return;
-		if(!Input->IsConnected()) return;
-		
-		TArray<FInventoryItem> Items;
-		if(!Input->Factory_PeekOutput(Items)) return;
-		if(!TempStorage->HasEnoughSpaceForItem(Items[0])) return;
-
-		FInventoryItem Item = FInventoryItem();
-		float Offset = 0;
-		Input->Factory_GrabOutput(Item, Offset);
-		TempStorage->AddItem(Item);
-	}
-
-
+	
 	virtual bool Factory_GrabOutput_Implementation(UFGFactoryConnectionComponent* connection, FInventoryItem& out_item, float& out_OffsetBeyond, TSubclassOf<UFGItemDescriptor> type) override
 	{
-		if(!IsValid(TempStorage) || !IsValid(Output)) return false;
-		if(!Enabled || TempStorage->IsEmpty()) return false;
+		if(!IsValid(Input)) return false;
 		
-		
-		FInventoryStack Stack = FInventoryStack();
-		if(TempStorage->GetStackFromIndex(0, Stack))
+		if(Input->Factory_GrabOutput(out_item, out_OffsetBeyond, type))
 		{
-			out_item = Stack.Item;
 			CyclePassed++;
 			TotalPassed++;
-			TempStorage->RemoveFromIndex(0, 1);
 			return true;
 		}
 
 		return false;
 	}
-
-
-	UPROPERTY(VisibleInstanceOnly, Replicated)
-	bool Enabled;
-
+	
 	/*
 	 * How many items passed through the limiter this cycle
 	 */
@@ -128,21 +90,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	double LoopTime = 1;
-
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UFGFactoryConnectionComponent* Input;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UFGFactoryConnectionComponent* Output;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	class UFGInventoryComponent* TempStorage;
-
-	
-	FORCEINLINE bool EnabledByDefault() const
-	{
-		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["ConveyorLimiter_DefaultEnabled"];
-		return Cast<UConfigPropertyBool>(Config)->Value;
-	}
 };

@@ -29,8 +29,41 @@ public:
 		return TSubclassOf<AFGDecorationTemplate>();
 	}
 
-protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	bool GetIsEpilepsyModeOn();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetIsEpilepsyModeOn(bool Value);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	FLinearColor GetDefaultWireColor();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetDefaultWireColor(const FLinearColor& Color);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	bool GetIsWireDefaultHidden();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetIsWireDefaultHidden(bool Value);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	double GetWireEmission();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetWireEmission(double Emission = 1);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	double TraceDistance();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	bool ShouldToolsKeepStateOnUnequip();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	double GetHologramGridSize();
+
 	inline static UCircuitryStatics* Self;
+protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMesh* GateMesh;
@@ -50,3 +83,47 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SetSelf() { Self = this; }
 };
+
+UCLASS()
+class UCircuitryConfigBlueprintFunctions : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintPure)
+	static bool GetIsEpilepsyModeOn() { return UCircuitryStatics::Self->GetIsEpilepsyModeOn(); }
+
+	UFUNCTION(BlueprintCallable)
+	static void SetIsEpilepsyModeOn(bool Value) { return UCircuitryStatics::Self->SetIsEpilepsyModeOn(Value); } 
+
+	UFUNCTION(BlueprintPure)
+	static FLinearColor GetDefaultWireColor() { return UCircuitryStatics::Self->GetDefaultWireColor(); }
+
+	UFUNCTION(BlueprintCallable)
+	static void SetDefaultWireColor(const FLinearColor& Color) { UCircuitryStatics::Self->SetDefaultWireColor(Color); }
+
+	UFUNCTION(BlueprintPure)
+	static bool GetShouldToolsKeepStateOnUnequip() { return UCircuitryStatics::Self->ShouldToolsKeepStateOnUnequip(); }
+
+	UFUNCTION(BlueprintPure)
+	static bool GetIsWireDefaultHidden() { return UCircuitryStatics::Self->GetIsWireDefaultHidden(); }
+
+	UFUNCTION(BlueprintCallable)
+	static void SetIsWireDefaultHidden(bool Value) { UCircuitryStatics::Self->SetIsWireDefaultHidden(Value); }
+
+	UFUNCTION(BlueprintPure)
+	static double GetTraceDistance() { return UCircuitryStatics::Self->TraceDistance(); }
+
+	UFUNCTION(BlueprintPure)
+	static double GetWireEmission() { return UCircuitryStatics::Self->GetWireEmission(); }
+	
+	UFUNCTION(BlueprintCallable)
+	static void SetWireEmission(double Emission = 1) { UCircuitryStatics::Self->SetWireEmission(Emission); }
+
+	UFUNCTION(BlueprintPure)
+	static double GetHologramGridSize() { return UCircuitryStatics::Self->GetHologramGridSize(); }
+	
+};
+
+typedef UCircuitryConfigBlueprintFunctions CircuitryConfig;

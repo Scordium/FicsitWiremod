@@ -305,6 +305,9 @@ class UBlueprintReflectionFunctions : public UBlueprintFunctionLibrary
 
 public:
 
+	UFUNCTION(BlueprintPure)
+	static FString GetStringifiedValue(const FConnectionData& Data) { return Data.GetStringifiedValue(); }
+
 	UFUNCTION(BlueprintCallable)
 	static bool GetBool(const FConnectionData& Data, bool DefaultValue = false) { return Data.GetBool(DefaultValue); }
 

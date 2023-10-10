@@ -4,7 +4,6 @@
 #include "AbstractInstanceManager.h"
 #include "Behaviour/CircuitryInterface.h"
 #include "Buildables/FGBuildable.h"
-#include "Configuration/Properties/ConfigPropertySection.h"
 #include "Utility/WiremodGameWorldModule.h"
 
 #include "WiremodUtils.generated.h"
@@ -33,9 +32,6 @@ public:
 		return hit.GetActor();
 	}
 	
-	UFUNCTION(BlueprintPure)
-	static FString GetStringifiedValue(const FConnectionData& Value) { return Value.GetStringifiedValue(); }
-	
 	
 	static FString GetModReference(UObject* object)
 	{
@@ -49,16 +45,20 @@ public:
     
     	
 	UFUNCTION(BlueprintPure)
-	static FName GetClassName(UClass* inClass)
+	static FName GetClassName(UClass* inClass, bool DoFilter = true)
 	{
 		auto unparsed = UKismetSystemLibrary::GetClassDisplayName(inClass);
 		unparsed.MidInline(0, unparsed.Len() - 2);
-		TArray<FString> Remove = {"Build_", "BP_", "SF+_", "RP_", "SF_", "MP_", "FF_"};
-		FString ReplaceWith = "";
 
-		for (FString Element : Remove)
+		if(DoFilter)
 		{
-			unparsed.ReplaceInline(*Element, *ReplaceWith, ESearchCase::CaseSensitive);
+			TArray<FString> Remove = {"Build_", "BP_", "SF+_", "RP_", "SF_", "MP_", "FF_"};
+			FString ReplaceWith = "";
+
+			for (FString Element : Remove)
+			{
+				unparsed.ReplaceInline(*Element, *ReplaceWith, ESearchCase::CaseSensitive);
+			}
 		}
 		
 		return FName(unparsed);
@@ -69,61 +69,12 @@ public:
 	{
 		if(!Buildable) return nullptr;
 		
-		if(auto Wiremod = Cast<ICircuitryProcessableInterface>(Buildable))
+		if(auto Circuitry = Cast<ICircuitryProcessableInterface>(Buildable))
 		{
-			return Wiremod->GetTexture();
+			return Circuitry->GetTexture();
 		}
 
 		return UFGItemDescriptor::GetBigIcon(Buildable->GetBuiltWithDescriptor());
-	}
-
-
-	UFUNCTION(BlueprintPure)
-	static FORCEINLINE double TraceDistance()
-	{
-		return Cast<UConfigPropertyFloat>(Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["WiremodTool_RaycastDistance"])->Value;
-	}
-
-	UFUNCTION(BlueprintPure)
-	static UConfigPropertyArray* DefaultWireColor(FLinearColor& Color)
-	{
-		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
-		auto ColorProperty = Cast<UConfigPropertyArray>(Config->SectionProperties["Wire_Color"]);
-
-		double R = Cast<UConfigPropertyFloat>(ColorProperty->Values[0])->Value;
-		double G = Cast<UConfigPropertyFloat>(ColorProperty->Values[1])->Value;
-		double B = Cast<UConfigPropertyFloat>(ColorProperty->Values[2])->Value;
-		
-		Color = FLinearColor(R, G, B);
-		return ColorProperty;
-	}
-
-	UFUNCTION(BlueprintPure)
-	static bool ShouldToolKeepState()
-	{
-		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
-
-		return Cast<UConfigPropertyBool>(Config->SectionProperties["WiremodTool_KeepState"])->Value;
-	}
-
-	UFUNCTION(BlueprintPure)
-	static UConfigPropertyBool* WireDefaultHidden(bool& Out)
-	{
-		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
-		auto BoolProperty = Cast<UConfigPropertyBool>(Config->SectionProperties["Wire_Hidden"]);
-
-		Out = BoolProperty->Value;
-		return BoolProperty;
-	}
-
-	UFUNCTION(BlueprintPure)
-	static UConfigPropertyFloat* WireEmission(double& Out)
-	{
-		auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
-		auto FloatProperty = Cast<UConfigPropertyFloat>(Config->SectionProperties["Wire_Emission"]);
-
-		Out = FloatProperty->Value;
-		return FloatProperty;
 	}
 
 };

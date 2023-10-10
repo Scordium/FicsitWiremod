@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WiremodGameWorldModule.h"
 #include "WiremodUtils.h"
 #include "Behaviour/CircuitryStatics.h"
 #include "Buildables/FGBuildable.h"

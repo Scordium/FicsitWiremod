@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Configuration/Properties/ConfigPropertyFloat.h"
-#include "Configuration/Properties/ConfigPropertySection.h"
+#include "Behaviour/CircuitryStatics.h"
 #include "Hologram/FGBuildableHologram.h"
 #include "Utility/WiremodGameWorldModule.h"
 #include "WiremodBuildableHologram.generated.h"
@@ -26,7 +25,7 @@ class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
-		mGridSnapSize = Cast<UConfigPropertyFloat>(Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig())->SectionProperties["WiremodHolo_SnapSize"])->Value;
+		mGridSnapSize = CircuitryConfig::GetHologramGridSize();
 	}
 	
 	virtual void SetHologramLocationAndRotation(const FHitResult& hitResult) override;

@@ -5,11 +5,9 @@
 #include "CoreMinimal.h"
 #include "ConnectionWireBase.h"
 #include "FGSchematicManager.h"
-#include "Configuration/ModConfiguration.h"
 #include "ModLoading/ModLoadingLibrary.h"
 #include "Module/GameWorldModule.h"
 #include "Util/SemVersion.h"
-#include <Kismet/RuntimeBlueprintFunctionLibrary.h>
 #include "WiremodGameWorldModule.generated.h"
 
 
@@ -130,18 +128,10 @@ public:
 	UPROPERTY()
 	AConnectionWireBase* WirePreviewActor;
 
-	FORCEINLINE UConfigProperty* GetConfig() const
-	{
-		return URuntimeBlueprintFunctionLibrary::GetModConfigurationPropertyByClass(WiremodConfig);
-	}
-
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TMap<FString, FModlockedSchematic> ModLockedSchematics;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FDeprecatedCircuitryData> DeprecatedClasses;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UModConfiguration> WiremodConfig;
 };

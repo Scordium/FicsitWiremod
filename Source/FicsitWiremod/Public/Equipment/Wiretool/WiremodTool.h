@@ -48,13 +48,14 @@ public:
 
 			SelectedConnection.WirePositions[SelectedConnection.WirePositions.Num() - 1] = LastPoint;
 
-			UWiremodUtils::DefaultWireColor(UWiremodGameWorldModule::Self->WirePreviewActor->AssignedConnection.Transmitter.WireColor);
+
+			UWiremodGameWorldModule::Self->WirePreviewActor->AssignedConnection.Transmitter.WireColor = CircuitryConfig::GetDefaultWireColor();
 			UWiremodGameWorldModule::Self->WirePreviewActor->DrawWireFromPoints(SelectedConnection.WirePositions);
 		}
 		
 		bool SuccessfulHit;
 		FVector Location;
-		AActor* HitActor = GetTargetLookAt(UWiremodUtils::TraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
+		AActor* HitActor = GetTargetLookAt(CircuitryConfig::GetTraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
 		if(!SuccessfulHit)
 		{
 			Widget->ClearUI();
@@ -80,7 +81,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void SetOutline(AActor* Object, TEnumAsByte<EOutlineColor> Color = EOutlineColor::OC_USABLE)
+	void SetOutline(AActor* Object, EOutlineColor Color = EOutlineColor::OC_USABLE) const
 	{
 		auto Outline = GetInstigatorCharacter()->GetOutline();
 		Outline->HideOutline();
@@ -93,7 +94,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void ReturnToIdle(bool ForceReset)
 	{
-		if(ForceReset || !UWiremodUtils::ShouldToolKeepState())
+		if(ForceReset || !CircuitryConfig::GetShouldToolsKeepStateOnUnequip())
 		{
 			CurrentTarget = nullptr;
 			SelectedConnection = FConnectionData();
@@ -110,7 +111,7 @@ protected:
 		
 		bool SuccessfulHit;
 		FVector Location;
-		AActor* HitActor = GetTargetLookAt(UWiremodUtils::TraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
+		AActor* HitActor = GetTargetLookAt(CircuitryConfig::GetTraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
 
 		if(!SuccessfulHit) return;
 
@@ -119,8 +120,8 @@ protected:
 		SelectedConnection.Object = HitActor;
 		SelectedConnection.FunctionName = FName("Self");
 		SelectedConnection.ConnectionType = Entity;
-		UWiremodUtils::DefaultWireColor(SelectedConnection.WireColor);
-		UWiremodUtils::WireDefaultHidden(SelectedConnection.WireHidden);
+		SelectedConnection.WireColor = CircuitryConfig::GetDefaultWireColor();
+		SelectedConnection.WireHidden = CircuitryConfig::GetIsWireDefaultHidden();
 		SelectedConnection.WirePositions = TArray
 		{
 			SnapToCenter ? HitActor->GetActorLocation() : Location,
@@ -182,7 +183,7 @@ protected:
 
 		bool SuccessfulHit;
 		FVector Location;
-		GetTargetLookAt(UWiremodUtils::TraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
+		GetTargetLookAt(CircuitryConfig::GetTraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
 
 		if(!SuccessfulHit) return;
 
@@ -228,7 +229,7 @@ protected:
 		{
 			bool SuccessfulHit;
 			FVector Location;
-			AActor* HitActor = GetTargetLookAt(UWiremodUtils::TraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
+			AActor* HitActor = GetTargetLookAt(CircuitryConfig::GetTraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
 
 			if(SuccessfulHit)
 			{

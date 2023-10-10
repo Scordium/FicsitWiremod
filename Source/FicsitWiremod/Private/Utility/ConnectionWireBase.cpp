@@ -4,6 +4,7 @@
 #include "Utility/ConnectionWireBase.h"
 
 #include "WiremodUtils.h"
+#include "Behaviour/CircuitryStatics.h"
 #include "Components/SplineComponent.h"
 #include "Utility/ConnectionWireSplineMesh.h"
 
@@ -80,20 +81,13 @@ void AConnectionWireBase::UpdateWireVisuals()
 	TInlineComponentArray<UConnectionWireSplineMesh*> SplineMeshes;
 	GetComponents<UConnectionWireSplineMesh>(SplineMeshes);
 	
-	auto Color = AssignedConnection.Transmitter.WireColor;
-
-	double Emission;
-	UWiremodUtils::WireEmission(Emission);
-
-
-	auto Config = Cast<UConfigPropertySection>(UWiremodGameWorldModule::Self->GetConfig());
-	auto BoolProperty = Cast<UConfigPropertyBool>(Config->SectionProperties["Health_Epilepsy"]);
+	auto const Color = FVector(AssignedConnection.Transmitter.WireColor);
 	
 	for (auto SplineMesh : SplineMeshes)
 	{
-		SplineMesh->SetScalarParameterValueOnMaterials(FName("Emission"), Emission);
-		SplineMesh->SetVectorParameterValueOnMaterials(FName("CustomColor"), FVector(Color));
-		SplineMesh->SetScalarParameterValueOnMaterials(FName("Speed"), BoolProperty->Value ? -.5 : -1.5);
+		SplineMesh->SetScalarParameterValueOnMaterials(FName("Emission"), CircuitryConfig::GetWireEmission());
+		SplineMesh->SetVectorParameterValueOnMaterials(FName("CustomColor"), Color);
+		SplineMesh->SetScalarParameterValueOnMaterials(FName("Speed"), CircuitryConfig::GetIsEpilepsyModeOn() ? -.5 : -1.5);
 	}
 }
 

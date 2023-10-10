@@ -27,7 +27,7 @@ public:
 		else if(CurrentStateIndex == 2) Out = UInterpolationFuncs::BounceOut(A, B, Alpha);
 	}
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps)
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
