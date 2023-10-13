@@ -70,15 +70,19 @@ public:
 
 	void RegisterModLockedRecipes()
 	{
-		auto Player = UGameplayStatics::GetPlayerCharacter(this, 0);
+		auto Player = Cast<AFGCharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
 		if(!Player || !Player->HasAuthority()) return;
 
 		auto ModLib = GEngine->GetEngineSubsystem<UModLoadingLibrary>();
 		auto SchematicManager = AFGSchematicManager::Get(this);
+		TArray<TSubclassOf<UFGSchematic>> AvailableSchematics;
+		SchematicManager->GetAllPurchasedSchematics(AvailableSchematics);
+		
 		for(auto ModRef : ModLockedSchematics)
 		{
 			FModInfo Mod;
 			if(!ModLib->GetLoadedModInfo(ModRef.Key, Mod)) continue;
+			if(AvailableSchematics.Contains(ModRef.Value.Schematic)) continue;
 
 			FVersion Version = FVersion(
 				ModRef.Value.MajorVersion,
@@ -87,9 +91,11 @@ public:
 				);
 			
 			if(!Compare(Version, Mod.Version)) continue;
-
+			
 			if(ModRef.Value.Schematic.GetDefaultObject())
-				SchematicManager->GiveAccessToSchematic(ModRef.Value.Schematic, Cast<AFGCharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0)));
+			{
+				SchematicManager->GiveAccessToSchematic(ModRef.Value.Schematic, nullptr);
+			}
 		}
 	}
 
