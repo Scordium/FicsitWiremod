@@ -61,6 +61,7 @@ public:
 		return
 		Name == Other.Name
 		&& Data == Other.Data
+		&& MetaData == Other.MetaData
 		&& ValueEditorClass == Other.ValueEditorClass;
 	}
 };

@@ -19,6 +19,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FString Value;
+
+	bool operator==(const FSignComponentVariableMetaData& Other) const
+	{
+		return Name == Other.Name && Value == Other.Value;
+	}
 	
 };
 
