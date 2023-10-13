@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "CommonLib/PlayerOwnedClipboardData.h"
 #include "Components/SignComponentBase.h"
 #include "Components/SignComponentDescriptor.h"
 #include "ManagedSign.generated.h"
@@ -36,6 +37,18 @@ public:
 };
 
 UCLASS()
+class UManagedSignClipboardData : public UPlayerOwnedClipboardData
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadWrite)
+	FManagedSignData Data;
+	
+};
+
+UCLASS()
 class FICSITWIREMOD_API AManagedSign : public AFGWiremodBuildable
 {
 	GENERATED_BODY()
@@ -50,6 +63,11 @@ public:
 	void ApplySignLayout(const FManagedSignData& NewData, UObject* Setter)
 	{
 		if(!GetCanConfigure(Setter)) return;
+		ApplySignLayout_Internal(NewData);
+	}
+
+	void ApplySignLayout_Internal(const FManagedSignData& NewData)
+	{
 		Data = NewData;
 
 		ConnectionsInfo.Inputs.Empty();
@@ -90,6 +108,28 @@ public:
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 		DOREPLIFETIME(AManagedSign, Data)
+	}
+
+	virtual bool CanUseFactoryClipboard_Implementation() override { return true; }
+	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return StaticClass();}
+	virtual TSubclassOf<UFGFactoryClipboardSettings> GetClipboardSettingsClass_Implementation() override { return UManagedSignClipboardData::StaticClass(); }
+
+	virtual UFGFactoryClipboardSettings* CopySettings_Implementation() override
+	{
+		auto Clipboard = NewObject<UManagedSignClipboardData>(this);
+		Clipboard->Data = Data;
+		return Clipboard;
+	}
+
+	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard) override
+	{
+		if(auto Clipboard = Cast<UManagedSignClipboardData>(factoryClipboard))
+		{
+			ApplySignLayout_Internal(Clipboard->Data);
+			return true;
+		}
+
+		return false;
 	}
 };
 

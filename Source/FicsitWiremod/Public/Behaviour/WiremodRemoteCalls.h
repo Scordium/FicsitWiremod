@@ -50,19 +50,19 @@ class FICSITWIREMOD_API UWiremodRemoteCalls : public UFGRemoteCallObject
 
 public:
 
-	UFUNCTION(BlueprintCallable, Reliable, WithValidation, Server)
+	UFUNCTION(BlueprintCallable, Reliable, Server)
 	void ConnectWiremodObject(UObject* Buildable, const FConnectionData& Data, int Index, UObject* Setter);
 	
-	UFUNCTION(BlueprintCallable, Reliable, WithValidation, Server)
+	UFUNCTION(BlueprintCallable, Reliable, Server)
 	void ConnectNonWiremodObject(const FDynamicConnectionData& Connection, int Index, UObject* Setter);
 
-	UFUNCTION(BlueprintCallable, Reliable, WithValidation, Server)
+	UFUNCTION(BlueprintCallable, Reliable, Server)
 	void ResetConnections(UObject* Buildable, int Index, UObject* Setter);
 
-	UFUNCTION(BlueprintCallable, Reliable, WithValidation, Server)
+	UFUNCTION(BlueprintCallable, Reliable, Server)
 	void UpdateRemoteControlData(ARemoteControlReceiver* Receiver, const FRemoteControlData& NewData, UObject* Setter);
 
-	UFUNCTION(BlueprintCallable, Reliable, WithValidation, Server)
+	UFUNCTION(BlueprintCallable, Reliable, Server)
 	void SetBuildableOwner(AFGBuildable* Buildable, UObject* NewOwner, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)

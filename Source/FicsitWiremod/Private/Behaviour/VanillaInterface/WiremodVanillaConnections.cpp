@@ -1,6 +1,8 @@
 ﻿
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
 
+#include "FGGlobalSettings.h"
+
 
 void AWiremodVanillaConnections::DrawWiresForBuildable(FVanillaBuildingDataKeyValuePair KeyValuePair, bool SkipDestruct)
 {

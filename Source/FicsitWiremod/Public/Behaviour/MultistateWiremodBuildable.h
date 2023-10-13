@@ -116,7 +116,7 @@ public:
 
 	virtual UTexture2D* GetTexture() override
 	{
-		if(!States.IsValidIndex(CurrentStateIndex)) return GetTexture();
+		if(!States.IsValidIndex(CurrentStateIndex)) return Super::GetTexture();
 		
 		return States[CurrentStateIndex].Icon;
 	}

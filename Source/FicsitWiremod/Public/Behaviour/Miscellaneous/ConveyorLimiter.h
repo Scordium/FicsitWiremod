@@ -18,13 +18,10 @@ public:
 		if(GetConnection(0).GetBool()) TotalPassed = 0;
 	}
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
+	AConveyorLimiter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer)
 	{
-		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-		
-		DOREPLIFETIME(AConveyorLimiter, TotalPassed);
-		DOREPLIFETIME(AConveyorLimiter, Throughput);
-		DOREPLIFETIME(AConveyorLimiter, PassedHistory);
+		mFactoryTickFunction.bCanEverTick = true;
+		TempStorage = CreateDefaultSubobject<UFGInventoryComponent>("TempStorage");
 	}
 
 	virtual void BeginPlay() override
@@ -33,6 +30,25 @@ public:
 		
 		if(!HasAuthority()) return;
 		UKismetSystemLibrary::K2_SetTimer(this, "UpdateAverage", LoopTime, true);
+	}
+
+	virtual void Factory_Tick(float dt) override
+	{
+		if(!HasAuthority()) return;
+		
+		if(!IsValid(Input) || !IsValid(TempStorage)) return;
+		if(!Input->IsConnected()) return;
+		
+		TArray<FInventoryItem> Items;
+		if(!Input->Factory_PeekOutput(Items)) return;
+
+		FInventoryStack StoredStack;
+		TempStorage->GetStackFromIndex(0, StoredStack);
+		if(!TempStorage->HasEnoughSpaceForItem(Items[0]) || StoredStack.NumItems > 10) return;
+		FInventoryItem Item = FInventoryItem();
+		float Offset = 0;
+		Input->Factory_GrabOutput(Item, Offset);
+		TempStorage->AddItem(Item);
 	}
 
 
@@ -58,18 +74,29 @@ public:
 	
 	virtual bool Factory_GrabOutput_Implementation(UFGFactoryConnectionComponent* connection, FInventoryItem& out_item, float& out_OffsetBeyond, TSubclassOf<UFGItemDescriptor> type) override
 	{
-		if(!IsValid(Input)) return false;
+		if(!IsValid(TempStorage) || TempStorage->IsEmpty()) return false;
 		
-		if(Input->Factory_GrabOutput(out_item, out_OffsetBeyond, type))
+		FInventoryStack Stack = FInventoryStack();
+		if(TempStorage->GetStackFromIndex(0, Stack))
 		{
+			out_item = Stack.Item;
 			CyclePassed++;
 			TotalPassed++;
+			TempStorage->RemoveFromIndex(0, 1);
 			return true;
 		}
-
 		return false;
 	}
-	
+
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
+	{
+		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+		
+		DOREPLIFETIME(AConveyorLimiter, TotalPassed);
+		DOREPLIFETIME(AConveyorLimiter, Throughput);
+		DOREPLIFETIME(AConveyorLimiter, PassedHistory);
+	} 
 	/*
 	 * How many items passed through the limiter this cycle
 	 */
@@ -93,7 +120,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UFGFactoryConnectionComponent* Input;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UFGFactoryConnectionComponent* Output;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	class UFGInventoryComponent* TempStorage;
 };
