@@ -26,6 +26,7 @@ public:
 		{
 			auto IconLib = UFGIconLibrary::Get();
 			auto Texture = IconLib->GetTextureFromIconID(Id);
+			if(!Texture) return nullptr;
 			
 			TextureToIconMap.Add(Texture, Id);
 			IconToTextureMap.Add(Id, Texture);
