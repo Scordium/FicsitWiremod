@@ -26,7 +26,7 @@ public:
 	}
 
 
-	UPROPERTY(EditInstanceOnly, Replicated)
+	UPROPERTY(EditInstanceOnly, Replicated, SaveGame)
 	FString Out;
 
 private:

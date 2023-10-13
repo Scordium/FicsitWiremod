@@ -28,6 +28,6 @@ public:
 		DOREPLIFETIME(APerlinNoise1D, Out);
 	}
 
-	UPROPERTY(VisibleInstanceOnly, Replicated)
+	UPROPERTY(VisibleInstanceOnly, SaveGame, Replicated)
 	double Out;
 };

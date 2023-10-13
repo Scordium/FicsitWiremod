@@ -63,9 +63,9 @@ public:
 	}
 
 
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	double Out;
 
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	TArray<double> Out_Array;
 };

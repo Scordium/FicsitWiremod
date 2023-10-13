@@ -111,7 +111,7 @@ public:
 	}
 
 
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	FItemAmount ItemAmount;
 	
 	UPROPERTY()

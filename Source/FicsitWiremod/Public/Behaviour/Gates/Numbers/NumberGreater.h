@@ -27,6 +27,6 @@ public:
 	}
 
 
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	bool Out;
 };

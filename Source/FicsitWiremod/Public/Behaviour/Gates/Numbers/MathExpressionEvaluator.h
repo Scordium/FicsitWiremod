@@ -37,9 +37,9 @@ public:
 	UPROPERTY(VisibleInstanceOnly)
 	FString LastExpression;
 	
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	FString Result;
 
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	bool Success;
 };

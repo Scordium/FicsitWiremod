@@ -120,6 +120,6 @@ public:
 		return INDEX_NONE;
 	}
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	UCCDynamicValueBase* Out;
 };

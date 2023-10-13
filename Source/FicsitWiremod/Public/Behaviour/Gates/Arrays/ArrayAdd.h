@@ -53,6 +53,6 @@ public:
 		return WroteSomething;
 	}
     	
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	UCCDynamicValueBase* Out;
 };

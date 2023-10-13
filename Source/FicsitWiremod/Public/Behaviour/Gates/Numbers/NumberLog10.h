@@ -24,6 +24,6 @@ public:
 		DOREPLIFETIME(ANumberLog10, Out);
 	}
 	
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	double Out;
 };

@@ -33,9 +33,9 @@ public:
 		DOREPLIFETIME(ATFlipFlop, Out);
 	};
 	
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	bool Out;
 
-	UPROPERTY(VisibleInstanceOnly)
+	UPROPERTY(SaveGame, VisibleInstanceOnly)
 	bool HasClockedLastFrame;
 };

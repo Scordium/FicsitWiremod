@@ -122,6 +122,6 @@ public:
 	UFUNCTION()
 	bool GetIsVehicle() { return IsValid(Cast<AFGVehicle>(Entity)); }
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	AActor* Entity;
 };

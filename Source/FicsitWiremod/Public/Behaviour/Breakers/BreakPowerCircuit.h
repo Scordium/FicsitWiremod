@@ -180,7 +180,7 @@ public:
 		DOREPLIFETIME(ABreakPowerCircuit, Circuit)
 	}
 	
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	FPowerCircuitStats CachedStats;
 
 	UPROPERTY(Replicated, VisibleInstanceOnly)

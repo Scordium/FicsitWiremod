@@ -54,6 +54,6 @@ public:
 		SetInputType(1, UConnectionTypeFunctions::ArrayToBase(Data.ConnectionType));
 	}
 	
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	UCCDynamicValueBase* Out;
 };

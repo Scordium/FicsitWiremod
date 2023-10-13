@@ -41,6 +41,6 @@ public:
 
 	virtual UObject* GetValue_Implementation(const class FString& ValueName) override{ return Out; }
     	
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	UCCDynamicValueBase* Out;
 };

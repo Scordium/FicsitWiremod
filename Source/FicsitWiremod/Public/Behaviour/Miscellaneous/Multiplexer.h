@@ -53,7 +53,7 @@ public:
 		return Out;
 	}
 	
-	UPROPERTY(Replicated, SaveGame)
+	UPROPERTY(Replicated, SaveGame, SaveGame)
 	UCCDynamicValueBase* Value;
 
 	UPROPERTY(EditDefaultsOnly)

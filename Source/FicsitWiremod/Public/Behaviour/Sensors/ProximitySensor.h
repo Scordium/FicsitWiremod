@@ -73,6 +73,6 @@ private:
 	}
 
 public:
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	TArray<AActor*> Overlapping;
 };

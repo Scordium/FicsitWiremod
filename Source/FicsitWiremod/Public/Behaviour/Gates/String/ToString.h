@@ -78,7 +78,7 @@ public:
 	UPROPERTY(SaveGame)
 	TEnumAsByte<EConnectionType> StoredType;
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	FString Out;
 
 

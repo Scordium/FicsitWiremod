@@ -75,6 +75,6 @@ public:
 	UFUNCTION()
 	int GetCurrentSet() { return RemoteControlData.CurrentSet; }
 
-	UPROPERTY(Replicated, EditInstanceOnly, BlueprintReadWrite)
+	UPROPERTY(Replicated, SaveGame, EditInstanceOnly, BlueprintReadWrite)
 	FRemoteControlData RemoteControlData;
 };

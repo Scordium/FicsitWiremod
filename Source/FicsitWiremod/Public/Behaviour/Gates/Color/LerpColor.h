@@ -53,6 +53,6 @@ public:
 		DOREPLIFETIME(ALerpColor, Out)
 	}
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	FLinearColor Out;
 };

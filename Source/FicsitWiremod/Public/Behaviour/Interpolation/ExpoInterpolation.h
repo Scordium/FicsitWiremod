@@ -32,6 +32,6 @@ public:
 		DOREPLIFETIME(AExpoInterpolation, Out);
 	}
 
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	double Out;
 };

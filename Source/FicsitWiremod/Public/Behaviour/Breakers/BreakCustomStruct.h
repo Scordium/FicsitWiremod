@@ -70,7 +70,7 @@ public:
 		}
 	}
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	FCustomStruct Saved;
 
 	UPROPERTY()

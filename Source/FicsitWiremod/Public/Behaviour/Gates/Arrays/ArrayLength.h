@@ -33,6 +33,6 @@ public:
 		DOREPLIFETIME(AArrayLength, Out);
 	}
 	
-	UPROPERTY(Replicated, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	int Out;
 };

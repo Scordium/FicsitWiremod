@@ -34,6 +34,6 @@ public:
 		DOREPLIFETIME(APerlinNoise3D, Out);
 	}
 
-	UPROPERTY(VisibleInstanceOnly, Replicated)
+	UPROPERTY(VisibleInstanceOnly, SaveGame, Replicated)
 	FVector Out;
 };

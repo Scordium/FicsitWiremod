@@ -29,6 +29,6 @@ class FICSITWIREMOD_API AATan : public AMultistateWiremodBuildable
     	}
         
         
-    	UPROPERTY(Replicated, VisibleInstanceOnly)
+    	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
     	double Out;
 };

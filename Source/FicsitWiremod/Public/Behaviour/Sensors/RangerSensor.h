@@ -120,10 +120,10 @@ public:
 	UFUNCTION()
 	AActor* GetEntityHit() {FVector Loc; return UWiremodUtils::GetActualHitTarget(HitInfo, Loc); }
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	double MaxDistance;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	bool HasTarget;
 
 	UPROPERTY(Replicated)

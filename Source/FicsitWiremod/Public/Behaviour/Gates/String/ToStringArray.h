@@ -77,7 +77,7 @@ public:
 	UPROPERTY(SaveGame)
 	TEnumAsByte<EConnectionType> StoredType;
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	TArray<FString> Out;
 
 	//Utility property so that we don't have to create a new object each time we need to read the value,

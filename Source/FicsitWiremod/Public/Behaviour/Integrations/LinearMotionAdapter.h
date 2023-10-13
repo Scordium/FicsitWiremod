@@ -76,7 +76,7 @@ public:
 		DOREPLIFETIME(ALinearMotionAdapter, FloorIndex)
 	}
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	AActor* Lift;
 
 	UPROPERTY(Replicated, SaveGame)
