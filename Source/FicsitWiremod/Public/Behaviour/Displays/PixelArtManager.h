@@ -21,8 +21,14 @@ public:
 	void SetPixelScreenData(const FPixelScreenData& NewData, UObject* Setter)
 	{
 		if(!GetCanConfigure(Setter)) return;
+		OnImageChanged(NewData);
+	}
 
-		Data = NewData;
+	UFUNCTION()
+	UTexture* GetImageTexture()
+	{
+		if(!TextureCache) TextureCache = Data.MakeTexture();
+		return TextureCache;
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
@@ -31,9 +37,20 @@ public:
 
 		DOREPLIFETIME(APixelArtManager, Data)
 	}
+
+	UFUNCTION(NetMulticast, Reliable)
+	void OnImageChanged(FPixelScreenData NewData);
+	void OnImageChanged_Implementation(FPixelScreenData NewData)
+	{
+		if(HasAuthority()) Data = NewData;
+		TextureCache = Data.MakeTexture();
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	FPixelScreenData Data;
+
+	UPROPERTY()
+	UTexture* TextureCache;
 };
 
 
