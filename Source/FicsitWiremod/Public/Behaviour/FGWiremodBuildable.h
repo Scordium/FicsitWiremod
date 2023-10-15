@@ -61,7 +61,6 @@ public:
 		Mesh->SetRelativeScale3D(FVector(20, 20, 20));
 
 		mHologramClass = AWiremodBuildableHologram::StaticClass();
-		mDecoratorClass = UCircuitryStatics::GetDefaultDecoratorClass();
 		
 		BuildableDecal->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 		FINConnector->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));

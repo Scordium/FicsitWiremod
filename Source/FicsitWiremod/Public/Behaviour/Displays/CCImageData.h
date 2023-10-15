@@ -201,6 +201,10 @@ public:
 	static void SetTextureParam_Safe(UMaterialInstanceDynamic* Material, FName ParameterName, UTexture* Value)
 	{
 		if(!Material || !Value) return;
+
+		//How the fuck is this even possible is a mystery to me, but it keeps crashing on this line in some scenarios, so i'm checking it as well.
+		if(!Value->IsA(UTexture::StaticClass())) return;
+		
 		Material->SetTextureParameterValue(ParameterName, Value);
 	}
 };
