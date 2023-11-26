@@ -26,6 +26,11 @@ public:
 		SetProximityData(SCALE, OFFSET, AREA_VISIBLE);
 	}
 
+	virtual void ClientProcess_Implementation(double DeltaTime) override
+	{
+		SetProximityData(SCALE, OFFSET, AREA_VISIBLE);
+	}
+
 	UFUNCTION()
 	int GetCount() { return Overlapping.Num(); }
 
