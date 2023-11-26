@@ -29,16 +29,6 @@ class FICSITWIREMOD_API AConfigurableConstant : public AFGWiremodBuildable, publ
 	GENERATED_BODY()
 
 public:
-	virtual void BeginPlay() override
-	{
-		Super::BeginPlay();
-		
-		//Pre 0.11.50 to 0.11.70 -> 0.11.80
-		for(auto Val : Values)
-			SavedValues.Add(FNamedDynamicValue(Val.Name, Val.Value.Convert(this)));
-
-		Values.Empty();
-	}
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
@@ -134,27 +124,27 @@ public:
 	}
 
 	UFUNCTION()
-	void netFunc_setBoolValue(FString Name, bool Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }
+	void netFunc_setBoolValue(FString Name, bool Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
 
 	UFUNCTION()
-	void netFunc_setStringValue(FString Name, FString Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }
+	void netFunc_setStringValue(FString Name, FString Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
 
 	UFUNCTION()
-	void netFunc_setFloatValue(FString Name, double Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }
+	void netFunc_setFloatValue(FString Name, double Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
 
 	UFUNCTION()
-	void netFunc_setColorValue(FString Name, FLinearColor Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }
+	void netFunc_setColorValue(FString Name, FLinearColor Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
 
 	UFUNCTION()
-	void netFunc_setVectorValue(FString Name, FVector Value) { CreateNewOrUpdate(FNamedValue(Name, FDynamicValue(Value))); }
+	void netFunc_setVectorValue(FString Name, FVector Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
 
 
 
 	UFUNCTION()
-	void CreateNewOrUpdate(FNamedValue NamedValue)
+	void CreateNewOrUpdate(FNamedDynamicValue NamedValue)
 	{
 		//Try to find the existing value and change it
-		for (auto& StoredValue : Values)
+		for (auto& StoredValue : SavedValues)
 		{
 			if(StoredValue.Name == NamedValue.Name)
 			{
@@ -165,14 +155,9 @@ public:
 		}
 
 		//If value wasn't found, create a new one.
-		Values.Add(NamedValue);
+		SavedValues.Add(NamedValue);
 		OnRep_ValuesUpdated();
 	}
-	
-
-	//TODO: Remove this after everyone had a chance to save their game on 0.11.80
-	UPROPERTY(EditInstanceOnly, SaveGame)
-	TArray<FNamedValue> Values;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, SaveGame, ReplicatedUsing=OnRep_ValuesUpdated)
 	TArray<FNamedDynamicValue> SavedValues;
