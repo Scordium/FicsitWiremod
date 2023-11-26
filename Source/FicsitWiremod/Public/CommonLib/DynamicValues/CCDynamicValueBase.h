@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGSaveInterface.h"
 #include "CommonLib/ConnectionType.h"
+#include "Net/UnrealNetwork.h"
 #include "UObject/Object.h"
 #include "CCDynamicValueBase.generated.h"
 /**

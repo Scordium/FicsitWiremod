@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "ConnectionWireBase.h"
 #include "FGSchematicManager.h"
+#include "Configuration/ConfigManager.h"
 #include "ModLoading/ModLoadingLibrary.h"
+#include "Module/GameInstanceModuleManager.h"
 #include "Module/GameWorldModule.h"
 #include "Util/SemVersion.h"
 #include "WiremodGameWorldModule.generated.h"
@@ -72,8 +74,8 @@ public:
 	{
 		auto Player = Cast<AFGCharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
 		if(!Player || !Player->HasAuthority()) return;
-
-		auto ModLib = GEngine->GetEngineSubsystem<UModLoadingLibrary>();
+		
+		auto ModLib = GetWorld()->GetGameInstance()->GetSubsystem<UModLoadingLibrary>();
 		auto SchematicManager = AFGSchematicManager::Get(this);
 		TArray<TSubclassOf<UFGSchematic>> AvailableSchematics;
 		SchematicManager->GetAllPurchasedSchematics(AvailableSchematics);

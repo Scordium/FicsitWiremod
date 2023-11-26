@@ -8,6 +8,7 @@
 #include "CommonLib/ConnectionType.h"
 #include "CommonLib/CustomStruct.h"
 #include "CommonLib/ReflectionUtilities.h"
+#include "GameFramework/PlayerState.h"
 #include "Utility/CircuitryLogger.h"
 
 #include "WiremodReflection.generated.h"

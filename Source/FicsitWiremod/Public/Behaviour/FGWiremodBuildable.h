@@ -12,9 +12,9 @@
 #include "WiremodReflection.h"
 #include "Buildables/FGBuildable.h"
 #include "CommonLib/OwnerData/OwnerData.h"
+#include "Engine/ActorChannel.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utility/WiremodDecalMesh.h"
-#include "Utility/WiremodGameWorldModule.h"
 #include "FGWiremodBuildable.generated.h"
 
 
@@ -297,7 +297,7 @@ public:
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
 		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-
+		
 		for(const auto Object : GatherReplicatedObjects())
 			WroteSomething |= Channel->ReplicateSubobject(Object, *Bunch, *RepFlags);
 

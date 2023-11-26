@@ -85,18 +85,30 @@ public:
 		else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
 			return station->GetStationIdentifier()->GetStationName().ToString();
 		else
-			return GenericProcess(REFLECTION_ARGS,  DefaultValue);
+			return GenericProcess<FString, FStrProperty>(REFLECTION_ARGS,  DefaultValue);
 	}
 	
-	static FVector GetVector(REFLECTION_PARAMS, FVector DefaultValue = FVector::ZeroVector) { return GenericProcess(REFLECTION_ARGS, DefaultValue); }
-	static UFGInventoryComponent* GetInventory(REFLECTION_PARAMS) { return GenericProcess<UFGInventoryComponent*>(REFLECTION_ARGS); }
-	static UFGPowerCircuit* GetCircuit(REFLECTION_PARAMS) { return GenericProcess<UFGPowerCircuit*>(REFLECTION_ARGS); }
+	static FVector GetVector(REFLECTION_PARAMS, FVector DefaultValue = FVector::ZeroVector)
+	{
+		return GenericProcess<FVector, FStructProperty>(REFLECTION_ARGS, DefaultValue);
+	}
+	
+	static UFGInventoryComponent* GetInventory(REFLECTION_PARAMS)
+	{
+		return GenericProcess<UFGInventoryComponent*, FObjectPropertyBase>(REFLECTION_ARGS);
+	}
+	
+	static UFGPowerCircuit* GetCircuit(REFLECTION_PARAMS)
+	{
+		return GenericProcess<UFGPowerCircuit*, FObjectPropertyBase>(REFLECTION_ARGS);
+	}
+	
 	static AActor* GetEntity(REFLECTION_PARAMS) 
 	{
 		if(SourceName == "Self")
 			return Cast<AActor>(Object);
 		else
-			return GenericProcess<AActor*>(REFLECTION_ARGS, nullptr);
+			return GenericProcess<AActor*, FObjectPropertyBase>(REFLECTION_ARGS, nullptr);
 	}
 	
 	static TSubclassOf<UFGRecipe> GetRecipe(REFLECTION_PARAMS) 
@@ -104,25 +116,96 @@ public:
 		TSubclassOf<UFGRecipe> Out = GenericProcess(REFLECTION_ARGS,  TSubclassOf<UFGRecipe>());
 		return Out.GetDefaultObject() ? TSubclassOf<UFGRecipe>(Out.GetDefaultObject()->GetClass()) : TSubclassOf<UFGRecipe>();
 	}
-	static FLinearColor GetColor(REFLECTION_PARAMS, FLinearColor DefaultValue = FLinearColor::Black) { return GenericProcess(REFLECTION_ARGS,  DefaultValue); }
-	static FInventoryStack GetStack(REFLECTION_PARAMS) { return GenericProcess<FInventoryStack>(REFLECTION_ARGS); }
-	static FItemAmount GetItemAmount(REFLECTION_PARAMS) { return GenericProcess<FItemAmount>(REFLECTION_ARGS); }
-	static UTexture* GetTexture(REFLECTION_PARAMS) { return GenericProcess<UTexture*>(REFLECTION_ARGS); }
-	static FSplitterSortRule GetSplitterRule(REFLECTION_PARAMS) { return GenericProcess<FSplitterSortRule>(REFLECTION_ARGS); }
+	
+	static FLinearColor GetColor(REFLECTION_PARAMS, FLinearColor DefaultValue = FLinearColor::Black)
+	{
+		return GenericProcess<FLinearColor, FStructProperty>(REFLECTION_ARGS,  DefaultValue);
+	}
+	
+	static FInventoryStack GetStack(REFLECTION_PARAMS)
+	{
+		return GenericProcess<FInventoryStack, FStructProperty>(REFLECTION_ARGS);
+	}
+	
+	static FItemAmount GetItemAmount(REFLECTION_PARAMS)
+	{
+		return GenericProcess<FItemAmount, FStructProperty>(REFLECTION_ARGS);
+	}
+	
+	static UTexture* GetTexture(REFLECTION_PARAMS)
+	{
+		return GenericProcess<UTexture*>(REFLECTION_ARGS);
+	}
+	
+	static FSplitterSortRule GetSplitterRule(REFLECTION_PARAMS)
+	{
+		return GenericProcess<FSplitterSortRule, FStructProperty>(REFLECTION_ARGS);
+	}
 
-	static TArray<bool> GetBoolArray(REFLECTION_PARAMS) { return GenericProcess<TArray<bool>>(REFLECTION_ARGS); }
-	static TArray<double> GetFloatArray(REFLECTION_PARAMS) { return GenericProcess<TArray<double>>(REFLECTION_ARGS); }
-	static TArray<FString> GetStringArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FString>>(REFLECTION_ARGS); }
-	static TArray<FVector> GetVectorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FVector>>(REFLECTION_ARGS); }
-	static TArray<UFGInventoryComponent*> GetInventoryArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UFGInventoryComponent*>>(REFLECTION_ARGS); }
-	static TArray<UFGPowerCircuit*> GetCircuitArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UFGPowerCircuit*>>(REFLECTION_ARGS); }
-	static TArray<AActor*> GetEntityArray(REFLECTION_PARAMS) { return GenericProcess<TArray<AActor*>>(REFLECTION_ARGS); }
-	static TArray<TSubclassOf<UFGRecipe>> GetRecipeArray(REFLECTION_PARAMS) { return GenericProcess<TArray<TSubclassOf<UFGRecipe>>>(REFLECTION_ARGS); }
-	static TArray<FLinearColor> GetColorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FLinearColor>>(REFLECTION_ARGS); }
-	static TArray<FInventoryStack> GetStackArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FInventoryStack>>(REFLECTION_ARGS); }
-	static TArray<FItemAmount> GetItemAmountArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FItemAmount>>(REFLECTION_ARGS); }
-	static TArray<UTexture*> GetTextureArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UTexture*>>(REFLECTION_ARGS); }
-	static TArray<FSplitterSortRule> GetSplitterRuleArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FSplitterSortRule>>(REFLECTION_ARGS); }
+	static TArray<bool> GetBoolArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<bool>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<double> GetFloatArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<double>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<FString> GetStringArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<FString>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<FVector> GetVectorArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<FVector>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<UFGInventoryComponent*> GetInventoryArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<UFGInventoryComponent*>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<UFGPowerCircuit*> GetCircuitArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<UFGPowerCircuit*>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<AActor*> GetEntityArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<AActor*>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<TSubclassOf<UFGRecipe>> GetRecipeArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<TSubclassOf<UFGRecipe>>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<FLinearColor> GetColorArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<FLinearColor>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<FInventoryStack> GetStackArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<FInventoryStack>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<FItemAmount> GetItemAmountArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<FItemAmount>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<UTexture*> GetTextureArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<UTexture*>, FArrayProperty>(REFLECTION_ARGS);
+	}
+	
+	static TArray<FSplitterSortRule> GetSplitterRuleArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<FSplitterSortRule>, FArrayProperty>(REFLECTION_ARGS);
+	}
 
 	template<typename T>
 	static T GetUnmanaged(REFLECTION_PARAMS, T DefaultValue = T()){ return GenericProcess(REFLECTION_ARGS, DefaultValue); }
@@ -309,13 +392,14 @@ public:
 
 	
 	
-	template <typename T>
+	template <typename T, typename PropType>
 	static T FromPropertyValue(REFLECTION_PARAMS, T DefaultValue)
 	{
 		if(!IsValid(Object)) return DefaultValue;
 		
 		auto Val = Object->GetClass()->FindPropertyByName(SourceName);
 		if(!Val) return DefaultValue;
+		if(!Val->IsA<PropType>()) return DefaultValue;
 		return *Val->ContainerPtrToValuePtr<T>(Object);
 	}
 
@@ -329,22 +413,22 @@ public:
 		return Val->GetFloatingPointPropertyValue(Val->ContainerPtrToValuePtr<void>(Object));
 	}
 
-	template<typename T>
+	template<typename T, typename PropType = FProperty>
 	static T GenericProcess(REFLECTION_PARAMS, T DefaultValue = T())
 	{
 		if(!IsValid(Object)) return DefaultValue;
 	
 		if(FromProperty)
-			return FromPropertyValue(REFLECTION_ARGS, DefaultValue);
+			return FromPropertyValue<T, PropType>(REFLECTION_ARGS, DefaultValue);
 	
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
 		{
 			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString());
-			return FromPropertyValue(ValueBase, "Value", true, DefaultValue);
+			return FromPropertyValue<T, PropType>(ValueBase, "Value", true, DefaultValue);
 		}
 
 		struct{T RetVal;} Params{DefaultValue};
-		if(!ProcessFunction(Object, SourceName, &Params)) return FromPropertyValue(REFLECTION_ARGS, DefaultValue);
+		if(!ProcessFunction<PropType>(Object, SourceName, &Params)) return FromPropertyValue<T, PropType>(REFLECTION_ARGS, DefaultValue);
 		return Params.RetVal;
 	}
 
@@ -368,10 +452,12 @@ public:
 		
 		auto FuncProperty = Function->ChildProperties;
 		if(!FuncProperty) return FromNumericPropertyValue(REFLECTION_ARGS, DefaultValue);
+
 		
-		if(FuncProperty->IsA<FIntProperty>()) return GenericProcess<int>(REFLECTION_ARGS, DefaultValue);
-		else if(FuncProperty->IsA<FFloatProperty>()) return GenericProcess<float>(REFLECTION_ARGS, DefaultValue);
-		else return GenericProcess(REFLECTION_ARGS, DefaultValue);
+		if(FuncProperty->IsA<FIntProperty>()) return GenericProcess<int, FIntProperty>(REFLECTION_ARGS, DefaultValue);
+		else if(FuncProperty->IsA<FFloatProperty>()) return GenericProcess<float, FFloatProperty>(REFLECTION_ARGS, DefaultValue);
+		else if (FuncProperty->IsA<FDoubleProperty>()) return GenericProcess<double, FDoubleProperty>(REFLECTION_ARGS, DefaultValue);
+		else return DefaultValue;
 	}
 
 	template<typename T>
@@ -407,27 +493,31 @@ public:
 		if(FuncProperty->IsA<FIntProperty>())
 		{
 			struct { int Value; } params{(int) Value};
-			ProcessFunction(Object, SourceName, &params);
+			ProcessFunction<FIntProperty>(Object, SourceName, &params);
 		}
 		else if(FuncProperty->IsA<FFloatProperty>())
 		{
 			struct { float Value; } params{(float) Value};
-			ProcessFunction(Object, SourceName, &params);
+			ProcessFunction<FFloatProperty>(Object, SourceName, &params);
 		}
 		else
 		{
 			struct { double Value; } params{Value};
-			ProcessFunction(Object, SourceName, &params);
+			ProcessFunction<FDoubleProperty>(Object, SourceName, &params);
 		}
 	}
 
 
+	template<typename PropType = FProperty>
 	static bool ProcessFunction(UObject* Object, FName SourceName, void* Params)
 	{
 		if(IsValid(Object))
 		{
 			if(auto Function = Object->FindFunction(SourceName))
 			{
+				auto ReturnProp = Function->GetReturnProperty();
+				if(ReturnProp && !ReturnProp->IsA<PropType>()) return false;
+				
 				Object->ProcessEvent(Function, Params);
 				return true;
 			}
