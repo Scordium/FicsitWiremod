@@ -97,6 +97,14 @@ public:
 		return false;
 	}
 
+	UFUNCTION()
+	UTexture* GetItemIcon()
+	{
+		VerifyCache();
+		if(CDOCache) return CDOCache->GetBigIconFromInstance();
+		return nullptr;
+	}
+
 	void VerifyCache()
 	{
 		if(!CDOCache || CDOCache->GetClass() != Stack.Item.GetItemClass())

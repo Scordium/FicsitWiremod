@@ -97,6 +97,14 @@ public:
 		return false;
 	}
 
+	UFUNCTION()
+	UTexture* GetItemIcon()
+	{
+		VerifyCache();
+		if(CDOCache) return CDOCache->GetBigIconFromInstance();
+		return nullptr;
+	}
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
