@@ -56,7 +56,12 @@ public:
 	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
 	{
 		if(direction == Output) return Super::GetConnectionsInfo_Implementation(direction, Count, Note);
-		else return GenerateInputList();
+		else
+		{
+			auto Connections = GenerateInputList();
+			Count = Connections.Num();
+			return Connections;
+		}
 	}
 	
 	
