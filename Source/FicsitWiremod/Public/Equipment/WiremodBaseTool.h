@@ -83,7 +83,20 @@ public:
 	void EjectMappings()
 	{
 		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
-		auto EnhancedInputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player->GetLocalPlayer());
+		if(!Player)
+		{
+			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY TOOL KEYBIND HANDLER] Somehow, the player reference was null when ejecting mappings.");
+			return;
+		}
+		
+		auto LocalPlayer = Player->GetLocalPlayer();
+		if(!LocalPlayer)
+		{
+			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY TOOL KEYBIND HANDLER] Somehow, the local player reference was null when ejecting mappings.");
+			return;
+		}
+		
+		auto EnhancedInputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 		for(auto InputsContext : InputsContexts) EnhancedInputSystem->RemoveMappingContext(InputsContext.Value);
 	}
 	

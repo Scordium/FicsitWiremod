@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "EnhancedInputComponent.h"
-#include "WiremodUtils.h"
 #include "WiretoolWidget.h"
 #include "Behaviour/WiremodRemoteCalls.h"
 #include "Buildables/FGBuildable.h"
