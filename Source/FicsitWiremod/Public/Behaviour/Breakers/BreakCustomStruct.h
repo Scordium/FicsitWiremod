@@ -45,14 +45,11 @@ public:
 		DOREPLIFETIME(ABreakCustomStruct, Saved)
 	}
 
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
 	{
-		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-		
+		Super::GatherReplicatedObjects_Implementation(OutObjects);
 		for(auto Val : Saved.Values)
-			WroteSomething |= Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
-
-		return WroteSomething;
+			OutObjects.Add(Val.Value);
 	}
 
 	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override

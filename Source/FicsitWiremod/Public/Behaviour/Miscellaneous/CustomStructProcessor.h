@@ -92,14 +92,11 @@ public:
 		DOREPLIFETIME(ACustomStructProcessor, Out)
 	}
 	
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
 	{
-		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-
+		Super::GatherReplicatedObjects_Implementation(OutObjects);
 		for(auto Val : Out.Values)
-			WroteSomething |= Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
-
-		return WroteSomething;
+			OutObjects.Add(Val.Value);
 	}
 
 	UPROPERTY(SaveGame, BlueprintReadWrite, Replicated)

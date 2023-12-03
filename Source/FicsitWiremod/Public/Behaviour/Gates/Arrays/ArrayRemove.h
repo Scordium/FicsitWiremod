@@ -29,12 +29,10 @@ public:
 		DOREPLIFETIME(AArrayRemove, Out);
 	}
 
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
 	{
-		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-		WroteSomething |= Channel->ReplicateSubobject(Out, *Bunch, *RepFlags);
-
-		return WroteSomething;
+		Super::GatherReplicatedObjects_Implementation(OutObjects);
+		OutObjects.Add(Out);
 	}
 
 	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }

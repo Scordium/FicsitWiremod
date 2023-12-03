@@ -297,8 +297,11 @@ public:
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
 	{
 		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+		TArray<UObject*> ReplicationTargets;
+		GatherReplicatedObjects(ReplicationTargets);
 		
-		for(const auto Object : GatherReplicatedObjects())
+		for(const auto Object : ReplicationTargets)
 			WroteSomething |= Channel->ReplicateSubobject(Object, *Bunch, *RepFlags);
 
 		for(const auto Connection : InputConnections)
@@ -310,8 +313,10 @@ public:
 		return WroteSomething;
 	}
 	
-	UFUNCTION(BlueprintImplementableEvent)
-	TArray<UObject*> GatherReplicatedObjects();
+	UFUNCTION(BlueprintNativeEvent)
+	void GatherReplicatedObjects(TArray<UObject*>& Out);
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& Out) {}
+	
 
 	UPROPERTY(VisibleInstanceOnly, meta=(HideInDetailPanel=true))
 	bool AllowStatelessEdit = true;

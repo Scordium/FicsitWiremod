@@ -16,8 +16,11 @@ class FICSITWIREMOD_API AArrayBreak : public AFGWiremodBuildable, public IDynami
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		const EConnectionType ElementType = UConnectionTypeFunctions::ArrayToBase(GetConnection(0).ConnectionType);
-		const int ElementsCount = AArrayLength::GetArrayLength(GetConnection(0));
+		ArrayCache = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(0), this->GetWorld()));
+		if(!ArrayCache) return;
+		
+		const EConnectionType ElementType = UConnectionTypeFunctions::ArrayToBase(ArrayCache->ConnectionType);
+		const int ElementsCount = ArrayCache->Length();
 
 		ConnectionsInfo.Outputs.Empty();
 		for(int i = 0; i < ElementsCount; i++)
@@ -32,8 +35,24 @@ public:
 		}
 	}
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
+	{
+		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+		DOREPLIFETIME(AArrayBreak, ArrayCache)
+	}
+
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
+	{
+		Super::GatherReplicatedObjects_Implementation(OutObjects);
+		OutObjects.Add(ArrayCache);
+	}
+
+	UPROPERTY(Replicated, SaveGame)
+	UCCArrayValueBase* ArrayCache;
+	
 	UPROPERTY(EditDefaultsOnly)
 	FText ItemDisplayNameFormat = FText::FromString("Item");
 	
-	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return AArrayGet::GetArrayElement(GetConnection(0), FCString::Atoi(*ValueName)); }
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return ArrayCache ? ArrayCache->GetElement(FCString::Atoi(*ValueName)) : nullptr; }
 };

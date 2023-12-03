@@ -45,13 +45,10 @@ public:
 		DOREPLIFETIME(ARadioReceiver, DataReceived);
 	}
 
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
 	{
-		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-		
-		WroteSomething |= Channel->ReplicateSubobject(DataReceived, *Bunch, *RepFlags);
-
-		return WroteSomething;
+		Super::GatherReplicatedObjects_Implementation(OutObjects);
+		OutObjects.Add(DataReceived);
 	}
 
 	virtual bool CanUseFactoryClipboard_Implementation() override { return true; }

@@ -37,14 +37,10 @@ public:
 		DOREPLIFETIME(AConfigurableConstant, SavedValues)
 	}
 
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
 	{
-		bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-
-		for(auto Val : SavedValues)
-			WroteSomething |= Channel->ReplicateSubobject(Val.Value, *Bunch, *RepFlags);
-
-		return WroteSomething;
+		Super::GatherReplicatedObjects_Implementation(OutObjects);
+		for(auto Val : SavedValues) OutObjects.Add(Val.Value);
 	}
 	
 	UFUNCTION(BlueprintCallable)
