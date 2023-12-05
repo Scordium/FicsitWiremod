@@ -108,13 +108,13 @@ protected:
 	void UpdateVariableValue(TSubclassOf<USignComponentVariableName> Name, const FString& Value);
 	void UpdateVariableValue_Implementation(TSubclassOf<USignComponentVariableName> Name, const FString& Value)
 	{
-		auto Delegate = EditorVariableBindings.Find(Name);
-		if(Delegate) Delegate->ExecuteIfBound(Value);
-		
 		for(auto& Var : Variables)
 		{
 			if(Var.Name == Name) Var.Data = Value;
 		}
+
+		auto Delegate = EditorVariableBindings.Find(Name);
+		if(Delegate) Delegate->ExecuteIfBound(Value);
 	}
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)

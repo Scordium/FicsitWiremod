@@ -9,6 +9,13 @@
 #include "Components/SignComponentDescriptor.h"
 #include "ManagedSign.generated.h"
 
+UENUM(Blueprintable, BlueprintType)
+enum ESignDataVersion : uint8
+{
+	Release = 0,
+	RendererChange = 1
+};
+
 USTRUCT(BlueprintType)
 struct FManagedSignData
 {
@@ -17,6 +24,12 @@ struct FManagedSignData
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FVector2D Size;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, DisplayName="Screen DPI")
+	int DotsPerInch = 200;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	double EmissionLevel = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentData> Components;
@@ -27,12 +40,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentVariableData> Variables;
 
+	float GetTickInterval() const
+	{
+		if(TicksPerSecond == 0) return 0;
+		else return 1.f / (float) TicksPerSecond;
+	}
+
 	bool operator==(const FManagedSignData& Other) const
 	{
 		return Size == Other.Size
 		&& Components == Other.Components
 		&& Connections == Other.Connections
-		&& Variables == Other.Variables;
+		&& Variables == Other.Variables
+		&& DotsPerInch == Other.DotsPerInch
+		&& EmissionLevel == Other.EmissionLevel
 	}
 };
 
@@ -69,7 +90,6 @@ public:
 	void ApplySignLayout_Internal(const FManagedSignData& NewData)
 	{
 		Data = NewData;
-
 		ConnectionsInfo.Inputs.Empty();
 		for (auto Connection : Data.Connections)
 		{
