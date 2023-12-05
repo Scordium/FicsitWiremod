@@ -112,7 +112,7 @@ public:
 	virtual bool Contains(const FConnectionData& Element) override
 	{
 		auto B = Element.GetStack();
-		for(auto A : Value)
+		for(auto& A : Value)
 			if(A.NumItems == B.NumItems && A.Item.GetItemClass() == B.Item.GetItemClass())
 				return true;
 		
@@ -147,7 +147,7 @@ public:
 	{
 		TArray<FString> Out;
 
-		for(auto Val : Value)
+		for(const auto& Val : Value)
 			Out.Add(FString::FromInt(Val.NumItems) + " " + UFGItemDescriptor::GetItemName(Val.Item.GetItemClass()).ToString());
 
 		return Out;

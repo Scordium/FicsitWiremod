@@ -133,7 +133,7 @@ public:
 	{
 		TArray<FString> Out;
 
-		for(auto Val : Value)
+		for(const auto& Val : Value)
 		{
 			auto Name = FStringFormatArg(Val.ItemClass == nullptr ? "N/A" : UFGItemDescriptor::GetItemName(Val.ItemClass).ToString());
 			auto Index = FStringFormatArg(Val.OutputIndex);

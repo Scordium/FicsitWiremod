@@ -119,7 +119,7 @@ public:
 	{
 		TArray<FString> Out;
 
-		for(auto Val : Value)
+		for(const auto& Val : Value)
 			Out.Add(Val ? "true" : "false");
 
 		return Out;

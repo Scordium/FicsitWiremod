@@ -125,7 +125,7 @@ public:
 	{
 		TArray<FString> Out;
 
-		for(auto Val : Value)
+		for(const auto& Val : Value)
 			Out.Add(Val.Name + "[" + FString::FromInt(Val.Values.Num()) + " values]");
 
 		return Out;

@@ -16,16 +16,20 @@ class FICSITWIREMOD_API AArrayBreak : public AFGWiremodBuildable, public IDynami
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		ArrayCache = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(0), this->GetWorld()));
-		if(!ArrayCache) return;
-		
+		ArrayCache = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(0), ArrayCache));
+	}
+
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
+	{
+		if(direction == Input) return Super::GetConnectionsInfo_Implementation(direction, Count, Note);
+		if(!ArrayCache) return TArray<FBuildingConnection>();
+
 		const EConnectionType ElementType = UConnectionTypeFunctions::ArrayToBase(ArrayCache->ConnectionType);
 		const int ElementsCount = ArrayCache->Length();
-
-		ConnectionsInfo.Outputs.Empty();
+		TArray<FBuildingConnection> Out;
 		for(int i = 0; i < ElementsCount; i++)
 		{
-			ConnectionsInfo.Outputs.Add(
+			Out.Add(
 				FBuildingConnection(
 					ItemDisplayNameFormat.ToString() + " " + FString::FromInt(i),
 					FString::FromInt(i),
@@ -33,6 +37,9 @@ public:
 					)
 				);
 		}
+
+		Count = Out.Num();
+		return Out;
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override

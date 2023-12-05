@@ -85,7 +85,7 @@ public:
 	{
 		TArray<FString> Out;
 
-		for(auto Val : Value)
+		for(const auto& Val : Value)
 			Out.Add(FString::FromInt(Val.Width) + "x" + FString::FromInt(Val.Height));
 
 		return Out;

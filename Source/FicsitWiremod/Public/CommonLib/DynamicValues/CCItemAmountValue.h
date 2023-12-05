@@ -146,7 +146,7 @@ public:
 	{
 		TArray<FString> Out;
 
-		for(auto Val : Value)
+		for(const auto& Val : Value)
 			Out.Add(FString::FromInt(Val.Amount) + " of " + UFGItemDescriptor::GetItemName(Val.ItemClass).ToString());
 
 		return Out;

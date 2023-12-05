@@ -126,7 +126,7 @@ public:
 	{
 		TArray<FString> Out;
 
-		for(auto Val : Value)
+		for(const auto& Val : Value)
 			Out.Add(IsValid(Val) ? UFGRecipe::GetRecipeName(Val).ToString() : "N/A");
 
 		return Out;

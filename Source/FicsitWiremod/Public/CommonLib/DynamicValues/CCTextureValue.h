@@ -127,7 +127,7 @@ public:
 	{
 		TArray<FString> Out;
 
-		for(auto Val : Value) Out.Add("?");
+		for(const auto& Val : Value) Out.Add("?");
 
 		return Out;
 	}
