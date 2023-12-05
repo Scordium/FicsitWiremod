@@ -32,6 +32,9 @@ public:
 	double EmissionLevel = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	double TicksPerSecond = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentData> Components;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
@@ -43,7 +46,7 @@ public:
 	float GetTickInterval() const
 	{
 		if(TicksPerSecond == 0) return 0;
-		else return 1.f / (float) TicksPerSecond;
+		else return 1.0 / TicksPerSecond;
 	}
 
 	bool operator==(const FManagedSignData& Other) const
@@ -54,6 +57,7 @@ public:
 		&& Variables == Other.Variables
 		&& DotsPerInch == Other.DotsPerInch
 		&& EmissionLevel == Other.EmissionLevel
+		&& TicksPerSecond == Other.TicksPerSecond;
 	}
 };
 
@@ -78,6 +82,7 @@ public:
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
+		PrimaryActorTick.UpdateTickIntervalAndCoolDown(Data.GetTickInterval());
 		OnGenerateSign(Data);
 	}
 	
@@ -90,10 +95,12 @@ public:
 	void ApplySignLayout_Internal(const FManagedSignData& NewData)
 	{
 		Data = NewData;
+		PrimaryActorTick.UpdateTickIntervalAndCoolDown(Data.GetTickInterval());
+		
 		ConnectionsInfo.Inputs.Empty();
-		for (auto Connection : Data.Connections)
+		for (auto& [Name, Type] : Data.Connections)
 		{
-			ConnectionsInfo.Inputs.Add(FBuildingConnection(Connection.Name, "", Connection.Type.GetValue()));
+			ConnectionsInfo.Inputs.Add(FBuildingConnection(Name, "", Type.GetValue()));
 		}
 		
 		OnSignDataChanged(NewData);
