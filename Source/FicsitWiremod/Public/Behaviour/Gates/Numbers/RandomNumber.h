@@ -14,7 +14,7 @@ class FICSITWIREMOD_API ARandomNumber : public AFGWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		Out = FMath::FRandRange(GetConnection(0).GetFloat(), GetConnection(1).GetFloat());
+		Out = FMath::FRandRange(GetConnection(0).GetFloat(), GetConnection(1).GetFloat(1));
 	}
     
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
