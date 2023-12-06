@@ -139,6 +139,7 @@ public:
 
 	virtual bool CanUseFactoryClipboard_Implementation() override { return true; }
 	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return StaticClass();}
+	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return GetClass();}
 	virtual TSubclassOf<UFGFactoryClipboardSettings> GetClipboardSettingsClass_Implementation() override { return UManagedSignClipboardData::StaticClass(); }
 
 	virtual UFGFactoryClipboardSettings* CopySettings_Implementation() override
