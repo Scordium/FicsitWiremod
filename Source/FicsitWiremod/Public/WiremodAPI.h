@@ -41,7 +41,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FWiremodAPIData Data;
 	
-	FString ForceFileUsePrefix = "WMOD_FORCEUSE_";
+	FString ForceFileUsePrefix = "CIRCUITRY_FORCEUSE_";
 	
 	virtual void BeginPlay() override
 	{
@@ -54,53 +54,53 @@ public:
 	FString ParseLists(bool ForceOverwrite = false)
 	{
 		FString ErrorList;
-
 		
-		auto path = FPaths::ProjectDir() + "/WiremodAPI";
+		auto const Path = FPaths::ProjectDir() + "/CircuitryAPI";
 		
-		if(!FFileManagerGeneric::Get().DirectoryExists(*path))
+		if(!FFileManagerGeneric::Get().DirectoryExists(*Path))
 		{
-			FFileManagerGeneric::Get().MakeDirectory(*path);
+			FFileManagerGeneric::Get().MakeDirectory(*Path);
 			FString PlaceholderFile = 
 			"This is a folder for circuitry API lists!\nDrop your JSON table in this folder and circuitry will attempt to add connections to buildings.\n"
 			"The file name must match the mod reference! i.e. Circuitry's mod reference is \"FicsitWiremod\"\n"
 			"In case circuitry already integrated the mod in question but you still want to use your own data list, you can force the file to be used as a data table by prefixing the file with \"" + ForceFileUsePrefix + "\"";
 
-			FFileHelper::SaveStringToFile(PlaceholderFile, *FString(path + "/README.txt"));
+			FFileHelper::SaveStringToFile(PlaceholderFile, *FString(Path + "/README.txt"));
+			return "CIRCUITRY API directory does not exist";
 		}
 
 
 		TArray<FString> Files;
-		FFileManagerGeneric::Get().FindFiles(Files, *path, *FString("json"));
-		int successParse = 0;
+		FFileManagerGeneric::Get().FindFiles(Files, *Path, *FString("json"));
+		int SuccessParse = 0;
 		for (FString File : Files)
 		{
-			UDataTable* table = NewObject<UDataTable>();
-			table->RowStruct = FBuildingConnections::StaticStruct();
+			UDataTable* Table = NewObject<UDataTable>();
+			Table->RowStruct = FBuildingConnections::StaticStruct();
 	
-			FString json;
-			FFileHelper::LoadFileToString(json, *FString(path + "/" + File));
-			auto parseErrors = table->CreateTableFromJSONString(json);
+			FString JSON;
+			FFileHelper::LoadFileToString(JSON, *FString(Path + "/" + File));
+			auto ParseErrors = Table->CreateTableFromJSONString(JSON);
 			
-			if(parseErrors.Num() != 0)
+			if(ParseErrors.Num() != 0)
 			{
-				for (FString Error : parseErrors)
+				for (FString Error : ParseErrors)
 				{
-					ACircuitryLogger::DispatchErrorEvent("[WIREMOD API] There was an error when trying to parse file " + File + ": " + Error);
+					ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY API] There was an error when trying to parse file " + File + ": " + Error);
 					ErrorList.Append("[" + File + "]: " + Error + "\n");
 				}
 				continue;
-			} else successParse++;
+			} else SuccessParse++;
 
 
-			FString modRef = File
+			FString ModRef = File
 			.Replace(*ForceFileUsePrefix, *FString())
 			.Replace(*FString(".json"), *FString(""));
 			
-			AddList(modRef, table, File.StartsWith(ForceFileUsePrefix) || ForceOverwrite);
+			AddList(ModRef, Table, File.StartsWith(ForceFileUsePrefix) || ForceOverwrite);
 		}
 
-		ACircuitryLogger::DispatchEvent("[WIREMOD API] Finished parsing lists. Parsed without errors " + CC_INT(successParse) + " out of " +CC_INT(Files.Num()) + " lists", ELogVerbosity::Display);
+		ACircuitryLogger::DispatchEvent("[CIRCUITRY API] Finished parsing lists. Parsed without errors " + CC_INT(SuccessParse) + " out of " +CC_INT(Files.Num()) + " lists", ELogVerbosity::Display);
 		return ErrorList.Len() > 0 ? ErrorList : "Successfully parsed all lists!";
 	}
 	

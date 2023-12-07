@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "JsonObjectConverter.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "CommonLib/FileUtilities.h"
 #include "CommonLib/PlayerOwnedClipboardData.h"
 #include "Components/SignComponentBase.h"
 #include "Components/SignComponentDescriptor.h"
@@ -138,7 +140,6 @@ public:
 	}
 
 	virtual bool CanUseFactoryClipboard_Implementation() override { return true; }
-	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return StaticClass();}
 	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return GetClass();}
 	virtual TSubclassOf<UFGFactoryClipboardSettings> GetClipboardSettingsClass_Implementation() override { return UManagedSignClipboardData::StaticClass(); }
 
@@ -170,5 +171,35 @@ class UManagedSignUtilityFunctions : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintPure, meta=(ScriptOperator="=="), DisplayName="Sign layout equals")
-	static bool SignLayoutEquals(const FManagedSignData& Data1, const FManagedSignData& Data2) { return Data1 == Data2; }	
+	static bool SignLayoutEquals(const FManagedSignData& Data1, const FManagedSignData& Data2) { return Data1 == Data2; }
+
+	UFUNCTION(BlueprintPure)
+	static FString GetSignLayoutsFolderPath()
+	{
+		// ಠ_ಠ
+		return FPaths::LaunchDir().Replace(*FString("\\"), *FString("/")) + (FPaths::ProjectDir() + "CircuitrySigns/").Mid(9);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static void GetSignLayoutFileList(TArray<FString>& Out) { UFileUtilities::FindAllFilesInDirectory(GetSignLayoutsFolderPath(), TArray<FString>{".csl"}, Out); }
+	
+	UFUNCTION(BlueprintCallable)
+	static bool ParseSignDataToJson(const FManagedSignData& Data, FString& Out)
+	{
+		TSharedPtr<FJsonObject> Object = FJsonObjectConverter::UStructToJsonObject(Data);
+		if(!Object) return false;
+		
+		return FJsonSerializer::Serialize(Object.ToSharedRef(), TJsonWriterFactory<>::Create(&Out, 0));
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static bool LoadSignFromJson(const FString& Json, FManagedSignData& Out)
+	{
+		TSharedPtr<FJsonObject> Object;
+		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Json), Object)) return false;
+
+		if(!FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out)) return false;
+
+		return true;
+	}
 };

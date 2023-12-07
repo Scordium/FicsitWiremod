@@ -39,7 +39,9 @@ public class FicsitWiremod : ModuleRules
 		    "GameplayTags",
 		    "HTTP",
 		    "AudioMixer",
-		    "Synthesis"
+		    "Synthesis",
+		    "Json",
+		    "JsonUtilities",
 	    });
 
 	    // FactoryGame plugins
