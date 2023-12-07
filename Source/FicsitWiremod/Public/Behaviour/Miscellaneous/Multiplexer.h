@@ -19,9 +19,7 @@ public:
 		if(Connection.IsValid()) Value = UCCDynamicValueUtils::FromValue(Connection, this);
 		SetOutputType(0, Value ? Value->ConnectionType.GetValue() : Unknown);
 	}
-
-
-
+	
 	virtual UObject* GetValue_Implementation(const FString& ValueName) override { return Value; }
 
 
@@ -30,6 +28,12 @@ public:
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 		DOREPLIFETIME(AMultiplexer, Value);
+	}
+
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& Out) override
+	{
+		Super::GatherReplicatedObjects_Implementation(Out);
+		Out.Add(Value);
 	}
 
 	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
