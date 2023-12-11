@@ -51,13 +51,12 @@ public:
 
 	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
 	{
-		if(direction == Output) return Super::GetConnectionsInfo_Implementation(direction, Count, Note);
+		if(direction == Output) return Super::GetConnectionsInfo_Implementation(direction, Note);
 		else
 		{
 			auto Connections = GenerateInputList();
-			Count = Connections.Num();
 			return Connections;
 		}
 	}

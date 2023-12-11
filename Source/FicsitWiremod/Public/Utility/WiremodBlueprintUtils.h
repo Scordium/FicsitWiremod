@@ -28,19 +28,19 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	static void GetAvailableConnections(UObject* Object, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, int& Count, FBuildableNote& Note)
+	static void GetAvailableConnections(UObject* Object, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, FBuildableNote& Note)
 	{
 		if(!Object) return;
 		
 		//Circuitry
 		if(Object->GetClass()->ImplementsInterface(ICircuitryConnectionsProvider::UClassType::StaticClass()))
 		{
-			Connections = ICircuitryConnectionsProvider::Execute_GetConnectionsInfo(Object, Direction, Count, Note);
+			Connections = ICircuitryConnectionsProvider::Execute_GetConnectionsInfo(Object, Direction, Note);
 			return;
 		}
 		
 		//Vanilla
-		if(auto Buildable = Cast<AFGBuildable>(Object)) AWiremodAPI::Self->GetConnections(Buildable, Direction, Connections, Count, Note);
+		if(auto Buildable = Cast<AFGBuildable>(Object)) AWiremodAPI::Self->GetConnections(Buildable, Direction, Connections, Note);
 	}
 
 	///Whether the object is compatible for displaying inputs or outputs.

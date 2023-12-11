@@ -86,7 +86,7 @@ public:
 		return FindValue(ValueName);
 	}
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
 	{
 		if(direction == Input) return TArray<FBuildingConnection>();
 		
@@ -96,8 +96,7 @@ public:
 			auto Connection = FBuildingConnection(Value.Name, Value.Name, Value ? Value.Value->ConnectionType.GetValue() : Unknown);
 			Out.Add(Connection);
 		}
-
-		Count = Out.Num();
+		
 		return Out;
 	}
 

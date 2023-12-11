@@ -36,9 +36,9 @@ public:
 		Out.Add(Value);
 	}
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
 	{
-		if(direction == Output) return Super::GetConnectionsInfo_Implementation(direction, Count, Note);
+		if(direction == Output) return Super::GetConnectionsInfo_Implementation(direction, Note);
 		
 		int NumCreate = (InputConnections.Num() + 1) / 2 + 1;
 		auto Type = GetFirstConnected().ConnectionType;

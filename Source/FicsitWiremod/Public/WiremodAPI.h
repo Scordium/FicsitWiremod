@@ -8,7 +8,6 @@
 #include "Buildables/FGBuildable.h"
 #include "Engine/DataTable.h"
 #include "HAL/FileManagerGeneric.h"
-#include "Kismet/DataTableFunctionLibrary.h"
 #include "Subsystem/ModSubsystem.h"
 #include "UObject/Object.h"
 #include "WiremodAPI.generated.h"
@@ -169,7 +168,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void GetConnections(AFGBuildable* Buildable, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, int& Count, FBuildableNote& Note)
+	void GetConnections(AFGBuildable* Buildable, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, FBuildableNote& Note)
 	{
 		auto FoundData = FindConnections(Buildable);
 		Note = FoundData.Note;
@@ -179,7 +178,6 @@ public:
 		case Input: Connections = FoundData.Inputs; break;
 		case Output: Connections = FoundData.Outputs; break;
 		}
-		Count = Connections.Num();
 	}
 
 	FBuildingConnections FindRedirectedList(FString redirector)

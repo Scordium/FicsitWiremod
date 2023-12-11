@@ -52,9 +52,9 @@ public:
 			OutObjects.Add(Val.Value);
 	}
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
 	{
-		if(direction == Input) return Super::GetConnectionsInfo_Implementation(direction, Count, Note);
+		if(direction == Input) return Super::GetConnectionsInfo_Implementation(direction, Note);
 		else
 		{
 			auto Out = TArray<FBuildingConnection>();

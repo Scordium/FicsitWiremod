@@ -283,12 +283,11 @@ public:
 #pragma endregion 
 	
 	
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note) override;
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override;
 	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override
 	{
-		int a;
-		FBuildableNote b;
-		return GetConnectionsInfo_Implementation(direction, a, b);
+		FBuildableNote Note;
+		return GetConnectionsInfo_Implementation(direction, Note);
 	}
 	
 	UFUNCTION(BlueprintCallable)

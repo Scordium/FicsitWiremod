@@ -140,19 +140,17 @@ protected:
 		if(!HasSelectedConnection())
 		{
 			TArray<FBuildingConnection> Connections;
-			int Count;
 			FBuildableNote Note;
-			UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Output, Connections, Count, Note);
+			UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Output, Connections, Note);
 
-			return Count > 0;
+			return Connections.Num() > 0;
 		}
 		else
 		{
 			TArray<FBuildingConnection> Connections;
-			int Count;
 			FBuildableNote Note;
-			UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Input, Connections, Count, Note);
-			if(Count == 0) return false;
+			UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Input, Connections, Note);
+			if(Connections.Num() == 0) return false;
 			return UConnectionTypeFunctions::IsValidConnectionPair(Connections[Widget->CurrentIndex].ConnectionType, SelectedConnection.ConnectionType);
 		}
 	}
@@ -162,9 +160,8 @@ protected:
 	{
 		if(!CurrentTarget) return false;
 		TArray<FBuildingConnection> Connections;
-		int Count;
 		FBuildableNote Note;
-		UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Input, Connections, Count, Note);
+		UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Input, Connections, Note);
 
 		for(auto Connection : Connections){
 			if(UConnectionTypeFunctions::IsValidConnectionPair(Connection.ConnectionType, SelectedConnection.ConnectionType)){

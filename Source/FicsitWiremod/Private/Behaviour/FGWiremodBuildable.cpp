@@ -122,7 +122,7 @@ void AFGWiremodBuildable::OnInputDisconnected_Implementation(int Index, UObject*
 
 void AFGWiremodBuildable::OnInputDisconnected_Internal(int Index)
 {
-	if(Index == -1)InputConnections.Empty();
+	if(Index == -1) InputConnections.Empty();
 	else
 	{
 		if(InputConnections.IsValidIndex(Index))
@@ -133,22 +133,14 @@ void AFGWiremodBuildable::OnInputDisconnected_Internal(int Index)
 }
 
 
-TArray<FBuildingConnection> AFGWiremodBuildable::GetConnectionsInfo_Implementation(EConnectionDirection direction, int& Count, FBuildableNote& Note)
+TArray<FBuildingConnection> AFGWiremodBuildable::GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note)
 {
 	Note = ConnectionsInfo.Note;
 	
 	switch (direction)
 	{
-	case Input:
-		{
-			Count = ConnectionsInfo.Inputs.Num();
-			return ConnectionsInfo.Inputs;
-		}
-	case Output:
-		{
-			Count = ConnectionsInfo.Outputs.Num();
-			return ConnectionsInfo.Outputs;
-		}
+	case Input: return ConnectionsInfo.Inputs;
+	case Output: return ConnectionsInfo.Outputs;
 		//Possibly add more cases here for other behaviors?
 	default: return TArray<FBuildingConnection>();
 	}

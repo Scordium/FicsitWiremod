@@ -158,7 +158,7 @@ class FICSITWIREMOD_API ICircuitryConnectionsProvider
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	TArray<FBuildingConnection> GetConnectionsInfo(EConnectionDirection direction, int& Count, FBuildableNote& Note);
+	TArray<FBuildingConnection> GetConnectionsInfo(EConnectionDirection direction, FBuildableNote& Note);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TArray<FBuildingConnection> GetConnections(EConnectionDirection direction);
