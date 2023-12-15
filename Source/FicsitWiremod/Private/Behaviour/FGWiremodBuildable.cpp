@@ -403,9 +403,9 @@ void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, 
 
 void AFGWiremodBuildable::netFunc_getAllCircuitryFuncs(TArray<FString>& Out)
 {
-	for(auto conn : GetConnections_Implementation(Output))
+	for(auto& Connection : GetConnections_Implementation(Output))
 	{
-		Out.Add(conn.FunctionName.ToString());
+		Out.Add(Connection.FunctionName.ToString());
 	}
 }
 
