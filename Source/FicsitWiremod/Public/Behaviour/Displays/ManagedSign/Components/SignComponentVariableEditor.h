@@ -64,7 +64,16 @@ class ISignComponentVariableBindingsProvider
 public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	TArray<FManagedSignConnectionSettings> GetConnectionBindings();
+	TArray<FManagedSignConnectionSettings> GetAllBindings();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	TArray<FManagedSignConnectionSettings> GetAllBindingsOfType(EConnectionType Type);
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void CreateBinding(const FString& Name, EConnectionType Type);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	bool DoesBindingExist(const FString& Name);
 };
 
 UCLASS(Blueprintable, BlueprintType)
@@ -96,7 +105,7 @@ public:
 	 *	Call this after constructing the widget if some of your components (such as spin boxes) don't work properly
 	 */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void InitializeEditor(const FString& Value);
+	void InitializeEditor(const FString& Value, UUserWidget* Component);
 
 protected:
 	

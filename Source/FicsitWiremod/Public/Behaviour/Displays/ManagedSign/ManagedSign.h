@@ -81,11 +81,19 @@ class FICSITWIREMOD_API AManagedSign : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
+	virtual void ClientProcess_Implementation(double DeltaTime) override
+	{
+		for (const auto& Component : ActiveComponents)
+		{
+			if(Component) Component->OnUpdate(this);
+		}
+	}
+	
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
 		PrimaryActorTick.UpdateTickIntervalAndCoolDown(Data.GetTickInterval());
-		OnGenerateSign(Data);
+		GenerateSignWidget(Data);
 	}
 	
 	void ApplySignLayout(const FManagedSignData& NewData, UObject* Setter)
@@ -98,30 +106,15 @@ public:
 	{
 		Data = NewData;
 		PrimaryActorTick.UpdateTickIntervalAndCoolDown(Data.GetTickInterval());
-		
-		ConnectionsInfo.Inputs.Empty();
-		for (auto& [Name, Type] : Data.Connections)
-		{
-			ConnectionsInfo.Inputs.Add(FBuildingConnection(Name, "", Type.GetValue()));
-		}
-		
 		OnSignDataChanged(NewData);
-	}
-
-	virtual void ClientProcess_Implementation(double DeltaTime) override
-	{
-		for (auto Component : ActiveComponents)
-		{
-			if(Component) Component->OnUpdate(this);
-		}
 	}
 
 	UFUNCTION(NetMulticast, Reliable)
 	void OnSignDataChanged(const FManagedSignData& NewData);
-	void OnSignDataChanged_Implementation(const FManagedSignData& NewData){ OnGenerateSign(NewData); }
+	void OnSignDataChanged_Implementation(const FManagedSignData& NewData){ GenerateSignWidget(NewData); }
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void OnGenerateSign(const FManagedSignData& NewData);
+	void GenerateSignWidget(const FManagedSignData& NewData);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Replicated)
 	FManagedSignData Data;
@@ -132,6 +125,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<USignComponentBase*> StaticComponents;
 
+	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
+	{
+		if(direction == Output) return Super::GetConnectionsInfo_Implementation(direction, Note);
+		
+		TArray<FBuildingConnection> Out;
+		for(auto& Connection : Data.Connections)
+		{
+			Out.Add(FBuildingConnection(Connection.Name, Connection.Name, Connection.Type));
+		}
+
+		return Out;
+	}
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -140,7 +146,7 @@ public:
 	}
 
 	virtual bool CanUseFactoryClipboard_Implementation() override { return true; }
-	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return GetClass();}
+	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return StaticClass();}
 	virtual TSubclassOf<UFGFactoryClipboardSettings> GetClipboardSettingsClass_Implementation() override { return UManagedSignClipboardData::StaticClass(); }
 
 	virtual UFGFactoryClipboardSettings* CopySettings_Implementation() override
@@ -154,6 +160,8 @@ public:
 	{
 		if(auto Clipboard = Cast<UManagedSignClipboardData>(factoryClipboard))
 		{
+			if(Data.Size != Clipboard->Data.Size) return false;
+			
 			ApplySignLayout_Internal(Clipboard->Data);
 			return true;
 		}

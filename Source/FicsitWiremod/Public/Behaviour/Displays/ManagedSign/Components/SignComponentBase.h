@@ -44,7 +44,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	bool CanOpenContextMenu();
-	
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void DuplicateComponent(const FSignComponentData& ComponentData);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	TArray<UUserWidget*> GetAllComponentsOfClass(TSubclassOf<USignComponentDescriptor> ComponentClass);
 };
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FUpdateEditorVariableValue, const FString&, NewValue);
