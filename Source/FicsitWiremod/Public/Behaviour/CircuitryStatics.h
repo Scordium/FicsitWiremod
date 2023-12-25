@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "FGDecorationTemplate.h"
-#include "AssetRegistry/AssetRegistryModule.h"
 #include "Module/GameInstanceModule.h"
 #include "CircuitryStatics.generated.h"
 

@@ -4,7 +4,6 @@
 #include "AbstractInstanceManager.h"
 #include "Behaviour/CircuitryInterface.h"
 #include "Buildables/FGBuildable.h"
-#include "Utility/WiremodGameWorldModule.h"
 
 #include "WiremodUtils.generated.h"
 

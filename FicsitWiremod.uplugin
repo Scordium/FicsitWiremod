@@ -1,8 +1,8 @@
 {
 	"FileVersion": 3,
 	"Version": 0,
-	"VersionName": "0.12.90",
-	"SemVersion": "0.12.90",
+	"VersionName": "0.12.91",
+	"SemVersion": "0.12.91",
 	"FriendlyName": "Circuitry - Logic Gates and More",
 	"Description": "Create cool control circuits and contraptions using logic gates, sensors, and other stuff!",
 	"Category": "Modding",

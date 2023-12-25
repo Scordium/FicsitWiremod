@@ -38,6 +38,7 @@ protected:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override
 	{
 		Super::NotifyActorBeginOverlap(OtherActor);
+		if(!this->HasAuthority()) return;
 
 		if(IsPlayer(OtherActor) && DETECT_PLAYER) Overlapping.AddUnique(OtherActor);
 		else if (IsHostile(OtherActor) && DETECT_ENEMY) Overlapping.AddUnique(OtherActor);
@@ -48,6 +49,8 @@ protected:
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override
 	{
 		Super::NotifyActorEndOverlap(OtherActor);
+		if(!this->HasAuthority()) return;
+		
 		Overlapping.Remove(OtherActor);
 	}
 	
