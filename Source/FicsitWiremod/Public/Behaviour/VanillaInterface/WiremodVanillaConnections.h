@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "Buildables/FGBuildableBlueprintDesigner.h"
 #include "CommonLib/OwnerData/OwnerData.h"
 #include "Subsystem/ModSubsystem.h"
 #include "Utility/CircuitryLogger.h"
@@ -60,6 +61,48 @@ struct FVanillaBuildingDataKeyValuePair
 		return this->Buildable == Other.Buildable;
 	}
 	
+};
+
+/*
+ * Actor responsible for saving data for non-circuitry objects
+ * Handles both Circuitry-to-Vanilla and Vanilla-to-Vanilla connections.
+ * For each connection there is a separate actor.
+ */
+UCLASS(NotBlueprintable, NotBlueprintType)
+class ACircuitryBlueprintConnectionProxy : public AFGBuildable
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(Replicated, SaveGame)
+	FDynamicConnectionData Data;
+
+	UPROPERTY(Replicated, SaveGame)
+	int Index;
+
+	virtual void BeginPlay() override
+	{
+		Super::BeginPlay();
+		ACircuitryLogger::DispatchEvent("[BP_PROXY] Proxy actor initialized", ELogVerbosity::Display);
+		if(!mBlueprintDesigner) ApplyConnectionToSystem();
+	}
+
+	void SetBlueprintDesigner(AFGBuildableBlueprintDesigner* Designer)
+	{
+		mBlueprintDesigner = Designer;
+		mBlueprintDesigner->mBuildables.Add(this);
+	}
+
+	void Tick(float DeltaSeconds) override;
+
+	void ApplyConnectionToSystem();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
+	{
+		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+		DOREPLIFETIME(ACircuitryBlueprintConnectionProxy, Data)
+	}
 };
 
 
@@ -144,6 +187,12 @@ public:
 		if(!Connection.Receiver.Object) return;
 		auto Entry = GetOrDefault(Connection.Receiver.Object);
 		
+		if(auto ConnectionActor = Cast<AActor>(Connection.Receiver.Object); ConnectionActor && !Connection.Transmitter.UseLocalWirePosition)
+		{
+			Connection.Transmitter.UseLocalWirePosition = true;
+			Connection.Transmitter.WirePositions = ConvertPositions(Connection.Transmitter.WirePositions, ConnectionActor->GetActorTransform());
+		}
+		
 		if(!Entry.Data.OwnerData.GetCanConnect(Setter)) return;
 		
 		if(!Entry.Data.Connections.IsValidIndex(Index))
@@ -153,6 +202,33 @@ public:
 
 		UpdateBuildable(Connection.Receiver.Object, Entry.Data.Connections, Entry.Data.OwnerData);
 		DrawWiresForBuildable(Entry);
+		CheckForBlueprintDesignerProxy(Connection, Index);
+	}
+
+	//Legacy wire positions converter
+	TArray<FVector> ConvertPositions(const TArray<FVector>& OldPositions, const FTransform& Transform)
+	{
+		TArray<FVector> NewPositions;
+
+		for(auto& Pos : OldPositions)
+		{
+			auto NewPosition = Transform.InverseTransformPosition(Pos);
+			NewPositions.Add(NewPosition);
+		}
+
+		return NewPositions;
+	}
+
+	void CheckForBlueprintDesignerProxy(const FDynamicConnectionData& Data, int Index)
+	{
+		auto Buildable = Cast<AFGBuildable>(Data.Receiver.Object);
+		if(!Buildable || !Buildable->GetBlueprintDesigner()) return;
+
+		auto ConnectionProxyActor = this->GetWorld()->SpawnActorDeferred<ACircuitryBlueprintConnectionProxy>(ACircuitryBlueprintConnectionProxy::StaticClass(), FTransform::Identity);
+		ConnectionProxyActor->Data = Data;
+		ConnectionProxyActor->Index = Index;
+		ConnectionProxyActor->SetBlueprintDesigner(Buildable->GetBlueprintDesigner());
+		ConnectionProxyActor->FinishSpawning(FTransform::Identity);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -194,6 +270,14 @@ public:
 		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
 	}
 
+	UFUNCTION(BlueprintPure)
+	bool DoesConnectionExist(UObject* Buildable, int Index)
+	{
+		auto Data = Game_VanillaBuildableData.Find(Buildable); 
+		if(!Data || !Data->Connections.IsValidIndex(Index)) return false;
+
+		return true;
+	}
 
 	UFUNCTION(BlueprintPure)
 	FDynamicConnectionData GetConnection(UObject* Buildable, int Index)

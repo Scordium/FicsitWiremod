@@ -1,8 +1,21 @@
 ﻿
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
 
-#include "FGGlobalSettings.h"
 
+void ACircuitryBlueprintConnectionProxy::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	bool Invalidate = !Data.Transmitter.Object || !Data.Receiver.Object || AWiremodVanillaConnections::Self->DoesConnectionExist(Data.Receiver.Object, Index);
+	if(Invalidate) Execute_Dismantle(this);
+}
+
+void ACircuitryBlueprintConnectionProxy::ApplyConnectionToSystem()
+{
+	AWiremodVanillaConnections::Self->AddConnection(Data, Index, nullptr);
+	ACircuitryLogger::DispatchEvent("[BP_PROXY] Connection applied to subsystem, destroying proxy...", ELogVerbosity::Display);
+	Execute_Dismantle(this);
+}
 
 void AWiremodVanillaConnections::DrawWiresForBuildable(FVanillaBuildingDataKeyValuePair KeyValuePair, bool SkipDestruct)
 {
@@ -34,7 +47,7 @@ void AWiremodVanillaConnections::DrawWiresForBuildable(FVanillaBuildingDataKeyVa
 	auto WireClass = AConnectionWireBase::StaticClass();
 	
 	//Create new wires
-	for (auto Connection : KeyValuePair.Data.Connections)
+	for (auto& Connection : KeyValuePair.Data.Connections)
 	{
 		if(!Connection.IsValidForWire()) continue;
 				
