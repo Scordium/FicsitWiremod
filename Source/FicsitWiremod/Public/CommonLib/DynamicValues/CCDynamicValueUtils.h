@@ -12,6 +12,7 @@
 #include "CCIntegerValue.h"
 #include "CCInventoryValue.h"
 #include "CCItemAmountValue.h"
+#include "CCItemDescriptorValue.h"
 #include "CCNumberValue.h"
 #include "CCPixelImageValue.h"
 #include "CCRecipeValue.h"
@@ -112,6 +113,7 @@ public:
 		case PixelImage: return NewObject<UCCPixelImageValue>(Level);
 		case Texture: return NewObject<UCCTextureValue>(Level);
 		case SplitterRule: return NewObject<UCCSplitterRuleValue>(Level);
+		case ItemDescriptor: return NewObject<UCCItemDescriptorValue>(Level);
 		case ArrayOfBoolean: return NewObject<UCCBoolArrayValue>(Level);
 		case ArrayOfColor: return NewObject<UCCColorArrayValue>(Level);
 		case ArrayOfEntity: return NewObject<UCCEntityArrayValue>(Level);
@@ -127,6 +129,7 @@ public:
 		case ArrayOfPixelImage: return NewObject<UCCPixelImageArrayValue>(Level);
 		case ArrayOfTexture: return NewObject<UCCTextureArrayValue>(Level);
 		case ArrayOfSplitterRule: return NewObject<UCCSplitterRuleArrayValue>(Level);
+		case ArrayOfItemDescriptor: return NewObject<UCCItemDescriptorArrayValue>(Level);
 		case Unknown: return nullptr;
 		default:
 			auto TypeString = UEnum::GetValueAsString<EConnectionType>(Type);

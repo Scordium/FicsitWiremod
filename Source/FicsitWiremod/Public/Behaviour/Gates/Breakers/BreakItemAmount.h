@@ -105,6 +105,12 @@ public:
 		return nullptr;
 	}
 
+	UFUNCTION()
+	TSubclassOf<UFGItemDescriptor> GetItemDescriptor()
+	{
+		return ItemAmount.ItemClass;
+	}
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);

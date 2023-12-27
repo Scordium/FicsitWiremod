@@ -142,6 +142,11 @@ public:
 		return GenericProcess<FSplitterSortRule, FStructProperty>(REFLECTION_ARGS);
 	}
 
+	static TSubclassOf<UFGItemDescriptor> GetItemDescriptor(REFLECTION_PARAMS, TSubclassOf<UFGItemDescriptor> DefaultValue)
+	{
+		return GenericProcess(REFLECTION_ARGS, DefaultValue);
+	}
+
 	static TArray<bool> GetBoolArray(REFLECTION_PARAMS)
 	{
 		return GenericProcess<TArray<bool>, FArrayProperty>(REFLECTION_ARGS);
@@ -205,6 +210,11 @@ public:
 	static TArray<FSplitterSortRule> GetSplitterRuleArray(REFLECTION_PARAMS)
 	{
 		return GenericProcess<TArray<FSplitterSortRule>, FArrayProperty>(REFLECTION_ARGS);
+	}
+
+	static TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>, FArrayProperty>(REFLECTION_ARGS);
 	}
 
 	template<typename T>

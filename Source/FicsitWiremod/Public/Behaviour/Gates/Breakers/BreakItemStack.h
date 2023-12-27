@@ -105,6 +105,12 @@ public:
 		return nullptr;
 	}
 
+	UFUNCTION()
+	TSubclassOf<UFGItemDescriptor> GetItemDescriptor()
+	{
+		return Stack.Item.GetItemClass();
+	}
+
 	void VerifyCache()
 	{
 		if(!CDOCache || CDOCache->GetClass() != Stack.Item.GetItemClass())
