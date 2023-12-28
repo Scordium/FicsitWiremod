@@ -147,6 +147,11 @@ public:
 		return GenericProcess(REFLECTION_ARGS, DefaultValue);
 	}
 
+	static FTimeTableStop GetTrainStop(REFLECTION_PARAMS)
+	{
+		return GenericProcess(REFLECTION_ARGS, FTimeTableStop());
+	}
+
 	static TArray<bool> GetBoolArray(REFLECTION_PARAMS)
 	{
 		return GenericProcess<TArray<bool>, FArrayProperty>(REFLECTION_ARGS);
@@ -215,6 +220,11 @@ public:
 	static TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray(REFLECTION_PARAMS)
 	{
 		return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>, FArrayProperty>(REFLECTION_ARGS);
+	}
+
+	static TArray<FTimeTableStop> GetTrainStopArray(REFLECTION_PARAMS)
+	{
+		return GenericProcess<TArray<FTimeTableStop>>(REFLECTION_ARGS);
 	}
 
 	template<typename T>

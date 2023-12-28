@@ -3,6 +3,7 @@
 #pragma once
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
+#include "FGRailroadTimeTable.h"
 #include "FGRecipe.h"
 #include "Behaviour/Displays/CCImageData.h"
 #include "CommonLib/ConnectionType.h"
@@ -133,7 +134,9 @@ public:
 	UTexture* GetTexture() const { return UReflectionUtilities::GetTexture(Object, FunctionName, FromProperty); }
 	FSplitterSortRule GetSplitterRule() const { return UReflectionUtilities::GetSplitterRule(Object, FunctionName, FromProperty); }
 	TSubclassOf<UFGItemDescriptor> GetItemDescriptor(TSubclassOf<UFGItemDescriptor> DefaultValue = TSubclassOf<UFGItemDescriptor>()) const { return UReflectionUtilities::GetItemDescriptor(Object, FunctionName, FromProperty, DefaultValue); }
-
+	AFGRailroadTimeTable* GetTimeTable() const { return UReflectionUtilities::GetUnmanaged<AFGRailroadTimeTable*>(Object, FunctionName, FromProperty, nullptr); }
+	FTimeTableStop GetTimeTableStop() const { return UReflectionUtilities::GetTrainStop(Object, FunctionName, FromProperty); }
+	
 	TArray<bool> GetBoolArray() const { return UReflectionUtilities::GetBoolArray(Object, FunctionName, FromProperty); }
 	TArray<double> GetFloatArray() const { return UReflectionUtilities::GetFloatArray(Object, FunctionName, FromProperty); }
 	TArray<FString> GetStringArray() const { return UReflectionUtilities::GetStringArray(Object, FunctionName, FromProperty); }
@@ -150,6 +153,7 @@ public:
 	TArray<UTexture*> GetTextureArray() const { return UReflectionUtilities::GetTextureArray(Object, FunctionName, FromProperty); }
 	TArray<FSplitterSortRule> GetSplitterRuleArray() const { return UReflectionUtilities::GetSplitterRuleArray(Object, FunctionName, FromProperty); }
 	TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray() const { return UReflectionUtilities::GetItemDescriptorArray(Object, FunctionName, FromProperty); }
+	TArray<FTimeTableStop> GetTimeTableStops() const { return UReflectionUtilities::GetTrainStopArray(Object, FunctionName, FromProperty); }
 	
 	void SetBool(bool Value) const { UReflectionUtilities::SetBool(Object, FunctionName, FromProperty, Value); }
 	void SetFloat(double Value) const { UReflectionUtilities::SetFloat(Object, FunctionName, FromProperty, Value); }
@@ -263,6 +267,12 @@ public:
 		case ArrayOfSplitterRule: return "[" + CC_INT(GetSplitterRuleArray().Num()) + " elements]";
 		case ItemDescriptor: return UFGItemDescriptor::GetItemName(GetItemDescriptor()).ToString();
 		case ArrayOfItemDescriptor: return "[" + CC_INT(GetItemDescriptorArray().Num()) + " elements]";
+		case TrainStop:
+			{
+				auto Station = GetTimeTableStop().Station;
+				return Station ? Station->GetStationName().ToString() : "N/A";
+			}
+		case ArrayOfTrainStop: return "[" + CC_INT(GetTimeTableStops().Num()) + " elements]";
 		default:
 			auto TypeString = UEnum::GetValueAsString<EConnectionType>(ConnectionType);
 			ACircuitryLogger::DispatchErrorEvent("Failed to find switch case for EConnectionType::" + TypeString + " in function GET_STRINGIFIED_VALUE. Returning default value instead...");

@@ -21,6 +21,7 @@
 #include "CCTextureValue.h"
 #include "CCVectorValue.h"
 #include "CCSplitterRuleValue.h"
+#include "CCTimeTableStopValue.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
 #include "FGRecipe.h"
@@ -114,6 +115,7 @@ public:
 		case Texture: return NewObject<UCCTextureValue>(Level);
 		case SplitterRule: return NewObject<UCCSplitterRuleValue>(Level);
 		case ItemDescriptor: return NewObject<UCCItemDescriptorValue>(Level);
+		case TrainStop: return NewObject<UCCTimeTableStopValue>(Level);
 		case ArrayOfBoolean: return NewObject<UCCBoolArrayValue>(Level);
 		case ArrayOfColor: return NewObject<UCCColorArrayValue>(Level);
 		case ArrayOfEntity: return NewObject<UCCEntityArrayValue>(Level);
@@ -130,6 +132,7 @@ public:
 		case ArrayOfTexture: return NewObject<UCCTextureArrayValue>(Level);
 		case ArrayOfSplitterRule: return NewObject<UCCSplitterRuleArrayValue>(Level);
 		case ArrayOfItemDescriptor: return NewObject<UCCItemDescriptorArrayValue>(Level);
+		case ArrayOfTrainStop: return NewObject<UCCTimeTableStopArrayValue>(Level);
 		case Unknown: return nullptr;
 		default:
 			auto TypeString = UEnum::GetValueAsString<EConnectionType>(Type);
