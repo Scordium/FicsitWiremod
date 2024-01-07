@@ -16,7 +16,7 @@ public class FicsitWiremod : ModuleRules
 		    "DeveloperSettings",
 		    "PhysicsCore",
 		    "InputCore",
-		    "OnlineSubsystem", "OnlineSubsystemNull", "OnlineSubsystemUtils",
+		    "CoreOnline",
 		    "SignificanceManager",
 		    "GeometryCollectionEngine",
 		    "ChaosVehiclesCore", "ChaosVehicles", "ChaosSolverEngine",

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "CommonLib/PlayerUtilities.h"
 #include "PlayerSensor.generated.h"
 
 UCLASS()
@@ -19,18 +20,14 @@ public:
 		TArray<AActor*> Players;
 		UGameplayStatics::GetAllActorsOfClass(this, AFGCharacterPlayer::StaticClass(), Players);
 
-		for(auto PlayerActor : Players)
+		for(const auto& PlayerActor : Players)
 		{
-			auto CharacterPlayer = Cast<AFGCharacterPlayer>(PlayerActor);
+			const auto CharacterPlayer = Cast<AFGCharacterPlayer>(PlayerActor);
 			if(!CharacterPlayer) continue;
 
-			auto PlayerState = Cast<AFGPlayerState>(CharacterPlayer->GetPlayerState());
+			const auto PlayerState = Cast<AFGPlayerState>(CharacterPlayer->GetPlayerState());
 			if(!PlayerState) continue;
-
-			bool NetIdIsValid = PlayerState->GetUniqueNetId().GetV1().IsValid();
-			if(!NetIdIsValid) continue;
-
-			auto PlayerId = PlayerState->GetUserID();
+			auto PlayerId = UPlayerUtilities::GetUserIdSafe(PlayerState);
 
 			if(PlayerId == TrackedPlayerId)
 			{

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGCharacterPlayer.h"
 #include "FGPlayerState.h"
+#include "CommonLib/PlayerUtilities.h"
 #include "UObject/Object.h"
 #include "OwnerData.generated.h"
 
@@ -107,24 +108,8 @@ struct FWiremodOwnerData
 
 		return nullptr;
 	}
-	static FString GetUserIDOrDefault(UObject* entity)
-	{
-		if(auto state = GetState(entity))
-		{
-			bool NetIdIsValid = state->GetUniqueNetId().GetV1().IsValid();
-			return NetIdIsValid ? state->GetUserID() : FString();
-		}
-		return "";
-	}
-	static FString GetUsernameOrDefault(UObject* entity)
-	{
-		if(auto state = GetState(entity))
-		{
-			bool NetIdIsValid = state->GetUniqueNetId().GetV1().IsValid();
-			return NetIdIsValid ? state->GetPlayerName() : FString();
-		}
-		return "";
-	}
+	static FString GetUserIDOrDefault(UObject* entity) { return UPlayerUtilities::GetUserIdSafe(GetState(entity)); }
+	static FString GetUsernameOrDefault(UObject* entity) { return UPlayerUtilities::GetUsernameSafe(GetState(entity)); }
 
 	bool operator ==(const FWiremodOwnerData& Other) const
 	{
