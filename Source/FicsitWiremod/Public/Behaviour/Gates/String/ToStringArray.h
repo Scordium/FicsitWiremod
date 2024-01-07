@@ -22,19 +22,20 @@ public:
 		//Number (Float)
 			case 1:
 				{
-					auto Value = GetConnection(0).GetFloat();
+					auto Value = GetConnection(0).GetFloatArray();
 					bool Truncate = GetConnection(1).GetBool();
-					if(!Truncate)
-					{
-						Out.Add(FString::SanitizeFloat(Value));
-						break;
-					}
-				
 					int MinFrac = GetConnection(2).GetFloat();
 					int MaxFrac = GetConnection(3).GetFloat();
+					
+					if(!Truncate)
+					{
+						for(double Val : Value) Out.Add(FString::SanitizeFloat(Val));
+						break;
+					}
 
-					Out.Add(UKismetTextLibrary::Conv_DoubleToText(
-						Value,
+					for(double Val : Value)
+						Out.Add(UKismetTextLibrary::Conv_DoubleToText(
+						Val,
 						HalfToZero,
 						false,
 						true,
