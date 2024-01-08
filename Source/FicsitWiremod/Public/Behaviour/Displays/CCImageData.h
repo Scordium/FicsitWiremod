@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FGGameState.h"
+#include "Kismet/GameplayStatics.h"
 #include "UObject/Object.h"
 #include "CCImageData.generated.h"
 
@@ -207,4 +209,15 @@ public:
 		
 		Material->SetTextureParameterValue(ParameterName, Value);
 	}
+
+	UFUNCTION(BlueprintPure)
+	static FString GetPixelArtFolderPath(UObject* WorldContext)
+	{
+		auto const GameState = Cast<AFGGameState>(UGameplayStatics::GetGameState(WorldContext));
+		if(!GameState) return "ERROR: PIXEL ART MANAGER IS NULL";
+		auto const SessionName = GameState->GetSessionName();
+		
+		return FPaths::ProjectSavedDir() + "Circuitry/" + SessionName + "/PixelArt/";
+	}
+	
 };

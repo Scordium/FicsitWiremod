@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FGGameState.h"
 #include "JsonObjectConverter.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/FileUtilities.h"
@@ -182,14 +183,17 @@ public:
 	static bool SignLayoutEquals(const FManagedSignData& Data1, const FManagedSignData& Data2) { return Data1 == Data2; }
 
 	UFUNCTION(BlueprintPure)
-	static FString GetSignLayoutsFolderPath()
+	static FString GetSignLayoutsFolderPath(UObject* WorldContext)
 	{
-		// ಠ_ಠ
-		return FPaths::LaunchDir().Replace(*FString("\\"), *FString("/")) + (FPaths::ProjectDir() + "CircuitrySigns/").Mid(9);
+		auto const GameState = Cast<AFGGameState>(UGameplayStatics::GetGameState(WorldContext));
+		if(!GameState) return "ERROR: SIGN BUILDING IS NULL";
+		auto const SessionName = GameState->GetSessionName();
+		
+		return FPaths::ProjectSavedDir() + "Circuitry/" + SessionName + "/SignLayouts/";
 	}
 
 	UFUNCTION(BlueprintCallable)
-	static void GetSignLayoutFileList(TArray<FString>& Out) { UFileUtilities::FindAllFilesInDirectory(GetSignLayoutsFolderPath(), TArray<FString>{".csl"}, Out); }
+	static void GetSignLayoutFileList(UObject* WorldContext, TArray<FString>& Out) { UFileUtilities::FindAllFilesInDirectory(GetSignLayoutsFolderPath(WorldContext), TArray<FString>{".csl"}, Out); }
 	
 	UFUNCTION(BlueprintCallable)
 	static bool ParseSignDataToJson(const FManagedSignData& Data, FString& Out)
