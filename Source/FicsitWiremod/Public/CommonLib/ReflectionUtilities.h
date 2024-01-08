@@ -475,6 +475,7 @@ public:
 
 		
 		if(FuncProperty->IsA<FIntProperty>()) return GenericProcess<int, FIntProperty>(REFLECTION_ARGS, DefaultValue);
+		else if(FuncProperty->IsA<FEnumProperty>()) return GenericProcess<int, FEnumProperty>(REFLECTION_ARGS, DefaultValue);
 		else if(FuncProperty->IsA<FFloatProperty>()) return GenericProcess<float, FFloatProperty>(REFLECTION_ARGS, DefaultValue);
 		else if (FuncProperty->IsA<FDoubleProperty>()) return GenericProcess<double, FDoubleProperty>(REFLECTION_ARGS, DefaultValue);
 		else return DefaultValue;
@@ -514,6 +515,11 @@ public:
 		{
 			struct { int Value; } params{(int) Value};
 			ProcessFunction<FIntProperty>(Object, SourceName, &params);
+		}
+		else if(FuncProperty->IsA<FEnumProperty>())
+		{
+			struct { int Value; } params{(int) Value};
+			ProcessFunction<FEnumProperty>(Object, SourceName, &params);
 		}
 		else if(FuncProperty->IsA<FFloatProperty>())
 		{
