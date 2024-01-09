@@ -48,7 +48,8 @@ enum EConnectionType
 	ItemDescriptor,
 	ArrayOfItemDescriptor,
 	TrainStop,
-	ArrayOfTrainStop
+	ArrayOfTrainStop,
+	EntityPowerInfo
 };
 
 UENUM(BlueprintType)

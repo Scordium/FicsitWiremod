@@ -206,9 +206,9 @@ public:
 				{
 					//Check if the player state is valid. If the player is offline it will be null and crash if not handled properly
 					if(auto State = Player->GetPlayerState()) return ObjectName + "(Player " + State->GetPlayerName() + ")";
-					return UKismetSystemLibrary::GetObjectName(Player) + "(Offline player)";
+					return ObjectName + "(Offline player)";
 				}
-				return UKismetSystemLibrary::GetObjectName(Entity);
+				return ObjectName;
 			}
 		case Recipe:
 			{
@@ -321,7 +321,10 @@ class UBlueprintReflectionFunctions : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintPure)
-	static FString GetStringifiedValue(const FConnectionData& Data) { return Data.GetStringifiedValue(); }
+	static FString GetStringifiedValue(const FConnectionData& Data)
+	{
+		return Data.GetStringifiedValue();
+	}
 
 	UFUNCTION(BlueprintCallable)
 	static bool GetBool(const FConnectionData& Data, bool DefaultValue = false) { return Data.GetBool(DefaultValue); }
@@ -367,6 +370,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	static FSplitterSortRule GetSplitterRule(const FConnectionData& Data) { return Data.GetSplitterRule(); }
+
+	UFUNCTION(BlueprintCallable)
+	static UFGPowerInfoComponent* GetPowerInfo(const FConnectionData& Data) { return UReflectionUtilities::GetPowerInfo(Data.Object); }
 
 	UFUNCTION(BlueprintCallable)
 	static TArray<bool> GetBoolArray(const FConnectionData& Data) { return Data.GetBoolArray(); }

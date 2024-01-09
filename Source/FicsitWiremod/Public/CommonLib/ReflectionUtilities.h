@@ -152,6 +152,11 @@ public:
 		return GenericProcess(REFLECTION_ARGS, FTimeTableStop());
 	}
 
+	static UFGPowerInfoComponent* GetPowerInfo(UObject* Object)
+	{
+		return UReflectionExternalFunctions::GetPowerInfo(Object);
+	}
+
 	static TArray<bool> GetBoolArray(REFLECTION_PARAMS)
 	{
 		return GenericProcess<TArray<bool>, FArrayProperty>(REFLECTION_ARGS);

@@ -6,7 +6,9 @@
 #include "FGBuildableDoor.h"
 #include "FGCharacterPlayer.h"
 #include "FGPipeSubsystem.h"
+#include "FGPowerConnectionComponent.h"
 #include "Buildables/FGBuildablePipeReservoir.h"
+#include "Buildables/FGBuildablePowerPole.h"
 #include "Buildables/FGBuildableRailroadSignal.h"
 #include "Buildables/FGBuildableWidgetSign.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
@@ -120,6 +122,13 @@ public:
 			ProcessFunction(Actor, "OnDoorStateChanged_Event", nullptr);
 			ProcessFunction(Actor, "CalculateDoorCollision", nullptr);
 		}
+	}
+
+	static UFGPowerInfoComponent* GetPowerInfo(UObject* Actor)
+	{
+		if(auto Buildable = Cast<AFGBuildableFactory>(Actor)) return Buildable->GetPowerInfo();
+		else if(auto PowerPole = Cast<AFGBuildablePowerPole>(Actor)) return PowerPole->GetPowerConnection(0)->GetPowerInfo();
+		else return nullptr;
 	}
 
 
