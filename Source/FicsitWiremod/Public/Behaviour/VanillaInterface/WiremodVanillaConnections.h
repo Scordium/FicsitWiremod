@@ -74,11 +74,18 @@ class ACircuitryBlueprintConnectionProxy : public AFGBuildable
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(Replicated, SaveGame)
-	FDynamicConnectionData Data;
+	UPROPERTY(SaveGame)
+	FVanillaBuildingDataKeyValuePair SavedData = FVanillaBuildingDataKeyValuePair();
 
-	UPROPERTY(Replicated, SaveGame)
-	int Index;
+	ACircuitryBlueprintConnectionProxy() : Super(FObjectInitializer::Get())
+	{
+		PrimaryActorTick.bCanEverTick = true;
+		PrimaryActorTick.bStartWithTickEnabled = true;
+		PrimaryActorTick.bAllowTickOnDedicatedServer = true;
+		PrimaryActorTick.TickInterval = 0.5;
+	}
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void BeginPlay() override
 	{
@@ -93,16 +100,7 @@ public:
 		mBlueprintDesigner->mBuildables.Add(this);
 	}
 
-	void Tick(float DeltaSeconds) override;
-
 	void ApplyConnectionToSystem();
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
-	{
-		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-		DOREPLIFETIME(ACircuitryBlueprintConnectionProxy, Data)
-	}
 };
 
 
@@ -170,11 +168,10 @@ protected:
 			DrawWiresForBuildable(KeyValuePair, SkipDestruct);
 	}
 
-
+public:
 	UFUNCTION()
 	void DrawWiresForBuildable(FVanillaBuildingDataKeyValuePair KeyValuePair, bool SkipDestruct = false);
-
-public:
+	
 	virtual void Tick(float DeltaTime) override;
 
 	static bool HandleDynamicConnections(const TArray<FDynamicConnectionData>& Connections);
@@ -202,7 +199,7 @@ public:
 
 		UpdateBuildable(Connection.Receiver.Object, Entry.Data.Connections, Entry.Data.OwnerData);
 		DrawWiresForBuildable(Entry);
-		CheckForBlueprintDesignerProxy(Connection, Index);
+		CheckForBlueprintDesignerProxy(Connection.Receiver.Object);
 	}
 
 	//Legacy wire positions converter
@@ -219,16 +216,20 @@ public:
 		return NewPositions;
 	}
 
-	void CheckForBlueprintDesignerProxy(const FDynamicConnectionData& Data, int Index)
+	void CheckForBlueprintDesignerProxy(UObject* Object)
 	{
-		auto Buildable = Cast<AFGBuildable>(Data.Receiver.Object);
+		auto Buildable = Cast<AFGBuildable>(Object);
 		if(!Buildable || !Buildable->GetBlueprintDesigner()) return;
+		
+		auto Proxy = ProxyList.Find(Object);
+		if(Proxy != nullptr) return;
 
 		auto ConnectionProxyActor = this->GetWorld()->SpawnActorDeferred<ACircuitryBlueprintConnectionProxy>(ACircuitryBlueprintConnectionProxy::StaticClass(), FTransform::Identity);
-		ConnectionProxyActor->Data = Data;
-		ConnectionProxyActor->Index = Index;
+		ConnectionProxyActor->SavedData = FVanillaBuildingDataKeyValuePair(Object);
 		ConnectionProxyActor->SetBlueprintDesigner(Buildable->GetBlueprintDesigner());
 		ConnectionProxyActor->FinishSpawning(FTransform::Identity);
+
+		ProxyList.Add(Object, ConnectionProxyActor);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -384,5 +385,8 @@ public:
 
 	UPROPERTY(VisibleInstanceOnly, SaveGame, BlueprintReadWrite)
 	TMap<UObject*, FVanillaInterfaceData> Game_VanillaBuildableData;
+
+	UPROPERTY(SaveGame)
+	TMap<UObject*, ACircuitryBlueprintConnectionProxy*> ProxyList;
 };
 

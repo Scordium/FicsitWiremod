@@ -1,19 +1,21 @@
 ﻿
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
 
-
 void ACircuitryBlueprintConnectionProxy::Tick(float DeltaSeconds)
 {
-	Super::Tick(DeltaSeconds);
-
-	bool Invalidate = !Data.Transmitter.Object || !Data.Receiver.Object || AWiremodVanillaConnections::Self->DoesConnectionExist(Data.Receiver.Object, Index);
-	if(Invalidate) Execute_Dismantle(this);
+	auto Data = AWiremodVanillaConnections::Self->Game_VanillaBuildableData.Find(SavedData.Buildable);
+	if(Data) SavedData.Data = *Data;
+	else ApplyConnectionToSystem();
 }
 
 void ACircuitryBlueprintConnectionProxy::ApplyConnectionToSystem()
 {
-	AWiremodVanillaConnections::Self->AddConnection(Data, Index, nullptr);
-	ACircuitryLogger::DispatchEvent("[BP_PROXY] Connection applied to subsystem, destroying proxy...", ELogVerbosity::Display);
+	if(SavedData.Buildable)
+	{
+		AWiremodVanillaConnections::Self->UpdateBuildable(SavedData.Buildable, SavedData.Data.Connections, SavedData.Data.OwnerData);
+		AWiremodVanillaConnections::Self->DrawWiresForBuildable(SavedData.Buildable);
+		ACircuitryLogger::DispatchEvent("[BP_PROXY] Connection applied to subsystem, destroying proxy...", ELogVerbosity::Display);
+	}
 	Execute_Dismantle(this);
 }
 
