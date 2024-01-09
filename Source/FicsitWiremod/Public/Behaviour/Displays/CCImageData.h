@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FGGameState.h"
+#include "ImageUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/Object.h"
 #include "CCImageData.generated.h"
@@ -73,15 +74,15 @@ struct FPixelScreenData
 
 	bool IsValid() const
 	{
-		return Width && Height;
+		const int Area = Width*Height;
+		return Area && sqrt(Area) < 75;
 	}
 
 	TArray<TArray<FLinearColor>> MakeGrid() const
 	{
 		TArray<TArray<FLinearColor>> Out;
-
-		//We need to reverse the array so that texture mipmap fills correctly. Otherwise the texture will appear upside down.
-		for(int i = Data.Num() - 1; i >= 0; i--) Out.Add(Data[i].RowData);
+		
+		for(int i = 0; i < Data.Num(); i++) Out.Add(Data[i].RowData);
 		
 		return Out;
 	}
@@ -94,9 +95,6 @@ struct FPixelScreenData
 
 	UTexture2D* MakeTexture() const
 	{
-		if(!IsValid()) return nullptr;
-		
-		
 		auto GridData = MakeGrid();
 		auto Texture = UTexture2D::CreateTransient(
 		Width, 
@@ -105,20 +103,15 @@ struct FPixelScreenData
 
 		Texture->CreateResource();
 		// Lock the texture so it can be modified
-		uint8* MipData = static_cast<uint8*>(Texture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+		FColor* FormatedImageData = static_cast<FColor*>( Texture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
 
 		// Create base mip.
 		uint8* DestPtr = NULL;
 		for( int32 y=0; y<Height; y++ )
 		{
-			DestPtr = &MipData[(Height - 1 - y) * Width * sizeof(FColor)];
 			for( int32 x=0; x<Width; x++ )
 			{
-				auto Pixel = GridData[y][x].ToFColor(false);
-				*DestPtr++ = Pixel.B;
-				*DestPtr++ = Pixel.G;
-				*DestPtr++ = Pixel.R;
-				*DestPtr++ = Pixel.A;
+				FormatedImageData[y * Width + x] = GridData[y][x].ToFColor(false);
 			}
 		}
 
@@ -170,10 +163,34 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	static FPixelScreenData MakePixelScreenFromFile(FString FileName)
+	static FPixelScreenData MakePixelScreenFromFile(const FString& FileName)
 	{
-		//TODO
-		return FPixelScreenData();
+		auto OutputData = FPixelScreenData();
+		auto Texture = FImageUtils::ImportFileAsTexture2D(FileName);
+		if(Texture)
+		{
+			const int SizeX = Texture->GetSizeX();
+			const int SizeY = Texture->GetSizeY();
+			OutputData.Width = SizeX;
+			OutputData.Height = SizeY;
+			
+			OutputData.Data.SetNum(SizeY);
+			for(auto& Row : OutputData.Data) Row.RowData.SetNum(SizeX);
+			
+			const FColor* FormatedImageData = static_cast<const FColor*>( Texture->GetPlatformData()->Mips[0].BulkData.LockReadOnly());
+
+			for(int32 X = 0; X < SizeX; X++)
+			{
+				for (int32 Y = 0; Y < SizeY; Y++)
+				{
+					OutputData.Data[Y].RowData[X] = FLinearColor(FormatedImageData[Y * SizeX + X]);
+				}
+			}
+
+			Texture->GetPlatformData()->Mips[0].BulkData.Unlock();
+		}
+
+		return OutputData;
 	}
 
 	UFUNCTION(BlueprintCallable)

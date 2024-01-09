@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "HAL/FileManagerGeneric.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Misc/URLRequestFilter.h"
 #include "FileUtilities.generated.h"
 
 /**
@@ -37,4 +38,17 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static bool DoesFileExist(const FString& FilePath) { return FFileManagerGeneric::Get().FileExists(*FilePath); }
+
+	UFUNCTION(BlueprintCallable)
+	static bool DoesDirectoryExist(const FString& DirPath) { return FFileManagerGeneric::Get().DirectoryExists(*DirPath); }
+
+	UFUNCTION(BlueprintCallable)
+	static void OpenDirectory(const FString& DirPath)
+	{
+		if(!DoesDirectoryExist(DirPath)) FFileManagerGeneric::Get().MakeDirectory(*DirPath);
+
+		UE::Core::FURLRequestFilter Filter(TEXT("SystemLibrary.LaunchURLFilter"), GEngineIni);
+
+		FPlatformProcess::LaunchURLFiltered(*DirPath, nullptr, nullptr, Filter);
+	}
 };
