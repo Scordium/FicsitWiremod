@@ -8,31 +8,14 @@
 #include "Engine/Texture2DDynamic.h"
 #include "Interfaces/IHttpResponse.h"
 
-
-UCircuitryDownloadImage* UCircuitryDownloadImage::StartDownloadImage(FString URL, FCircuitryDownloadImageDelegate OnFinish, bool AllowCache)
+void UCircuitryDownloadImage::StartDownload(const FString& URL)
 {
-	UCircuitryDownloadImage* DownloadTask = NewObject<UCircuitryDownloadImage>();
-	DownloadTask->Finished = OnFinish;
-	DownloadTask->StartDownload(URL, AllowCache);
-
-	return DownloadTask;
-	
-}
-
-void UCircuitryDownloadImage::StartDownload(FString URL, bool AllowCache)
-{
+	Url = URL;
 	if(URL.Len() == 0)
 	{
 		OnFail();
 		return;
 	}
-
-	if(AllowCache)
-		if(auto Cache = CachedDownloads.Find(URL); Cache && *Cache)
-		{
-			Finished.ExecuteIfBound(*Cache, true);
-			return;
-		}
 	
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 
@@ -81,8 +64,7 @@ void UCircuitryDownloadImage::HandleImageDownload(FHttpRequestPtr HttpRequest, F
 									TextureResource->WriteRawToTexture_RenderThread(RawData);
 								});
 						}
-						CachedDownloads.Add(HttpRequest->GetURL(), Texture);
-						Finished.ExecuteIfBound(Texture, true);					
+						Finished.Broadcast(Url, Texture, true);					
 						return;
 					}
 				}
@@ -90,7 +72,7 @@ void UCircuitryDownloadImage::HandleImageDownload(FHttpRequestPtr HttpRequest, F
 		}
 	}
 
-	Finished.ExecuteIfBound(nullptr, false);
+	Finished.Broadcast(Url, nullptr, false);
 
 #endif
 }
