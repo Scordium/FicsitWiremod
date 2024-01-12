@@ -38,6 +38,28 @@ public:
 	UObject* GetValue(const FString& ValueName);
 };
 
+
+USTRUCT(BlueprintType)
+struct FTimeTableStopData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	class AFGTrainStationIdentifier* Station = nullptr;
+
+	/** Station Rules */
+	UPROPERTY()
+	FTrainDockingRuleSet DockingRuleSet;
+
+	FTimeTableStopData(){}
+
+	FTimeTableStopData(AFGTrainStationIdentifier* StationIdentifier, const FTrainDockingRuleSet& RuleSet)
+	{
+		Station = StationIdentifier;
+		DockingRuleSet = RuleSet;
+	}
+};
+
 UCLASS()
 class FICSITWIREMOD_API UReflectionUtilities : public UBlueprintFunctionLibrary
 {
@@ -147,9 +169,9 @@ public:
 		return GenericProcess(REFLECTION_ARGS, DefaultValue);
 	}
 
-	static FTimeTableStop GetTrainStop(REFLECTION_PARAMS)
+	static FTimeTableStopData GetTrainStop(REFLECTION_PARAMS)
 	{
-		return GenericProcess(REFLECTION_ARGS, FTimeTableStop());
+		return GenericProcess<FTimeTableStopData, FStructProperty>(REFLECTION_ARGS);
 	}
 
 	static UFGPowerInfoComponent* GetPowerInfo(UObject* Object)
@@ -227,9 +249,9 @@ public:
 		return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>, FArrayProperty>(REFLECTION_ARGS);
 	}
 
-	static TArray<FTimeTableStop> GetTrainStopArray(REFLECTION_PARAMS)
+	static TArray<FTimeTableStopData> GetTrainStopArray(REFLECTION_PARAMS)
 	{
-		return GenericProcess<TArray<FTimeTableStop>>(REFLECTION_ARGS);
+		return GenericProcess<TArray<FTimeTableStopData>>(REFLECTION_ARGS);
 	}
 
 	template<typename T>

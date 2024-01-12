@@ -31,6 +31,7 @@ public:
 	{
 		TArray<FTimeTableStop> Out;
 		if(Table) Table->GetStops(Out);
+		
 		return Out;
 	}
 

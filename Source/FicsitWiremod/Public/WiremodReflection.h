@@ -135,7 +135,7 @@ public:
 	FSplitterSortRule GetSplitterRule() const { return UReflectionUtilities::GetSplitterRule(Object, FunctionName, FromProperty); }
 	TSubclassOf<UFGItemDescriptor> GetItemDescriptor(TSubclassOf<UFGItemDescriptor> DefaultValue = TSubclassOf<UFGItemDescriptor>()) const { return UReflectionUtilities::GetItemDescriptor(Object, FunctionName, FromProperty, DefaultValue); }
 	AFGRailroadTimeTable* GetTimeTable() const { return UReflectionUtilities::GetUnmanaged<AFGRailroadTimeTable*>(Object, FunctionName, FromProperty, nullptr); }
-	FTimeTableStop GetTimeTableStop() const { return UReflectionUtilities::GetTrainStop(Object, FunctionName, FromProperty); }
+	FTimeTableStopData GetTimeTableStop() const { return UReflectionUtilities::GetTrainStop(Object, FunctionName, FromProperty); }
 	
 	TArray<bool> GetBoolArray() const { return UReflectionUtilities::GetBoolArray(Object, FunctionName, FromProperty); }
 	TArray<double> GetFloatArray() const { return UReflectionUtilities::GetFloatArray(Object, FunctionName, FromProperty); }
@@ -153,7 +153,7 @@ public:
 	TArray<UTexture*> GetTextureArray() const { return UReflectionUtilities::GetTextureArray(Object, FunctionName, FromProperty); }
 	TArray<FSplitterSortRule> GetSplitterRuleArray() const { return UReflectionUtilities::GetSplitterRuleArray(Object, FunctionName, FromProperty); }
 	TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray() const { return UReflectionUtilities::GetItemDescriptorArray(Object, FunctionName, FromProperty); }
-	TArray<FTimeTableStop> GetTimeTableStops() const { return UReflectionUtilities::GetTrainStopArray(Object, FunctionName, FromProperty); }
+	TArray<FTimeTableStopData> GetTimeTableStops() const { return UReflectionUtilities::GetTrainStopArray(Object, FunctionName, FromProperty); }
 	
 	void SetBool(bool Value) const { UReflectionUtilities::SetBool(Object, FunctionName, FromProperty, Value); }
 	void SetFloat(double Value) const { UReflectionUtilities::SetFloat(Object, FunctionName, FromProperty, Value); }

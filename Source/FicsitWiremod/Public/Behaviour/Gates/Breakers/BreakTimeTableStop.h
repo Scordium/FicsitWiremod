@@ -50,5 +50,5 @@ public:
 	}
 	
 	UPROPERTY(Replicated)
-	FTimeTableStop Stop;
+	FTimeTableStopData Stop;
 };

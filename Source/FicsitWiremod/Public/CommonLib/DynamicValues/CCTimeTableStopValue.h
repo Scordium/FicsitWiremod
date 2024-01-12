@@ -53,7 +53,7 @@ public:
 	virtual FString ToString() override { return Value.Station ? Value.Station->GetStationName().ToString() : "N/A"; }
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
-	FTimeTableStop Value;
+	FTimeTableStopData Value;
 };
 
 
@@ -174,6 +174,6 @@ public:
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
-	TArray<FTimeTableStop> Value;
+	TArray<FTimeTableStopData> Value;
 	
 };
