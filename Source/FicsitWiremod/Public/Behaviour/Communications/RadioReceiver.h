@@ -32,8 +32,9 @@ public:
 		if(TransmitterReference)
 		{
 			DataReceived = UCCDynamicValueUtils::FromValue(TransmitterReference->GetConnection(0), DataReceived ? DataReceived->GetWorld() : this->GetWorld());
-			SetOutputType(0, DataReceived ? DataReceived->ConnectionType.GetValue() : Unknown);
+			SetOutputType(0, DataReceived ? DataReceived->ConnectionType.GetValue() : DefaultConnectionType.GetValue());
 		}
+		else SetOutputType(0, DefaultConnectionType.GetValue());
 	}
 
 	
@@ -81,6 +82,14 @@ public:
 		TransmitterReference = NewTransmitter;
 	}
 
+	UFUNCTION(BlueprintCallable)
+	void SetDefaultConnectionType(EConnectionType Type, UObject* Setter)
+	{
+		if(!GetCanConfigure(Setter)) return;
+
+		DefaultConnectionType = Type;
+	}
+
 	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return DataReceived; }
 
 
@@ -89,4 +98,7 @@ public:
 
 	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	UCCDynamicValueBase* DataReceived;
+
+	UPROPERTY(Replicated, SaveGame, BlueprintReadOnly, VisibleInstanceOnly)
+	TEnumAsByte<EConnectionType> DefaultConnectionType = Unknown;
 };
