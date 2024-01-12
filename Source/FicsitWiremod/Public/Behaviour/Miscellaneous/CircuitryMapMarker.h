@@ -6,6 +6,7 @@
 #include "FGActorRepresentationManager.h"
 #include "FGMapMarkerRepresentation.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "Engine/Texture2DDynamic.h"
 #include "CircuitryMapMarker.generated.h"
 
 UCLASS()
@@ -14,9 +15,30 @@ class FICSITWIREMOD_API ACircuitryMapMarker : public AFGWiremodBuildable, public
 	GENERATED_BODY()
 
 public:
-	virtual void ServerProcess_Implementation(double DeltaTime) override
+	virtual void BeginPlay() override
 	{
+		Super::BeginPlay();
+		AddAsRepresentation();
+	}
+
+	virtual void ClientProcess_Implementation(double DeltaTime) override
+	{
+		auto TextureValue = GetConnection(2).GetTexture();
 		
+		if(TextureValue)
+		{
+			if(TextureCache == TextureValue) return;
+			if(TextureCache->GetResource() == TextureValue->GetResource()) return;
+		
+			if(auto Texture = Cast<UTexture2D>(TextureValue))
+				TextureCache = Texture;
+			else if(auto TextureDynamic = Cast<UTexture2DDynamic>(TextureValue))
+			{
+				if(TextureCache == GetTexture()) TextureCache = UTexture2D::CreateTransient(TextureDynamic->SizeX, TextureDynamic->SizeY);
+				TextureCache->SetResource(TextureDynamic->GetResource());
+			}
+		}
+		else TextureCache = GetTexture();
 	}
 
 	UFUNCTION()
@@ -28,6 +50,7 @@ public:
 		Manager->CreateAndAddNewRepresentation(this, false, UFGMapMarkerRepresentation::StaticClass());
 		return true;
 	}
+	
 	UFUNCTION()
 	virtual bool UpdateRepresentation() override { return true; }
 	
@@ -44,31 +67,37 @@ public:
 	UFUNCTION()
 	virtual bool IsActorStatic() override { return false; }
 	UFUNCTION()
-	virtual FVector GetRealActorLocation() override { return GetActorLocation(); }
+	virtual FVector GetRealActorLocation() override { return GetConnection(0).GetVector(GetActorLocation()); }
 	UFUNCTION()
-	virtual FRotator GetRealActorRotation() override { return GetActorRotation(); }
+	virtual FRotator GetRealActorRotation() override { return GetConnection(1).GetVector(GetActorRotation().Vector()).Rotation(); }
 	UFUNCTION()
-	virtual class UTexture2D* GetActorRepresentationTexture() override { return UFGItemDescriptor::GetBigIcon(GetBuiltWithDescriptor()); }
+	virtual class UTexture2D* GetActorRepresentationTexture() override { return TextureCache; }
 	UFUNCTION()
-	virtual FText GetActorRepresentationText() override { return FText::FromString("Test text"); }
+	virtual FText GetActorRepresentationText() override { return FText::FromString(GetConnection(3).GetString("Circuitry Beacon")); }
 	UFUNCTION()
 	virtual void SetActorRepresentationText( const FText& newText ) override {};
 	UFUNCTION()
-	virtual FLinearColor GetActorRepresentationColor() override { return FLinearColor::MakeRandomColor(); }
+	virtual FLinearColor GetActorRepresentationColor() override { return GetConnection(4).GetColor(); }
 	UFUNCTION()
 	virtual void SetActorRepresentationColor( FLinearColor newColor ) override {}
 	UFUNCTION()
-	virtual ERepresentationType GetActorRepresentationType() override { return ERepresentationType::RT_MapMarker; }
+	virtual ERepresentationType GetActorRepresentationType() override { return (ERepresentationType)(int)GetConnection(5).GetFloat(); }
 	UFUNCTION()
-	virtual bool GetActorShouldShowInCompass() override { return true; }
+	virtual bool GetActorShouldShowInCompass() override { return GetConnection(6).GetBool(true); }
 	UFUNCTION()
-	virtual bool GetActorShouldShowOnMap() override { return true; }
+	virtual bool GetActorShouldShowOnMap() override { return GetConnection(7).GetBool(true); }
 	UFUNCTION()
 	virtual EFogOfWarRevealType GetActorFogOfWarRevealType() override { return EFogOfWarRevealType::FOWRT_None; }
 	UFUNCTION()
 	virtual float GetActorFogOfWarRevealRadius() override { return 10; }
 	UFUNCTION()
-	virtual ECompassViewDistance GetActorCompassViewDistance() override { return ECompassViewDistance::CVD_Always; }
+	virtual ECompassViewDistance GetActorCompassViewDistance() override { return (ECompassViewDistance)(int)GetConnection(8).GetFloat(4); }
 	UFUNCTION()
 	virtual void SetActorCompassViewDistance( ECompassViewDistance compassViewDistance ) override {}
+
+	UPROPERTY()
+	UTexture2D* TextureCache;
+
+	UPROPERTY()
+	bool UsesTransient;
 };

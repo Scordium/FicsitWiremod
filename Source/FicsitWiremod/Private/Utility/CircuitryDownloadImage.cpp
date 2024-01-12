@@ -22,6 +22,7 @@ void UCircuitryDownloadImage::StartDownload(const FString& URL)
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UCircuitryDownloadImage::HandleImageDownload);
 	HttpRequest->SetURL(URL);
 	HttpRequest->SetVerb(TEXT("GET"));
+	HttpRequest->SetTimeout(60);
 	if(!HttpRequest->ProcessRequest()) OnFail();
 	
 }
