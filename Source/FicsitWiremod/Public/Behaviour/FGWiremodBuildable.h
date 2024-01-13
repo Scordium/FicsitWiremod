@@ -17,6 +17,7 @@
 #include "Utility/WiremodDecalMesh.h"
 #include "FGWiremodBuildable.generated.h"
 
+#define PERMISSION_CHECK(Actor) if(!GetCanConfigure(Actor)) return
 
 UENUM(BlueprintType)
 enum EConnectionOccupationState
@@ -134,7 +135,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetWireHidden(int Index, bool IsHidden, UObject* Setter)
 	{
-		if(!GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
+		
 		if(!InputConnections.IsValidIndex(Index)) return;
 
 		InputConnections[Index].WireHidden = IsHidden;
@@ -145,7 +147,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetWireColor(int Index, FLinearColor Color, UObject* Setter)
 	{
-		if(!GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
+		
 		if(!InputConnections.IsValidIndex(Index)) return;
 
 		InputConnections[Index].WireColor = Color;
@@ -176,14 +179,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetBuildableName(FText Name, UObject* Setter)
 	{
-		if(!OwnerData.GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
+		
 		OwnerData.CustomName = Name;
 	}
 
 	UFUNCTION(BlueprintCallable)
 	void SetCanDismantle(bool AllowDismantle, UObject* Setter)
 	{
-		if(!OwnerData.GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
+		
 		OwnerData.AllowDismantle = AllowDismantle;
 	}
 
@@ -191,19 +196,19 @@ public:
 	void SetConnectingRule(EWiremodInteractionRule Rule, UObject* Setter) { OwnerData.SetConnectingRule(Rule, Setter); }
 
 	UFUNCTION(BlueprintPure)
-	bool GetCanConnect(UObject* Actor) { return OwnerData.GetCanConnect(Actor); }
+	bool GetCanConnect(UObject* Actor) const { return OwnerData.GetCanConnect(Actor); }
 	
 	UFUNCTION(BlueprintCallable)
 	void SetDisconnectingRule(EWiremodInteractionRule Rule, UObject* Setter) { OwnerData.SetDisconnectingRule(Rule, Setter); }
 
 	UFUNCTION(BlueprintPure)
-	bool GetCanDisconnect(UObject* Actor) { return OwnerData.GetCanDisconnect(Actor); }
+	bool GetCanDisconnect(UObject* Actor) const { return OwnerData.GetCanDisconnect(Actor); }
 
 	UFUNCTION(BlueprintCallable)
 	void SetConfiguringRule(EWiremodInteractionRule Rule, UObject* Setter) { OwnerData.SetConfiguringRule(Rule, Setter); }
 	
 	UFUNCTION(BlueprintPure)
-	bool GetCanConfigure(UObject* Actor) { return OwnerData.GetCanConfigure(Actor); }
+	bool GetCanConfigure(UObject* Actor) const { return OwnerData.GetCanConfigure(Actor); }
 	
 	virtual bool CanDismantle_Implementation() const override { return OwnerData.AllowDismantle; };
 

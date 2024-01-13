@@ -42,7 +42,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetTargetPlayer(FString PlayerId, UObject* Setter)
 	{
-		if(!GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
 		TrackedPlayerId = PlayerId;
 		FindPlayer();
 	}

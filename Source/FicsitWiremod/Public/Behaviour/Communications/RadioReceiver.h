@@ -77,7 +77,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetTransmitter(ARadioTransmitter* NewTransmitter, UObject* Actor)
 	{
-		if(!GetCanConfigure(Actor)) return;
+		PERMISSION_CHECK(Actor);
 
 		TransmitterReference = NewTransmitter;
 	}
@@ -85,7 +85,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetDefaultConnectionType(EConnectionType Type, UObject* Setter)
 	{
-		if(!GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
 
 		DefaultConnectionType = Type;
 	}

@@ -99,7 +99,7 @@ public:
 	
 	void ApplySignLayout(const FManagedSignData& NewData, UObject* Setter)
 	{
-		if(!GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
 		ApplySignLayout_Internal(NewData);
 	}
 

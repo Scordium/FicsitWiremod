@@ -47,7 +47,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetData(const FRemoteControlData& NewData, UObject* Setter)
 	{
-		if(!GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
 
 		RemoteControlData = NewData;
 	}

@@ -80,7 +80,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnStateSelected(int Index, UObject* Setter)
 	{
-		if(!GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
+		
 		if(!States.IsValidIndex(Index)) return;
 		
 		OnStateSelected_Internal(Index);

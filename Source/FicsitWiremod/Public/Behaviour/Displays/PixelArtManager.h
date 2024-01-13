@@ -20,7 +20,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetPixelScreenData(const FPixelScreenData& NewData, UObject* Setter)
 	{
-		if(!GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
+		
 		OnImageChanged(NewData);
 	}
 
