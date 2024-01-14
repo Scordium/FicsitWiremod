@@ -79,6 +79,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentVariableData> Variables;
 
+	FSignComponentData(){}
+	FSignComponentData(TSubclassOf<USignComponentDescriptor> Descriptor, const TArray<FSignComponentVariableData>& InVariables) : ComponentDescriptor(Descriptor), Variables(InVariables) {}
+
 	bool operator==(const FSignComponentData& Other) const
 	{
 		return
@@ -127,7 +130,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	static FString FindMetadataValue(const TArray<FSignComponentVariableMetaData>& MetadataArray, FName MetadataName, bool& Success)
 	{
-		for(auto MetaEntry : MetadataArray)
+		for(auto& MetaEntry : MetadataArray)
 		{
 			Success = MetaEntry.Name == MetadataName;
 			if(Success) return MetaEntry.Value;

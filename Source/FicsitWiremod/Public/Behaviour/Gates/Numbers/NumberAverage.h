@@ -22,7 +22,7 @@ public:
 			GetAllConnected(Connected);
 
 			double Result = 0;
-			for(auto Data : Connected)
+			for(auto& Data : Connected)
 			{
 				Result += Data.GetFloat();
 			}

@@ -121,8 +121,8 @@ public:
 	}
 	virtual bool Contains(const FConnectionData& Element) override
 	{
-		auto B = Element.GetSplitterRule();
-		for(auto A : Value)
+		const auto B = Element.GetSplitterRule();
+		for(const auto& A : Value)
 			if(A.ItemClass == B.ItemClass && A.OutputIndex == B.OutputIndex)
 				return true;
 		

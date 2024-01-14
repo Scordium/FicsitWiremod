@@ -100,7 +100,7 @@ public:
 		{
 			//This is a ridiculously ineffective implementation, but i don't think anyone will reach a scenario where this would introduce noticeable lag spike.
 			UpdateVariableValue(SavedVariable.Name, SavedVariable.Data);
-			for(auto Metadata : SavedVariable.MetaData) UpdateVariableMetadata(SavedVariable.Name, Metadata.Name, Metadata.Value);
+			for(const auto& Metadata : SavedVariable.MetaData) UpdateVariableMetadata(SavedVariable.Name, Metadata.Name, Metadata.Value);
 		}
 	}
 	
@@ -163,7 +163,7 @@ protected:
 		{
 			if(Var.Name == Name)
 			{
-				for(auto Meta : Var.MetaData)
+				for(auto& Meta : Var.MetaData)
 				{
 					Success = Meta.Name == MetadataName;
 					if(Success) return Meta.Value;
@@ -236,7 +236,7 @@ public:
 	void OnUpdate(AFGWiremodBuildable* Sign);
 	void OnUpdate_Implementation(AFGWiremodBuildable* Sign)
 	{
-		for(auto EventData : VariableToBuildableInputMap)
+		for(auto& EventData : VariableToBuildableInputMap)
 		{
 			EventData.Value.Call(Sign);
 		}
@@ -265,7 +265,7 @@ public:
 		{
 			if(Var.Name == Name)
 			{
-				for(auto Meta : Var.MetaData)
+				for(auto& Meta : Var.MetaData)
 				{
 					Success = Meta.Name == MetadataName;
 					if(Success) return Meta.Value;

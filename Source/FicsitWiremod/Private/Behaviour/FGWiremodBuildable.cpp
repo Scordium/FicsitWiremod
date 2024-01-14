@@ -154,11 +154,11 @@ TSubclassOf<UUserWidget> AFGWiremodBuildable::GetCompactWidget_Implementation()
 
 int AFGWiremodBuildable::netFunc_getFunctionReturnType(FString FunctionName)
 {
-	for(auto conn : Execute_GetConnections(this, Output))
+	for(const auto& Connection : Execute_GetConnections(this, Output))
 	{
-		bool IsMatch = conn.FunctionName.ToString().Equals(FunctionName, ESearchCase::IgnoreCase) || conn.DisplayedName.ToString().Equals(FunctionName, ESearchCase::IgnoreCase);
+		bool IsMatch = Connection.FunctionName.ToString().Equals(FunctionName, ESearchCase::IgnoreCase) || Connection.DisplayedName.ToString().Equals(FunctionName, ESearchCase::IgnoreCase);
 		if(IsMatch)
-			return conn.ConnectionType.GetValue();
+			return Connection.ConnectionType.GetValue();
 	}
 
 	return -1;

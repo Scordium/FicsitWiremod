@@ -64,7 +64,7 @@ public:
 	template<class T>
 	T* GetFirstContextOfType()
 	{
-		for(auto InputsContext : InputsContexts)
+		for(auto& InputsContext : InputsContexts)
 		{
 			if(InputsContext.Value->IsA<T>()) return Cast<T>(InputsContext.Value);
 		}
@@ -77,7 +77,7 @@ public:
 	{
 		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
 		auto EnhancedInputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player->GetLocalPlayer());
-		for(auto InputsContext : InputsContexts) EnhancedInputSystem->AddMappingContext(InputsContext.Value, MappingContextPriority);
+		for(auto& InputsContext : InputsContexts) EnhancedInputSystem->AddMappingContext(InputsContext.Value, MappingContextPriority);
 	}
 
 	void EjectMappings()
@@ -97,7 +97,7 @@ public:
 		}
 		
 		auto EnhancedInputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		for(auto InputsContext : InputsContexts) EnhancedInputSystem->RemoveMappingContext(InputsContext.Value);
+		for(auto& InputsContext : InputsContexts) EnhancedInputSystem->RemoveMappingContext(InputsContext.Value);
 	}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

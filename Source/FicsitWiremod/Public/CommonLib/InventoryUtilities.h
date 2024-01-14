@@ -34,7 +34,7 @@ public:
 		}
 
 		TArray<FInventoryStack> Output;
-		for(auto MapElement : OutputMap)
+		for(const auto& MapElement : OutputMap)
 		{
 			auto Item = FInventoryStack(MapElement.Value, MapElement.Key);
 			Output.Add(Item);

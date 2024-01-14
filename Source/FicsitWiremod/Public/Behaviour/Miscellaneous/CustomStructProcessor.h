@@ -77,7 +77,7 @@ public:
 	{
 		ConnectionsInfo.Inputs.Empty();
 
-		for(auto Field : Out.Values)
+		for(const auto& Field : Out.Values)
 		{
 			auto Input = FBuildingConnection(Field.Name, "", Field.Value->ConnectionType);
 			ConnectionsInfo.Inputs.Add(Input);
@@ -95,7 +95,7 @@ public:
 	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
 	{
 		Super::GatherReplicatedObjects_Implementation(OutObjects);
-		for(auto Val : Out.Values)
+		for(const auto& Val : Out.Values)
 			OutObjects.Add(Val.Value);
 	}
 

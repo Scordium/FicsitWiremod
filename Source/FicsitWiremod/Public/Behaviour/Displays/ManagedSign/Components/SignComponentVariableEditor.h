@@ -20,6 +20,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FString Value;
 
+	FSignComponentVariableMetaData(){}
+	FSignComponentVariableMetaData(FName InName, FString InValue) : Name(InName), Value(InValue){}
+
 	bool operator==(const FSignComponentVariableMetaData& Other) const
 	{
 		return Name == Other.Name && Value == Other.Value;

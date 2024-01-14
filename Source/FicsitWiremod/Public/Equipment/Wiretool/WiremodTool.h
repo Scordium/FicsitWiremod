@@ -163,7 +163,7 @@ protected:
 		FBuildableNote Note;
 		UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Input, Connections, Note);
 
-		for(auto Connection : Connections){
+		for(auto& Connection : Connections){
 			if(UConnectionTypeFunctions::IsValidConnectionPair(Connection.ConnectionType, SelectedConnection.ConnectionType)){
 				return true;
 			}

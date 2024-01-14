@@ -92,7 +92,7 @@ public:
 	{
 		TArray<FWiremodBuildableState> Out;
 
-		for(auto State : States)
+		for(auto& State : States)
 			if(!State.IsHidden || IncludeHidden) Out.Add(State);
 
 		return Out;

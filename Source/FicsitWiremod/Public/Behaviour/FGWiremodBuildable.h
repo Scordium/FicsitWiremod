@@ -308,7 +308,7 @@ public:
 		for(const auto Object : ReplicationTargets)
 			WroteSomething |= Channel->ReplicateSubobject(Object, *Bunch, *RepFlags);
 
-		for(const auto Connection : InputConnections)
+		for(const auto& Connection : InputConnections)
 		{
 			if(Connection.Object && Connection.Object->GetClass()->IsChildOf<UCCDynamicValueBase>())
 				WroteSomething |= Channel->ReplicateSubobject(Connection.Object, *Bunch, *RepFlags);

@@ -40,7 +40,7 @@ public:
 	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
 	{
 		Super::GatherReplicatedObjects_Implementation(OutObjects);
-		for(auto Val : SavedValues) OutObjects.Add(Val.Value);
+		for(auto& Val : SavedValues) OutObjects.Add(Val.Value);
 	}
 	
 	UFUNCTION(BlueprintCallable)
@@ -112,7 +112,7 @@ public:
 	void RegisterValues(const TArray<FNamedValue>& NewValues)
 	{
 		SavedValues.Empty();
-		for(auto Val : NewValues)
+		for(auto& Val : NewValues)
 			SavedValues.Add(FNamedDynamicValue(Val.Name, Val.Value.Convert(this)));
 		
 		OnRep_ValuesUpdated();

@@ -33,7 +33,7 @@ public:
 		}
 
 		Array->Clear();
-		for(auto Element : Elements) Array->AddElement(Element);
+		for(auto& Element : Elements) Array->AddElement(Element);
 	}
 
 

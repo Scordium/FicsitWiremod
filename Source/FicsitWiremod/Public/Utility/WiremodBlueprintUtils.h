@@ -71,7 +71,7 @@ public:
 			auto Connections = AWiremodVanillaConnections::Self->GetAllConnections(Object);
 				
 			TArray<FConnectionData> Data = TArray<FConnectionData>();
-			for(auto Connection : Connections)
+			for(auto& Connection : Connections)
 			{
 				Data.Add(Connection.Transmitter);
 			}

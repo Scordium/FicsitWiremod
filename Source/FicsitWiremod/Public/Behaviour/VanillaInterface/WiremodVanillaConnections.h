@@ -148,7 +148,7 @@ protected:
 	{
 		Game_VanillaBuildableData.Empty();
 		
-		for(auto Data : SavedVanillaBuildableData)
+		for(auto& Data : SavedVanillaBuildableData)
 		{
 			if(!Data.Buildable) continue;
 			
@@ -164,7 +164,7 @@ protected:
 	*/
 	void DrawWires(bool SkipDestruct = false)
 	{
-		for(auto KeyValuePair : SavedVanillaBuildableData)
+		for(auto& KeyValuePair : SavedVanillaBuildableData)
 			DrawWiresForBuildable(KeyValuePair, SkipDestruct);
 	}
 

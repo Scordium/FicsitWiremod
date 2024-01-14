@@ -80,7 +80,7 @@ public:
 		TArray<TSubclassOf<UFGSchematic>> AvailableSchematics;
 		SchematicManager->GetAllPurchasedSchematics(AvailableSchematics);
 		
-		for(auto ModRef : ModLockedSchematics)
+		for(auto& ModRef : ModLockedSchematics)
 		{
 			FModInfo Mod;
 			if(!ModLib->GetLoadedModInfo(ModRef.Key, Mod)) continue;
@@ -113,7 +113,7 @@ public:
 		if(DeprecatedClasses.Num() == 0) return;
 
 		TArray<FDeprecatedCircuitryData> Result;
-		for(auto DeprecatedData : DeprecatedClasses)
+		for(auto& DeprecatedData : DeprecatedClasses)
 		{
 			if(UGameplayStatics::GetActorOfClass(this, DeprecatedData.Class))
 			{

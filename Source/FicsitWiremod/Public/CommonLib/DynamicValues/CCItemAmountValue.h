@@ -109,8 +109,8 @@ public:
 	}
 	virtual bool Contains(const FConnectionData& Element) override
 	{
-		auto B = Element.GetItemAmount();
-		for(auto A : Value)
+		const auto B = Element.GetItemAmount();
+		for(auto& A : Value)
 			if(A.Amount == B.Amount && A.ItemClass == B.ItemClass)
 				return true;
 		

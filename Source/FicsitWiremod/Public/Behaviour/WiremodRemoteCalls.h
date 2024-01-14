@@ -29,7 +29,7 @@ struct FCustomStructReplicatable
 		FCustomStruct Value;
 		Value.Name = Name;
 	
-		for(auto Val : Values)
+		for(auto& Val : Values)
 		{
 			auto Field = FNamedDynamicValue(Val.Name, Val.Value.Convert(WorldContext));
 			Value.Values.Add(Field);

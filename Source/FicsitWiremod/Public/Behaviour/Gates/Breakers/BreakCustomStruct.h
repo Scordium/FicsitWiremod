@@ -20,7 +20,7 @@ public:
 
 	void CacheValues(const FCustomStruct& NewStruct)
 	{
-		for(auto Value : NewStruct.Values)
+		for(auto& Value : NewStruct.Values)
 		{
 			Cached.Add(Value.Name, Value.Value);
 		}
@@ -48,7 +48,7 @@ public:
 	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
 	{
 		Super::GatherReplicatedObjects_Implementation(OutObjects);
-		for(auto Val : Saved.Values)
+		for(auto& Val : Saved.Values)
 			OutObjects.Add(Val.Value);
 	}
 
@@ -58,7 +58,7 @@ public:
 		else
 		{
 			auto Out = TArray<FBuildingConnection>();
-			for(auto Value : Saved.Values)
+			for(auto& Value : Saved.Values)
 			{
 				Out.Add(FBuildingConnection(Value.Name, Value.Name, Value.Value->ConnectionType));
 			}

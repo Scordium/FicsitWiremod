@@ -82,7 +82,7 @@ public:
 		}
         
 		int Sum = 0;
-		for(const auto Stack : Inventory->mInventoryStacks)
+		for(const auto& Stack : Inventory->mInventoryStacks)
 		{
 			Sum += Stack.NumItems;
 		}
