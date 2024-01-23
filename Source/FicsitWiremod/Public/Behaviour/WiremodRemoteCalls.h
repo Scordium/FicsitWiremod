@@ -70,6 +70,27 @@ public:
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
 	void SetSignLayout(AManagedSign* Sign, const FManagedSignData& Data, UObject* Setter);
+
+	UFUNCTION(BlueprintCallable, Reliable, Server)
+	void CreateGlobalConnection(AFGBuildable* Buildable, int Index, const FDynamicValueStringWrapper& Value, const FConnectionData& Input, UObject* Setter);
+
+	UFUNCTION(BlueprintCallable, Reliable, Server)
+	void SetConfiguringRule(AFGBuildable* Buildable, EWiremodInteractionRule Rule, UObject* Setter);
+
+	UFUNCTION(BlueprintCallable, Reliable, Server)
+	void SetResettingRule(AFGBuildable* Buildable, EWiremodInteractionRule Rule, UObject* Setter);
+
+	UFUNCTION(BlueprintCallable, Reliable, Server)
+	void SetConnectingRule(AFGBuildable* Buildable, EWiremodInteractionRule Rule, UObject* Setter);
+
+	UFUNCTION(BlueprintCallable, Reliable, Server)
+	void SetCanDismantle(AFGBuildable* Buildable, bool CanDismantle, UObject* Setter);
+
+	UFUNCTION(BlueprintCallable, Reliable, Server)
+	void SetWireColor(AFGBuildable* Buildable, int Index, FLinearColor Color, UObject* Setter);
+
+	UFUNCTION(BlueprintCallable, Reliable, Server)
+	void SetWireHidden(AFGBuildable* Buildable, int Index, bool Hidden, UObject* Setter);
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{

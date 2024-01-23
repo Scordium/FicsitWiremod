@@ -145,7 +145,15 @@ public:
 	static UCCDynamicValueBase* FromValue(const FConnectionData& Data, UObject* WorldContext)
 	{
 		auto Out = FromType(Data.ConnectionType, WorldContext ? WorldContext : Data.Object);
-		if(Out) Out->SetValue(Data.Object, Data.FunctionName, Data.FromProperty);
+		if(Out) Out->FromConnectionValue(Data.Object, Data.FunctionName, Data.FromProperty);
 		return Out;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static UCCDynamicValueBase* FromWrapper(UObject* WorldContext, const FDynamicValueStringWrapper& Wrapper)
+	{
+		auto ValueObject = FromType(Wrapper.Type, WorldContext);
+		if(ValueObject) ValueObject->FromWrapperValue(Wrapper);
+		return ValueObject;
 	}
 };

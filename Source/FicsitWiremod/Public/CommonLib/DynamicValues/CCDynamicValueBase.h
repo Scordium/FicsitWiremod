@@ -11,6 +11,24 @@
 /**
  * 
  */
+
+USTRUCT(Blueprintable, BlueprintType)
+struct FDynamicValueStringWrapper
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite)
+	TEnumAsByte<EConnectionType> Type = Unknown;
+
+	UPROPERTY(BlueprintReadWrite)
+	FString Value = "";
+
+	FDynamicValueStringWrapper(){}
+	FDynamicValueStringWrapper(const EConnectionType InType) : Type(InType) {}
+	FDynamicValueStringWrapper(const EConnectionType InType, const FString& InValue) : Type(InType), Value(InValue) {}
+};
+
 UCLASS(Blueprintable, BlueprintType, Abstract)
 class FICSITWIREMOD_API UCCDynamicValueBase : public UObject, public IFGSaveInterface
 {
@@ -26,7 +44,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	virtual void SetValue(UObject* Object, FName SourceName, bool FromProperty)
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty)
 	{
 		DispatchNotImplemented("SET_DYNAMIC_VALUE");
 	}
@@ -43,6 +61,20 @@ public:
 	{
 		DispatchNotImplemented("TO_STRING_ARRAY");
 		return TArray<FString>();
+	}
+
+	UFUNCTION(BlueprintPure)
+	virtual FDynamicValueStringWrapper ToWrapperValue()
+	{
+		DispatchNotImplemented("TO_WRAPPER_VALUE");
+		return FDynamicValueStringWrapper(ConnectionType);
+	}
+
+	UFUNCTION(BlueprintPure)
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper)
+	{
+		DispatchNotImplemented("FROM_WRAPPER_VALUE");
+		return false;
 	}
 	
 	virtual bool IsSupportedForNetworking() const override { return true; }
@@ -64,6 +96,6 @@ public:
 	bool operator !=(UCCDynamicValueBase* Other) { return !Equals(Other); }
 	virtual bool Equals(UCCDynamicValueBase* Other){ return this == Other; }
 
-	void DispatchNotImplemented(FString FuncName) const { ACircuitryLogger::DispatchErrorEvent("Function " + FuncName + " is not implemented for class " + GetClass()->GetName()); }
+	void DispatchNotImplemented(const FString& FuncName) const { ACircuitryLogger::DispatchErrorEvent("Function " + FuncName + " is not implemented for class " + GetClass()->GetName()); }
 };
 

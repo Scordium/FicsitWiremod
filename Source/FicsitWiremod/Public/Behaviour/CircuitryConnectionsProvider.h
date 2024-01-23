@@ -70,6 +70,14 @@ struct FBuildingConnection : public FTableRowBase
 		this->ConnectionType = ConnectionType;
 		this->FromProperty = IsProperty;
 	}
+
+	bool operator==(const FBuildingConnection& Other) const
+	{
+		return DisplayedName.EqualTo(Other.DisplayedName)
+		&& FunctionName == Other.FunctionName
+		&& ConnectionType == Other.ConnectionType
+		&& FromProperty == Other.FromProperty;
+	}
 };
 
 USTRUCT(BlueprintType)

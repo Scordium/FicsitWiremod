@@ -6,6 +6,7 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Buildables/FGBuildableBlueprintDesigner.h"
 #include "CommonLib/OwnerData/OwnerData.h"
+#include "Patching/NativeHookManager.h"
 #include "Subsystem/ModSubsystem.h"
 #include "Utility/CircuitryLogger.h"
 #include "WiremodVanillaConnections.generated.h"
@@ -120,6 +121,15 @@ public:
 		PrimaryActorTick.bCanEverTick = true;
 		NetDormancy = DORM_Never;
 		ReplicationPolicy = ESubsystemReplicationPolicy::SpawnOnServer_Replicate;
+/*
+		SUBSCRIBE_METHOD_VIRTUAL(AFGBuildable::CanDismantle_Implementation, AFGBuildable::StaticClass(), [&](auto& Scope, const AFGBuildable* Buildable)
+		{
+			if(Buildable->IsA<AFGWiremodBuildable>()) return;
+			if(!Self->IsTrackedBuildable(Buildable)) return;
+			
+			Scope.Override(Self->GetOwnerData(Buildable).AllowDismantle);
+		});
+*/
 	}
 
 protected:
@@ -271,6 +281,23 @@ public:
 		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
 	}
 
+	UFUNCTION(BlueprintCallable)
+	void SetConfiguringRule(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
+	{
+		auto Data = GetOrDefault(Buildable);
+		Data.Data.OwnerData.SetConfiguringRule(Rule, Setter);
+		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void SetCanDismantle(UObject* Buildable, bool CanDismantle, UObject* Setter)
+	{
+		auto Data = GetOrDefault(Buildable);
+		if(!Data.Data.OwnerData.GetCanConfigure(Setter)) return;
+		Data.Data.OwnerData.AllowDismantle = CanDismantle;
+		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
+	}
+
 	UFUNCTION(BlueprintPure)
 	bool DoesConnectionExist(UObject* Buildable, int Index)
 	{
@@ -300,7 +327,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	FWiremodOwnerData GetOwnerData(UObject* Buildable)
+	FWiremodOwnerData GetOwnerData(const UObject* Buildable)
 	{
 		auto Data = Game_VanillaBuildableData.Find(Buildable);
 		if(!Data) return FWiremodOwnerData();
@@ -367,6 +394,11 @@ public:
 
 		UpdateBuildable(Buildable, Data.Connections, Data.OwnerData);
 		DrawWiresForBuildable(FVanillaBuildingDataKeyValuePair(Buildable, Data));
+	}
+
+	bool IsTrackedBuildable(const UObject* Buildable)
+	{
+		return Game_VanillaBuildableData.Find(Buildable) != nullptr;
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

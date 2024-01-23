@@ -45,10 +45,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void OpenDirectory(const FString& DirPath)
 	{
-		if(!DoesDirectoryExist(DirPath)) FFileManagerGeneric::Get().MakeDirectory(*DirPath);
+		if(!DoesDirectoryExist(DirPath)) FFileManagerGeneric::Get().MakeDirectory(*DirPath, true);
 
 		UE::Core::FURLRequestFilter Filter(TEXT("SystemLibrary.LaunchURLFilter"), GEngineIni);
 
-		FPlatformProcess::LaunchURLFiltered(*DirPath, nullptr, nullptr, Filter);
+		FPlatformProcess::LaunchURLFiltered(*FString("file:///" + DirPath), nullptr, nullptr, Filter);
 	}
 };

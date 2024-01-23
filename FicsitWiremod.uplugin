@@ -1,8 +1,8 @@
 {
 	"FileVersion": 3,
 	"Version": 0,
-	"VersionName": "0.13.10",
-	"SemVersion": "0.13.10",
+	"VersionName": "0.13.11",
+	"SemVersion": "0.13.11",
 	"FriendlyName": "Circuitry - Logic Gates and More",
 	"Description": "Create cool control circuits and contraptions using logic gates, sensors, and other stuff!",
 	"Category": "Modding",
@@ -31,7 +31,7 @@
 	"Plugins": [
 		{
 			"Name": "SML",
-			"SemVersion": "^3.6.0",
+			"SemVersion": "^3.7.0",
 			"Enabled": true
 		}
 	]

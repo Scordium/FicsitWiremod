@@ -27,12 +27,6 @@ public:
 		
 		return TSubclassOf<AFGDecorationTemplate>();
 	}
-
-	UFUNCTION(BlueprintImplementableEvent)
-	bool GetIsEpilepsyModeOn();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetIsEpilepsyModeOn(bool Value);
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	FLinearColor GetDefaultWireColor();
@@ -89,13 +83,6 @@ class UCircuitryConfigBlueprintFunctions : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-
-	UFUNCTION(BlueprintPure)
-	static bool GetIsEpilepsyModeOn() { return UCircuitryStatics::Self->GetIsEpilepsyModeOn(); }
-
-	UFUNCTION(BlueprintCallable)
-	static void SetIsEpilepsyModeOn(bool Value) { return UCircuitryStatics::Self->SetIsEpilepsyModeOn(Value); } 
-
 	UFUNCTION(BlueprintPure)
 	static FLinearColor GetDefaultWireColor() { return UCircuitryStatics::Self->GetDefaultWireColor(); }
 

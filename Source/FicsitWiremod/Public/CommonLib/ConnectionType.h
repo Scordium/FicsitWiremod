@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/EnumerateRange.h"
 #include "Utility/CircuitryLogger.h"
 #include "ConnectionType.generated.h"
 

@@ -25,7 +25,7 @@ public:
 		DOREPLIFETIME(UCCItemAmountValue, Value)
 	}
 
-	virtual void SetValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -70,7 +70,7 @@ public:
 		DOREPLIFETIME(UCCItemAmountArrayValue, Value)
 	}
 
-	virtual void SetValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))

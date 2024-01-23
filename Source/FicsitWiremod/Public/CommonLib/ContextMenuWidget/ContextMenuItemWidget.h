@@ -11,7 +11,7 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FOnContextMenuItemClicked, UUserWidget*, Item)
 /**
  * 
  */
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(Blueprintable, BlueprintType, Abstract)
 class FICSITWIREMOD_API UContextMenuItemWidget : public UUserWidget
 {
 	GENERATED_BODY()

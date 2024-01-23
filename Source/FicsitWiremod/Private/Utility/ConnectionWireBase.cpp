@@ -87,7 +87,7 @@ void AConnectionWireBase::UpdateWireVisuals()
 	{
 		SplineMesh->SetScalarParameterValueOnMaterials(FName("Emission"), CircuitryConfig::GetWireEmission());
 		SplineMesh->SetVectorParameterValueOnMaterials(FName("CustomColor"), Color);
-		SplineMesh->SetScalarParameterValueOnMaterials(FName("Speed"), CircuitryConfig::GetIsEpilepsyModeOn() ? -.5 : -1.5);
+		SplineMesh->SetScalarParameterValueOnMaterials(FName("Speed"), -1);
 	}
 }
 

@@ -19,10 +19,13 @@ class FICSITWIREMOD_API UOwnerDataFunctions : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintPure)
-	static bool GetCanConfigure(const FWiremodOwnerData& Data, UObject* Actor)
-	{
-		return Data.GetCanConfigure(Actor);
-	}
+	static bool GetCanConfigure(const FWiremodOwnerData& Data, UObject* Actor) { return Data.GetCanConfigure(Actor); }
+
+	UFUNCTION(BlueprintPure)
+	static bool GetCanConnect(const FWiremodOwnerData& Data, UObject* Actor) { return Data.GetCanConnect(Actor); }
+
+	UFUNCTION(BlueprintPure)
+	static bool GetCanReset(const FWiremodOwnerData& Data, UObject* Actor) { return Data.GetCanDisconnect(Actor); }
 
 	UFUNCTION(BlueprintPure)
 	static bool HasOwner(const FWiremodOwnerData& Data){ return Data.HasOwner(); }

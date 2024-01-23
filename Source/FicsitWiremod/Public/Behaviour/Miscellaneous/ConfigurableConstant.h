@@ -136,7 +136,7 @@ public:
 
 
 	UFUNCTION()
-	void CreateNewOrUpdate(FNamedDynamicValue NamedValue)
+	void CreateNewOrUpdate(const FNamedDynamicValue& NamedValue)
 	{
 		//Try to find the existing value and change it
 		for (auto& StoredValue : SavedValues)

@@ -12,6 +12,21 @@
 /**
  * 
  */
+USTRUCT(Blueprintable, BlueprintType)
+struct FBuildableInputInfo
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite)
+	FBuildingConnection Info;
+
+	UPROPERTY(BlueprintReadWrite)
+	FConnectionData Data;
+
+	bool operator==(const FBuildableInputInfo& Other) const { return Info == Other.Info && Data == Other.Data; }
+};
+
 UCLASS()
 class FICSITWIREMOD_API UWiremodBlueprintUtils : public UBlueprintFunctionLibrary
 {
@@ -96,5 +111,29 @@ public:
 	static UObject* GetSetterObject()
 	{
 		return UGameplayStatics::GetPlayerCharacter(UWiremodGameWorldModule::Self->GetWorld(), 0);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FBuildableInputInfo> GetBuildableInfo(AFGBuildable* Buildable)
+	{
+		auto Out = TArray<FBuildableInputInfo>();
+		if(Buildable)
+		{
+			FBuildableNote Note;
+			TArray<FBuildingConnection> InfoList;
+			GetAvailableConnections(Buildable, Input, InfoList, Note);
+			auto DataList = GetDataList(Buildable);
+
+			for(int i = 0; i < InfoList.Num(); i++)
+			{
+				FBuildableInputInfo OutEntry;
+				OutEntry.Info = InfoList[i];
+				if(DataList.IsValidIndex(i)) OutEntry.Data = DataList[i];
+
+				Out.Add(OutEntry);
+			}
+		}
+
+		return Out;
 	}
 };
