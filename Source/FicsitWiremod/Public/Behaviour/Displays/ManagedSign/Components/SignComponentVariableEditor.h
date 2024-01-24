@@ -73,7 +73,7 @@ public:
 	TArray<FManagedSignConnectionSettings> GetAllBindingsOfType(EConnectionType Type);
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void CreateBinding(const FString& Name, EConnectionType Type);
+	void CreateBinding(const FString& Name, EConnectionType Type, FManagedSignConnectionSettings& OutBinding, int& OutIndex);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	bool DoesBindingExist(const FString& Name);
