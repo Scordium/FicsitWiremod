@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AssetRegistry/IAssetRegistry.h"
 #include "HAL/FileManagerGeneric.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Misc/URLRequestFilter.h"
@@ -50,5 +51,15 @@ public:
 		UE::Core::FURLRequestFilter Filter(TEXT("SystemLibrary.LaunchURLFilter"), GEngineIni);
 
 		FPlatformProcess::LaunchURLFiltered(*FString("file:///" + DirPath), nullptr, nullptr, Filter);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FAssetData> GetAllAssetsOfClass(const TSubclassOf<UObject>& Class)
+	{
+		IAssetRegistry* AssetRegistry = IAssetRegistry::Get();
+		TArray<FAssetData> Out;
+
+		if(AssetRegistry) AssetRegistry->GetAssetsByClass(Class->GetClassPathName(), Out);
+		return Out;
 	}
 };

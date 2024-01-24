@@ -121,15 +121,6 @@ public:
 		PrimaryActorTick.bCanEverTick = true;
 		NetDormancy = DORM_Never;
 		ReplicationPolicy = ESubsystemReplicationPolicy::SpawnOnServer_Replicate;
-/*
-		SUBSCRIBE_METHOD_VIRTUAL(AFGBuildable::CanDismantle_Implementation, AFGBuildable::StaticClass(), [&](auto& Scope, const AFGBuildable* Buildable)
-		{
-			if(Buildable->IsA<AFGWiremodBuildable>()) return;
-			if(!Self->IsTrackedBuildable(Buildable)) return;
-			
-			Scope.Override(Self->GetOwnerData(Buildable).AllowDismantle);
-		});
-*/
 	}
 
 protected:
