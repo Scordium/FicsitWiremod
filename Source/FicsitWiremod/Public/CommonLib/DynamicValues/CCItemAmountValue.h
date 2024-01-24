@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "ItemAmount.h"
+#include "AssetRegistry/IAssetRegistry.h"
+#include "CommonLib/FileUtilities.h"
 #include "CCItemAmountValue.generated.h"
 
 /**
@@ -49,6 +51,24 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value.Amount) + " of " + UFGItemDescriptor::GetItemName(Value.ItemClass).ToString();}
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		FString Class, Amount;
+		Wrapper.Value.Split(";", &Class, &Amount);
+
+		auto ClassAsset = Cast<UFGItemDescriptor>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Class)).GetAsset());
+		if(!ClassAsset) return false;
+		Value.ItemClass = ClassAsset->GetClass();
+		Value.Amount = FCString::Atoi(*Amount);
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		FString ValueString = Value.ItemClass->GetClassPathName().ToString() + ";" + FString::FromInt(Value.Amount);
+		return FDynamicValueStringWrapper(ConnectionType, ValueString);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	FItemAmount Value;

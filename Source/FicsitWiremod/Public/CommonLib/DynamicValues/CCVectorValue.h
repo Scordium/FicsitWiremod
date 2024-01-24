@@ -49,6 +49,16 @@ public:
 	}
 
 	virtual FString ToString() override { return Value.ToCompactString(); }
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		return Value.InitFromString(Wrapper.Value);
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		return FDynamicValueStringWrapper(ConnectionType, Value.ToString());
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	FVector Value;

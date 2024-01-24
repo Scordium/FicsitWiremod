@@ -62,4 +62,28 @@ public:
 		if(AssetRegistry) AssetRegistry->GetAssetsByClass(Class->GetClassPathName(), Out);
 		return Out;
 	}
+
+	UFUNCTION(BlueprintCallable)
+	static FAssetData GetFirstAssetOfClass(const TSubclassOf<UObject>& Class)
+	{
+		IAssetRegistry* AssetRegistry = IAssetRegistry::Get();
+		TArray<FAssetData> Out;
+
+		if(AssetRegistry) AssetRegistry->GetAssetsByClass(Class->GetClassPathName(), Out);
+
+		if(Out.Num()) return Out[0];
+		else return FAssetData();
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static FAssetData GetAssetByPath(const FTopLevelAssetPath& Path)
+	{
+		IAssetRegistry* AssetRegistry = IAssetRegistry::Get();
+		TArray<FAssetData> Out;
+
+		if(AssetRegistry) AssetRegistry->GetAssetsByClass(Path, Out);
+		
+		if(Out.Num()) return Out[0];
+		else return FAssetData();
+	}
 };

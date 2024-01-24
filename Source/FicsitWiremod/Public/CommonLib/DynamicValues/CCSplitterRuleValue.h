@@ -57,6 +57,24 @@ public:
 		auto Args = FStringFormatOrderedArguments(TArray{Name, Index});
 		return FString::Format(*FString("{0} [{1}]"), Args);
 	}
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		FString Class, OutputIndex;
+		Wrapper.Value.Split(";", &Class, &OutputIndex);
+
+		auto ClassAsset = Cast<UFGItemDescriptor>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Class)).GetAsset());
+		if(!ClassAsset) return false;
+		Value.ItemClass = ClassAsset->GetClass();
+		Value.OutputIndex = FCString::Atoi(*OutputIndex);
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		FString ValueString = Value.ItemClass->GetClassPathName().ToString() + ";" + FString::FromInt(Value.OutputIndex);
+		return FDynamicValueStringWrapper(ConnectionType, ValueString);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	FSplitterSortRule Value;

@@ -50,6 +50,17 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::SanitizeFloat(Value); }
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		Value = FCString::Atod(*Wrapper.Value);
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		return FDynamicValueStringWrapper(ConnectionType, FString::SanitizeFloat(Value));
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	double Value;

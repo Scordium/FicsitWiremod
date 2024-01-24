@@ -49,6 +49,19 @@ public:
 	}
 
 	virtual FString ToString() override { return ::IsValid(Value) ? UFGRecipe::GetRecipeName(Value).ToString() : FString("N/A");}
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		auto ClassAsset = Cast<UFGRecipe>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Wrapper.Value)).GetAsset());
+
+		Value = ClassAsset ? TSubclassOf<UFGRecipe>(ClassAsset->GetClass()) : TSubclassOf<UFGRecipe>();
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		return FDynamicValueStringWrapper(ConnectionType, Value ? Value->GetClassPathName().ToString() : "");
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TSubclassOf<UFGRecipe> Value;

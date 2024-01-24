@@ -51,6 +51,17 @@ public:
 	}
 
 	virtual FString ToString() override { return Value ? "true" : "false"; }
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		Value = Wrapper.Value.Equals("true", ESearchCase::IgnoreCase);
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		return FDynamicValueStringWrapper(ConnectionType, ToString());
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	bool Value;

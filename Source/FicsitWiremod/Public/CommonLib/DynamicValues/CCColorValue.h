@@ -50,6 +50,16 @@ public:
 	}
 
 	virtual FString ToString() override { return Value.ToString(); }
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		return Value.InitFromString(Wrapper.Value);
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		return FDynamicValueStringWrapper(ConnectionType, ToString());
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	FLinearColor Value;

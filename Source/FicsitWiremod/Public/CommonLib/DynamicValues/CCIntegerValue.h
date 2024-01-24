@@ -51,6 +51,17 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value); }
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		Value = FCString::Atoi(*Wrapper.Value);
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		return FDynamicValueStringWrapper(ConnectionType, ToString());
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	int Value;

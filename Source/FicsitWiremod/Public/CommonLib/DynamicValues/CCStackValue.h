@@ -50,6 +50,24 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value.NumItems) + " " + UFGItemDescriptor::GetItemName(Value.Item.GetItemClass()).ToString(); }
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		FString Class, Amount;
+		Wrapper.Value.Split(";", &Class, &Amount);
+
+		auto ClassAsset = Cast<UFGItemDescriptor>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Class)).GetAsset());
+		if(!ClassAsset) return false;
+		Value.Item.SetItemClass(ClassAsset->GetClass());
+		Value.NumItems = FCString::Atoi(*Amount);
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		FString ValueString = Value.Item.GetItemClass()->GetClassPathName().ToString() + ";" + FString::FromInt(Value.NumItems);
+		return FDynamicValueStringWrapper(ConnectionType, ValueString);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	FInventoryStack Value;

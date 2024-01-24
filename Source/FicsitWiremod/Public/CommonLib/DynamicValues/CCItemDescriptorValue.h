@@ -57,6 +57,19 @@ public:
 
 		return CDO->mDisplayName.ToString();
 	}
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		auto ClassAsset = Cast<UFGItemDescriptor>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Wrapper.Value)).GetAsset());
+
+		Value = ClassAsset ? TSubclassOf<UFGItemDescriptor>(ClassAsset->GetClass()) : TSubclassOf<UFGItemDescriptor>();
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		return FDynamicValueStringWrapper(ConnectionType, Value ? Value->GetClassPathName().ToString() : "");
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TSubclassOf<UFGItemDescriptor> Value;
