@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CCArrayValueBase.h"
 #include "CCDynamicValueBase.h"
+#include "CommonLib/FileUtilities.h"
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCItemDescriptorValue.generated.h"
 
@@ -60,15 +61,14 @@ public:
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
-		auto ClassAsset = Cast<UFGItemDescriptor>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Wrapper.Value)).GetAsset());
-
-		Value = ClassAsset ? TSubclassOf<UFGItemDescriptor>(ClassAsset->GetClass()) : TSubclassOf<UFGItemDescriptor>();
-		return true;
+		const auto Descriptor = FSoftClassPath(Wrapper.Value).TryLoadClass<UFGItemDescriptor>();
+		Value = Descriptor;
+		return Value != nullptr;
 	}
 
 	virtual FDynamicValueStringWrapper ToWrapperValue() override
 	{
-		return FDynamicValueStringWrapper(ConnectionType, Value ? Value->GetClassPathName().ToString() : "");
+		return FDynamicValueStringWrapper(ConnectionType, FSoftClassPath(Value).ToString());
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)

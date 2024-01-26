@@ -56,16 +56,15 @@ public:
 		FString Class, Amount;
 		Wrapper.Value.Split(";", &Class, &Amount);
 
-		auto ClassAsset = Cast<UFGItemDescriptor>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Class)).GetAsset());
-		if(!ClassAsset) return false;
-		Value.Item.SetItemClass(ClassAsset->GetClass());
+		const auto ClassAsset = FSoftClassPath(Class).TryLoadClass<UFGItemDescriptor>();
+		Value.Item.SetItemClass(ClassAsset);
 		Value.NumItems = FCString::Atoi(*Amount);
-		return true;
+		return Value.Item.GetItemClass() != nullptr;
 	}
 
 	virtual FDynamicValueStringWrapper ToWrapperValue() override
 	{
-		FString ValueString = Value.Item.GetItemClass()->GetClassPathName().ToString() + ";" + FString::FromInt(Value.NumItems);
+		FString ValueString = FSoftClassPath(Value.Item.GetItemClass()).ToString() + ";" + FString::FromInt(Value.NumItems);
 		return FDynamicValueStringWrapper(ConnectionType, ValueString);
 	}
 	

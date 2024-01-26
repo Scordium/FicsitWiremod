@@ -63,16 +63,16 @@ public:
 		FString Class, OutputIndex;
 		Wrapper.Value.Split(";", &Class, &OutputIndex);
 
-		auto ClassAsset = Cast<UFGItemDescriptor>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Class)).GetAsset());
-		if(!ClassAsset) return false;
-		Value.ItemClass = ClassAsset->GetClass();
+		const auto ItemClass = FSoftClassPath(Class).TryLoadClass<UFGItemDescriptor>();
+		Value.ItemClass = ItemClass;
 		Value.OutputIndex = FCString::Atoi(*OutputIndex);
-		return true;
+		
+		return Value.ItemClass != nullptr;
 	}
 
 	virtual FDynamicValueStringWrapper ToWrapperValue() override
 	{
-		FString ValueString = Value.ItemClass->GetClassPathName().ToString() + ";" + FString::FromInt(Value.OutputIndex);
+		FString ValueString = FSoftClassPath(Value.ItemClass).ToString() + ";" + FString::FromInt(Value.OutputIndex);
 		return FDynamicValueStringWrapper(ConnectionType, ValueString);
 	}
 	

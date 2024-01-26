@@ -7,6 +7,7 @@
 #include "CommonLib/BackwardsCompatibilityHandler.h"
 #include "CommonLib/PlayerOwnedClipboardData.h"
 #include "CommonLib/DynamicValues/CCCustomStructValue.h"
+#include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "ConfigurableConstant.generated.h"
 
@@ -44,21 +45,21 @@ public:
 	}
 	
 	UFUNCTION(BlueprintCallable)
-	FNamedDynamicValue FindValue(FString Name, bool AllowCached = true)
+	FNamedDynamicValue& FindValue(FString Name, bool AllowCached = true)
 	{
 		if(AllowCached && CachedValues.Contains(Name))
-			return FNamedDynamicValue(Name, CachedValues[Name]);
+			return CachedValues[Name];
 
-		for (FNamedDynamicValue Value : SavedValues)
+		for (FNamedDynamicValue& Value : SavedValues)
 		{
-			if(Value.Name == Name)
+			if(Value.GetInternalName().ToString() == Name)
 			{
-				CachedValues.Add(Name, Value.Value);
+				CachedValues.Add(Name, Value);
 				return Value;
 			}
 		}
-
-		return FNamedDynamicValue();
+		
+		return FallbackValue;
 	}
 
 	virtual bool CanUseFactoryClipboard_Implementation() override{ return true; }
@@ -81,7 +82,7 @@ public:
 	}
 
 	
-	virtual UObject* GetValue_Implementation(const class FString& ValueName) override
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override
 	{
 		return FindValue(ValueName);
 	}
@@ -91,9 +92,9 @@ public:
 		if(direction == Input) return TArray<FBuildingConnection>();
 		
 		TArray<FBuildingConnection> Out;
-		for (FNamedDynamicValue Value : SavedValues)
+		for (FNamedDynamicValue& Value : SavedValues)
 		{
-			auto Connection = FBuildingConnection(Value.Name, Value.Name, Value ? Value.Value->ConnectionType.GetValue() : Unknown);
+			auto Connection = FBuildingConnection(Value.Name, Value.GetInternalName().ToString(), Value ? Value.Value->ConnectionType.GetValue() : Unknown);
 			Out.Add(Connection);
 		}
 		
@@ -113,28 +114,21 @@ public:
 	{
 		SavedValues.Empty();
 		for(auto& Val : NewValues)
-			SavedValues.Add(FNamedDynamicValue(Val.Name, Val.Value.Convert(this)));
+		{
+			auto NewValue = FNamedDynamicValue(Val.Name, Val.GetInternalName(), UCCDynamicValueUtils::FromWrapper(this, Val.Value));
+			SavedValues.Add(NewValue);
+		}
 		
 		OnRep_ValuesUpdated();
 	}
 
-	UFUNCTION()
-	void netFunc_setBoolValue(FString Name, bool Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
-
-	UFUNCTION()
-	void netFunc_setStringValue(FString Name, FString Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
-
-	UFUNCTION()
-	void netFunc_setFloatValue(FString Name, double Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
-
-	UFUNCTION()
-	void netFunc_setColorValue(FString Name, FLinearColor Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
-
-	UFUNCTION()
-	void netFunc_setVectorValue(FString Name, FVector Value) { CreateNewOrUpdate(FNamedDynamicValue(Name, FDynamicValue(Value).Convert(this))); }
-
-
-
+	UFUNCTION() void netFunc_setValueByValueString(FString Name, EConnectionType Type, FString Value)
+	{
+		auto ValueObject = UCCDynamicValueUtils::FromWrapper(this, FDynamicValueStringWrapper(Type, Value));
+		CreateNewOrUpdate(FNamedDynamicValue(Name, ValueObject));
+	}
+	
+	
 	UFUNCTION()
 	void CreateNewOrUpdate(const FNamedDynamicValue& NamedValue)
 	{
@@ -158,5 +152,7 @@ public:
 	TArray<FNamedDynamicValue> SavedValues;
 	
 	UPROPERTY(EditInstanceOnly)
-	TMap<FString, UCCDynamicValueBase*> CachedValues;
+	TMap<FString, FNamedDynamicValue> CachedValues;
+
+	FNamedDynamicValue FallbackValue = FNamedDynamicValue();
 };

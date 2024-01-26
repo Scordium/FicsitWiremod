@@ -11,23 +11,49 @@ struct FNamedDynamicValue
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	FString Name;
-
+	
 	UPROPERTY(SaveGame, BlueprintReadWrite)
 	UCCDynamicValueBase* Value = nullptr;
 
-	FNamedDynamicValue(){}
+	FNamedDynamicValue()
+	{
+		this->InternalName = FName(FGuid::NewGuid().ToString());
+	}
 	FNamedDynamicValue(FString Name, UCCDynamicValueBase* Value)
 	{
 		this->Name = Name;
+		this->InternalName = FName(FGuid::NewGuid().ToString());
 		this->Value = Value;
 	}
-	
-	bool operator ==(const FNamedDynamicValue& Other) { return Value ? Value->Equals(Other.Value) : false; }
-	bool operator !=(const FNamedDynamicValue& Other) { return Value ? !Value->Equals(Other.Value) : true; }
 
-	operator UCCDynamicValueBase* () { return Value; }
+	FNamedDynamicValue(FString Name, FName InternalName, UCCDynamicValueBase* Value)
+	{
+		this->Name = Name;
+		this->InternalName = InternalName;
+		this->Value = Value;
+	}
+
+	FName GetInternalName()
+	{
+		if(InternalName == "None") InternalName = FName(Name);
+
+		return InternalName;
+	}
+	
+	bool operator ==(const FNamedDynamicValue& Other) const { return Value ? Value->Equals(Other.Value) : false; }
+
+	operator UCCDynamicValueBase* () const { return Value; }
+
+private:
+
+	/*
+	 * Internal name used for things like constant gates to allow having 2 variables with the same name.
+	 */
+	UPROPERTY(SaveGame)
+	FName InternalName;
 };
 
 USTRUCT(BlueprintType)

@@ -73,7 +73,7 @@ public:
 	static bool IsValidConnectionPair(EConnectionType Input, EConnectionType Output)
 	{
 		if(IsUtilityType(Output)) return false;
-		if(Input == Unknown || Output == Unknown) return false;
+		if(Input == Unknown) return false;
 		if(Input == Any) return true;
 		if(Input == Output) return true;
 		if(Input == AnyArray) return IsArrayType(Output);
@@ -182,6 +182,7 @@ public:
 	{
 		switch (Type)
 		{
+		case Unknown:
 		case Any:
 		case AnyArray:
 		case AnyNonArray:

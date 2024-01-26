@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "ItemAmount.h"
-#include "AssetRegistry/IAssetRegistry.h"
 #include "CommonLib/FileUtilities.h"
 #include "CCItemAmountValue.generated.h"
 
@@ -57,16 +56,15 @@ public:
 		FString Class, Amount;
 		Wrapper.Value.Split(";", &Class, &Amount);
 
-		auto ClassAsset = Cast<UFGItemDescriptor>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Class)).GetAsset());
-		if(!ClassAsset) return false;
-		Value.ItemClass = ClassAsset->GetClass();
+		const auto ClassAsset = FSoftClassPath(Class).TryLoadClass<UFGItemDescriptor>();
+		Value.ItemClass = ClassAsset;
 		Value.Amount = FCString::Atoi(*Amount);
-		return true;
+		return Value.ItemClass != nullptr;
 	}
 
 	virtual FDynamicValueStringWrapper ToWrapperValue() override
 	{
-		FString ValueString = Value.ItemClass->GetClassPathName().ToString() + ";" + FString::FromInt(Value.Amount);
+		FString ValueString = FSoftClassPath(Value.ItemClass).ToString() + ";" + FString::FromInt(Value.Amount);
 		return FDynamicValueStringWrapper(ConnectionType, ValueString);
 	}
 	

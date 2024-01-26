@@ -31,7 +31,7 @@ public:
 		return hit.GetActor();
 	}
 	
-	
+	UFUNCTION(BlueprintPure)
 	static FString GetModReference(UObject* object)
 	{
 		if(!IsValid(object)) return "";

@@ -27,6 +27,11 @@ public:
 	FDynamicValueStringWrapper(){}
 	FDynamicValueStringWrapper(const EConnectionType InType) : Type(InType) {}
 	FDynamicValueStringWrapper(const EConnectionType InType, const FString& InValue) : Type(InType), Value(InValue) {}
+
+	bool operator==(const FDynamicValueStringWrapper& Other) const
+	{
+		return Type == Other.Type && Value == Other.Value;
+	}
 };
 
 UCLASS(Blueprintable, BlueprintType, Abstract)

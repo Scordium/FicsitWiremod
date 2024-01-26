@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "FGRecipe.h"
+#include "CommonLib/FileUtilities.h"
 #include "CCRecipeValue.generated.h"
 
 /**
@@ -52,15 +53,14 @@ public:
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
-		auto ClassAsset = Cast<UFGRecipe>(UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Wrapper.Value)).GetAsset());
-
-		Value = ClassAsset ? TSubclassOf<UFGRecipe>(ClassAsset->GetClass()) : TSubclassOf<UFGRecipe>();
-		return true;
+		const auto RecipeClass = FSoftClassPath(Wrapper.Value).TryLoadClass<UFGRecipe>();
+		Value = RecipeClass;
+		return Value != nullptr;
 	}
 
 	virtual FDynamicValueStringWrapper ToWrapperValue() override
 	{
-		return FDynamicValueStringWrapper(ConnectionType, Value ? Value->GetClassPathName().ToString() : "");
+		return FDynamicValueStringWrapper(ConnectionType, FSoftClassPath(Value).ToString());
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)

@@ -76,7 +76,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	static FAssetData GetAssetByPath(const FTopLevelAssetPath& Path)
+	static FAssetData GetAssetDataByPath(const FTopLevelAssetPath& Path)
 	{
 		IAssetRegistry* AssetRegistry = IAssetRegistry::Get();
 		TArray<FAssetData> Out;
@@ -86,4 +86,21 @@ public:
 		if(Out.Num()) return Out[0];
 		else return FAssetData();
 	}
+
+	template<typename T = UObject>
+	static T* GetObjectAssetByPath(const FString& SoftClassPath)
+	{
+		return Cast<T>(GetObjectAssetByPath(SoftClassPath));
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static UObject* GetObjectAssetByPath(const FString& Path)
+	{
+		IAssetRegistry* AssetRegistry = IAssetRegistry::Get();
+		const auto Asset = AssetRegistry->GetAssetByObjectPath(FSoftClassPath(Path)).GetAsset();
+		return Asset;
+	}
+
+	UFUNCTION(BlueprintPure)
+	static FString SoftClassPathToString(const FSoftClassPath& Path){ return Path.ToString(); }
 };

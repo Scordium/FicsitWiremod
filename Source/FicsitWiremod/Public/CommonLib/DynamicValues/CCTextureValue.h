@@ -54,16 +54,14 @@ public:
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
-		auto TextureAsset = UFileUtilities::GetAssetByPath(FTopLevelAssetPath(Wrapper.Value)).GetAsset();
-		Value = Cast<UTexture>(TextureAsset);
-
+		Value = UFileUtilities::GetObjectAssetByPath<UTexture>(Wrapper.Value);
 		return Value != nullptr;
 	}
 
 	virtual FDynamicValueStringWrapper ToWrapperValue() override
 	{
 		//This will unfortunately not work with dynamic textures such as pixel art and image downloads
-		return FDynamicValueStringWrapper(ConnectionType, Value ? Value->GetClass()->GetClassPathName().ToString() : "");
+		return FDynamicValueStringWrapper(ConnectionType, Value ? FSoftClassPath(Value->GetClass()).ToString() : "");
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)

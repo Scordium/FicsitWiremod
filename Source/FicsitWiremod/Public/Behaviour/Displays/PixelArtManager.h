@@ -40,8 +40,8 @@ public:
 	}
 
 	UFUNCTION(NetMulticast, Reliable)
-	void OnImageChanged(FPixelScreenData NewData);
-	void OnImageChanged_Implementation(FPixelScreenData NewData)
+	void OnImageChanged(const FPixelScreenData& NewData);
+	void OnImageChanged_Implementation(const FPixelScreenData& NewData)
 	{
 		if(HasAuthority()) Data = NewData;
 		TextureCache = Data.MakeTexture();
