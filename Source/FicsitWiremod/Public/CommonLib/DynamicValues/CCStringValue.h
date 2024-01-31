@@ -138,6 +138,21 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		Value.Empty();
+		Wrapper.Value.ParseIntoArray(Value, *FString(ARRAY_SEPARATOR));
+
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		const auto Output = FString::Join(Value, *FString(ARRAY_SEPARATOR));
+		return FDynamicValueStringWrapper(ConnectionType, Output);
+	}
+	
 	virtual TArray<FString> ToStringArray() override { return Value; }
 
 	virtual int FindFirst(const FConnectionData& Element) override
