@@ -161,7 +161,7 @@ public:
 		for(const auto& Val : Value)
 		{
 			auto CDO = Val.GetDefaultObject();
-			Out.Add(CDO->mDisplayName.ToString());
+			Out.Add(CDO ? CDO->mDisplayName.ToString() : "N/A");
 		}
 
 		return Out;
