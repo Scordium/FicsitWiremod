@@ -135,6 +135,30 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		TArray<FString> StringValues;
+		Wrapper.Value.ParseIntoArray(StringValues, *FString(ARRAY_SEPARATOR), false);
+		Value.Empty();
+
+		for(auto& StringValue : StringValues)
+		{
+			Value.Add(FSoftClassPath(StringValue).TryLoadClass<UFGRecipe>());
+		}
+
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		TArray<FString> Out;
+		for(const auto& Val : Value) Out.Add(FSoftClassPath(Val).ToString());
+		
+		const auto Output = FString::Join(Out, *FString(ARRAY_SEPARATOR));
+		return FDynamicValueStringWrapper(ConnectionType, Output);
+	}
+	
 	virtual TArray<FString> ToStringArray() override
 	{
 		TArray<FString> Out;

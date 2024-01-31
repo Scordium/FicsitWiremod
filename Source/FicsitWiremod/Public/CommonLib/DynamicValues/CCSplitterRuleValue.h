@@ -111,7 +111,36 @@ public:
 	}
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
 
-	
+	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
+	{
+		TArray<FString> StringValues;
+		Wrapper.Value.ParseIntoArray(StringValues, *FString(ARRAY_SEPARATOR), false);
+		Value.Empty();
+
+		for(auto& StringValue : StringValues)
+		{
+			FString Class,OutputIndex;
+			StringValue.Split(";", &Class, &OutputIndex);
+
+			FSplitterSortRule OutValue;
+			const auto ClassAsset = FSoftClassPath(Class).TryLoadClass<UFGItemDescriptor>();
+			OutValue.ItemClass = ClassAsset;
+			OutValue.OutputIndex = FCString::Atoi(*OutputIndex);
+
+			Value.Add(OutValue);
+		}
+
+		return true;
+	}
+
+	virtual FDynamicValueStringWrapper ToWrapperValue() override
+	{
+		TArray<FString> Out;
+		for(const auto& Val : Value) Out.Add(FSoftClassPath(Val.ItemClass).ToString() + ";" + FString::FromInt(Val.OutputIndex));
+		
+		const auto Output = FString::Join(Out, *FString(ARRAY_SEPARATOR));
+		return FDynamicValueStringWrapper(ConnectionType, Output);
+	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetSplitterRule()); }
 	virtual UCCDynamicValueBase* GetElement(int Index) override

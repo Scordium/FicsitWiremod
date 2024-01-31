@@ -12,6 +12,8 @@
  * 
  */
 
+#define ARRAY_SEPARATOR "\uFFFA"
+
 USTRUCT(Blueprintable, BlueprintType)
 struct FDynamicValueStringWrapper
 {
@@ -102,5 +104,17 @@ public:
 	virtual bool Equals(UCCDynamicValueBase* Other){ return this == Other; }
 
 	void DispatchNotImplemented(const FString& FuncName) const { ACircuitryLogger::DispatchErrorEvent("Function " + FuncName + " is not implemented for class " + GetClass()->GetName()); }
+};
+
+UCLASS()
+class UDynamicValueConstants : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintPure)
+	static FString GetSeparatorSymbol() { return ARRAY_SEPARATOR; }
+	
 };
 

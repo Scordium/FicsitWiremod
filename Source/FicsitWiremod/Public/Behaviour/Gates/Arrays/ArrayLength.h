@@ -14,16 +14,12 @@ class FICSITWIREMOD_API AArrayLength : public AFGWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		Out = GetArrayLength(GetConnection(0));
-	}
-
-	static int GetArrayLength(const FConnectionData& Data)
-	{
-		auto Value = UCCDynamicValueUtils::FromValue(Data, Data.Object);
+		const auto Conn = GetConnection(0);
+		const auto Value = UCCDynamicValueUtils::FromValue(Conn, Conn.Object);
+		
 		if(auto Array = Cast<UCCArrayValueBase>(Value))
-			return  Array->Length();
-
-		return 0;
+			Out = Array->Length();
+		else Out = 0;
 	}
     
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
