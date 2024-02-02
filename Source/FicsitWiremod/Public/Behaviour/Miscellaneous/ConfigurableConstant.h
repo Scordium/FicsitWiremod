@@ -57,6 +57,12 @@ public:
 				CachedValues.Add(Name, Value);
 				return Value;
 			}
+			else if(Value.Name == Name)
+			{
+				CachedValues.Add(Name, Value);
+				Value.SetInternalName(Name);
+				return Value;
+			}
 		}
 		
 		return FallbackValue;

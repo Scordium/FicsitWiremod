@@ -42,6 +42,11 @@ public:
 
 		return InternalName;
 	}
+
+	void SetInternalName(FString NewInternalName)
+	{
+		InternalName = FName(NewInternalName);
+	}
 	
 	bool operator ==(const FNamedDynamicValue& Other) const { return Value ? Value->Equals(Other.Value) : false; }
 
@@ -53,7 +58,7 @@ private:
 	 * Internal name used for things like constant gates to allow having 2 variables with the same name.
 	 */
 	UPROPERTY(SaveGame)
-	FName InternalName;
+	FName InternalName = FName(Name);
 };
 
 USTRUCT(BlueprintType)
