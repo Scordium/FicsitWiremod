@@ -6,8 +6,11 @@
 #include "FGIconLibrary.h"
 #include "FGInventoryComponent.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "Components/Image.h"
+#include "Engine/Texture2DDynamic.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Resources/FGItemDescriptor.h"
+#include "Utility/CircuitryDownloadImage.h"
 #include "TextureUtilities.generated.h"
 
 UENUM(Blueprintable, BlueprintType)
@@ -175,6 +178,17 @@ public:
 	{
 		if(!Texture) return FVector2D::ZeroVector;
 		return FVector2D(Texture->GetSurfaceWidth(), Texture->GetSurfaceHeight());
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static void SetImageBrushUniversal(UImage* Image, UTexture* Texture, bool MatchSize = true)
+	{
+		if(!Image || !Texture) return;
+
+		if(auto Tex2D = Cast<UTexture2D>(Texture))
+			Image->SetBrushFromTexture(Tex2D, MatchSize);
+		else if(auto Tex2DDynamic = Cast<UTexture2DDynamic>(Texture))
+			Image->SetBrushFromTextureDynamic(Tex2DDynamic);
 	}
 
 

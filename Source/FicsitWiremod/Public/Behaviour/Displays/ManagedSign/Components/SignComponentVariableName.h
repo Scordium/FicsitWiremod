@@ -3,7 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
 #include "SignComponentVariableName.generated.h"
+
+UCLASS(Abstract)
+class FICSITWIREMOD_API USignComponentVariableEditorBase : public UUserWidget
+{
+	GENERATED_BODY()
+
+public:
+	
+};
 
 UCLASS(BlueprintType, Blueprintable)
 class USignComponentVariableName : public UObject
@@ -12,9 +22,15 @@ class USignComponentVariableName : public UObject
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText Name;
 
 	UFUNCTION(BlueprintPure)
 	FText GetName() { return Name; }
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MultiLine="true"))
+	FText TooltipText;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Instanced)
+	USignComponentVariableEditorBase* VariableEditor = nullptr;
 };

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SignComponentVariableEditor.h"
+#include "SignBindingsProvider.h"
 #include "SignComponentVariableName.h"
 #include "UObject/Object.h"
 #include "SignComponentDescriptor.generated.h"
@@ -38,6 +38,47 @@ public:
 };
 
 USTRUCT(BlueprintType)
+struct FSignComponentVariableMetaData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FName Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FString Value;
+
+	FSignComponentVariableMetaData(){}
+	FSignComponentVariableMetaData(FName InName, FString InValue) : Name(InName), Value(InValue){}
+
+	bool operator==(const FSignComponentVariableMetaData& Other) const
+	{
+		return Name == Other.Name && Value == Other.Value;
+	}
+	
+};
+
+USTRUCT(Blueprintable, BlueprintType)
+struct FSignComponentVariableEditorMetadata
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FString Category;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool GroupWithSameEntries;
+
+	bool operator==(const FSignComponentVariableEditorMetadata& Other) const
+	{
+		return Category == Other.Category
+		&& GroupWithSameEntries == Other.GroupWithSameEntries;
+	}
+};
+
+USTRUCT(BlueprintType)
 struct FSignComponentVariableData
 {
 	GENERATED_BODY()
@@ -50,19 +91,59 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FString Data;
 
+	/*
+	 * Value that will be used in editor preview when this variable is bound to some input.
+	 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, SaveGame)
+	FString DefaultValue = "[BIND PLACEHOLDER]";
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentVariableMetaData> MetaData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TSubclassOf<USignComponentVariableEditor> ValueEditorClass;
+	FSignComponentVariableEditorMetadata EditorMetadata;
 
 	bool operator==(const FSignComponentVariableData& Other) const
 	{
 		return
 		Name == Other.Name
 		&& Data == Other.Data
+		&& DefaultValue == Other.DefaultValue
 		&& MetaData == Other.MetaData
-		&& ValueEditorClass == Other.ValueEditorClass;
+		&& EditorMetadata == Other.EditorMetadata;
+	}
+
+	void SetValue(const FString& NewValue)
+	{
+		if(!USignBindingsFunctions::IsBinding(Data)) Data = NewValue;
+		else DefaultValue = NewValue;
+	}
+};
+
+USTRUCT(Blueprintable, BlueprintType)
+struct FSignComponentEditorMetadata
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FText ComponentName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FString Category;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool CanInteract = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool Visible = true;
+
+	bool operator==(const FSignComponentEditorMetadata& Other) const
+	{
+		return ComponentName.EqualTo(Other.ComponentName)
+		&& Category == Other.Category
+		&& CanInteract == Other.CanInteract
+		&& Visible == Other.Visible;
 	}
 };
 
@@ -79,6 +160,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentVariableData> Variables;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	FSignComponentEditorMetadata Metadata;
+
 	FSignComponentData(){}
 	FSignComponentData(TSubclassOf<USignComponentDescriptor> Descriptor, const TArray<FSignComponentVariableData>& InVariables) : ComponentDescriptor(Descriptor), Variables(InVariables) {}
 
@@ -86,7 +170,8 @@ public:
 	{
 		return
 		ComponentDescriptor == Other.ComponentDescriptor
-		&& Variables == Other.Variables;
+		&& Variables == Other.Variables
+		&& Metadata == Other.Metadata;
 	}
 };
 
@@ -99,26 +184,30 @@ class USignComponentUtilityFunctions : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintPure)
-	static FString GetBindingPrefixString() { return "\u25C8"; }
-
-	UFUNCTION(BlueprintPure)
-	static UUserWidget* GetTooltipWidget(TSubclassOf<USignComponentDescriptor> Descriptor)
+	static UUserWidget* GetTooltipWidget(const FSignComponentData& Data)
 	{
-		return Descriptor.GetDefaultObject()->GetEditorComponentTooltipWidget();
+		return Data.ComponentDescriptor.GetDefaultObject()->GetEditorComponentTooltipWidget();
 	}
 
 	UFUNCTION(BlueprintPure)
-	static TSubclassOf<UUserWidget> GetEditorWidget(TSubclassOf<USignComponentDescriptor> Descriptor)
+	static TSubclassOf<UUserWidget> GetEditorWidget(const FSignComponentData& Data)
 	{
-		if(auto CDO = Descriptor.GetDefaultObject()) return CDO->EditorWidget;
+		if(auto CDO = Data.ComponentDescriptor.GetDefaultObject()) return CDO->EditorWidget;
 		return nullptr;
 	}
 
 	UFUNCTION(BlueprintPure)
-	static TSubclassOf<UUserWidget> GetRuntimeWidget(TSubclassOf<USignComponentDescriptor> Descriptor)
+	static TSubclassOf<UUserWidget> GetRuntimeWidget(const FSignComponentData& Data)
 	{
-		if(auto CDO = Descriptor.GetDefaultObject()) return CDO->SignWidget;
+		if(auto CDO = Data.ComponentDescriptor.GetDefaultObject()) return CDO->SignWidget;
 		return nullptr;
+	}
+
+	UFUNCTION(BlueprintPure)
+	static FString GetConstValue(const FSignComponentVariableData& Variable)
+	{
+		if(!USignBindingsFunctions::IsBinding(Variable.Data)) return Variable.Data;
+		else return Variable.DefaultValue;
 	}
 	
 	UFUNCTION(BlueprintPure, meta=(ScriptOperator="=="), DisplayName="Compare sign component variable")

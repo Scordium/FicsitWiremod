@@ -8,6 +8,7 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/FileUtilities.h"
 #include "CommonLib/PlayerOwnedClipboardData.h"
+#include "Components/SignBindingsProvider.h"
 #include "Components/SignComponentBase.h"
 #include "Components/SignComponentDescriptor.h"
 #include "ManagedSign.generated.h"
@@ -133,7 +134,7 @@ public:
 		TArray<FBuildingConnection> Out;
 		for(auto& Connection : Data.Connections)
 		{
-			Out.Add(FBuildingConnection(Connection.Name, Connection.Name, Connection.Type));
+			Out.Add(FBuildingConnection(Connection.Name, Connection.InternalName.ToString(), Connection.Type));
 		}
 
 		return Out;

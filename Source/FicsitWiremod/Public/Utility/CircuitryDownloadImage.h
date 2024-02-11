@@ -92,6 +92,17 @@ public:
 				return;
 			}
 		}
+
+		if(Url.StartsWith("asset://"))
+		{
+			FString AssetPath = Url;
+			AssetPath.ReplaceInline(*FString("asset://"), *FString());
+			const auto Texture = Cast<UTexture>(FSoftObjectPath(AssetPath).TryLoad());
+
+			OnFinish.ExecuteIfBound(Texture, Texture != nullptr);
+			
+			return;
+		}
 		
 		UCircuitryDownloadImage* DownloadTask = NewObject<UCircuitryDownloadImage>();
 		auto CacheObject = FCircuitryImageDownloadTask();

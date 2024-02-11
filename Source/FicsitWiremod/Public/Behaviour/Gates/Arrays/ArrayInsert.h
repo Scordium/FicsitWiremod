@@ -47,9 +47,10 @@ public:
 			//Disconnect the previous element input if the array type is not compatible with it.
 			if(!UConnectionTypeFunctions::IsValidConnectionPair(GetConnection(0).ConnectionType, Data.ConnectionType))
 				OnInputDisconnected_Internal(1);
+
+			SetInputType(1, UConnectionTypeFunctions::ArrayToBase(Data.ConnectionType));
 		}
 		Super::OnInputConnected_Implementation(Data, Index, Setter);
-		SetInputType(1, UConnectionTypeFunctions::ArrayToBase(Data.ConnectionType));
 	}
 	
 	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
