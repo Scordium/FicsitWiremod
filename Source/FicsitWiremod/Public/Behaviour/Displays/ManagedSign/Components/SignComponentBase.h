@@ -46,6 +46,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	TArray<UUserWidget*> GetAllComponentsOfClass(TSubclassOf<USignComponentDescriptor> ComponentClass);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void RefreshComponentList();
 };
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FUpdateEditorVariableValue, const FSignComponentVariableData&, Data);
@@ -127,7 +130,15 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void InstantiateVariableEditors();
-	
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void DestroyComponent();
+	void DestroyComponent_Implementation()
+	{
+		OnComponentFocusChanged.Broadcast(this, false);
+		RemoveFromParent();
+		IManagedSignEditorWindow::Execute_RefreshComponentList(Parent.GetObject());
+	}
 protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
