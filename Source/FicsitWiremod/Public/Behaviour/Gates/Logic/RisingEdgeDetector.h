@@ -43,6 +43,6 @@ public:
 	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	bool Out;
 
-	UPROPERTY(VisibleInstanceOnly)
+	UPROPERTY(VisibleInstanceOnly, SaveGame)
 	bool HasChangedLastFrame;
 };
