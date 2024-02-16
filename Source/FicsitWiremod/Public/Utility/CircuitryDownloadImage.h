@@ -93,6 +93,7 @@ public:
 			}
 		}
 
+		//If the url starts with "asset://" then we should return whatever we find in that path
 		if(Url.StartsWith("asset://"))
 		{
 			FString AssetPath = Url;
@@ -102,6 +103,17 @@ public:
 			OnFinish.ExecuteIfBound(Texture, Texture != nullptr);
 			
 			return;
+		}
+		//However for backwards compatibility we should check for old path that didn't contain that string.
+		//If we don't find anything then it's probably just a url without a protocol specified, so we shouldn't return null.
+		else if(!Url.Contains("://"))
+		{
+			const auto Texture = Cast<UTexture>(FSoftObjectPath(Url).TryLoad());
+			if(Texture)
+			{
+				OnFinish.ExecuteIfBound(Texture, true);
+				return;
+			}
 		}
 		
 		UCircuitryDownloadImage* DownloadTask = NewObject<UCircuitryDownloadImage>();
