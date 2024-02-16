@@ -76,8 +76,28 @@ public:
 	void InjectMappings()
 	{
 		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
-		auto EnhancedInputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player->GetLocalPlayer());
+		if(!Player)
+		{
+			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY TOOL KEYBIND HANDLER] Somehow, the player reference was null when injecting mappings.");
+			return;
+		}
+		
+		auto LocalPlayer = Player->GetLocalPlayer();
+		if(!LocalPlayer)
+		{
+			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY TOOL KEYBIND HANDLER] Somehow, the local player reference was null when injecting mappings.");
+			return;
+		}
+		
+		auto EnhancedInputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+		if(!EnhancedInputSystem)
+		{
+			ACircuitryLogger::DispatchErrorEvent("[KEYBIND HANDLER] Input System is nullptr.");
+			return;
+		}
+		
 		for(auto& InputsContext : InputsContexts) EnhancedInputSystem->AddMappingContext(InputsContext.Value, MappingContextPriority);
+		ApplyScrollWheelPatch();
 	}
 
 	void EjectMappings()
@@ -97,8 +117,19 @@ public:
 		}
 		
 		auto EnhancedInputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+		if(!EnhancedInputSystem)
+		{
+			ACircuitryLogger::DispatchErrorEvent("[KEYBIND HANDLER] Input System is nullptr.");
+			return;
+		}
+		
 		for(auto& InputsContext : InputsContexts) EnhancedInputSystem->RemoveMappingContext(InputsContext.Value);
+		RemoveScrollWheelPatch();
 	}
+
+	
+	UFUNCTION(BlueprintImplementableEvent) void ApplyScrollWheelPatch();
+	UFUNCTION(BlueprintImplementableEvent) void RemoveScrollWheelPatch();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int MappingContextPriority = 10000;
