@@ -51,7 +51,16 @@ public:
 	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard) override
 	{
 		auto Val = Cast<UCustomStructClipboard>(factoryClipboard);
-		SetCustomStruct_Internal(Val->Value);
+		auto NewStruct = FCustomStruct();
+		NewStruct.Name = Val->Value.Name;
+		
+		for(auto& Property : Val->Value.Values)
+		{
+			auto NewPropertyValue = UCCDynamicValueUtils::FromType(Property.Value ? Property.Value->ConnectionType.GetValue() : Unknown, this);
+			NewStruct.Values.Add(FNamedDynamicValue(Property.Name, NewPropertyValue));
+		}
+		
+		SetCustomStruct_Internal(NewStruct);
 		return true;
 	}
 
