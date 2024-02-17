@@ -26,7 +26,7 @@ struct FNamedValue
 
 	FName GetInternalName() const
 	{
-		if(InternalName == "None") return FName(FGuid::NewGuid().ToString());
+		if(InternalName.IsNone()) return FName(FGuid::NewGuid().ToString());
 		return InternalName;
 	}
 

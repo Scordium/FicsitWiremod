@@ -117,18 +117,18 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void AddList(FString modReference, UDataTable* list, bool allowOverwrite = false)
+	void AddList(const FString& ModReference, UDataTable* list, bool allowOverwrite = false)
 	{
-		if(Data.ConnectionLists.Contains(modReference) && !allowOverwrite) return;
+		if(Data.ConnectionLists.Contains(ModReference) && !allowOverwrite) return;
 
-		ACircuitryLogger::DispatchEvent("[CIRCUITRY API] New connections list was added at runtime. {Mod reference:" + modReference + " | Entries count:" + CC_INT(list->GetRowNames().Num()) + "}", ELogVerbosity::Display);
-		Data.ConnectionLists.Add(modReference, list);
+		ACircuitryLogger::DispatchEvent("[CIRCUITRY API] New connections list was added at runtime. {Mod reference:" + ModReference + " | Entries count:" + CC_INT(list->GetRowNames().Num()) + "}", ELogVerbosity::Display);
+		Data.ConnectionLists.Add(ModReference, list);
 	}
 
 	UFUNCTION(BlueprintPure)
-	UDataTable* GetListOrDefault(FString modReference)
+	UDataTable* GetListOrDefault(const FString& ModReference)
 	{
-		if(Data.ConnectionLists.Contains(modReference)) return *Data.ConnectionLists.Find(modReference);
+		if(Data.ConnectionLists.Contains(ModReference)) return *Data.ConnectionLists.Find(ModReference);
 		return Data.FactoryGameList;
 	}
 
@@ -150,21 +150,10 @@ public:
 	{
 		if(!IsValid(Buildable)) return FBuildingConnections();
 		
-		auto modReference = UWiremodUtils::GetModReference(Buildable->GetClass());
-		
-		auto list = GetListOrDefault(modReference);
-		auto className = UWiremodUtils::GetClassName(Buildable->GetClass());
+		auto ModReference = UWiremodUtils::GetModReference(Buildable->GetClass());
+		auto ClassName = UWiremodUtils::GetClassName(Buildable->GetClass());
 
-		if(list->GetRowNames().Contains(className))
-		{
-			auto row = list->FindRow<FBuildingConnections>(className, "");
-			
-			if(row->RedirectTo.ToString() == "None") return *row;
-
-			return FindRedirectedList(row->RedirectTo.ToString());
-		}
-
-		return FBuildingConnections();
+		return FindRedirectedList(ModReference + "__" + ClassName.ToString());
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -180,23 +169,28 @@ public:
 		}
 	}
 
-	FBuildingConnections FindRedirectedList(FString redirector)
+	FBuildingConnections FindRedirectedList(const FString& Redirector)
 	{
 		//Format the redirector
-		FString listReference;
-		FString objectReference;
-		redirector.Split("__", &listReference, &objectReference);
+		FString ModReference;
+		FString ObjectReference;
+		if(!Redirector.Split("__", &ModReference, &ObjectReference))
+		{
+			ACircuitryLogger::DispatchErrorEvent("Redirector '" + Redirector + "' has invalid format!");
+			return FBuildingConnections();
+		}
 
 
 		//Get the list from formatted redirector and check if it contains the row we're looking for
-		auto list = GetListOrDefault(listReference);
-		if(!list->GetRowNames().Contains(FName(objectReference))) return FBuildingConnections();
+		const auto List = GetListOrDefault(ModReference);
+		if(!List->GetRowNames().Contains(FName(ObjectReference))) return FBuildingConnections();
 
 		//If the found row also has a redirector, recursively search for the source.
-		auto row = list->FindRow<FBuildingConnections>(FName(objectReference), "");
-		if(row->RedirectTo.ToString() == "None") return *row;
+		const auto Row = List->FindRow<FBuildingConnections>(FName(ObjectReference), "");
+		if(!Row->RedirectTo.IsNone()) return FindRedirectedList(Row->RedirectTo.ToString());
 
-		return FindRedirectedList(row->RedirectTo.ToString());
+		//Otherwise return the data.
+		return *Row;
 	}
 
 	

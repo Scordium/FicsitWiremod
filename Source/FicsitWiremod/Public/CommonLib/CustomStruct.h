@@ -38,7 +38,7 @@ public:
 
 	FName GetInternalName()
 	{
-		if(InternalName == "None") InternalName = FName(Name);
+		if(InternalName.IsNone()) InternalName = FName(Name);
 
 		return InternalName;
 	}
