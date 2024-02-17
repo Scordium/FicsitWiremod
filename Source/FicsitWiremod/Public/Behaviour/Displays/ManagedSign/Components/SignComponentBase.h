@@ -63,7 +63,7 @@ public:
 	//For some reason UE refuses to tick with blueprint function, so i have to do this shit...
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override { CustomTick(MyGeometry, InDeltaTime); }
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSignComponentData ComponentData;
 	
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
@@ -123,7 +123,19 @@ public:
 	 * Gets called after "Initialize Component" to apply all current variable values to the component
 	 */
 	UFUNCTION(BlueprintCallable)
-	void LoadVariableValues(const TArray<FSignComponentVariableData>& VariablesData) { for(auto& NewVar : VariablesData) HandleVariableUpdate(NewVar); }
+	void LoadData(const FSignComponentData& Data)
+	{
+		ComponentData.ComponentDescriptor = Data.ComponentDescriptor;
+		ComponentData.Metadata = Data.Metadata;
+		for(auto& NewVar : Data.Variables)
+		{
+			HandleVariableUpdate(NewVar);
+			for(auto& NewVarMetadata : NewVar.MetaData)
+			{
+				UpdateVariableMetadata(NewVar.Name, NewVarMetadata.Name, NewVarMetadata.Value);
+			}
+		}
+	}
 
 	/*
 	 * Gets called when this component pushes its variables to configuration window
