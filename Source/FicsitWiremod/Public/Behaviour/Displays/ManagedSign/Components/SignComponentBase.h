@@ -70,7 +70,7 @@ public:
 	FText GetComponentName();
 	FText GetComponentName_Implementation()
 	{
-		return ComponentData.Metadata.ComponentName.ToString().Len() == 0
+		return ComponentData.Metadata.ComponentName.IsEmptyOrWhitespace()
 		? ComponentData.ComponentDescriptor.GetDefaultObject()->DisplayName
 		: ComponentData.Metadata.ComponentName;
 	}

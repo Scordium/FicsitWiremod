@@ -12,7 +12,7 @@
 /**
  * 
  */
-UCLASS(BlueprintType, Blueprintable)
+UCLASS(BlueprintType, Blueprintable, Abstract)
 class FICSITWIREMOD_API USignComponentDescriptor : public UObject
 {
 	GENERATED_BODY()
@@ -127,10 +127,10 @@ struct FSignComponentEditorMetadata
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FText ComponentName;
+	FText ComponentName = FText::FromString("");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FString Category;
+	FString Category = "";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	bool CanInteract = true;
