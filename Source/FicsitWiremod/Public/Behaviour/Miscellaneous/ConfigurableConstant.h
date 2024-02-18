@@ -128,9 +128,9 @@ public:
 		OnRep_ValuesUpdated();
 	}
 
-	UFUNCTION() void netFunc_setValueByValueString(FString Name, EConnectionType Type, FString Value)
+	UFUNCTION() void netFunc_setValueByValueString(FString Name, int CircuitryType, FString Value)
 	{
-		auto ValueObject = UCCDynamicValueUtils::FromWrapper(this, FDynamicValueStringWrapper(Type, Value));
+		auto ValueObject = UCCDynamicValueUtils::FromWrapper(this, FDynamicValueStringWrapper((EConnectionType)CircuitryType, Value));
 		CreateNewOrUpdate(FNamedDynamicValue(Name, ValueObject));
 	}
 	
