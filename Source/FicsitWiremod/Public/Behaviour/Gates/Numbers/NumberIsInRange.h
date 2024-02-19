@@ -13,24 +13,53 @@ class FICSITWIREMOD_API ANumberIsInRange : public AFGWiremodBuildable
 
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
-    	{
-    		Out = UKismetMathLibrary::InRange_FloatFloat(
-    			GetConnection(0).GetFloat(),
-    			GetConnection(1).GetFloat(),
-    			GetConnection(2).GetFloat(),
-    			GetConnection(4).GetBool(),
-    			GetConnection(5).GetBool()
-    			);
-    	}
+	{
+		const auto Value = GetConnection(0).GetFloat();
+		const auto Min = GetConnection(1).GetFloat();
+		const auto Max = GetConnection(2).GetFloat();
+
+		const bool InclusiveMin = GetConnection(3).GetBool();
+		const bool InclusiveMax = GetConnection(4).GetBool();
+		
+		const bool IsGreaterThanMin = InclusiveMin ? (Value >= Min) : (Value > Min);
+		const bool IsLesserThanMax = InclusiveMax ? (Value <= Max) : (Value < Max);
+
+		if(!IsGreaterThanMin)
+		{
+			Below = true;
+			Out = false;
+			Above = false;
+		}
+		else if(!IsLesserThanMax)
+		{
+			Below = false;
+			Out = false;
+			Above = true;
+		}
+		else
+		{
+			Below = false;
+			Out = IsGreaterThanMin && IsLesserThanMax;
+			Above = false;
+		}
+	}
     
-    	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
-    	{
-    		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
+	{
+		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     
-    		DOREPLIFETIME(ANumberIsInRange, Out);
-    	}
+		DOREPLIFETIME(ANumberIsInRange, Out);
+		DOREPLIFETIME(ANumberIsInRange, Below);
+		DOREPLIFETIME(ANumberIsInRange, Above);
+	}
     
     
-    	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
-    	bool Out;
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
+	bool Out;
+
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
+	bool Below;
+	
+	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
+	bool Above;
 };
