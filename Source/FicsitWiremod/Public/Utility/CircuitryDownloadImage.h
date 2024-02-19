@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "HttpModule.h"
+#include "CommonLib/TextureUtilities.h"
+#include "Engine/DataTable.h"
+#include "ModLoading/ModLoadingLibrary.h"
 #include "Subsystem/ModSubsystem.h"
 #include "CircuitryDownloadImage.generated.h"
 
@@ -70,6 +73,58 @@ struct FCircuitryImageDownloadTask
 	}
 };
 
+UCLASS(BlueprintType, Blueprintable)
+class UCircuitryImageObject : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly) FTextureAssetData Data;
+
+
+	UFUNCTION(BlueprintCallable)
+	bool DoesFitFilter(const FText& Text, bool Modded, bool Vanilla, bool Buildables, bool Items, bool Other, bool UI)
+	{
+		auto StringText = Text.ToString();
+
+		if(StringText.Len() > 0)
+		{
+			bool TextMatch = false;
+			
+			if(Data.OwnerPlugin.Contains(StringText)) TextMatch = true;
+			else if(Data.Texture->GetName().Contains(StringText)) TextMatch = true;
+			else if(Data.ReadableName.ToString().Contains(StringText)) TextMatch = true;
+			else
+			{
+				FString ModName;
+				if(Data.OwnerPlugin == "Game" || Data.OwnerPlugin == "FactoryGame") ModName = "Satisfactory";
+				else
+				{
+					FModInfo ModInfo;
+					GetWorld()->GetGameInstance()->GetSubsystem<UModLoadingLibrary>()->GetLoadedModInfo(Data.OwnerPlugin, ModInfo);
+
+					ModName = ModInfo.FriendlyName;
+				}
+
+				if(ModName.Contains(StringText)) TextMatch = true;
+			}
+
+			if(!TextMatch) return false;
+		}
+
+		if(Data.AssetSource == Mod && !Modded) return false;
+		if(Data.AssetSource == Game && !Vanilla) return false;
+
+
+		if(Data.Category == TAC_Item && !Items) return false;
+		if(Data.Category == TAC_Buildable && !Buildables) return false;
+		if(Data.Category == TAC_Interface && !UI) return false;
+		if((Data.Category == TAC_Other || Data.Category == TAC_Rendering) && !Other) return false;
+
+		return true;
+	}
+};
+
 UCLASS()
 class ACircuitryImageStorage : public AModSubsystem
 {
@@ -81,6 +136,39 @@ class ACircuitryImageStorage : public AModSubsystem
 	}
 
 public:
+
+	virtual void BeginPlay() override
+	{
+		Super::BeginPlay();
+
+		RefreshTextureAssetStorage();
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void RefreshTextureAssetStorage()
+	{
+		TextureAssets.Empty();
+		auto Assets = UTextureUtilities::GetAllTextureAssets(false, false, true);
+
+		for(auto& Asset : Assets)
+		{
+			if(!Asset.Texture) continue;
+			
+			auto AssetName = FName(Asset.Texture->GetName());
+
+			auto DataRow = TextureAssetDescriptorTable->FindRow<FTextureAssetMetadata>(AssetName, "");
+			if(DataRow)
+			{
+				if(DataRow->Ignored) continue;
+				Asset.WithMetadata(*DataRow);
+			}
+
+			auto AssetCacheObject = NewObject<UCircuitryImageObject>(this);
+			AssetCacheObject->Data = Asset;
+			TextureAssets.Add(AssetCacheObject);
+		}
+	}
+	
 	UFUNCTION(BlueprintCallable)
 	void DownloadImage(const FString& Url, FCircuitryDownloadImageDelegate OnFinish, bool AllowCache = true)
 	{
@@ -132,7 +220,13 @@ public:
 		if(!CachedTask) return;
 		CachedTask->OnDownloadFinished(ResultTexture, DownloadSuccess);
 	}
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UDataTable* TextureAssetDescriptorTable;
 	
 	UPROPERTY()
 	TMap<FString, FCircuitryImageDownloadTask> Cache;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<UCircuitryImageObject*> TextureAssets;
 };

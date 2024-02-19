@@ -7,10 +7,10 @@
 #include "FGInventoryComponent.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/Image.h"
+#include "Engine/DataTable.h"
 #include "Engine/Texture2DDynamic.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Resources/FGItemDescriptor.h"
-#include "Utility/CircuitryDownloadImage.h"
 #include "TextureUtilities.generated.h"
 
 UENUM(Blueprintable, BlueprintType)
@@ -31,6 +31,25 @@ enum ETextureAssetCategory
 	TAC_Interface UMETA(DisplayName="UI"),
 	TAC_Rendering UMETA(DisplayName="Rendering/Material texture"),
 	TAC_Other UMETA(DisplayName="Other")
+};
+
+USTRUCT()
+struct FTextureAssetMetadata : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	bool Ignored;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FText ReadableName;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TEnumAsByte<ETextureAssetSource> Source;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TEnumAsByte<ETextureAssetCategory> Category;
 };
 
 USTRUCT(Blueprintable, BlueprintType)
@@ -56,7 +75,13 @@ struct FTextureAssetData
 	FTextureAssetData(){}
 
 	FTextureAssetData(const FString& Owner, UObject* TextureAsset) : OwnerPlugin(Owner), Texture(TextureAsset){}
-	
+
+	void WithMetadata(const FTextureAssetMetadata& Metadata)
+	{
+		ReadableName = Metadata.ReadableName;
+		AssetSource = Metadata.Source;
+		Category = Metadata.Category;
+	}
 };
 /**
  * 
