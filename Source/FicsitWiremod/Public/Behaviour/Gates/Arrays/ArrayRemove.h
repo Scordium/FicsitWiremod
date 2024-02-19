@@ -15,7 +15,7 @@ class FICSITWIREMOD_API AArrayRemove : public AFGWiremodBuildable, public IDynam
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? Out->GetWorld() : this->GetWorld());
+		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out);
 		const int Index = GetConnection(1).GetFloat();
 		if(auto Array = Cast<UCCArrayValueBase>(Out)) Array->RemoveElement(Index);
 		

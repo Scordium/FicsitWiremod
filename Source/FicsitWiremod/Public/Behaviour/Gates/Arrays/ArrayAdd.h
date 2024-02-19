@@ -15,7 +15,7 @@ class FICSITWIREMOD_API AArrayAdd : public AFGWiremodBuildable, public IDynamicV
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? Out->GetWorld() : this->GetWorld());
+		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out);
 		
 		if(auto Array = Cast<UCCArrayValueBase>(Out))
 			Array->AddElement(GetConnection(1));

@@ -15,21 +15,14 @@ class FICSITWIREMOD_API AArrayGet : public AFGWiremodBuildable, public IDynamicV
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		auto Value = UCCDynamicValueUtils::FromValue(GetConnection(0), this);
-		if(auto Array = Cast<UCCArrayValueBase>(Value))
+		ArrayCache = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(0), ArrayCache));
+		if(ArrayCache)
 		{
-			Out = Array->GetElement(GetConnection(1).GetFloat());
+			Out = ArrayCache->GetElement(GetConnection(1).GetFloat());
 		}
 		else Out = nullptr;
 		
 		SetOutputType(0, Out ? Out->ConnectionType.GetValue() : Unknown);
-	}
-
-	//Moved implementation out of process function to allow other gates to use this.
-	static UCCDynamicValueBase* GetArrayElement(const FConnectionData& Array, const int Index)
-	{
-		auto Out = UCCDynamicValueUtils::FromValue(Array, Array.Object);
-		return Cast<UCCArrayValueBase>(Out)->GetElement(Index);
 	}
     
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
@@ -49,4 +42,7 @@ public:
 	
 	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	UCCDynamicValueBase* Out;
+
+	UPROPERTY()
+	UCCArrayValueBase* ArrayCache;
 };

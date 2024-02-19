@@ -18,7 +18,7 @@ public:
 	{
 		const int NewSize = GetConnection(1).GetFloat();
 		
-		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? Out->GetWorld() : this->GetWorld());
+		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out);
 		if(auto Array = Cast<UCCArrayValueBase>(Out)) Array->Resize(NewSize);
 		
 		SetOutputType(0, Out ? Out->ConnectionType.GetValue() : Unknown);

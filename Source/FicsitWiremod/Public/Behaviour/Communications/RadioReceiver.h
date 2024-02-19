@@ -31,7 +31,7 @@ public:
 	{
 		if(TransmitterReference)
 		{
-			DataReceived = UCCDynamicValueUtils::FromValue(TransmitterReference->GetConnection(0), DataReceived ? DataReceived->GetWorld() : this->GetWorld());
+			DataReceived = UCCDynamicValueUtils::FromValue(TransmitterReference->GetConnection(0), DataReceived);
 			SetOutputType(0, DataReceived ? DataReceived->ConnectionType.GetValue() : DefaultConnectionType.GetValue());
 		}
 		else SetOutputType(0, DefaultConnectionType.GetValue());

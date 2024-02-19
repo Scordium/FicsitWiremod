@@ -17,7 +17,7 @@ public:
 	{
 		const int Index = GetConnection(2).GetFloat();
 		
-		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? Out->GetWorld() : this->GetWorld());
+		Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out);
 		if(auto Array = Cast<UCCArrayValueBase>(Out))
 			Array->SetElement(GetConnection(1), Index);
 		

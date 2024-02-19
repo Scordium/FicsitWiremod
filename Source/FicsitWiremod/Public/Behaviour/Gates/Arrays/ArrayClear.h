@@ -15,7 +15,7 @@ class FICSITWIREMOD_API AArrayClear : public AFGWiremodBuildable, public IDynami
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		Out = UCCDynamicValueUtils::FromType(GetConnection(0).ConnectionType, Out ? Out->GetWorld() : this->GetWorld());
+		Out = UCCDynamicValueUtils::FromType(GetConnection(0).ConnectionType, Out);
 		if(auto Array = Cast<UCCArrayValueBase>(Out)) Array->Clear();
 		
 		SetOutputType(0, Out ? Out->ConnectionType.GetValue() : Unknown);

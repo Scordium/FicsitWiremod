@@ -102,7 +102,7 @@ public:
 		if(OfType == AnyNonArray) SetOutputType(0, Unknown);
 		else
 		{
-			Out = UCCDynamicValueUtils::FromType(UConnectionTypeFunctions::BaseToArray(OfType), Out ? Out->GetWorld() : this->GetWorld());
+			Out = UCCDynamicValueUtils::FromType(UConnectionTypeFunctions::BaseToArray(OfType), Out ? (UObject*)Out : (UObject*)this);
 			SetOutputType(0, UConnectionTypeFunctions::BaseToArray(OfType));
 		}
 	}

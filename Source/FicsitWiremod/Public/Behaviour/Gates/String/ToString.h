@@ -47,7 +47,7 @@ public:
 			}
 
 		default:
-			ValueParserCache = UCCDynamicValueUtils::FromValue(GetConnection(0), ValueParserCache ? ValueParserCache->GetWorld() : this->GetWorld());
+			ValueParserCache = UCCDynamicValueUtils::FromValue(GetConnection(0), ValueParserCache);
 			if(ValueParserCache) Out = ValueParserCache->ToString();
 			else Out = "";
 			break;

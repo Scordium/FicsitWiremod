@@ -19,16 +19,16 @@ public:
 		if(CurrentStateIndex == 0)
 		{
 			if(GetConnection(0).GetBool())
-				Out = UCCDynamicValueUtils::FromValue(GetConnection(2), Out ? Out->GetWorld() : this->GetWorld());
+				Out = UCCDynamicValueUtils::FromValue(GetConnection(2), Out);
 			else
-				Out = UCCDynamicValueUtils::FromValue(GetConnection(1), Out ? Out->GetWorld() : this->GetWorld());
+				Out = UCCDynamicValueUtils::FromValue(GetConnection(1), Out);
 		}
 		//Alt mode - Select one from a list
 		else if (CurrentStateIndex == 1)
 		{
 			int Value = GetConnection(0).GetFloat() + 1;
 			if(IsConnected(Value))
-				Out = UCCDynamicValueUtils::FromValue(GetConnection(Value), Out ? Out->GetWorld() : this->GetWorld());
+				Out = UCCDynamicValueUtils::FromValue(GetConnection(Value), Out);
 			else
 				Out = nullptr;
 		}
