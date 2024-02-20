@@ -133,9 +133,12 @@ class ACircuitryImageStorage : public AModSubsystem
 	ACircuitryImageStorage()
 	{
 		ReplicationPolicy = ESubsystemReplicationPolicy::SpawnOnClient;
+		Self = this;
 	}
 
 public:
+
+	static inline ACircuitryImageStorage* Self;
 
 	virtual void BeginPlay() override
 	{
