@@ -6,7 +6,7 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "GameTimeSensor.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class FICSITWIREMOD_API AGameTimeSensor : public AFGWiremodBuildable
 {
 	GENERATED_BODY()
