@@ -41,6 +41,8 @@ public:
 			{
 				Result = (i == 0) ? Array[i] : Result / Array[i];
 			}
+
+			Out = Result;
 		}
 
 		//2 - Divide each array element by a value

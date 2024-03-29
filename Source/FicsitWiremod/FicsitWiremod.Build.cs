@@ -17,38 +17,30 @@ public class FicsitWiremod : ModuleRules
 		    "PhysicsCore",
 		    "InputCore",
 		    "CoreOnline",
-		    "SignificanceManager",
 		    "GeometryCollectionEngine",
-		    "ChaosVehiclesCore", "ChaosVehicles", "ChaosSolverEngine",
+		    "ChaosSolverEngine",
 		    "AnimGraphRuntime",
-		    "AkAudio",
 		    "AssetRegistry",
 		    "NavigationSystem",
-		    "ReplicationGraph",
 		    "AIModule",
 		    "GameplayTasks",
 		    "SlateCore", "Slate", "UMG",
 		    "RenderCore",
 		    "CinematicCamera",
 		    "Foliage",
-		    "Niagara",
 		    "EnhancedInput",
-		    "GameplayCameras",
-		    "TemplateSequence",
 		    "NetCore",
 		    "GameplayTags",
 		    "HTTP",
 		    "AudioMixer",
-		    "Synthesis",
 		    "Json",
 		    "JsonUtilities",
+		    "Synthesis"
 	    });
 
 	    // FactoryGame plugins
 	    PublicDependencyModuleNames.AddRange(new[] {
-		    "AbstractInstance",
-		    "InstancedSplinesComponent",
-		    "SignificanceISPC"
+		    "AbstractInstance"
 	    });
 
 	    // Header stubs

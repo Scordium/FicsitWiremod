@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGIconLibrary.h"
 #include "FGInventoryComponent.h"
+#include "WiremodUtils.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/Image.h"
 #include "Engine/DataTable.h"
@@ -61,7 +62,7 @@ struct FTextureAssetData
 	FString OwnerPlugin;
 
 	UPROPERTY(BlueprintReadOnly)
-	UObject* Texture = nullptr;
+	FSoftObjectPath Texture;
 
 	UPROPERTY(BlueprintReadWrite)
 	FText ReadableName = FText::FromString("N/A");
@@ -74,11 +75,14 @@ struct FTextureAssetData
 
 	FTextureAssetData(){}
 
-	FTextureAssetData(const FString& Owner, UObject* TextureAsset) : OwnerPlugin(Owner), Texture(TextureAsset){}
+	FTextureAssetData(const FString& Owner, const FSoftObjectPath& TextureAsset) : OwnerPlugin(Owner), Texture(TextureAsset)
+	{
+		ReadableName = FText::FromName(TextureAsset.GetAssetFName());
+	}
 
 	void WithMetadata(const FTextureAssetMetadata& Metadata)
 	{
-		ReadableName = Metadata.ReadableName;
+		if(!Metadata.ReadableName.IsEmpty()) ReadableName = Metadata.ReadableName;
 		AssetSource = Metadata.Source;
 		Category = Metadata.Category;
 	}
@@ -106,15 +110,12 @@ public:
 		
 			for(auto& AssetData : AssetsData)
 			{
-				auto Asset = AssetData.GetAsset();
-				if(!Asset) continue; //Not sure how this would happen, but adding it JIC
-				if(!Asset->IsA(UTexture2D::StaticClass())) continue; //This one shouldn't happen as well.
-				
-				auto AssetOwner = UWiremodUtils::GetModReference(Asset);
-				auto OutputData = FTextureAssetData(AssetOwner, Asset);
+				const auto AssetPath = AssetData.GetSoftObjectPath();
+				auto AssetOwner = UWiremodUtils::GetModReferenceFromObjectPath(AssetPath);
+				auto OutputData = FTextureAssetData(AssetOwner, AssetData.GetSoftObjectPath());
 				
 				//Check for engine content
-				bool IsEngineContent = AssetOwner == "Engine" || AssetOwner == "Wwise" || AssetOwner == "FortniteMain" || AssetOwner == "Paper2D" || AssetOwner == "SpeedTreeImporter" || AssetOwner == "Niagara";
+				bool IsEngineContent = EngineAssetPaths.Contains(AssetOwner);
 				if(IsEngineContent)
 				{
 					if(!IncludeEngineContent) continue;
@@ -130,7 +131,7 @@ public:
 				{
 					//Check for normals, albedo, reflection, etc. textures
 					//In other words textures used for materials rather than UI and stuff
-					bool IsMaterialTexture = Asset->GetPathName().Contains("/Textures") || Asset->GetPathName().Contains("/Texture");
+					bool IsMaterialTexture = AssetPath.GetAssetPathString().Contains("/Textures") || AssetPath.GetAssetPathString().Contains("/Texture");
 					if(IsMaterialTexture)
 					{
 						if(!IncludeMaterialData) continue;
@@ -219,4 +220,15 @@ public:
 
 	static inline TMap<TSoftObjectPtr<UTexture2D>, int32> TextureToIconMap;
 	static inline TMap<int32, TSoftObjectPtr<UTexture2D>> IconToTextureMap;
+
+	static inline TArray<FString> EngineAssetPaths =
+	{
+		"Engine",
+		"FortniteMain",
+		"Wwise",
+		"SpeedTreeImporter",
+		"Paper2D",
+		"Niagara",
+		"Interchange"
+	};
 };

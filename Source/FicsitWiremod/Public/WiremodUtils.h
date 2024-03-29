@@ -41,6 +41,16 @@ public:
 		
 		return pathParse[0];
 	}
+
+	UFUNCTION(BlueprintPure)
+	static FString GetModReferenceFromObjectPath(const FSoftObjectPath& ObjectPath)
+	{
+		TArray<FString> pathParse;
+		ObjectPath.GetAssetPath().ToString().ParseIntoArray(pathParse, *FString("/"), true);
+		if(pathParse.Num() == 0) return "";
+		
+		return pathParse[0];
+	}
     
     	
 	UFUNCTION(BlueprintPure)

@@ -50,13 +50,13 @@ struct FCircuitryImageDownloadTask
 	FDateTime FinishedAt = FDateTime::MinValue();
 
 	UPROPERTY()
-	UTexture* Texture = nullptr;
+	FSoftObjectPath Texture = nullptr;
 	
 	TArray<FCircuitryDownloadImageDelegate> Delegates;
 
 	void AddDelegate(const FCircuitryDownloadImageDelegate& Delegate)
 	{
-		if(Finished) Delegate.ExecuteIfBound(Texture, Success);
+		if(Finished) Delegate.ExecuteIfBound(Cast<UTexture>(Texture.TryLoad()), Success);
 		else Delegates.Add(Delegate);
 	}
 
@@ -72,6 +72,7 @@ struct FCircuitryImageDownloadTask
 		Delegates.Empty();
 	}
 };
+
 
 UCLASS(BlueprintType, Blueprintable)
 class UCircuitryImageObject : public UObject
@@ -92,7 +93,7 @@ public:
 			bool TextMatch = false;
 			
 			if(Data.OwnerPlugin.Contains(StringText)) TextMatch = true;
-			else if(Data.Texture->GetName().Contains(StringText)) TextMatch = true;
+			else if(Data.Texture.GetAssetName().Contains(StringText)) TextMatch = true;
 			else if(Data.ReadableName.ToString().Contains(StringText)) TextMatch = true;
 			else
 			{
@@ -123,6 +124,23 @@ public:
 
 		return true;
 	}
+
+	UFUNCTION(BlueprintPure)
+	UTexture2D* GetTexture()
+	{
+		if(!TexturePtr) TexturePtr = Cast<UTexture2D>(Data.Texture.TryLoad());
+		
+		return TexturePtr;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void FreeResource()
+	{
+		TexturePtr = nullptr;
+	}
+
+	UPROPERTY()
+	UTexture2D* TexturePtr;
 };
 
 UCLASS()
@@ -155,11 +173,9 @@ public:
 
 		for(auto& Asset : Assets)
 		{
-			if(!Asset.Texture) continue;
+			if(!Asset.Texture.IsValid()) continue;
 			
-			auto AssetName = FName(Asset.Texture->GetName());
-
-			auto DataRow = TextureAssetDescriptorTable->FindRow<FTextureAssetMetadata>(AssetName, "");
+			auto DataRow = TextureAssetDescriptorTable->FindRow<FTextureAssetMetadata>(Asset.Texture.GetAssetFName(), "", false);
 			if(DataRow)
 			{
 				if(DataRow->Ignored) continue;
