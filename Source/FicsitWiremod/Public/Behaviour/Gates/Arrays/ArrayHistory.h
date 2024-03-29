@@ -17,9 +17,14 @@ public:
 	{
 		if(!Cache) return;
 
+		//Clear array if needed
+		if(GetConnection(3).GetBool()) Cache->Clear();
+
+		//Set array size
 		const int MaxSize = GetConnection(1).GetFloat(60);
 		Cache->Resize(MaxSize);
 
+		//Insert element
 		if(GetConnection(2).GetBool())
 		{
 			if(HasTickedLastFrame) return;
