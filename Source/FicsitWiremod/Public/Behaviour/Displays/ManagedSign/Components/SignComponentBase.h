@@ -101,7 +101,11 @@ public:
 	void OnComponentTargeted_Implementation()
 	{
 		IsFocused = true;
-		if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject())) VariablesWindow->OnVariableUpdated.AddDynamic(this, &USignEditorComponentBase::HandleVariableUpdate);
+		if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject()))
+		{
+			VariablesWindow->OnVariableUpdated.AddDynamic(this, &USignEditorComponentBase::HandleVariableUpdate);
+			VariablesWindow->OnVariableMetadataUpdated.AddDynamic(this, &USignEditorComponentBase::HandleMetadataUpdate);
+		}
 	}
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
@@ -109,7 +113,11 @@ public:
 	void OnComponentUntargeted_Implementation()
 	{
 		IsFocused = false;
-		if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject())) VariablesWindow->OnVariableUpdated.RemoveDynamic(this, &USignEditorComponentBase::HandleVariableUpdate);
+		if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject()))
+		{
+			VariablesWindow->OnVariableUpdated.RemoveDynamic(this, &USignEditorComponentBase::HandleVariableUpdate);
+			VariablesWindow->OnVariableMetadataUpdated.RemoveDynamic(this, &USignEditorComponentBase::HandleMetadataUpdate);
+		}
 	}
 	
 	/*
@@ -172,6 +180,12 @@ protected:
 			}
 		}
 	}
+
+	UFUNCTION()
+	void HandleMetadataUpdate(TSubclassOf<USignComponentVariableName> VariableName, const FSignComponentVariableMetaData& MetaData)
+	{
+		UpdateVariableMetadata(VariableName, MetaData.Name, MetaData.Value);
+	}
 	
 	UFUNCTION(BlueprintCallable)
 	void UpdateVariableValue(TSubclassOf<USignComponentVariableName> VariableName, const FString& NewValue)
@@ -193,11 +207,14 @@ protected:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void UpdateVariableMetadata(TSubclassOf<USignComponentVariableName> VariableName, FName MetadataName, const FString& NewValue);
-	void UpdateVariableMetadata_Implementation(TSubclassOf<USignComponentVariableName> VariableName, FName MetadataName, const FString& NewValue)
+	void UpdateVariableMetadata(TSubclassOf<USignComponentVariableName> VariableName, FName MetadataName, const FString& NewValue, bool UpdateVariablesEditor = true);
+	void UpdateVariableMetadata_Implementation(TSubclassOf<USignComponentVariableName> VariableName, FName MetadataName, const FString& NewValue, bool UpdateVariablesEditor = true)
 	{
-		if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject()))
-			VariablesWindow->UpdateComponentMetaValue(VariableName, MetadataName, NewValue);
+		if(UpdateVariablesEditor)
+		{
+			if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject()))
+				VariablesWindow->UpdateComponentMetaValue(VariableName, MetadataName, NewValue);
+		}
 
 		for(auto& Var : ComponentData.Variables)
 		{

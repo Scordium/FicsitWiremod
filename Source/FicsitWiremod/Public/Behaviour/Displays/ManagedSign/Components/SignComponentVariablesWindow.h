@@ -8,6 +8,7 @@
 #include "SignComponentVariablesWindow.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnVariableUpdated, const FSignComponentVariableData&, Variable);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnVariableMetadataUpdated, TSubclassOf<USignComponentVariableName>, Variable, const FSignComponentVariableMetaData&, MetaData);
 
 /**
  * 
@@ -42,4 +43,7 @@ public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FOnVariableUpdated OnVariableUpdated;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable)
+	FOnVariableMetadataUpdated OnVariableMetadataUpdated;
 };
