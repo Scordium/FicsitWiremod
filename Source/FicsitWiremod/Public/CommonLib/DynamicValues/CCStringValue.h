@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
+#include "CCArrayValueBase.h"
 #include "FGTrainStationIdentifier.h"
 #include "ReflectionExternalFunctions.h"
 #include "Buildables/FGBuildableRailroadStation.h"
