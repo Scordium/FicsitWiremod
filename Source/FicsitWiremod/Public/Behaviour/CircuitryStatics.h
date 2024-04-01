@@ -4,9 +4,39 @@
 
 #include "CoreMinimal.h"
 #include "FGDecorationTemplate.h"
+#include "HttpModule.h"
+#include "Utility/CircuitryLogger.h"
+#include "Interfaces/IHttpResponse.h"
 #include "Module/GameInstanceModule.h"
 #include "CircuitryStatics.generated.h"
 
+
+UENUM(Blueprintable, BlueprintType)
+enum ECrosscatPatronLevel
+{
+	Bronze,
+	Silver,
+	Gold,
+	Platinum,
+	Premium
+};
+
+USTRUCT(Blueprintable, BlueprintType)
+struct FCrosscatPatronData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly) FString DisplayName;
+	UPROPERTY(BlueprintReadOnly) TEnumAsByte<ECrosscatPatronLevel> PatronLevel;
+
+	bool operator<(const FCrosscatPatronData& Other) const
+	{
+		return Other.PatronLevel < PatronLevel;
+	}
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPatronsListFetched, const TArray<FCrosscatPatronData>&, Data, bool, Success);
 /**
  * 
  */
@@ -16,6 +46,7 @@ class FICSITWIREMOD_API UCircuitryStatics : public UGameInstanceModule
 	GENERATED_BODY()
 	
 public:
+	static inline const FString PatronsListBaseUrl = "https://crosscat-is.me/patrons/";
 
 	static UStaticMesh* GetGateMesh(){ return Self ? Self->GateMesh : LoadObject<UStaticMesh>(NULL, *FString("/FicsitWiremod/Assets/Models/WiremodChipBase.WiremodChipBase")); }
 	static UStaticMesh* GetGateDecalMesh() { return Self ? Self->GateDecalMesh : LoadObject<UStaticMesh>(NULL, *FString("/Engine/BasicShapes/Plane.Plane")); }
@@ -75,6 +106,54 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetSelf() { Self = this; }
+
+	UFUNCTION(BlueprintCallable)
+	void FetchPatronsList()
+	{
+		auto Request = FHttpModule::Get().CreateRequest();
+		
+		Request->SetURL(PatronsListBaseUrl);
+		Request->OnProcessRequestComplete().BindUObject(this, &UCircuitryStatics::OnPatronsListFetchFinished);
+		Request->SetVerb("GET");
+		Request->SetTimeout(60);
+
+		if(!Request->ProcessRequest())
+		{
+			OnPatronsListFetched.Broadcast(TArray<FCrosscatPatronData>(), false);
+		}
+	}
+
+	void OnPatronsListFetchFinished(FHttpRequestPtr Request, FHttpResponsePtr Response, bool Success)
+	{
+		if(!Success)
+		{
+			ACircuitryLogger::DispatchErrorEvent("Failed to fetch patrons: " + Response->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")"); 
+			OnPatronsListFetched.Broadcast(TArray<FCrosscatPatronData>(), false);
+			return;
+		}
+		
+		auto Json = Response->GetContentAsString();
+		TSharedPtr<FJsonValue> Object;
+		
+		FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Json), Object);
+
+		TArray<FCrosscatPatronData> Patrons;
+
+		for(auto& JsonPatronData : Object->AsArray())
+		{
+			FCrosscatPatronData Data;
+			Data.DisplayName = JsonPatronData->AsObject()->GetStringField("DisplayName");
+			Data.PatronLevel = (ECrosscatPatronLevel)JsonPatronData->AsObject()->GetIntegerField("Level");
+
+			Patrons.Add(Data);
+		}
+
+		Patrons.Sort();
+		OnPatronsListFetched.Broadcast(Patrons, true);
+	}
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPatronsListFetched OnPatronsListFetched;
 };
 
 UCLASS()
