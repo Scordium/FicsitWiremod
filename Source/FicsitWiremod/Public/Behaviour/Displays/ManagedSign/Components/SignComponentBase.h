@@ -184,7 +184,7 @@ protected:
 	UFUNCTION()
 	void HandleMetadataUpdate(TSubclassOf<USignComponentVariableName> VariableName, const FSignComponentVariableMetaData& MetaData)
 	{
-		UpdateVariableMetadata(VariableName, MetaData.Name, MetaData.Value);
+		UpdateVariableMetadata(VariableName, MetaData.Name, MetaData.Value, false);
 	}
 	
 	UFUNCTION(BlueprintCallable)
