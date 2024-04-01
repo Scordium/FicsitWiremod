@@ -49,7 +49,7 @@ public class FicsitWiremod : ModuleRules
 	    });
 
 	    if (Target.Type == TargetRules.TargetType.Editor) {
-		    PublicDependencyModuleNames.AddRange(new string[] {"OnlineBlueprintSupport", "AnimGraph", "SynthesisEditor", "AssetRegistry"});
+		    PublicDependencyModuleNames.AddRange(new string[] {"SML", "OnlineBlueprintSupport", "AnimGraph", "SynthesisEditor", "AssetRegistry"});
 	    }
 	    PublicDependencyModuleNames.AddRange(new string[] {"FactoryGame", "SML"});
     }

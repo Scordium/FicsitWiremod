@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HttpModule.h"
+#include "CommonLib/FileUtilities.h"
 #include "WiremodUtils.h"
 #include "Behaviour/CircuitryConnectionsProvider.h"
 #include "Buildables/FGBuildable.h"
 #include "Engine/DataTable.h"
 #include "HAL/FileManagerGeneric.h"
+#include "Interfaces/IHttpResponse.h"
 #include "Subsystem/ModSubsystem.h"
 #include "UObject/Object.h"
 #include "WiremodAPI.generated.h"
@@ -41,13 +44,18 @@ public:
 	FWiremodAPIData Data;
 	
 	FString ForceFileUsePrefix = "CIRCUITRY_FORCEUSE_";
+	FString CompatibilityPackagesBaseUrl = "https://circuitry.crosscat-is.me/packages/";
 	
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
 		Self = this;
 		ParseLists();
+		FetchCompatibilityPackagesList();
 	}
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SendPackageInstallNotification(const FString& ModReference);
 
 	UFUNCTION(BlueprintCallable)
 	FString ParseLists(bool ForceOverwrite = false)
@@ -62,7 +70,8 @@ public:
 			FString PlaceholderFile = 
 			"This is a folder for circuitry API lists!\nDrop your JSON table in this folder and circuitry will attempt to add connections to buildings.\n"
 			"The file name must match the mod reference! i.e. Circuitry's mod reference is \"FicsitWiremod\"\n"
-			"In case circuitry already integrated the mod in question but you still want to use your own data list, you can force the file to be used as a data table by prefixing the file with \"" + ForceFileUsePrefix + "\"";
+			"In case circuitry already integrated the mod in question but you still want to use your own data list, you can force the file to be used as a data table by prefixing the file with \"" + ForceFileUsePrefix + "\""
+			"The API will also automatically fetch packages from the server, so this folder might be unexpectedly populated.";
 
 			FFileHelper::SaveStringToFile(PlaceholderFile, *FString(Path + "/README.txt"));
 			return "CIRCUITRY API directory does not exist";
@@ -92,9 +101,18 @@ public:
 			} else SuccessParse++;
 
 
-			FString ModRef = File
-			.Replace(*ForceFileUsePrefix, *FString())
-			.Replace(*FString(".json"), *FString(""));
+			FString ModRef;
+			FString Version;
+
+			//Made for backwards compatibility because the old jsons were not in the format of <MODREF>__<TIMESTAMP>
+			//If the file name failed to split then it's an old version
+			//But if it did then we'll get the mod reference from that split
+			if(!File.Split("__", &ModRef, &Version))
+			{
+				ModRef = File
+				.Replace(*ForceFileUsePrefix, *FString())
+				.Replace(*FString(".json"), *FString(""));
+			}
 			
 			AddList(ModRef, Table, File.StartsWith(ForceFileUsePrefix) || ForceOverwrite);
 		}
@@ -117,12 +135,12 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void AddList(const FString& ModReference, UDataTable* list, bool allowOverwrite = false)
+	void AddList(const FString& ModReference, UDataTable* List, bool AllowOverwrite = false)
 	{
-		if(Data.ConnectionLists.Contains(ModReference) && !allowOverwrite) return;
+		if(Data.ConnectionLists.Contains(ModReference) && !AllowOverwrite) return;
 
-		ACircuitryLogger::DispatchEvent("[CIRCUITRY API] New connections list was added at runtime. {Mod reference:" + ModReference + " | Entries count:" + CC_INT(list->GetRowNames().Num()) + "}", ELogVerbosity::Display);
-		Data.ConnectionLists.Add(ModReference, list);
+		ACircuitryLogger::DispatchEvent("[CIRCUITRY API] New connections list was added at runtime. {Mod reference:" + ModReference + " | Entries count:" + CC_INT(List->GetRowNames().Num()) + "}", ELogVerbosity::Display);
+		Data.ConnectionLists.Add(ModReference, List);
 	}
 
 	UFUNCTION(BlueprintPure)
@@ -194,5 +212,156 @@ public:
 	}
 
 	
-	
+	void FetchCompatibilityPackagesList()
+	{
+		//Create request to fetch packages from the server
+		auto Request = FHttpModule::Get().CreateRequest();
+		
+		Request->SetURL(CompatibilityPackagesBaseUrl);
+		Request->OnProcessRequestComplete().BindUObject(this, &AWiremodAPI::OnCompatibilityPackagesFetched);
+		Request->SetVerb("GET");
+		Request->SetTimeout(60);
+
+		if(!Request->ProcessRequest())
+		{
+			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY API] There was an error when initiating request to the compatibility packages server.");
+			return;
+		}
+	}
+
+	void OnCompatibilityPackagesFetched(FHttpRequestPtr RequestObject, FHttpResponsePtr Response, bool Success)
+	{
+		if(!Success)
+		{
+			auto Error = "[CIRCUITRY API] Something went wrong when trying to fetch compatibility packages: " + Response.Get()->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")";
+			ACircuitryLogger::DispatchErrorEvent(Error);
+			return;
+		}
+
+		//Package names are split with a newline character
+		TArray<FString> PackagesList;
+		Response->GetContentAsString().ParseIntoArrayLines(PackagesList);
+
+		auto ModLib = GetWorld()->GetGameInstance()->GetSubsystem<UModLoadingLibrary>();
+
+		TArray<FString> DownloadPackages;
+		
+		for(auto& Package : PackagesList)
+		{
+			FString ModRef;
+			FString PackageVersion;
+
+			Package.Split("__", &ModRef, &PackageVersion);
+			
+			if(!ModLib->IsModLoaded(ModRef)) continue;
+
+			auto CurrentPackageVersion = FindCurrentPackageVersion(ModRef);
+
+			if(PackageVersion != CurrentPackageVersion) DownloadPackages.Add(Package);
+			else
+			{
+				auto Text = "[CIRCUITRY API] Compatibility package for " + ModRef + " is already at latest version (" + PackageVersion + "). Skipping download.";
+				ACircuitryLogger::DispatchEvent(Text, ELogVerbosity::Display);
+			}
+		}
+
+		//Download missing/outdated packages
+		StartPackageDownload(DownloadPackages);
+	}
+
+	FString FindCurrentPackageVersion(const FString& ModRef) const
+	{
+		auto const Path = FPaths::ProjectDir() + "/CircuitryAPI";
+		TArray<FString> Files;
+		FFileManagerGeneric::Get().FindFiles(Files, *Path, *FString("json"));
+
+		for(auto& File : Files)
+		{
+			if(File.StartsWith(ModRef))
+			{
+				FString ModReference;
+				FString Version;
+				if(File.Split("__", &ModReference, &Version))
+				{
+					Version.RemoveFromEnd(".json");
+					return Version;
+				}
+
+				return "";
+			}
+		}
+
+		return "";
+	}
+
+	void RemoveCurrentCompatibilityPackage(const FString& ModRef)
+	{
+		auto const Path = FPaths::ProjectDir() + "/CircuitryAPI";
+		TArray<FString> Files;
+		FFileManagerGeneric::Get().FindFiles(Files, *Path, *FString("json"));
+
+		for(auto& File : Files)
+		{
+			auto FilePath = Path + "/" + File;
+			if(File.StartsWith(ModRef)) FFileManagerGeneric::Get().Delete(*FilePath);
+		}
+	}
+
+	void StartPackageDownload(const TArray<FString>& Packages)
+	{
+		for(auto& Package : Packages)
+		{
+			auto Request = FHttpModule::Get().CreateRequest();
+		
+			Request->SetURL(CompatibilityPackagesBaseUrl + Package);
+			Request->OnProcessRequestComplete().BindUObject(this, &AWiremodAPI::OnPackageDownloaded);
+			Request->SetVerb("GET");
+			Request->SetTimeout(60);
+
+			if(!Request->ProcessRequest())
+			{
+				ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY API] Failed to start fetch for package " + Package);
+				return;
+			}
+		}
+	}
+
+	void OnPackageDownloaded(FHttpRequestPtr RequestObject, FHttpResponsePtr Response, bool Success)
+	{
+		auto Package = Response->GetURL();
+		Package.RemoveFromStart(CompatibilityPackagesBaseUrl);
+
+		FString ModReference;
+		FString PackageVersion;
+
+		Package.Split("__", &ModReference, &PackageVersion);
+
+		//Remove existing package files
+		RemoveCurrentCompatibilityPackage(ModReference);
+
+		//Create new package file table
+		UDataTable* Table = NewObject<UDataTable>();
+		Table->RowStruct = FBuildingConnections::StaticStruct();
+
+		auto TableDataJson = Response->GetContentAsString();
+		auto ParseErrors = Table->CreateTableFromJSONString(TableDataJson);
+		if(ParseErrors.Num() != 0)
+		{
+			for (FString Error : ParseErrors)
+			{
+				ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY API] There was an error when trying to parse package " + ModReference + ": " + Error);
+			}
+			return;
+		}
+
+		//Save the package string to a file
+		auto const Path = FPaths::ProjectDir() + "/CircuitryAPI";
+		UFileUtilities::SaveStringAsFile(Path, Package + ".json", TableDataJson);
+
+		//Add the table to supported mods and notify the user that they downloaded a package for this.
+		AddList(ModReference, Table, true);
+		SendPackageInstallNotification(ModReference);
+
+		ACircuitryLogger::DispatchEvent("[CIRCUITRY API] Compatibility package " + Package + " downloaded.", ELogVerbosity::Display);
+	}
 };
