@@ -108,6 +108,14 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
+	static FText GetObjectName(UObject* Object)
+	{
+		if(auto Circuitry = Cast<AFGWiremodBuildable>(Object)) return Circuitry->GetCustomNameOrDefault();
+		else if(auto Buildable = Cast<AFGBuildable>(Object)) return Buildable->mDisplayName;
+		else return FText::FromString(Object ? Object->GetName() : "");
+	}
+
+	UFUNCTION(BlueprintPure)
 	static UObject* GetSetterObject()
 	{
 		return UGameplayStatics::GetPlayerCharacter(UWiremodGameWorldModule::Self->GetWorld(), 0);
