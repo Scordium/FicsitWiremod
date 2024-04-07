@@ -128,19 +128,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	UTexture2D* GetTexture()
 	{
-		if(!TexturePtr) TexturePtr = Cast<UTexture2D>(Data.Texture.TryLoad());
-		
-		return TexturePtr;
+		return Cast<UTexture2D>(Data.Texture.TryLoad());
 	}
-
-	UFUNCTION(BlueprintCallable)
-	void FreeResource()
-	{
-		TexturePtr = nullptr;
-	}
-
-	UPROPERTY()
-	UTexture2D* TexturePtr;
 };
 
 UCLASS()
