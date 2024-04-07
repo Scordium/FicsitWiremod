@@ -237,6 +237,14 @@ public:
 		return Out;
 	}
 
+	virtual void AppendArray(const UCCArrayValueBase* Array) override
+	{
+		if(auto ThisArray = Cast<ThisClass>(Array))
+		{
+			Value.Append(ThisArray->Value);
+		}
+	}
+
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FSplitterSortRule> Value;
 };

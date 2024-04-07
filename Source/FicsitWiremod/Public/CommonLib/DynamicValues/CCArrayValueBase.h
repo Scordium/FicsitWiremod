@@ -90,4 +90,10 @@ public:
 		DispatchNotImplemented("ARRAY_FIND_ALL");
 		return TArray<double>();
 	}
+
+	UFUNCTION(BlueprintCallable)
+	virtual void AppendArray(const UCCArrayValueBase* Array)
+	{
+		DispatchNotImplemented("ARRAY_APPEND");
+	}
 };
