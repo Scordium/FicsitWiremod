@@ -229,6 +229,57 @@ public:
 		CachedTask->OnDownloadFinished(ResultTexture, DownloadSuccess);
 	}
 
+	UFUNCTION(BlueprintCallable)
+	void ClearUnfinishedCache()
+	{
+		for(auto& CacheEntry : TMap(Cache))
+		{
+			if(!CacheEntry.Value.Success)
+			{
+				CacheEntry.Value.Delegates.Empty();
+				Cache.Remove(CacheEntry.Key);
+			}
+		}
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void ClearOldCache(int OlderThan = 300)
+	{
+		for(auto& CacheEntry : TMap(Cache))
+		{
+			auto TimeSinceFinished = (FDateTime::Now() - CacheEntry.Value.FinishedAt).GetTotalSeconds();
+			auto IsOld = CacheEntry.Value.Finished && TimeSinceFinished > OlderThan;
+			
+			if(!CacheEntry.Value.Success || IsOld)
+			{
+				CacheEntry.Value.Delegates.Empty();
+				Cache.Remove(CacheEntry.Key);
+			}
+		}
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void ClearAllCache()
+	{
+		for(auto& CacheEntry : Cache) CacheEntry.Value.Delegates.Empty();
+
+		Cache.Empty();
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void ReattemptUnfinishedDownloads()
+	{
+		for(auto& CacheEntry : Cache)
+		{
+			if(!CacheEntry.Value.Finished)
+			{
+				UCircuitryDownloadImage* DownloadTask = NewObject<UCircuitryDownloadImage>();
+				DownloadTask->Finished.AddUObject(this, &ACircuitryImageStorage::OnDownloadFinished);
+				DownloadTask->StartDownload(CacheEntry.Key);
+			}
+		}
+	}
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UDataTable* TextureAssetDescriptorTable;
 	
