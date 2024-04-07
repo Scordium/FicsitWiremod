@@ -73,6 +73,13 @@ public:
 	}
 
 	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }
+
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& OutObjects) override
+	{
+		Super::GatherReplicatedObjects_Implementation(OutObjects);
+
+		OutObjects.Add(Out);
+	}
 	
 	UPROPERTY(Replicated, SaveGame)
 	UCCDynamicValueBase* Out;
