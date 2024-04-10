@@ -15,12 +15,19 @@ class FICSITWIREMOD_API AConveyorLimiter : public AFGWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		if(GetConnection(0).GetBool()) TotalPassed = 0;
+		StopConveyor = GetConnection(0).GetBool();
+		auto SecondsPerItem = 60.0 / GetConnection(1).GetFloat(780);
+		if(LimitSecondsPerItem != SecondsPerItem)
+		{
+			LimitSecondsPerItem = SecondsPerItem;
+			GetWorld()->GetTimerManager().ClearTimer(LimiterTickHandle);
+			GetWorld()->GetTimerManager().SetTimer(LimiterTickHandle, this, &AConveyorLimiter::TryGrabInputItem, SecondsPerItem, true);
+		}
+		if(GetConnection(2).GetBool()) TotalPassed = 0;
 	}
 
 	AConveyorLimiter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer)
 	{
-		mFactoryTickFunction.bCanEverTick = true;
 		TempStorage = CreateDefaultSubobject<UFGInventoryComponent>("TempStorage");
 	}
 
@@ -29,22 +36,21 @@ public:
 		Super::BeginPlay();
 		
 		if(!HasAuthority()) return;
-		UKismetSystemLibrary::K2_SetTimer(this, "UpdateAverage", LoopTime, true);
+		GetWorld()->GetTimerManager().SetTimer(AverageUpdateHandle, this, &AConveyorLimiter::UpdateAverage, LoopTime, true);
 	}
 
-	virtual void Factory_Tick(float dt) override
+	void TryGrabInputItem()
 	{
 		if(!HasAuthority()) return;
 		
-		if(!IsValid(Input) || !IsValid(TempStorage)) return;
-		if(!Input->IsConnected()) return;
+		if(StopConveyor || !Input || !TempStorage || !Input->IsConnected()) return;
 		
 		TArray<FInventoryItem> Items;
 		if(!Input->Factory_PeekOutput(Items)) return;
 
 		FInventoryStack StoredStack;
 		TempStorage->GetStackFromIndex(0, StoredStack);
-		if(!TempStorage->HasEnoughSpaceForItem(Items[0]) || StoredStack.NumItems > 10) return;
+		if(!TempStorage->HasEnoughSpaceForItem(Items[0]) || StoredStack.NumItems >= 10) return;
 		FInventoryItem Item = FInventoryItem();
 		float Offset = 0;
 		Input->Factory_GrabOutput(Item, Offset);
@@ -55,21 +61,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateAverage()
 	{
-		const int MaxElements = (60/LoopTime);
-
-		//Store items passed this cycle
+		const auto Multiplier = 60.0 / LoopTime;
 		PassedHistory.Add(CyclePassed);
-		if(PassedHistory.Num() > MaxElements) PassedHistory.RemoveAt(0);
+		if(PassedHistory.Num() > 50) PassedHistory.RemoveAt(0);
+		
+		Throughput = (double)CyclePassed * Multiplier;
 		CyclePassed = 0;
-
-
-		//Calculate average with history
-		int Sum = 0;
-		for(int Element : PassedHistory) Sum += Element;
-		auto Avg = Sum / (double)PassedHistory.Num();
-
-		// (60 * (1s / LoopTime)) * Avg
-		Throughput = MaxElements * FMath::CeilToInt(Avg);
 	}
 	
 	virtual bool Factory_GrabOutput_Implementation(UFGFactoryConnectionComponent* connection, FInventoryItem& out_item, float& out_OffsetBeyond, TSubclassOf<UFGItemDescriptor> type) override
@@ -88,7 +85,6 @@ public:
 		return false;
 	}
 
-
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -96,7 +92,14 @@ public:
 		DOREPLIFETIME(AConveyorLimiter, TotalPassed);
 		DOREPLIFETIME(AConveyorLimiter, Throughput);
 		DOREPLIFETIME(AConveyorLimiter, PassedHistory);
-	} 
+	}
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFGFactoryConnectionComponent* GetOutputConnector();
+
+	UFUNCTION(BlueprintCallable)
+	UFGFactoryConnectionComponent* GetInputConnector() { return Input; }
+	
 	/*
 	 * How many items passed through the limiter this cycle
 	 */
@@ -110,7 +113,7 @@ public:
 	int TotalPassed;
 	
 	UPROPERTY(VisibleInstanceOnly, Replicated, SaveGame)
-	int Throughput;
+	double Throughput;
 
 	UPROPERTY(VisibleInstanceOnly, Replicated, SaveGame)
 	TArray<double> PassedHistory;
@@ -123,4 +126,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	class UFGInventoryComponent* TempStorage;
+
+	bool StopConveyor;
+
+	FTimerHandle LimiterTickHandle;
+	FTimerHandle AverageUpdateHandle;
+	double LimitSecondsPerItem = -1;
 };
