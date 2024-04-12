@@ -112,7 +112,7 @@ public:
 
 	bool IsValidForWire() const
 	{
-		return ::IsValid(Object) && !Object->GetClass()->IsChildOf(UCCDynamicValueBase::StaticClass());
+		return !WireHidden && ::IsValid(Object) && !Object->GetClass()->IsChildOf(UCCDynamicValueBase::StaticClass());
 	}
 
 	bool IsA(EConnectionType Type) { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }

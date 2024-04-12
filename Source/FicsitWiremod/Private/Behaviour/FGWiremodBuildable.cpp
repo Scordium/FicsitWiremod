@@ -435,11 +435,10 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 	auto WireClass = AConnectionWireBase::StaticClass();
 	
 	//Create new wires
-	for (int i = 0; i < InputConnections.Num(); i++)
+	for (int i = 0; i < InputInfoList.Num(); i++)
 	{
 		FConnectionData ConnectionData = GetConnection(i);
 		if(!ConnectionData.IsValidForWire()) continue;
-		if(ConnectionData.WireHidden) continue;
 		
 		//Create child actor component to store our wire actor. This should probably be optimized as it's a lot better for performance to just have 1 actor that handles all the wires.
 		auto WireActorComponent = Cast<UChildActorComponent>(AddComponentByClass(UChildActorComponent::StaticClass(), false, FTransform::Identity, false));
