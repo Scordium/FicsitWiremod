@@ -113,7 +113,9 @@ bool AWiremodVanillaConnections::HandleDynamicConnections(const TArray<FDynamicC
 		case String: ConnectionData.Receiver.SetString(ConnectionData.Transmitter.GetString()); break;
 		case Color: ConnectionData.Receiver.SetColor(ConnectionData.Transmitter.GetColor()); break;
 		case Recipe: ConnectionData.Receiver.SetRecipe(ConnectionData.Transmitter.GetRecipe()); break;
-		case ArrayOfSplitterRule: ConnectionData.Receiver.Set(ConnectionData.Transmitter.GetSplitterRuleArray());
+		case ItemDescriptor: ConnectionData.Receiver.Set(ConnectionData.Transmitter.GetItemDescriptor()); break;
+		case ArrayOfSplitterRule: ConnectionData.Receiver.Set(ConnectionData.Transmitter.GetSplitterRuleArray()); break;
+		case ArrayOfItemDescriptor: ConnectionData.Receiver.Set(ConnectionData.Transmitter.GetItemDescriptorArray()); break;
 		default: break;
 		}
 	}
