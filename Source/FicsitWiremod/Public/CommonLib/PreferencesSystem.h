@@ -3,22 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FGSaveInterface.h"
 #include "Subsystem/ModSubsystem.h"
 #include "Utility/CircuitryLogger.h"
 #include "PreferencesSystem.generated.h"
 
 UCLASS(Abstract, Blueprintable, BlueprintType)
-class UScopedPreferences : public UObject
+class UScopedPreferences : public UObject, public IFGSaveInterface
 {
 	GENERATED_BODY()
+
+	virtual bool ShouldSave_Implementation() const override { return true; }
 };
 
 UCLASS()
-class FICSITWIREMOD_API APreferencesSystem : public AModSubsystem
+class FICSITWIREMOD_API APreferencesSystem : public AModSubsystem, public IFGSaveInterface
 {
 	GENERATED_BODY()
 
 public:
+
+	virtual bool ShouldSave_Implementation() const override { return true; }
 
 	APreferencesSystem()
 	{
