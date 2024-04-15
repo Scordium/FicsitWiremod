@@ -21,11 +21,16 @@ public:
 		AddAsRepresentation();
 	}
 
+	virtual void ServerProcess_Implementation(double DeltaTime) override
+	{
+		UpdateRepresentation();
+	}
+
 	virtual void ClientProcess_Implementation(double DeltaTime) override
 	{
 		auto TextureValue = GetConnection(2).GetTexture();
 		
-		if(TextureValue)
+		if(TextureValue && TextureCache)
 		{
 			if(TextureCache == TextureValue) return;
 			if(TextureCache->GetResource() == TextureValue->GetResource()) return;
@@ -47,12 +52,20 @@ public:
 		auto Manager = AFGActorRepresentationManager::Get(this);
 		if(!Manager) return false;
 
-		Manager->CreateAndAddNewRepresentation(this, false, UFGMapMarkerRepresentation::StaticClass());
+		Representation = Manager->CreateAndAddNewRepresentation(this, false, UFGMapMarkerRepresentation::StaticClass());
 		return true;
 	}
 	
 	UFUNCTION()
-	virtual bool UpdateRepresentation() override { return true; }
+	virtual bool UpdateRepresentation() override
+	{
+		auto Manager = AFGActorRepresentationManager::Get(this);
+		if(!Manager) return false;
+
+		Manager->UpdateRepresentation(Representation);
+		
+		return true;
+	}
 	
 	UFUNCTION()
 	virtual bool RemoveAsRepresentation() override
@@ -91,7 +104,7 @@ public:
 	UFUNCTION()
 	virtual float GetActorFogOfWarRevealRadius() override { return 10; }
 	UFUNCTION()
-	virtual ECompassViewDistance GetActorCompassViewDistance() override { return (ECompassViewDistance)(int)GetConnection(8).GetFloat(4); }
+	virtual ECompassViewDistance GetActorCompassViewDistance() override { return (ECompassViewDistance)GetConnection(8).GetFloat(4); }
 	UFUNCTION()
 	virtual void SetActorCompassViewDistance( ECompassViewDistance compassViewDistance ) override {}
 
@@ -100,4 +113,7 @@ public:
 
 	UPROPERTY()
 	bool UsesTransient;
+
+	UPROPERTY()
+	UFGActorRepresentation* Representation;
 };
