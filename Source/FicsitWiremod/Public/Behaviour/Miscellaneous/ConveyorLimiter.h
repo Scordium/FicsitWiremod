@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGFactoryConnectionComponent.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "FactoryGame/Public/Buildables/FGBuildableConveyorBelt.h"
 #include "ConveyorLimiter.generated.h"
 
 UCLASS()
@@ -92,6 +93,37 @@ public:
 		DOREPLIFETIME(AConveyorLimiter, TotalPassed);
 		DOREPLIFETIME(AConveyorLimiter, Throughput);
 		DOREPLIFETIME(AConveyorLimiter, PassedHistory);
+	}
+
+	virtual void Dismantle_Implementation() override
+	{
+		if(GetInputConnector()->GetConnection() && GetOutputConnector()->GetConnection())
+		{
+			auto Connection1 = GetInputConnector()->GetConnection();
+			auto Connection2 = GetOutputConnector()->GetConnection();
+
+			if(Connection1 && Connection2)
+			{
+				auto Conveyor1 = Cast<AFGBuildableConveyorBelt>(Connection1->GetOwner());
+				auto Conveyor2 = Cast<AFGBuildableConveyorBelt>(Connection2->GetOwner());
+
+				if(Conveyor1 && Conveyor2)
+				{
+					Connection1->ClearConnection();
+					Connection2->ClearConnection();
+
+					Connection1->SetConnection(Connection2);
+
+					TArray<AFGBuildableConveyorBelt*> Belts;
+					Belts.Add(Conveyor1);
+					Belts.Add(Conveyor2);
+				
+					AFGBuildableConveyorBelt::Merge(Belts);
+				}
+			}
+		}
+
+		Super::Dismantle_Implementation();
 	}
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
