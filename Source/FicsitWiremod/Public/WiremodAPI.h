@@ -13,6 +13,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "Subsystem/ModSubsystem.h"
 #include "UObject/Object.h"
+#include "SML/Public/ModLoading/ModLoadingLibrary.h"
 #include "WiremodAPI.generated.h"
 
 USTRUCT(BlueprintType)
@@ -124,12 +125,12 @@ public:
 	
 	
 	UFUNCTION(BlueprintCallable)
-	void AddLists(TMap<FString, UDataTable*> lists, UDataTable* factoryGameList, bool override)
+	void AddLists(TMap<FString, UDataTable*> Lists, UDataTable* FactoryGameList, bool Override)
 	{
-		Data.FactoryGameList = factoryGameList;
-		for (TTuple<FString, UDataTable*> List : lists)
+		Data.FactoryGameList = FactoryGameList;
+		for (TTuple<FString, UDataTable*> List : Lists)
 		{
-			if(Data.ConnectionLists.Contains(List.Key) && !override) continue;
+			if(Data.ConnectionLists.Contains(List.Key) && !Override) continue;
 			Data.ConnectionLists.Add(List);
 		}
 	}

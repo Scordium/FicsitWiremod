@@ -36,7 +36,7 @@ public:
 	{
 		if(!IsValid(object)) return "";
 		TArray<FString> pathParse;
-		UKismetSystemLibrary::GetPathName(object).ParseIntoArray(pathParse, *FString("/"), true);
+		object->GetPathName().ParseIntoArray(pathParse, *FString("/"), true);
 		if(pathParse.Num() == 0) return "";
 		
 		return pathParse[0];

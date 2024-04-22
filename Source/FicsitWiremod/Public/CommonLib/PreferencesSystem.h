@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "FGSaveInterface.h"
 #include "Subsystem/ModSubsystem.h"
-#include "Utility/CircuitryLogger.h"
 #include "PreferencesSystem.generated.h"
 
 UCLASS(Abstract, Blueprintable, BlueprintType)

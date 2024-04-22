@@ -59,24 +59,6 @@ public:
 	
 };
 
-USTRUCT(Blueprintable, BlueprintType)
-struct FSignComponentVariableEditorMetadata
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FString Category;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool GroupWithSameEntries;
-
-	bool operator==(const FSignComponentVariableEditorMetadata& Other) const
-	{
-		return Category == Other.Category
-		&& GroupWithSameEntries == Other.GroupWithSameEntries;
-	}
-};
 
 USTRUCT(BlueprintType)
 struct FSignComponentVariableData
@@ -100,17 +82,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FSignComponentVariableMetaData> MetaData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FSignComponentVariableEditorMetadata EditorMetadata;
-
 	bool operator==(const FSignComponentVariableData& Other) const
 	{
 		return
 		Name == Other.Name
 		&& Data == Other.Data
 		&& DefaultValue == Other.DefaultValue
-		&& MetaData == Other.MetaData
-		&& EditorMetadata == Other.EditorMetadata;
+		&& MetaData == Other.MetaData;
 	}
 
 	void SetValue(const FString& NewValue)
