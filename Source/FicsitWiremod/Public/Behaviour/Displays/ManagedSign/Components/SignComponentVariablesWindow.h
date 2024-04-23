@@ -21,7 +21,7 @@ class FICSITWIREMOD_API USignComponentVariablesWindow : public UUserWidget
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void AddVariableEditor(const FSignComponentVariableData& VariableData);
+	USignComponentVariableEditorBase* AddVariableEditor(const FSignComponentVariableData& VariableData);
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void AddVariableEditors(const TArray<FSignComponentVariableData>& Variables, bool ClearCurrentEditors = true);

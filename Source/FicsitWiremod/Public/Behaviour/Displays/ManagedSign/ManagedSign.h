@@ -172,6 +172,19 @@ public:
 	}
 };
 
+USTRUCT(Blueprintable, BlueprintType)
+struct FSignComponentEditorVariablesCategory
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadOnly)
+	TSubclassOf<USignComponentVariableCategory> Category = nullptr;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FSignComponentVariableData> Variables = TArray<FSignComponentVariableData>();
+};
 
 UCLASS()
 class UManagedSignUtilityFunctions : public UBlueprintFunctionLibrary
@@ -214,5 +227,39 @@ public:
 		if(!FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out)) return false;
 
 		return true;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FSignComponentEditorVariablesCategory> SortVariablesByCategory(const TArray<FSignComponentVariableData>& Variables, TSubclassOf<USignComponentVariableCategory> DefaultCategory)
+	{
+		TMap<TSubclassOf<USignComponentVariableCategory>, TArray<FSignComponentVariableData>> Categories;
+
+		//The reason this is done this way is to ensure that "Default" category will be at the correct position in the list (i.e. last or first in the list)
+		//If instead we just check category and assign a default one if it's null, "Default" might appear anywhere in the list.
+		FSignComponentEditorVariablesCategory DefaultCategoryData;
+		DefaultCategoryData.Category = DefaultCategory;
+
+		for (const auto& Variable : Variables)
+		{
+			auto Category = Variable.Name.GetDefaultObject()->Category;
+			if(!Category)
+			{
+				DefaultCategoryData.Variables.Add(Variable);
+				continue;
+			}
+			
+			Categories.FindOrAdd(Category).Add(Variable);
+		}
+		
+		TArray<FSignComponentEditorVariablesCategory> Out;
+		for (auto& Category : Categories)
+		{
+			FSignComponentEditorVariablesCategory Cat;
+			Cat.Category = Category.Key;
+			Cat.Variables = Category.Value;
+			Out.Add(Cat);
+		}
+		if(DefaultCategoryData.Variables.Num() > 0) Out.Add(DefaultCategoryData);
+		return Out;
 	}
 };

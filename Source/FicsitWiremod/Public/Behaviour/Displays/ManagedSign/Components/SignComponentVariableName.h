@@ -16,6 +16,16 @@ public:
 };
 
 UCLASS(BlueprintType, Blueprintable)
+class USignComponentVariableCategory : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FText Category;
+};
+
+UCLASS(BlueprintType, Blueprintable)
 class USignComponentVariableName : public UObject
 {
 	GENERATED_BODY()
@@ -33,4 +43,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Instanced)
 	USignComponentVariableEditorBase* VariableEditor = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<USignComponentVariableCategory> Category;
 };
