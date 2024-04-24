@@ -48,15 +48,17 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	bool GetScopedPreferences(UObject* Object, UScopedPreferences*& ClassPreferences, UScopedPreferences*& ObjectPreferences)
+	bool GetScopedPreferences(UObject* Object, TSubclassOf<UScopedPreferences> ClassDefaultPreferences, UScopedPreferences*& ClassPreferences, UScopedPreferences*& ObjectPreferences)
 	{
 		if(!Object) return false;
+
+		auto PreferencesCdo = ClassDefaultPreferences.GetDefaultObject();
 		
 		auto ClassPref = ClassScopedPreferences.Find(Object->GetClass());
-		ClassPreferences = ClassPref ? *ClassPref : nullptr;
+		ClassPreferences = ClassPref ? *ClassPref : PreferencesCdo;
 
 		auto ObjectPref = ObjectScopedPreferences.Find(Object);
-		ObjectPreferences = ObjectPref ? *ObjectPref : nullptr;
+		ObjectPreferences = ObjectPref ? *ObjectPref : PreferencesCdo;
 		
 		return ClassPref || ObjectPref;
 	}

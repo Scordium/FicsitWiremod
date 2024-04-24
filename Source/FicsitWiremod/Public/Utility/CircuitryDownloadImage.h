@@ -84,7 +84,7 @@ public:
 
 
 	UFUNCTION(BlueprintCallable)
-	bool DoesFitFilter(const FText& Text, bool Modded, bool Vanilla, bool Buildables, bool Items, bool Other, bool UI)
+	bool DoesFitFilter(const FText& Text, bool Modded, bool Vanilla, bool Buildables, bool Items, bool Other, bool UI, bool Materials, bool Customizer, bool Fauna)
 	{
 		auto StringText = Text.ToString();
 
@@ -120,7 +120,10 @@ public:
 		if(Data.Category == TAC_Item && !Items) return false;
 		if(Data.Category == TAC_Buildable && !Buildables) return false;
 		if(Data.Category == TAC_Interface && !UI) return false;
-		if((Data.Category == TAC_Other || Data.Category == TAC_Rendering) && !Other) return false;
+		if(Data.Category == TAC_Rendering && !Materials) return false;
+		if(Data.Category == TAC_Customizer && !Customizer) return false;
+		if(Data.Category == TAC_Fauna && !Fauna) return false;
+		if(Data.Category == TAC_Other && !Other) return false;
 
 		return true;
 	}

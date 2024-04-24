@@ -31,7 +31,9 @@ enum ETextureAssetCategory
 	TAC_Buildable UMETA(DisplayName="Buildable icon"),
 	TAC_Interface UMETA(DisplayName="UI"),
 	TAC_Rendering UMETA(DisplayName="Rendering/Material texture"),
-	TAC_Other UMETA(DisplayName="Other")
+	TAC_Other UMETA(DisplayName="Other"),
+	TAC_Customizer UMETA(DisplayName="Customizer"),
+	TAC_Fauna UMETA(DisplayName="Fauna")
 };
 
 USTRUCT()
