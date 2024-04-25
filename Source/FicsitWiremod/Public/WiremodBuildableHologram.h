@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Behaviour/CircuitryStatics.h"
 #include "Hologram/FGBuildableHologram.h"
-#include "Utility/WiremodGameWorldModule.h"
 #include "WiremodBuildableHologram.generated.h"
 
 /**

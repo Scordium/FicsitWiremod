@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "WiremodAPI.h"
+#include "WiremodGameWorldModule.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
 #include "CommonLib/BackwardsCompatibilityHandler.h"
