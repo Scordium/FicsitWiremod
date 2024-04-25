@@ -12,7 +12,7 @@ class FICSITWIREMOD_API ANotificator : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void ClientProcess_Implementation(double DeltaTime) override
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto Fire = GetConnection(0).GetBool();
 
@@ -24,11 +24,15 @@ public:
 			auto Description = GetConnection(2).GetString("Notification fired!");
 			auto Time = GetConnection(3).GetFloat(5);
 
-			ShowNotification(Title, Description, Time);
+			OnNotificationReceived(Title, Description, Time);
 			HasFiredLastTick = true;
 		}
 		else HasFiredLastTick = false;
 	}
+
+	UFUNCTION(NetMulticast, Reliable)
+	void OnNotificationReceived(const FString& Title, const FString& Description, double Time);
+	void OnNotificationReceived_Implementation(const FString& Title, const FString& Description, double Time) { ShowNotification(Title, Description, Time); }
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowNotification(const FString& Title, const FString& Description, double Time);
