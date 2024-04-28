@@ -9,6 +9,7 @@
 #include "Utility/CircuitryInputMappings.h"
 #include "EnhancedInputSubsystems.h"
 #include "FGPlayerController.h"
+#include "UI/FGGameUI.h"
 #include "WiremodBaseTool.generated.h"
 
 UCLASS()
@@ -139,8 +140,21 @@ public:
 
 protected:
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void ShowNotification(const FText& Text);
+	UFUNCTION(BlueprintCallable)
+	void ShowNotification(const FText& Text)
+	{
+		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
+		if(!Player) return;
+
+		auto GameUI = Player->GetGameUI();
+		if(!GameUI)
+		{
+			ACircuitryLogger::DispatchErrorEvent("Game UI was null when trying to display notification text");
+			return;
+		}
+
+		GameUI->ShowTextNotification(Text);
+	}
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void HideHudHints();
