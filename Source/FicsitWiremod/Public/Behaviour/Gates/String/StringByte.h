@@ -18,7 +18,7 @@ public:
 		int Index = GetConnection(1).GetFloat();
 		
 		if (Index >= 0 && Index < SourceString.Len())
-			Out = SourceString.GetCharArray()[Index];
+			Out = SourceString[0];
 		else
 			Out = 0;
 	}
