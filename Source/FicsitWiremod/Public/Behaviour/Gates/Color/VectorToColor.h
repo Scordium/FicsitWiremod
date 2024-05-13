@@ -15,7 +15,7 @@ public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto Vector = GetConnection(0).GetVector();
-		auto Alpha = GetConnection(1).GetFloat();
+		auto Alpha = GetConnection(1).GetFloat(1);
 
 		Out = FLinearColor(Vector);
 		Out.A = Alpha;
