@@ -78,6 +78,7 @@ public:
 		if(TempStorage->GetStackFromIndex(0, Stack))
 		{
 			out_item = Stack.Item;
+			LastPassedItem = Stack.Item.GetItemClass();
 			CyclePassed++;
 			TotalPassed++;
 			TempStorage->RemoveFromIndex(0, 1);
@@ -93,6 +94,7 @@ public:
 		DOREPLIFETIME(AConveyorLimiter, TotalPassed);
 		DOREPLIFETIME(AConveyorLimiter, Throughput);
 		DOREPLIFETIME(AConveyorLimiter, PassedHistory);
+		DOREPLIFETIME(AConveyorLimiter, LastPassedItem);
 	}
 
 	virtual void Dismantle_Implementation() override
@@ -152,6 +154,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	double LoopTime = 1;
+
+	UPROPERTY(VisibleInstanceOnly, Replicated, SaveGame)
+	TSubclassOf<UFGItemDescriptor> LastPassedItem;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UFGFactoryConnectionComponent* Input;
