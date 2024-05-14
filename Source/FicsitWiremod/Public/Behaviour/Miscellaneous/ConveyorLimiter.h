@@ -17,13 +17,22 @@ public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		StopConveyor = GetConnection(0).GetBool();
-		auto SecondsPerItem = 60.0 / GetConnection(1).GetFloat(780);
-		if(LimitSecondsPerItem != SecondsPerItem)
+		
+		auto SecondPerItemData = GetConnection(1);
+
+		if(SecondPerItemData.IsValid())
 		{
-			LimitSecondsPerItem = SecondsPerItem;
-			GetWorld()->GetTimerManager().ClearTimer(LimiterTickHandle);
-			GetWorld()->GetTimerManager().SetTimer(LimiterTickHandle, this, &AConveyorLimiter::TryGrabInputItem, SecondsPerItem, true);
+			auto SecondsPerItem = 60.0 / SecondPerItemData.GetFloat();
+			if(LimitSecondsPerItem != SecondsPerItem)
+			{
+				LimitSecondsPerItem = SecondsPerItem;
+				GetWorld()->GetTimerManager().ClearTimer(LimiterTickHandle);
+				if(SecondsPerItem <= 0) return;
+				GetWorld()->GetTimerManager().SetTimer(LimiterTickHandle, this, &AConveyorLimiter::TryGrabInputItem, SecondsPerItem, true);
+			}
 		}
+		else TryGrabInputItem();
+		
 		if(GetConnection(2).GetBool()) TotalPassed = 0;
 	}
 
