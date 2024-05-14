@@ -3,7 +3,6 @@
 
 #include "Behaviour/Miscellaneous/ConveyorLimiter.h"
 #include "Buildables/FGBuildableConveyorBelt.h"
-#include "Utility/CircuitryLogger.h"
 
 void ACircuitryConveyorLimiterHologram::SetHologramLocationAndRotation(const FHitResult& hitResult)
 {
@@ -12,20 +11,20 @@ void ACircuitryConveyorLimiterHologram::SetHologramLocationAndRotation(const FHi
 	if(auto Conveyor = Cast<AFGBuildableConveyorBelt>(HitActor))
 	{
 		auto Spline = Conveyor->GetSplineComponent();
-		auto ActorLocation = Spline->FindLocationClosestToWorldLocation(hitResult.Location, ESplineCoordinateSpace::World);
+		auto ActorLocation = Spline->FindLocationClosestToWorldLocation(hitResult.Location.GridSnap(HoloSize), ESplineCoordinateSpace::World);
 		auto ActorRotation = Spline->FindRotationClosestToWorldLocation(hitResult.Location, ESplineCoordinateSpace::World);
 		SetActorLocationAndRotation(ActorLocation, ActorRotation);
 
 		SnappedBelt = Conveyor;
 		BeltOffset = Spline->FindDistanceClosestToWorldLocation(hitResult.Location);
 		
-		return;
+		ResetConstructDisqualifiers();
 	}
 	else
 	{
 		SnappedBelt = nullptr;
 		BeltOffset = 0;
-		SetActorLocationAndRotation(hitResult.Location, FQuat(FVector::UpVector, FMath::DegreesToRadians(mScrollRotation)));	
+		AddConstructDisqualifier(UCLCDMustSnapToBelt::StaticClass());
 	}
 }
 
