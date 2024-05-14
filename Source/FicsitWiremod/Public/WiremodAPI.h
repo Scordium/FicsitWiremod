@@ -212,7 +212,7 @@ public:
 		return *Row;
 	}
 
-	
+	UFUNCTION(BlueprintCallable)
 	void FetchCompatibilityPackagesList()
 	{
 		//Create request to fetch packages from the server
