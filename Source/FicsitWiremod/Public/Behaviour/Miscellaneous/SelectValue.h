@@ -27,7 +27,7 @@ public:
 		else if (CurrentStateIndex == 1)
 		{
 			int Value = GetConnection(0).GetFloat() + 1;
-			if(IsConnected(Value))
+			if(Value > 0 && IsConnected(Value))
 				Out = UCCDynamicValueUtils::FromValue(GetConnection(Value), Out);
 			else
 				Out = nullptr;

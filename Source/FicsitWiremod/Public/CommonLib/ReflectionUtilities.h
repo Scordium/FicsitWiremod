@@ -135,8 +135,7 @@ public:
 	
 	static TSubclassOf<UFGRecipe> GetRecipe(REFLECTION_PARAMS) 
 	{
-		TSubclassOf<UFGRecipe> Out = GenericProcess(REFLECTION_ARGS,  TSubclassOf<UFGRecipe>());
-		return Out.GetDefaultObject() ? TSubclassOf<UFGRecipe>(Out.GetDefaultObject()->GetClass()) : TSubclassOf<UFGRecipe>();
+		return GenericProcess(REFLECTION_ARGS,  TSubclassOf<UFGRecipe>());
 	}
 	
 	static FLinearColor GetColor(REFLECTION_PARAMS, FLinearColor DefaultValue = FLinearColor::Black)
@@ -427,8 +426,7 @@ public:
 
 	static void SetRecipe(REFLECTION_PARAMS, TSubclassOf<UFGRecipe> Value)
 	{
-		if(!Value.GetDefaultObject()) return;
-	
+		if(!Value) return;
 		GenericSet(REFLECTION_ARGS, Value);
 	}
 
