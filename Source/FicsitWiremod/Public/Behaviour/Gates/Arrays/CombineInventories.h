@@ -20,7 +20,7 @@ public:
 		TArray<FInventoryStack> OutStacks;
 		int OutSlots = 0;
 		int OutOccupiedSlots = 0;
-		bool AllFull = true;
+		bool OutIsFull = true;
 
 		for (UFGInventoryComponent* Inventory : Inventories)
 		{
@@ -33,13 +33,13 @@ public:
 			OutSlots += Inventory->GetSizeLinear();
 			OutOccupiedSlots += Stacks.Num();
 
-			AllFull &= Inventory->HasEnoughSpaceForItem(FullnessCheckItem);
+			OutIsFull &= !Inventory->HasEnoughSpaceForItem(FullnessCheckItem);
 		}
 
 		CombinedStacks = UInventoryUtilities::CombineStacks(OutStacks);
 		TotalSlots = OutSlots;
 		TotalOccupiedSlots = OutOccupiedSlots;
-		IsFull = AllFull;
+		IsFull = OutIsFull;
 
 		int OutItemCount = 0;
 		for (FInventoryStack& CombinedStack : CombinedStacks)
@@ -47,6 +47,7 @@ public:
 			OutItemCount += CombinedStack.NumItems;
 		}
 		TotalItemCount = OutItemCount;
+		IsEmpty = TotalItemCount == 0;
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
@@ -58,6 +59,7 @@ public:
 		DOREPLIFETIME(ACombineInventories, TotalSlots)
 		DOREPLIFETIME(ACombineInventories, TotalOccupiedSlots)
 		DOREPLIFETIME(ACombineInventories, IsFull)
+		DOREPLIFETIME(ACombineInventories, IsEmpty)
 	}
 
 	UPROPERTY(Replicated, SaveGame)
@@ -74,6 +76,9 @@ public:
 
 	UPROPERTY(Replicated, SaveGame)
 	bool IsFull;
+
+	UPROPERTY(Replicated, SaveGame)
+	bool IsEmpty;
 
 	UPROPERTY(EditDefaultsOnly)
 	FInventoryItem FullnessCheckItem;
