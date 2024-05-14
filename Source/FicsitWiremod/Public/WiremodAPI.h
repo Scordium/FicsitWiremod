@@ -7,6 +7,7 @@
 #include "CommonLib/FileUtilities.h"
 #include "WiremodUtils.h"
 #include "Behaviour/CircuitryConnectionsProvider.h"
+#include "Behaviour/CircuitryStatics.h"
 #include "Buildables/FGBuildable.h"
 #include "Engine/DataTable.h"
 #include "HAL/FileManagerGeneric.h"
@@ -45,7 +46,6 @@ public:
 	FWiremodAPIData Data;
 	
 	FString ForceFileUsePrefix = "CIRCUITRY_FORCEUSE_";
-	FString CompatibilityPackagesBaseUrl = "https://circuitry.crosscat-is.me/packages/";
 	
 	virtual void BeginPlay() override
 	{
@@ -218,7 +218,7 @@ public:
 		//Create request to fetch packages from the server
 		auto Request = FHttpModule::Get().CreateRequest();
 		
-		Request->SetURL(CompatibilityPackagesBaseUrl);
+		Request->SetURL(UCircuitryStatics::ApiListsUrl);
 		Request->OnProcessRequestComplete().BindUObject(this, &AWiremodAPI::OnCompatibilityPackagesFetched);
 		Request->SetVerb("GET");
 		Request->SetTimeout(60);
@@ -314,7 +314,7 @@ public:
 		{
 			auto Request = FHttpModule::Get().CreateRequest();
 		
-			Request->SetURL(CompatibilityPackagesBaseUrl + Package);
+			Request->SetURL(UCircuitryStatics::ApiListsUrl + Package);
 			Request->OnProcessRequestComplete().BindUObject(this, &AWiremodAPI::OnPackageDownloaded);
 			Request->SetVerb("GET");
 			Request->SetTimeout(60);
@@ -330,7 +330,7 @@ public:
 	void OnPackageDownloaded(FHttpRequestPtr RequestObject, FHttpResponsePtr Response, bool Success)
 	{
 		auto Package = Response->GetURL();
-		Package.RemoveFromStart(CompatibilityPackagesBaseUrl);
+		Package.RemoveFromStart(UCircuitryStatics::ApiListsUrl);
 
 		FString ModReference;
 		FString PackageVersion;

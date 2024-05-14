@@ -46,7 +46,9 @@ class FICSITWIREMOD_API UCircuitryStatics : public UGameInstanceModule
 	GENERATED_BODY()
 	
 public:
-	static inline const FString PatronsListBaseUrl = "https://crosscat-is.me/patrons/";
+	static inline const FString CircuitryWiki = "https://cc.gotpa.ws/wiki";
+	static inline const FString PatronsListBaseUrl = "https://gotpa.ws/patrons/";
+	static inline const FString ApiListsUrl = "https://cc.gotpa.ws/packages/";
 
 	static UStaticMesh* GetGateMesh(){ return Self ? Self->GateMesh : LoadObject<UStaticMesh>(NULL, *FString("/FicsitWiremod/Assets/Models/WiremodChipBase.WiremodChipBase")); }
 	static UStaticMesh* GetGateDecalMesh() { return Self ? Self->GateDecalMesh : LoadObject<UStaticMesh>(NULL, *FString("/Engine/BasicShapes/Plane.Plane")); }
@@ -188,7 +190,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static double GetHologramGridSize() { return UCircuitryStatics::Self->GetHologramGridSize(); }
-	
+
+	UFUNCTION(BlueprintPure)
+	static FString GetWikiUrl() { return UCircuitryStatics::CircuitryWiki; }
 };
 
 typedef UCircuitryConfigBlueprintFunctions CircuitryConfig;
