@@ -36,6 +36,14 @@ enum ETextureAssetCategory
 	TAC_Fauna UMETA(DisplayName="Fauna")
 };
 
+UENUM(Blueprintable, BlueprintType)
+enum ETextureResolutionLevel
+{
+	TRL_Unset,
+	TRL_Low,
+	TRL_High
+};
+
 USTRUCT()
 struct FTextureAssetMetadata : public FTableRowBase
 {
@@ -53,6 +61,9 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TEnumAsByte<ETextureAssetCategory> Category;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	TEnumAsByte<ETextureResolutionLevel> ResolutionLevel = TRL_Unset;
 };
 
 USTRUCT(Blueprintable, BlueprintType)
@@ -75,6 +86,9 @@ struct FTextureAssetData
 	UPROPERTY(BlueprintReadWrite)
 	TEnumAsByte<ETextureAssetCategory> Category = TAC_Other;
 
+	UPROPERTY(BlueprintReadWrite)
+	TEnumAsByte<ETextureResolutionLevel> ResolutionLevel = TRL_Unset;
+
 	FTextureAssetData(){}
 
 	FTextureAssetData(const FString& Owner, const FSoftObjectPath& TextureAsset) : OwnerPlugin(Owner), Texture(TextureAsset)
@@ -87,6 +101,7 @@ struct FTextureAssetData
 		if(!Metadata.ReadableName.IsEmpty()) ReadableName = Metadata.ReadableName;
 		AssetSource = Metadata.Source;
 		Category = Metadata.Category;
+		ResolutionLevel = Metadata.ResolutionLevel;
 	}
 };
 /**
@@ -145,7 +160,6 @@ public:
 				Out.Add(OutputData);
 			}
 		}
-
 		return Out;
 	}
 

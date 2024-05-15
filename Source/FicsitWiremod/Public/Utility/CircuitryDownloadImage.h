@@ -74,6 +74,7 @@ struct FCircuitryImageDownloadTask
 };
 
 
+
 UCLASS(BlueprintType, Blueprintable)
 class UCircuitryImageObject : public UObject
 {
@@ -84,9 +85,22 @@ public:
 
 
 	UFUNCTION(BlueprintCallable)
-	bool DoesFitFilter(const FText& Text, bool Modded, bool Vanilla, bool Buildables, bool Items, bool Other, bool UI, bool Materials, bool Customizer, bool Fauna)
+	bool DoesFitFilter(const FText& Text, bool Modded, bool Vanilla, bool Buildables, bool Items, bool Other, bool UI, bool Materials, bool Customizer, bool Fauna, ETextureResolutionLevel ResolutionLevel)
 	{
 		auto StringText = Text.ToString();
+
+		if(Data.ResolutionLevel != ResolutionLevel && ResolutionLevel != TRL_Unset && Data.ResolutionLevel != TRL_Unset) return false;
+
+		if(Data.AssetSource == Mod && !Modded) return false;
+		if(Data.AssetSource == Game && !Vanilla) return false;
+		
+		if(Data.Category == TAC_Item && !Items) return false;
+		if(Data.Category == TAC_Buildable && !Buildables) return false;
+		if(Data.Category == TAC_Interface && !UI) return false;
+		if(Data.Category == TAC_Rendering && !Materials) return false;
+		if(Data.Category == TAC_Customizer && !Customizer) return false;
+		if(Data.Category == TAC_Fauna && !Fauna) return false;
+		if(Data.Category == TAC_Other && !Other) return false;
 
 		if(StringText.Len() > 0)
 		{
@@ -112,19 +126,7 @@ public:
 
 			if(!TextMatch) return false;
 		}
-
-		if(Data.AssetSource == Mod && !Modded) return false;
-		if(Data.AssetSource == Game && !Vanilla) return false;
-
-
-		if(Data.Category == TAC_Item && !Items) return false;
-		if(Data.Category == TAC_Buildable && !Buildables) return false;
-		if(Data.Category == TAC_Interface && !UI) return false;
-		if(Data.Category == TAC_Rendering && !Materials) return false;
-		if(Data.Category == TAC_Customizer && !Customizer) return false;
-		if(Data.Category == TAC_Fauna && !Fauna) return false;
-		if(Data.Category == TAC_Other && !Other) return false;
-
+		
 		return true;
 	}
 
@@ -162,7 +164,7 @@ public:
 	{
 		TextureAssets.Empty();
 		auto Assets = UTextureUtilities::GetAllTextureAssets(false, false, true);
-
+		
 		for(auto& Asset : Assets)
 		{
 			if(!Asset.Texture.IsValid()) continue;
