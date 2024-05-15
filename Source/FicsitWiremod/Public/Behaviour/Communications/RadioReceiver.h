@@ -92,6 +92,37 @@ public:
 
 	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return DataReceived; }
 
+	UFUNCTION(BlueprintCallable)
+	TArray<ARadioTransmitter*> SortTransmitters(TArray<ARadioTransmitter*> Input)
+	{
+		const auto Sort = [&](ARadioTransmitter& Lhs, ARadioTransmitter& Rhs)-> bool
+		{
+			const double DistanceLeft = FVector::Distance(GetActorLocation(), Lhs.GetActorLocation());
+			const double DistanceRight = FVector::Distance(GetActorLocation(), Rhs.GetActorLocation());
+			return DistanceLeft < DistanceRight;
+		};
+		
+		Input.StableSort(Sort);
+
+		const auto ReceiverName = OwnerData.CustomName.ToString();
+		if(ReceiverName.Len() > 0)
+		{
+			//Put transmitters that match the receiver's name at the top of the list
+			TArray SortNameMatches(Input);
+			for(int i = SortNameMatches.Num() - 1; i >= 0; i--)
+			{
+				const auto Transmitter = SortNameMatches[i];
+				const auto Name = Transmitter->OwnerData.CustomName.ToString();
+				if(Name.Contains(ReceiverName))
+				{
+					Input.Remove(Transmitter);
+					Input.Insert(Transmitter, 0);
+				}
+			}
+		}
+
+		return Input;
+	}
 
 	UPROPERTY(Replicated, VisibleInstanceOnly, BlueprintReadOnly, SaveGame)
 	ARadioTransmitter* TransmitterReference;
