@@ -21,7 +21,7 @@ enum ESignDataVersion : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FManagedSignData
+struct FManagedSignData : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -34,6 +34,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	double EmissionLevel = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	double MatteLevel = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool UsesLumen = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	double TicksPerSecond = 100;
@@ -61,7 +67,9 @@ public:
 		&& Variables == Other.Variables
 		&& DotsPerInch == Other.DotsPerInch
 		&& EmissionLevel == Other.EmissionLevel
-		&& TicksPerSecond == Other.TicksPerSecond;
+		&& TicksPerSecond == Other.TicksPerSecond
+		&& MatteLevel == Other.MatteLevel
+		&& UsesLumen == Other.UsesLumen;
 	}
 };
 

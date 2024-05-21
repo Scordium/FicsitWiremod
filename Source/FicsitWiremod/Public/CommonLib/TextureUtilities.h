@@ -10,8 +10,10 @@
 #include "Components/Image.h"
 #include "Engine/DataTable.h"
 #include "Engine/Texture2DDynamic.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Resources/FGItemDescriptor.h"
+#include "Slate/WidgetRenderer.h"
 #include "TextureUtilities.generated.h"
 
 UENUM(Blueprintable, BlueprintType)
@@ -233,7 +235,9 @@ public:
 			Image->SetBrushFromTextureDynamic(Tex2DDynamic);
 	}
 
-
+	UFUNCTION(BlueprintCallable)
+	static UTexture2D* CreateTexture(const FVector2D& Size) { return UTexture2D::CreateTransient(Size.X, Size.Y); }
+	
 	static inline TMap<TSoftObjectPtr<UTexture2D>, int32> TextureToIconMap;
 	static inline TMap<int32, TSoftObjectPtr<UTexture2D>> IconToTextureMap;
 
