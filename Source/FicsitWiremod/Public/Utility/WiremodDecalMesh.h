@@ -1,6 +1,4 @@
-﻿// 
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "WiremodUtils.h"
@@ -17,7 +15,6 @@ class FICSITWIREMOD_API UWiremodDecalMesh : public UStaticMeshComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UWiremodDecalMesh();
 
 	virtual void BeginPlay() override;

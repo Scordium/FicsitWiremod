@@ -64,6 +64,9 @@ public:
 		mHologramClass = AWiremodBuildableHologram::StaticClass();
 		
 		BuildableDecal->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+		BuildableDecal->SetWorldScale3D(FVector(0.35, 0.35, 0.35));
+		BuildableDecal->SetRelativeLocation(FVector(0, 0, 8.5));
+		
 		FINConnector->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	}
 
