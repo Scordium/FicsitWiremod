@@ -11,6 +11,7 @@
 #include "Components/SignBindingsProvider.h"
 #include "Components/SignComponentBase.h"
 #include "Components/SignComponentDescriptor.h"
+#include "Holo/ManagedSignVanillaHologram.h"
 #include "ManagedSign.generated.h"
 
 UENUM(Blueprintable, BlueprintType)
@@ -89,6 +90,11 @@ UCLASS()
 class FICSITWIREMOD_API AManagedSign : public AFGWiremodBuildable
 {
 	GENERATED_BODY()
+
+	AManagedSign(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer)
+	{
+		mHologramClass = AManagedSignVanillaHologram::StaticClass();
+	}
 
 public:
 	virtual void ClientProcess_Implementation(double DeltaTime) override

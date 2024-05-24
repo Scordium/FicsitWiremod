@@ -1,6 +1,4 @@
 ﻿#include "Behaviour/Displays/ManagedSign/Holo/ManagedSignVanillaHologram.h"
-
-#include "WiremodUtils.h"
 #include "Behaviour/Displays/ManagedSign/ManagedSign.h"
 
 #define PROJECT(v, a) FVector::PointPlaneProject(v, a->GetActorLocation(), a->GetActorUpVector())

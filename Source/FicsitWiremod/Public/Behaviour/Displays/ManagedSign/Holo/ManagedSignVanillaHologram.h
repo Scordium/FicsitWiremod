@@ -37,7 +37,6 @@ public:
 	UPROPERTY() FVector2D SizeSelf = FVector2D::ZeroVector;
 	UPROPERTY() double OffsetSelf = 0;
 	UPROPERTY() TSubclassOf<AFGBuildableWidgetSign> VanillaVersion;
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly) double GridSize = 25;
 
 	UPROPERTY() AFGBuildableWidgetSign* UpgradedActor = nullptr;
 };
