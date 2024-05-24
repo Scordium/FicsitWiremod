@@ -129,11 +129,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Replicated)
 	FManagedSignData Data;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	TArray<USignComponentBase*> ActiveComponents;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	TArray<USignComponentBase*> StaticComponents;
+
+	UPROPERTY(EditDefaultsOnly)
+	double HologramOffset = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AFGBuildableWidgetSign> VanillaVersion;
 
 	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
 	{

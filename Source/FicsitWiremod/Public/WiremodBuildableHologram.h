@@ -18,7 +18,6 @@ class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 	{
 		mNeedsValidFloor = false;
 		mAttachmentPointSnapDistanceThreshold = 3000;
-		
 	}
 
 	virtual void BeginPlay() override
