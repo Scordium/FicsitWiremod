@@ -323,6 +323,21 @@ public:
 	TArray<FSignComponentVariableData> Variables;
 
 	UFUNCTION(BlueprintCallable)
+	bool GetVariable(TSubclassOf<USignComponentVariableName> Name, FSignComponentVariableData& Out)
+	{
+		for(auto& Var : Variables)
+		{
+			if(Var.Name == Name)
+			{
+				Out = Var;
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	UFUNCTION(BlueprintCallable)
 	FString GetVariableValue(TSubclassOf<USignComponentVariableName> Name, bool& Success)
 	{
 		for(auto& Var : Variables)
