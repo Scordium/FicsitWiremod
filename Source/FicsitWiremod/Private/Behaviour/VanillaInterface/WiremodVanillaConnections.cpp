@@ -3,9 +3,20 @@
 
 void ACircuitryBlueprintConnectionProxy::Tick(float DeltaSeconds)
 {
+	//If our object no longer exists then we should just destroy the proxy.
+	if(!SavedData.Buildable)
+	{
+		Execute_Dismantle(this);
+		return;
+	}
+
+	//Find data for this buildable
 	auto Data = AWiremodVanillaConnections::Self->Game_VanillaBuildableData.Find(SavedData.Buildable);
+
+	//If data was found then we're most likely in a blueprint designer, save the current data to not have any desync issues.
 	if(Data) SavedData.Data = *Data;
-	else ApplyConnectionToSystem();
+	//If no data was found and blueprint designer is null, then we were just spawned from a blueprint and need to register the data with the system.
+	else if(!mBlueprintDesigner) ApplyConnectionToSystem();
 }
 
 void ACircuitryBlueprintConnectionProxy::ApplyConnectionToSystem()

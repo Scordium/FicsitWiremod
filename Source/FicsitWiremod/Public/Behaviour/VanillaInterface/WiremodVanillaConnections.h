@@ -6,7 +6,6 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Buildables/FGBuildableBlueprintDesigner.h"
 #include "CommonLib/OwnerData/OwnerData.h"
-#include "Patching/NativeHookManager.h"
 #include "Subsystem/ModSubsystem.h"
 #include "Utility/CircuitryLogger.h"
 #include "WiremodVanillaConnections.generated.h"
