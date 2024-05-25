@@ -88,6 +88,11 @@ public:
 
 		for(const auto& Field : Out.Values)
 		{
+			if(!Field.Value)
+			{
+				ACircuitryLogger::DispatchWarningEvent("Detected null value on struct recompile: " + Field.Name);
+				continue;
+			}
 			auto Input = FBuildingConnection(Field.Name, "", Field.Value->ConnectionType);
 			ConnectionsInfo.Inputs.Add(Input);
 		}

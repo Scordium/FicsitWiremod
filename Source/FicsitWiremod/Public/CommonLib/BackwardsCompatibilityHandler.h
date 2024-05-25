@@ -51,14 +51,14 @@ class UBackwardsCompatibilityFunctions : public UBlueprintFunctionLibrary
 public:
 	
 	UFUNCTION(BlueprintPure)
-	static bool CustomStructReplicatableEqual(FString NameOriginal, const TArray<FNamedDynamicValue>& ValuesOriginal, FString NameNew, const TArray<FNamedValue>& ValuesNew, UObject* WorldContext)
+	static bool CustomStructReplicatableEqual(const FString& NameOriginal, const TArray<FNamedDynamicValue>& ValuesOriginal, const FString& NameNew, const TArray<FNamedValue>& ValuesNew)
 	{
 		if(NameOriginal != NameNew) return false;
-		return NamedValuesEqual(ValuesOriginal, ValuesNew, WorldContext);
+		return NamedValuesEqual_NoValue(ValuesOriginal, ValuesNew);
 	}
 
 	UFUNCTION(BlueprintPure)
-	static bool NamedValuesEqual(const TArray<FNamedDynamicValue>& ValuesOriginal, const TArray<FNamedValue>& ValuesNew, UObject* WorldContext)
+	static bool NamedValuesEqual(const TArray<FNamedDynamicValue>& ValuesOriginal, const TArray<FNamedValue>& ValuesNew)
 	{
 		if(ValuesOriginal.Num() != ValuesNew.Num()) return false;
 		for(int i = 0; i < ValuesNew.Num(); i++)
@@ -68,6 +68,35 @@ public:
 		}
 
 		return true;
+	}
+
+	UFUNCTION(BlueprintPure, DisplayName="Named Values Equal (by type)")
+	static bool NamedValuesEqual_NoValue(const TArray<FNamedDynamicValue>& ValuesOriginal, const TArray<FNamedValue>& ValuesNew)
+	{
+		if(ValuesOriginal.Num() != ValuesNew.Num()) return false;
+		for(int i = 0; i < ValuesNew.Num(); i++)
+		{
+			if(ValuesOriginal[i].Name != ValuesNew[i].Name) return false;
+			if(!ValuesOriginal[i].Value || ValuesOriginal[i].Value->ConnectionType != ValuesNew[i].Value.Type) return false;
+		}
+
+		return true;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static bool ContainsBadFields(const TArray<FNamedValue>& Values)
+	{
+		TArray<FString> UniqueNames;
+
+		for (const FNamedValue& Value : Values)
+		{
+			if(Value.Name.Len() == 0) return true;
+			if(UniqueNames.Contains(Value.Name)) return true;
+
+			UniqueNames.Add(Value.Name);
+		}
+
+		return false;
 	}
 
 	UFUNCTION(BlueprintPure)

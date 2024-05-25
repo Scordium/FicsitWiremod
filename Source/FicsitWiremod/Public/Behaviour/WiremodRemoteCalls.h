@@ -31,7 +31,7 @@ struct FCustomStructReplicatable
 	
 		for(auto& Val : Values)
 		{
-			auto Field = FNamedDynamicValue(Val.Name, UCCDynamicValueUtils::FromWrapper(WorldContext, Val.Value));
+			auto Field = FNamedDynamicValue(Val.Name, UCCDynamicValueUtils::FromType(Val.Value.Type, WorldContext));
 			Value.Values.Add(Field);
 		}
 

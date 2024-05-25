@@ -125,6 +125,7 @@ public:
 		OnSignDataChanged(NewData);
 	}
 
+#if WITH_EDITOR
 	UFUNCTION(CallInEditor, BlueprintCallable)
 	void SetLayoutFromJson()
 	{
@@ -139,6 +140,7 @@ public:
 
 		Data = Layout;
 	}
+#endif
 
 	UFUNCTION(NetMulticast, Reliable)
 	void OnSignDataChanged(const FManagedSignData& NewData);
