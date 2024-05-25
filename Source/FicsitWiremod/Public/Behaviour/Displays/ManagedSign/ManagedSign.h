@@ -125,6 +125,21 @@ public:
 		OnSignDataChanged(NewData);
 	}
 
+	UFUNCTION(CallInEditor, BlueprintCallable)
+	void SetLayoutFromJson()
+	{
+		FString Json;
+		FPlatformMisc::ClipboardPaste(Json);
+
+		FManagedSignData Layout;
+		TSharedPtr<FJsonObject> Object;
+		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Json), Object)) return;
+
+		if(!FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Layout)) return;
+
+		Data = Layout;
+	}
+
 	UFUNCTION(NetMulticast, Reliable)
 	void OnSignDataChanged(const FManagedSignData& NewData);
 	void OnSignDataChanged_Implementation(const FManagedSignData& NewData){ GenerateSignWidget(NewData); }
