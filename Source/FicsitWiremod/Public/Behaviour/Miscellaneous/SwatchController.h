@@ -20,28 +20,28 @@ public:
 		const uint8 Slot = GetConnection(0).GetFloat();
 		const auto PrimaryColor = GetConnection(1).GetColor();
 		const auto SecondaryColor = GetConnection(2).GetColor();
-		const auto Metallic = GetConnection(3).GetFloat();
-		const auto Roughness = GetConnection(4).GetFloat();
 
-		auto SlotData = FFactoryCustomizationColorSlot(PrimaryColor, SecondaryColor);
-		SlotData.Metallic = Metallic;
-		SlotData.Roughness = Roughness;
-
-		if(SlotData == Cache) return;
-
-
-		const auto State = Cast<AFGGameState>(UGameplayStatics::GetGameState(this));
+		if(Cache.PrimaryColor == PrimaryColor && Cache.SecondaryColor == SecondaryColor && Slot == SlotCache) return;
+		
+		if(State == nullptr) State = Cast<AFGGameState>(UGameplayStatics::GetGameState(this));
+		
 		if(State)
 		{
-			Cache = SlotData;
-			State->Server_SetBuildingColorDataForSlot(Slot, SlotData);
+			Cache.PrimaryColor = PrimaryColor;
+			Cache.SecondaryColor = SecondaryColor;
+			SlotCache = Slot;
+			State->Server_SetBuildingColorDataForSlot(Slot, Cache);
 		}
 	}
 
-
+	UPROPERTY()
+	AFGGameState* State;
 
 	UPROPERTY()
 	FFactoryCustomizationColorSlot Cache;
+
+	UPROPERTY()
+	int SlotCache;
 };
 
 UCLASS()
