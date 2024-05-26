@@ -77,6 +77,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetComponentName(const FText& NewName) { ComponentData.Metadata.ComponentName = NewName; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetComponentCategory(const FText& NewCategory)
+	{
+		ComponentData.Metadata.Category = NewCategory.ToString();
+		IManagedSignEditorWindow::Execute_RefreshComponentList(Parent.GetObject());
+	}
 	
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent)
 	FSignComponentData CompileComponent();

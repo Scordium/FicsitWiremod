@@ -223,12 +223,58 @@ public:
 	TArray<FSignComponentVariableData> Variables = TArray<FSignComponentVariableData>();
 };
 
+UCLASS(Blueprintable, BlueprintType)
+class USignComponentsCategory : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly)
+	FString CategoryName;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TMap<FString, USignComponentsCategory*> Subcategories;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<USignEditorComponentBase*> Components;
+
+	void AddItem(const FString& ItemCategory, USignEditorComponentBase* Component, int NestingLevel = 0);
+
+	//Generates category string all the way to the top category. Used for category collapsing.
+	UFUNCTION(BlueprintCallable)
+	FString CreateCategoryString(FString CurrentString)
+	{
+		auto Outer = GetTypedOuter<USignComponentsCategory>();
+		
+		if(CurrentString.Len() == 0) return Outer ? Outer->CreateCategoryString(CategoryName) : CategoryName;
+		else return Outer ? Outer->CreateCategoryString(CategoryName + " | " + CurrentString) : CategoryName + " | " + CurrentString;  
+	}
+};
+
 UCLASS()
 class UManagedSignUtilityFunctions : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<USignComponentsCategory*> SplitComponentsByCategories(const TArray<USignEditorComponentBase*>& Components, UObject* WorldContext)
+	{
+		auto TopCategory = NewObject<USignComponentsCategory>(WorldContext);
+		TopCategory->CategoryName = "Default";
+
+		for (USignEditorComponentBase* Component : Components)
+			TopCategory->AddItem(Component->ComponentData.Metadata.Category, Component);
+		
+		TArray<USignComponentsCategory*> Categories;
+		TopCategory->Subcategories.GenerateValueArray(Categories);
+		TopCategory->Subcategories.Empty();
+
+		if(TopCategory->Components.Num() != 0) Categories.Insert(TopCategory, 0);
+
+		return Categories;
+	}
 
 	UFUNCTION(BlueprintPure, meta=(ScriptOperator="=="), DisplayName="Sign layout equals")
 	static bool SignLayoutEquals(const FManagedSignData& Data1, const FManagedSignData& Data2) { return Data1 == Data2; }
