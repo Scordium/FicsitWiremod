@@ -73,8 +73,9 @@ bool AManagedSignVanillaHologram::TryUpgrade(const FHitResult& HitResult)
 	auto VanillaSign = Cast<AFGBuildableWidgetSign>(HitResult.GetActor());
 	if(VanillaSign && VanillaSign->IsA(VanillaVersion))
 	{
-		SetActorTransform(VanillaSign->GetTransform());
-		AddActorWorldRotation(FRotator(0, 0, 90));
+		auto OriginalTransform = VanillaSign->GetTransform();
+		OriginalTransform.SetRotation( OriginalTransform.GetRotation() * FRotator(0, 0, 90).Quaternion());
+		SetActorTransform(OriginalTransform);
 		UpgradedActor = VanillaSign;
 
 		return true;
