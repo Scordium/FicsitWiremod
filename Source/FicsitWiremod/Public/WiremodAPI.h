@@ -18,12 +18,30 @@
 #include "WiremodAPI.generated.h"
 
 USTRUCT(BlueprintType)
+struct FCircuitryObjectDataList
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int64 UploadDate = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UDataTable* Data = nullptr;
+
+	FCircuitryObjectDataList(){}
+	FCircuitryObjectDataList(FDateTime UploadTime, UDataTable* Table) : UploadDate(UploadTime.ToUnixTimestamp()), Data(Table){}
+	FCircuitryObjectDataList(UDataTable* Table) : UploadDate(FDateTime::Now().ToUnixTimestamp()), Data(Table){}
+};
+
+USTRUCT(BlueprintType)
 struct FWiremodAPIData
 {
 	GENERATED_BODY()
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TMap<FString, UDataTable*> ConnectionLists;
+	TMap<FString, FCircuitryObjectDataList> ObjectDataLists;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UDataTable* FactoryGameList;
@@ -114,6 +132,19 @@ public:
 				.Replace(*ForceFileUsePrefix, *FString())
 				.Replace(*FString(".json"), *FString(""));
 			}
+			else if(!File.StartsWith(ForceFileUsePrefix) && !ForceOverwrite)
+			{
+				Version.RemoveFromEnd(".json");
+				auto FileTimestamp = FDateTime::FromUnixTimestamp(FCString::Atoi64(*Version));
+				
+				if(!IsCurrentVersionOlder(ModRef, FileTimestamp, false))
+				{
+					FFileManagerGeneric::Get().Delete(*FString(Path + "/" + File));
+					ACircuitryLogger::DispatchEvent("Deleted outdated package (" + File + ") as the local version is newer.", ELogVerbosity::Display);
+					continue;
+				}
+				
+			}
 			
 			AddList(ModRef, Table, File.StartsWith(ForceFileUsePrefix) || ForceOverwrite);
 		}
@@ -125,29 +156,29 @@ public:
 	
 	
 	UFUNCTION(BlueprintCallable)
-	void AddLists(TMap<FString, UDataTable*> Lists, UDataTable* FactoryGameList, bool Override)
+	void AddLists(const TMap<FString, UDataTable*>& Lists, UDataTable* FactoryGameList, bool Override)
 	{
 		Data.FactoryGameList = FactoryGameList;
-		for (TTuple<FString, UDataTable*> List : Lists)
+		for (const TTuple<FString, UDataTable*>& List : Lists)
 		{
-			if(Data.ConnectionLists.Contains(List.Key) && !Override) continue;
-			Data.ConnectionLists.Add(List);
+			if(Data.ObjectDataLists.Contains(List.Key) && !Override) continue;
+			Data.ObjectDataLists.Add(List);
 		}
 	}
 
 	UFUNCTION(BlueprintCallable)
 	void AddList(const FString& ModReference, UDataTable* List, bool AllowOverwrite = false)
 	{
-		if(Data.ConnectionLists.Contains(ModReference) && !AllowOverwrite) return;
+		if(Data.ObjectDataLists.Contains(ModReference) && !AllowOverwrite) return;
 
 		ACircuitryLogger::DispatchEvent("[CIRCUITRY API] New connections list was added at runtime. {Mod reference:" + ModReference + " | Entries count:" + CC_INT(List->GetRowNames().Num()) + "}", ELogVerbosity::Display);
-		Data.ConnectionLists.Add(ModReference, List);
+		Data.ObjectDataLists.Add(ModReference, List);
 	}
 
 	UFUNCTION(BlueprintPure)
 	UDataTable* GetListOrDefault(const FString& ModReference)
 	{
-		if(Data.ConnectionLists.Contains(ModReference)) return *Data.ConnectionLists.Find(ModReference);
+		if(Data.ObjectDataLists.Contains(ModReference)) return Data.ObjectDataLists.Find(ModReference)->Data;
 		return Data.FactoryGameList;
 	}
 
@@ -256,12 +287,12 @@ public:
 			
 			if(!ModLib->IsModLoaded(ModRef)) continue;
 
-			auto CurrentPackageVersion = FindCurrentPackageVersion(ModRef);
+			auto VersionTimestamp = FDateTime::FromUnixTimestamp(FCString::Atoi64(*PackageVersion));
 
-			if(PackageVersion != CurrentPackageVersion) DownloadPackages.Add(Package);
+			if(IsCurrentVersionOlder(ModRef, VersionTimestamp)) DownloadPackages.Add(Package);
 			else
 			{
-				auto Text = "[CIRCUITRY API] Compatibility package for " + ModRef + " is already at latest version (" + PackageVersion + "). Skipping download.";
+				auto Text = "[CIRCUITRY API] Compatibility package for " + ModRef + " is already at a newer version than " + PackageVersion + ". Skipping download.";
 				ACircuitryLogger::DispatchEvent(Text, ELogVerbosity::Display);
 			}
 		}
@@ -270,11 +301,17 @@ public:
 		StartPackageDownload(DownloadPackages);
 	}
 
-	FString FindCurrentPackageVersion(const FString& ModRef) const
+	bool IsCurrentVersionOlder(const FString& ModRef, const FDateTime& OnlineVersion, bool CheckFiles = true) const
 	{
 		auto const Path = FPaths::ProjectDir() + "/CircuitryAPI";
 		TArray<FString> Files;
 		FFileManagerGeneric::Get().FindFiles(Files, *Path, *FString("json"));
+
+		//First check the local version
+		if(auto PackagedList = Data.ObjectDataLists.Find(ModRef))
+			return OnlineVersion > FDateTime::FromUnixTimestamp(PackagedList->UploadDate);
+
+		if(!CheckFiles) return true;
 
 		for(auto& File : Files)
 		{
@@ -285,17 +322,19 @@ public:
 				if(File.Split("__", &ModReference, &Version))
 				{
 					Version.RemoveFromEnd(".json");
-					return Version;
+					auto CurrentVersion = FDateTime::FromUnixTimestamp(FCString::Atoi64(*Version));
+					return OnlineVersion > CurrentVersion;
 				}
 
-				return "";
+				//Versions that don't use <ModRef__UnixTimestamp> format are older by default.
+				return true;
 			}
 		}
 
-		return "";
+		return true;
 	}
 
-	void RemoveCurrentCompatibilityPackage(const FString& ModRef)
+	static void RemoveCurrentCompatibilityPackage(const FString& ModRef)
 	{
 		auto const Path = FPaths::ProjectDir() + "/CircuitryAPI";
 		TArray<FString> Files;
