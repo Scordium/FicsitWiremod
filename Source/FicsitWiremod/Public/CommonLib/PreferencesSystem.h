@@ -52,15 +52,13 @@ public:
 	{
 		if(!Object) return false;
 
-		auto PreferencesCdo = ClassDefaultPreferences.GetDefaultObject();
+		auto PreferencesCDO = ClassDefaultPreferences.GetDefaultObject();
+		checkf(ClassDefaultPreferences.GetDefaultObject(), "Preferences CDO cannot be null!");
 		
-		auto ClassPref = ClassScopedPreferences.Find(Object->GetClass());
-		ClassPreferences = ClassPref ? *ClassPref : PreferencesCdo;
-
-		auto ObjectPref = ObjectScopedPreferences.Find(Object);
-		ObjectPreferences = ObjectPref ? *ObjectPref : PreferencesCdo;
+		ClassPreferences = ClassScopedPreferences.FindOrAdd(Object->GetClass(), PreferencesCDO);
+		ObjectPreferences = ObjectScopedPreferences.FindOrAdd(Object, PreferencesCDO);
 		
-		return ClassPref || ObjectPref;
+		return ClassPreferences || ObjectPreferences;
 	}
 
 
