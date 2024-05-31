@@ -49,6 +49,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void RefreshComponentList();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void ObserveSignComponent(UUserWidget* Component, bool AddToObservedList = false);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void StopObservingSignComponent(UUserWidget* Component);
 };
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FUpdateEditorVariableValue, const FSignComponentVariableData&, Data);
@@ -95,23 +101,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
 	TScriptInterface<IManagedSignEditorWindow> Parent;
 
-	/*
-	 * Whether the user is currently focused on this component (or group, if this component is part of a group)
-	 * TODO: Should this be deprecated? With new vars config window this is useless.
-	 *
-	 */
-	UPROPERTY(BlueprintReadWrite)
-	bool IsFocused;
-
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnComponentTargeted();
 	void OnComponentTargeted_Implementation()
 	{
-		IsFocused = true;
+		OnComponentFocusChanged.Broadcast(this, true);
 		if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject()))
 		{
-			VariablesWindow->OnVariableUpdated.AddDynamic(this, &USignEditorComponentBase::HandleVariableUpdate);
-			VariablesWindow->OnVariableMetadataUpdated.AddDynamic(this, &USignEditorComponentBase::HandleMetadataUpdate);
+			VariablesWindow->OnVariableUpdated.AddUniqueDynamic(this, &USignEditorComponentBase::HandleVariableUpdate);
+			VariablesWindow->OnVariableMetadataUpdated.AddUniqueDynamic(this, &USignEditorComponentBase::HandleMetadataUpdate);
 		}
 	}
 
@@ -119,11 +117,11 @@ public:
 	void OnComponentUntargeted();
 	void OnComponentUntargeted_Implementation()
 	{
-		IsFocused = false;
+		OnComponentFocusChanged.Broadcast(this, false);
 		if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject()))
 		{
-			VariablesWindow->OnVariableUpdated.RemoveDynamic(this, &USignEditorComponentBase::HandleVariableUpdate);
-			VariablesWindow->OnVariableMetadataUpdated.RemoveDynamic(this, &USignEditorComponentBase::HandleMetadataUpdate);
+			VariablesWindow->OnVariableUpdated.RemoveAll(this);
+			VariablesWindow->OnVariableMetadataUpdated.RemoveAll(this);
 		}
 	}
 	

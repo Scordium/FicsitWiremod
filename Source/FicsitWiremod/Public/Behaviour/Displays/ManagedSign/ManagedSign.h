@@ -345,4 +345,66 @@ public:
 		if(DefaultCategoryData.Variables.Num() > 0) Out.Add(DefaultCategoryData);
 		return Out;
 	}
+	
+	UFUNCTION(BlueprintCallable)
+	static void GetCommonVariables(const TArray<USignEditorComponentBase*>& Components, TArray<FSignComponentVariableData>& Out)
+	{
+		TMap<TSubclassOf<USignComponentVariableName>, TArray<FSignComponentVariableData>> DataMap;
+
+		//First store all variables in all components
+		for (USignEditorComponentBase* Component : Components)
+		{
+			for (const FSignComponentVariableData& Variable : Component->ComponentData.Variables)
+			{
+				DataMap.FindOrAdd(Variable.Name).Add(Variable);
+			}
+		}
+
+		auto FindCommonData = [&](const TArray<FSignComponentVariableData>& Variables, FString& OutValue, FString& OutDefaultValue, TArray<FSignComponentVariableMetaData>& OutMetadata) -> void
+		{
+			if(Variables.Num() == 0) return;
+			
+			OutValue = Variables[0].Data;
+			OutDefaultValue = Variables[0].DefaultValue;
+			
+			TMap<FName, TArray<FString>> MetadataMap;
+
+			for (const FSignComponentVariableData& Variable : Variables)
+			{
+				if(!Variable.Data.Equals(OutValue)) OutValue = "";
+				if(!Variable.DefaultValue.Equals(OutDefaultValue)) OutDefaultValue = "";
+					
+				for (const FSignComponentVariableMetaData& MetaData : Variable.MetaData)
+				{
+					MetadataMap.FindOrAdd(MetaData.Name).Add(MetaData.Value);
+				}
+			}
+
+			for (const TTuple<FName, TArray<FString>>& Data : MetadataMap)
+			{
+				if(Data.Value.Num() != Variables.Num()) continue;
+
+				FString CommonMetaValue = Data.Value[0];
+
+				for (FString Value : Data.Value)
+				{
+					if(!Value.Equals(CommonMetaValue)) CommonMetaValue = "";
+				}
+
+				OutMetadata.Add(FSignComponentVariableMetaData(Data.Key, CommonMetaValue));
+			}
+		};
+		
+		for (const auto& Variable : DataMap)
+		{
+			//If the number of variables in this tuple is not equal to the number of components, then this variable isn't present in all components.
+			if(Variable.Value.Num() != Components.Num()) continue;
+			
+			FSignComponentVariableData Data;
+			Data.Name = Variable.Key;
+			FindCommonData(Variable.Value, Data.Data, Data.DefaultValue, Data.MetaData);
+
+			Out.Add(Data);
+		}
+	}
 };
