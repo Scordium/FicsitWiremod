@@ -51,9 +51,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FManagedSignConnectionSettings> Connections;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	TArray<FSignComponentVariableData> Variables;
-
 	float GetTickInterval() const
 	{
 		if(TicksPerSecond == 0) return 0;
@@ -65,7 +62,6 @@ public:
 		return Size == Other.Size
 		&& Components == Other.Components
 		&& Connections == Other.Connections
-		&& Variables == Other.Variables
 		&& DotsPerInch == Other.DotsPerInch
 		&& EmissionLevel == Other.EmissionLevel
 		&& TicksPerSecond == Other.TicksPerSecond
