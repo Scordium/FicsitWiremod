@@ -51,12 +51,11 @@ public:
 	bool GetScopedPreferences(UObject* Object, TSubclassOf<UScopedPreferences> ClassDefaultPreferences, UScopedPreferences*& ClassPreferences, UScopedPreferences*& ObjectPreferences)
 	{
 		if(!Object) return false;
-
-		auto PreferencesCDO = ClassDefaultPreferences.GetDefaultObject();
-		checkf(ClassDefaultPreferences.GetDefaultObject(), "Preferences CDO cannot be null!");
 		
-		ClassPreferences = ClassScopedPreferences.FindOrAdd(Object->GetClass(), PreferencesCDO);
-		ObjectPreferences = ObjectScopedPreferences.FindOrAdd(Object, PreferencesCDO);
+		checkf(ClassDefaultPreferences.GetDefaultObject(), TEXT("Preferences CDO cannot be null!"));
+		
+		ClassPreferences = ClassScopedPreferences.FindOrAdd(Object->GetClass(), NewObject<UScopedPreferences>(this, ClassDefaultPreferences));
+		ObjectPreferences = ObjectScopedPreferences.FindOrAdd(Object, NewObject<UScopedPreferences>(this, ClassDefaultPreferences));
 		
 		return ClassPreferences || ObjectPreferences;
 	}
