@@ -254,17 +254,18 @@ protected:
 				auto RCO = Cast<UWiremodRemoteCalls>(Cast<AFGPlayerController>(GetWorld()->GetFirstPlayerController())->GetRemoteCallObjectOfClass(UWiremodRemoteCalls::StaticClass()));
 				auto Setter = UWiremodBlueprintUtils::GetSetterObject();
 				auto Index = Widget->CurrentIndex;
-
-				RCO->ResetConnections(CurrentTarget, Index, Setter);
-
-
-				FFormatNamedArguments Args;
-				Args.Add("ObjectName", Cast<AFGBuildable>(CurrentTarget)->mDisplayName);
-				Args.Add("InputName", FText::FromString(Widget->GetConnectionName()));
+				if(Index != -1)
+				{
+					RCO->ResetConnections(CurrentTarget, Index, Setter);
+					FFormatNamedArguments Args;
+					Args.Add("ObjectName", Cast<AFGBuildable>(CurrentTarget)->mDisplayName);
+					Args.Add("InputName", FText::FromString(Widget->GetConnectionName()));
 				
-				auto NotificationText = FText::Format(ResetConnectionsSuccessFormat, Args);
+					auto NotificationText = FText::Format(ResetConnectionsSuccessFormat, Args);
 
-				ShowNotification(NotificationText);
+					ShowNotification(NotificationText);
+				}
+				
 				SelectionChanged(CurrentTarget);
 			}
 			else
