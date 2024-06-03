@@ -25,6 +25,6 @@ class FICSITWIREMOD_API ARadiationSensor : public AFGWiremodBuildable, public IF
 		DOREPLIFETIME(ARadiationSensor, RadiationAmount)
 	}
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	double RadiationAmount;
 };
