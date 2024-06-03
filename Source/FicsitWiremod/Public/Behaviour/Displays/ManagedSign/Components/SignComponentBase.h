@@ -105,6 +105,14 @@ public:
 	void SetPosition(const FVector2D& Pos, bool UpdateInEditor = true);
 
 	UFUNCTION(BlueprintCallable)
+	void NudgeComponent(const FVector2D& Axis, bool UpdateInEditor = true)
+	{
+		const auto NudgeAmount = Axis * IManagedSignEditorWindow::Execute_GetCanvasGridSize(Parent.GetObject());
+		
+		SetPosition(GetComponentPosition() + NudgeAmount, UpdateInEditor);
+	}
+	
+	UFUNCTION(BlueprintCallable)
 	void DeltaMovePosition(const FVector2D& Pos, bool UpdateInEditor = true) { SetPosition(GetComponentPosition() + Pos, UpdateInEditor); }
 
 	UFUNCTION(BlueprintCallable)
