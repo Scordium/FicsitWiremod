@@ -8,6 +8,9 @@
 #include "SignComponentVariablesWindow.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "CommonLib/VectorUtils.h"
+#include "Components/CanvasPanelSlot.h"
 #include "SignComponentBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnComponentFocusChanged, UUserWidget*, Component, bool, Focused);
@@ -55,6 +58,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void StopObservingSignComponent(UUserWidget* Component);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	int GetNumObservedComponents() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void BroadcastPositionDelta(const FVector2D& Delta);
 };
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FUpdateEditorVariableValue, const FSignComponentVariableData&, Data);
@@ -67,8 +76,46 @@ class FICSITWIREMOD_API USignEditorComponentBase : public UUserWidget
 public:
 
 	//For some reason UE refuses to tick with blueprint function, so i have to do this shit...
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override { CustomTick(MyGeometry, InDeltaTime); }
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override
+	{
+		CustomTick(MyGeometry, InDeltaTime);
 
+		if(CanMoveComponent())
+		{
+			const double CanvasScale = IManagedSignEditorWindow::Execute_GetCanvasScale(Parent.GetObject());
+			const double CanvasGridSize = IManagedSignEditorWindow::Execute_GetCanvasGridSize(Parent.GetObject());
+			const auto MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(this);
+			
+			auto GridMousePos = UVectorUtils::GridSnap2D(MousePosition / CanvasScale - ViewportOffset, CanvasGridSize);
+
+
+			if(IManagedSignEditorWindow::Execute_GetNumObservedComponents(Parent.GetObject()) > 1)
+				IManagedSignEditorWindow::Execute_BroadcastPositionDelta(Parent.GetObject(), GridMousePos - GetComponentPosition());
+			else if(GridMousePos != GetComponentPosition()) SetPosition(GridMousePos);
+		}
+	}
+
+	UFUNCTION(BlueprintImplementableEvent)
+	bool CanMoveComponent() const;
+
+	UFUNCTION()
+	FVector2D GetComponentPosition() const { return Cast<UCanvasPanelSlot>(Slot)->GetPosition(); }
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void SetPosition(const FVector2D& Pos, bool UpdateInEditor = true);
+
+	UFUNCTION(BlueprintCallable)
+	void DeltaMovePosition(const FVector2D& Pos, bool UpdateInEditor = true) { SetPosition(GetComponentPosition() + Pos, UpdateInEditor); }
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateMouseViewportOffset()
+	{
+		const auto MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(this);
+		const double CanvasScale = IManagedSignEditorWindow::Execute_GetCanvasScale(Parent.GetObject());
+
+		ViewportOffset = MousePosition / CanvasScale - GetComponentPosition();
+	}
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSignComponentData ComponentData;
 	
@@ -162,10 +209,11 @@ public:
 	{
 		OnComponentFocusChanged.Broadcast(this, false);
 		RemoveFromParent();
+		IManagedSignEditorWindow::Execute_StopObservingSignComponent(Parent.GetObject(), this);
 		IManagedSignEditorWindow::Execute_RefreshComponentList(Parent.GetObject());
 	}
-protected:
 	
+protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void CustomTick(const FGeometry& MyGeometry, double DeltaTime);
 
@@ -193,10 +241,13 @@ protected:
 	}
 	
 	UFUNCTION(BlueprintCallable)
-	void UpdateVariableValue(TSubclassOf<USignComponentVariableName> VariableName, const FString& NewValue)
+	void UpdateVariableValue(TSubclassOf<USignComponentVariableName> VariableName, const FString& NewValue, bool UpdateVariablesEditor = true)
 	{
-		if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject()))
-			VariablesWindow->UpdateComponentValue(VariableName, NewValue);
+		if(UpdateVariablesEditor)
+		{
+			if(const auto VariablesWindow = IManagedSignEditorWindow::Execute_GetVariablesEditor(Parent.GetObject()))
+				VariablesWindow->UpdateComponentValue(VariableName, NewValue);
+		}
 		
 		for(auto& Var : ComponentData.Variables)
 		{
@@ -261,6 +312,9 @@ private:
 
 	UPROPERTY()
 	TMap<TSubclassOf<USignComponentVariableName>, FUpdateEditorVariableValue> EditorVariableBindings;
+
+	UPROPERTY()
+	FVector2D ViewportOffset;
 };
 
 
