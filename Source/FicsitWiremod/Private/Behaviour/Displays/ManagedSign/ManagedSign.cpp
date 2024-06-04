@@ -2,12 +2,10 @@
 
 void USignComponentsCategory::AddItem(const FString& ItemCategory, USignEditorComponentBase* Component, int NestingLevel)
 {
-	FString CategoryThis = ItemCategory;
+	FString CategoryThis = ItemCategory.TrimStartAndEnd();
 	FString	CategoryNext;
-
-	bool IsValidCategoryString = (!ItemCategory.Contains("|") && ItemCategory.Len() > 0) || ItemCategory.Split("|", &CategoryThis, &CategoryNext);
 	
-	if(NestingLevel < 5 && IsValidCategoryString)
+	if(NestingLevel < 5 && ItemCategory.Split("|", &CategoryThis, &CategoryNext))
 	{
 		CategoryThis.TrimStartAndEndInline();
 		CategoryNext.TrimStartAndEndInline();
@@ -16,6 +14,12 @@ void USignComponentsCategory::AddItem(const FString& ItemCategory, USignEditorCo
 		ThisLevelCategory->CategoryName = CategoryThis;
 
 		ThisLevelCategory->AddItem(CategoryNext, Component, NestingLevel + 1);
+	}
+	else if(NestingLevel < 5 && ItemCategory.Len() > 0)
+	{
+		auto ThisLevelCategory = Subcategories.FindOrAdd(ItemCategory, NewObject<USignComponentsCategory>(this));
+		ThisLevelCategory->CategoryName = ItemCategory;
+		ThisLevelCategory->Components.Add(Component);
 	}
 	else Components.Add(Component);
 }
