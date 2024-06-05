@@ -33,7 +33,7 @@ public:
 	{
 		Super::BeginPlay();
 
-		HoloSize = UCircuitryStatics::Self->GetHologramGridSize();
+		HoloSize = CircuitryConfig::GetHologramGridSize();
 	}
 
 	virtual void SetHologramLocationAndRotation(const FHitResult& hitResult) override;

@@ -40,9 +40,6 @@ public:
 	double MatteLevel = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool UsesLumen = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	double TicksPerSecond = 100;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
@@ -65,8 +62,7 @@ public:
 		&& DotsPerInch == Other.DotsPerInch
 		&& EmissionLevel == Other.EmissionLevel
 		&& TicksPerSecond == Other.TicksPerSecond
-		&& MatteLevel == Other.MatteLevel
-		&& UsesLumen == Other.UsesLumen;
+		&& MatteLevel == Other.MatteLevel;
 	}
 };
 
@@ -156,6 +152,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	double HologramOffset = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool ShouldSetMeshSize = false;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AFGBuildableWidgetSign> VanillaVersion;
