@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGSaveInterface.h"
 #include "Subsystem/ModSubsystem.h"
+#include "Utility/CircuitryLogger.h"
 #include "PreferencesSystem.generated.h"
 
 UCLASS(Abstract, Blueprintable, BlueprintType)
@@ -55,7 +56,16 @@ public:
 		checkf(ClassDefaultPreferences.GetDefaultObject(), TEXT("Preferences CDO cannot be null!"));
 		
 		ClassPreferences = ClassScopedPreferences.FindOrAdd(Object->GetClass(), NewObject<UScopedPreferences>(this, ClassDefaultPreferences));
-		ObjectPreferences = ObjectScopedPreferences.FindOrAdd(Object, NewObject<UScopedPreferences>(this, ClassDefaultPreferences));
+
+		auto ObjPreferences = ObjectScopedPreferences.Find(Object);
+		if(!ObjPreferences)
+		{
+			if(Object->IsA<AActor>())
+				ObjectPreferences = ObjectScopedPreferences.Add(Object, NewObject<UScopedPreferences>(this, ClassDefaultPreferences));
+			else
+				ACircuitryLogger::DispatchErrorEvent("Saving object preferences for class " + Object->GetClass()->GetName() + " is not supported");
+		}
+		else ObjectPreferences = *ObjPreferences;
 		
 		return ClassPreferences || ObjectPreferences;
 	}
