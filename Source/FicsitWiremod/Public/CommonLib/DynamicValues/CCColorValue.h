@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "CCArrayValueBase.h"
+#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryColorArrayFilter.h"
 #include "CCColorValue.generated.h"
 
 /**
@@ -196,7 +197,21 @@ public:
 			Value.Append(ThisArray->Value);
 		}
 	}
+
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
+	{
+		if(!Filter) Filter = NewObject<UCircuitryColorArrayFilter>(this);
+		return Filter->FromJson(FilterData);
+	}
+
+	virtual void ApplyFilter() override
+	{
+		if(Filter) Value = Filter->FilterValues(Value);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FLinearColor> Value;
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	UCircuitryColorArrayFilter* Filter = nullptr;
 };

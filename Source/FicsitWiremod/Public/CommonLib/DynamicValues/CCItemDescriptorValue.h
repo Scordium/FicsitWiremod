@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "CCArrayValueBase.h"
 #include "CCDynamicValueBase.h"
-#include "CommonLib/FileUtilities.h"
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCItemDescriptorValue.generated.h"
 
@@ -208,6 +207,20 @@ public:
 		}
 	}
 
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
+	{
+		if(!Filter) Filter = NewObject<UCircuitryItemDescriptorArrayFilter>(this);
+		return Filter->FromJson(FilterData);
+	}
+
+	virtual void ApplyFilter() override
+	{
+		if(Filter) Value = Filter->FilterValues(Value);
+	}
+
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<TSubclassOf<UFGItemDescriptor>> Value;
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	UCircuitryItemDescriptorArrayFilter* Filter = nullptr;
 };

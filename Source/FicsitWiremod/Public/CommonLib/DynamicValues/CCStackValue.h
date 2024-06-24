@@ -236,7 +236,22 @@ public:
 			Value.Append(ThisArray->Value);
 		}
 	}
+
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
+	{
+		if(!Filter) Filter = NewObject<UCircuitryItemArrayFilter>(this);
+		
+		return Filter->FromJson(FilterData);
+	}
+
+	virtual void ApplyFilter() override
+	{
+		if(Filter) Value = Filter->FilterValues(Value);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FInventoryStack> Value;
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	UCircuitryItemArrayFilter* Filter = nullptr;
 };

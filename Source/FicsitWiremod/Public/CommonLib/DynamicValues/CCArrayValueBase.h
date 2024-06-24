@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "WiremodReflection.h"
+#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryArrayFilterBase.h"
 #include "CCArrayValueBase.generated.h"
 
 /**
@@ -95,5 +96,18 @@ public:
 	virtual void AppendArray(const UCCArrayValueBase* Array)
 	{
 		DispatchNotImplemented("ARRAY_APPEND");
+	}
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData)
+	{
+		DispatchNotImplemented("SET_FILTER");
+		return false;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	virtual void ApplyFilter()
+	{
+		DispatchNotImplemented("APPLY_FILTER");
 	}
 };

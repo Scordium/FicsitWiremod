@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
+#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryNumberArrayFilter.h"
 #include "CCNumberValue.generated.h"
 
 /**
@@ -193,7 +194,21 @@ public:
 			Value.Append(ThisArray->Value);
 		}
 	}
+
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
+	{
+		if(!Filter) Filter = NewObject<UCircuitryNumberArrayFilter>(this);
+		return Filter->FromJson(FilterData);
+	}
+
+	virtual void ApplyFilter() override
+	{
+		if(Filter) Value = Filter->FilterValues(Value);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<double> Value;
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	UCircuitryNumberArrayFilter* Filter = nullptr;
 };

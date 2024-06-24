@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "ItemAmount.h"
+#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryItemArrayFilter.h"
 #include "CommonLib/FileUtilities.h"
 #include "CCItemAmountValue.generated.h"
 
@@ -234,7 +235,23 @@ public:
 			Value.Append(ThisArray->Value);
 		}
 	}
+
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
+	{
+		if(!Filter) Filter = NewObject<UCircuitryItemArrayFilter>(this);
+
+		Filter->FilterType = ItemAmount;
+		return Filter->FromJson(FilterData);
+	}
+
+	virtual void ApplyFilter() override
+	{
+		if(Filter) Value = Filter->FilterValues(Value);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FItemAmount> Value;
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	UCircuitryItemArrayFilter* Filter = nullptr;
 };

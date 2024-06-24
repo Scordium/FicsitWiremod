@@ -7,6 +7,7 @@
 #include "CCArrayValueBase.h"
 #include "FGTrainStationIdentifier.h"
 #include "ReflectionExternalFunctions.h"
+#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryStringArrayFilter.h"
 #include "Buildables/FGBuildableRailroadStation.h"
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCStringValue.generated.h"
@@ -186,7 +187,21 @@ public:
 			Value.Append(ThisArray->Value);
 		}
 	}
+
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
+	{
+		if(!Filter) Filter = NewObject<UCircuitryStringArrayFilter>(this);
+		return Filter->FromJson(FilterData);
+	}
+
+	virtual void ApplyFilter() override
+	{
+		if(Filter) Value = Filter->FilterValues(Value);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FString> Value;
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	UCircuitryStringArrayFilter* Filter = nullptr;
 };

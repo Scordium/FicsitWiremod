@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "CCArrayValueBase.h"
 #include "CCDynamicValueBase.h"
+#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryBoolArrayFilter.h"
+#include "Behaviour/Gates/Arrays/Filter/Rules/CircuitryBoolFilterRule.h"
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCBoolValue.generated.h"
 
@@ -131,7 +133,7 @@ public:
 	virtual void InsertElement(const FConnectionData& Element, int Index) override
 	{
 		if(!Value.IsValidIndex(Index)) return;
-
+		
 		Value.Insert(Element.GetBool(), Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
@@ -196,6 +198,20 @@ public:
 		}
 	}
 
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
+	{
+		if(!Filter) Filter = NewObject<UCircuitryBoolArrayFilter>(this);
+		return Filter->FromJson(FilterData);
+	}
+
+	virtual void ApplyFilter() override
+	{
+		if(Filter) Value = Filter->FilterValues(Value);
+	}
+	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<bool> Value;
+
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	UCircuitryBoolArrayFilter* Filter = nullptr;
 };
