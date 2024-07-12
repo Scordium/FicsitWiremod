@@ -60,14 +60,24 @@ public:
 		auto ObjPreferences = ObjectScopedPreferences.Find(Object);
 		if(!ObjPreferences)
 		{
-			if(Object->IsA<AActor>())
-				ObjectPreferences = ObjectScopedPreferences.Add(Object, NewObject<UScopedPreferences>(this, ClassDefaultPreferences));
+			if(Object->IsA<UUserWidget>())
+				ACircuitryLogger::DispatchWarningEvent("Saving object preferences for class " + Object->GetClass()->GetName() + " is not supported");
 			else
-				ACircuitryLogger::DispatchErrorEvent("Saving object preferences for class " + Object->GetClass()->GetName() + " is not supported");
+				ObjectPreferences = ObjectScopedPreferences.Add(Object, NewObject<UScopedPreferences>(this, ClassDefaultPreferences));
+				
 		}
 		else ObjectPreferences = *ObjPreferences;
 		
 		return ClassPreferences || ObjectPreferences;
+	}
+
+	UFUNCTION(BlueprintPure)
+	bool GetClassScopedPreferences(TSubclassOf<UObject> Class, TSubclassOf<UScopedPreferences> PreferencesCDO, UScopedPreferences*& ClassPreferences)
+	{
+		checkf(PreferencesCDO.GetDefaultObject(), TEXT("Preferences CDO cannot be null!"));
+		ClassPreferences = ClassScopedPreferences.FindOrAdd(Class, NewObject<UScopedPreferences>(this, PreferencesCDO));
+
+		return true;
 	}
 
 

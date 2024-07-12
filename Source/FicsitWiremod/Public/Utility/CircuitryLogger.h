@@ -31,7 +31,7 @@ public:
 	static void DispatchErrorEvent(const FString& ErrorText)
 	{
 		DispatchEvent(ErrorText, ELogVerbosity::Error);
-		if(Self) Self->OnError();
+		if(Self) Self->OnError(ErrorText);
 	}
 	
 	static void DispatchWarningEvent(const FString& WarningText)
@@ -45,5 +45,5 @@ public:
 	}
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnError();
+	void OnError(const FString& ErrorText);
 };
