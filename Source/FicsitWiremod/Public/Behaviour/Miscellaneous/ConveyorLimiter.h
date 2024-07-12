@@ -14,6 +14,7 @@ class FICSITWIREMOD_API AConveyorLimiter : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
+	
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		StopConveyor = GetConnection(0).GetBool();

@@ -105,14 +105,17 @@ public:
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetTimeTableStop()); }
-	virtual UCCDynamicValueBase* GetElement(int Index) override
+	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
 		
-		auto ValueOut = NewObject<UCCTimeTableStopValue>(this->GetWorld()->PersistentLevel);
+		UCCTimeTableStopValue* ValueOut;
+		if(auto OuterCast = Cast<UCCTimeTableStopValue>(Outer)) ValueOut = OuterCast;
+		else ValueOut = NewObject<UCCTimeTableStopValue>(this->GetWorld()->PersistentLevel);
 		ValueOut->Value = Value[Index];
 		return ValueOut;
 	}
+	
 	virtual void InsertElement(const FConnectionData& Element, int Index) override
 	{
 		if(!Value.IsValidIndex(Index)) return;

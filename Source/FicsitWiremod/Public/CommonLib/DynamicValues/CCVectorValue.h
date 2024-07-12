@@ -96,14 +96,17 @@ public:
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetVector()); }
-	virtual UCCDynamicValueBase* GetElement(int Index) override
+	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
 		
-		auto ValueOut = NewObject<UCCVectorValue>(this->GetWorld()->PersistentLevel);
+		UCCVectorValue* ValueOut;
+		if(auto OuterCast = Cast<UCCVectorValue>(Outer)) ValueOut = OuterCast;
+		else ValueOut = NewObject<UCCVectorValue>(this->GetWorld()->PersistentLevel);
 		ValueOut->Value = Value[Index];
 		return ValueOut;
 	}
+	
 	virtual void InsertElement(const FConnectionData& Element, int Index) override
 	{
 		if(!Value.IsValidIndex(Index)) return;

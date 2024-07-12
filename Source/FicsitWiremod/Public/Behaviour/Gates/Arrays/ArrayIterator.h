@@ -22,7 +22,7 @@ public:
 		{
 			if(Out == nullptr)
 			{
-				Out = ArrayCache->GetElement(CurrentElementIndex);
+				Out = ArrayCache->GetElement(CurrentElementIndex, Out);
 			}
 			else
 			{
@@ -48,7 +48,7 @@ public:
 						}
 
 
-						Out = ArrayCache->GetElement(CurrentElementIndex);
+						Out = ArrayCache->GetElement(CurrentElementIndex, Out);
 					}
 				}
 			}

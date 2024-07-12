@@ -97,11 +97,13 @@ public:
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetCircuit()); }
-	virtual UCCDynamicValueBase* GetElement(int Index) override
+	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
 		
-		auto ValueOut = NewObject<UCCCircuitValue>(this->GetWorld()->PersistentLevel);
+		UCCCircuitValue* ValueOut;
+		if(auto OuterCast = Cast<UCCCircuitValue>(Outer)) ValueOut = OuterCast;
+		else ValueOut = NewObject<UCCCircuitValue>(this->GetWorld()->PersistentLevel);
 		ValueOut->Value = Value[Index];
 		return ValueOut;
 	}

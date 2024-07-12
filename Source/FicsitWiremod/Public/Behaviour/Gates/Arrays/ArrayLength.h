@@ -14,10 +14,9 @@ class FICSITWIREMOD_API AArrayLength : public AFGWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		const auto Conn = GetConnection(0);
-		const auto Value = UCCDynamicValueUtils::FromValue(Conn, Conn.Object);
+		ArrayCache = UCCDynamicValueUtils::FromValue(GetConnection(0), ArrayCache);
 		
-		if(auto Array = Cast<UCCArrayValueBase>(Value))
+		if(auto Array = Cast<UCCArrayValueBase>(ArrayCache))
 			Out = Array->Length();
 		else Out = 0;
 	}
@@ -28,6 +27,9 @@ public:
     
 		DOREPLIFETIME(AArrayLength, Out);
 	}
+
+	UPROPERTY()
+	UCCDynamicValueBase* ArrayCache;
 	
 	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
 	int Out;

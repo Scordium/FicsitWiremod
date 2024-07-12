@@ -84,14 +84,17 @@ public:
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetCustomStruct()); }
-	virtual UCCDynamicValueBase* GetElement(int Index) override
+	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
 		
-		auto ValueOut = NewObject<UCCCustomStructValue>(this->GetWorld()->PersistentLevel);
+		UCCCustomStructValue* ValueOut;
+		if(auto OuterCast = Cast<UCCCustomStructValue>(Outer)) ValueOut = OuterCast;
+		else ValueOut = NewObject<UCCCustomStructValue>(this->GetWorld()->PersistentLevel);
 		ValueOut->Value = Value[Index];
 		return ValueOut;
 	}
+	
 	virtual void InsertElement(const FConnectionData& Element, int Index) override
 	{
 		if(!Value.IsValidIndex(Index)) return;

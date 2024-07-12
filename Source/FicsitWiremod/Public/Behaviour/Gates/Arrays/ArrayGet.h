@@ -18,7 +18,7 @@ public:
 		ArrayCache = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(0), ArrayCache));
 		if(ArrayCache)
 		{
-			Out = ArrayCache->GetElement(GetConnection(1).GetFloat());
+			Out = ArrayCache->GetElement(GetConnection(1).GetFloat(), Out);
 		}
 		else Out = nullptr;
 		

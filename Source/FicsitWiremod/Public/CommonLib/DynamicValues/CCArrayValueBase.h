@@ -34,7 +34,7 @@ public:
 	}
 	
 	UFUNCTION(BlueprintCallable)
-	virtual UCCDynamicValueBase* GetElement(int Index)
+	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer)
 	{
 		DispatchNotImplemented("GET_ELEMENT");
 		return nullptr;

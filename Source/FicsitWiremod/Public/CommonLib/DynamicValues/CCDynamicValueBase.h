@@ -43,11 +43,12 @@ class FICSITWIREMOD_API UCCDynamicValueBase : public UObject, public IFGSaveInte
 
 public:
 
-	UCCDynamicValueBase(){}
+	UCCDynamicValueBase() { DispatchCreated(); }
 
 	explicit UCCDynamicValueBase(EConnectionType Type)
 	{
 		ConnectionType = Type;
+		DispatchCreated();
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -104,6 +105,8 @@ public:
 	virtual bool Equals(UCCDynamicValueBase* Other){ return this == Other; }
 
 	void DispatchNotImplemented(const FString& FuncName) const { ACircuitryLogger::DispatchErrorEvent("Function " + FuncName + " is not implemented for class " + GetClass()->GetName()); }
+
+	void DispatchCreated(){ ACircuitryLogger::DispatchEvent("Dynamic value " + GetName() + " was created. This should NOT happen every frame. If you see this spamming a lot (A LOT, NOT JUST 10-20 LINES!!!) in your console/log, please report to Circuitry team.", ELogVerbosity::Display); }
 };
 
 UCLASS()

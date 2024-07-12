@@ -56,9 +56,26 @@ public:
 
 	UPROPERTY(Replicated, SaveGame)
 	UCCArrayValueBase* ArrayCache;
+
+	UPROPERTY()
+	TArray<UCCDynamicValueBase*> ArrayIndexedCache;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FText ItemDisplayNameFormat = FText::FromString("Item");
 	
-	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return ArrayCache ? ArrayCache->GetElement(FCString::Atoi(*ValueName)) : nullptr; }
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override
+	{
+		if(!ArrayCache) return nullptr;
+
+		const int Index = FCString::Atoi(*ValueName);
+
+		//Caching the array elements so that we don't have to create new ones every frame.
+		//Saves a lot of time that we spend on uobject garbage collecting.
+		UCCDynamicValueBase* IndexedCacheData = ArrayIndexedCache.IsValidIndex(Index) ? ArrayIndexedCache[Index] : nullptr;
+		auto Out = ArrayCache->GetElement(Index, IndexedCacheData);
+		ArrayIndexedCache.SetNum(ArrayCache->Length());
+		ArrayIndexedCache[Index] = Out;
+
+		return Out;
+	}
 };
