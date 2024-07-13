@@ -34,6 +34,12 @@ public:
 			auto const Verb = GetConnection(4).GetString("GET");
 			auto const Headers = GetConnection(5).GetCustomStruct();
 
+			if(Url.Len() == 0)
+			{
+				ACircuitryLogger::DispatchErrorEvent("URL for HTTP Request is empty - cancelled.");
+				return;
+			}
+
 			if(!SupportedVerbs.Contains(Verb.ToUpper()))
 			{
 				ACircuitryLogger::DispatchErrorEvent("Unsupported CURL verb: " + Verb);
@@ -56,7 +62,22 @@ public:
 		Request->SetURL(Url);
 		for(auto& Header : Headers.Values)
 		{
-			if(auto HeaderValue = Cast<UCCStringValue>(Header.Value)) Request->SetHeader(Header.Name, HeaderValue->Value);
+			if(auto HeaderValue = Cast<UCCStringValue>(Header.Value))
+			{
+				if(Header.Name.Len() == 0)
+				{
+					ACircuitryLogger::DispatchErrorEvent("Detected empty header name - this will cause crashes.");
+					continue;
+				}
+				
+				if(HeaderValue->Value.Len() == 0)
+				{
+					ACircuitryLogger::DispatchErrorEvent("Header \"" + Header.Name + "\" cannot have empty value");
+					continue;
+				}
+				
+				Request->SetHeader(Header.Name, HeaderValue->Value);
+			}
 		}
 		Request->OnRequestProgress().BindUObject(this, &AHttpRequestModule::OnRequestProgressUpdated);
 		Request->OnProcessRequestComplete().BindUObject(this, &AHttpRequestModule::OnRequestComplete);
@@ -74,6 +95,11 @@ public:
 
 	void OnRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool Success)
 	{
+		if(!Response.IsValid())
+		{
+			ACircuitryLogger::DispatchErrorEvent("HTTP Response is invalid (nullptr)");
+			return;
+		}
 		ResponseCode = Response->GetResponseCode();
 		ResponseString = Response->GetContentAsString();
 		ResponseHeaders = Response->GetAllHeaders();
