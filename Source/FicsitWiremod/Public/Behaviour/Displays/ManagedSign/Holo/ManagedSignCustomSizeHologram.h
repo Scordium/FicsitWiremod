@@ -41,6 +41,17 @@ public:
 	virtual bool CanTakeNextBuildStep() const override { return true; }
 
 	virtual void ConfigureActor(AFGBuildable* inBuildable) const override;
+
+	virtual int32 GetRotationStep() const override { return 5; }
+
+	FQuat CalculateRotation(const FVector& ImpactNormal) const
+	{
+		auto ImpactQuat = FQuat::FindBetweenNormals(FVector::UpVector, ImpactNormal);
+		auto MagicNumber = FMath::Abs(FMath::RadiansToDegrees(FMath::Atan2(ImpactNormal.X, ImpactNormal.Y)));
+		auto ScrollRotationQuat = FQuat(FVector::UpVector, FMath::DegreesToRadians(mScrollRotation + MagicNumber));
+
+		return ImpactQuat * ScrollRotationQuat;
+	}
 	
 	UPROPERTY() FVector StartPosition;
 	UPROPERTY() FVector StartImpactNormal;

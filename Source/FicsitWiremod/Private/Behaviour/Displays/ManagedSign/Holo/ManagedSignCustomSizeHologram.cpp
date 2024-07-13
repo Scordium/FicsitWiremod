@@ -5,7 +5,7 @@
 void AManagedSignCustomSizeHologram::BeginPlay()
 {
 	Super::BeginPlay();
-	SetActorScale3D(FVector::ZeroVector);
+	//SetActorScale3D(FVector::ZeroVector);
 
 	mNeedsValidFloor = false;
 	mGridSnapSize = CircuitryConfig::GetHologramGridSize();
@@ -32,7 +32,7 @@ void AManagedSignCustomSizeHologram::SetHologramLocationAndRotation(const FHitRe
 		StartPosition = Location;
 		StartImpactNormal = Normal;
 	
-		SetActorLocationAndRotation(StartPosition, FQuat::FindBetweenNormals(FVector::UpVector, Normal));
+		SetActorLocationAndRotation(StartPosition, CalculateRotation(Normal));
 	}
 	else
 	{
@@ -48,6 +48,7 @@ void AManagedSignCustomSizeHologram::SetHologramLocationAndRotation(const FHitRe
 		SetActorScale3D(FVector(Size/200, 1));
 
 		auto Center = (StartPosition*2 + PositionDelta)/2;
-		SetActorLocation(Center);
+		
+		SetActorLocationAndRotation(Center, CalculateRotation(StartImpactNormal));
 	}
 }
