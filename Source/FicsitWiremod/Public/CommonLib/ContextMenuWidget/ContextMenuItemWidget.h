@@ -23,6 +23,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
 	FText Tooltip;
 
+	UPROPERTY(BlueprintReadWrite, meta=(ExposeOnSpawn="true"))
+	FText Keybind;
 	/*
 	 * Whether this item is clickable on its own, or is only used to contain other items.
 	 */
