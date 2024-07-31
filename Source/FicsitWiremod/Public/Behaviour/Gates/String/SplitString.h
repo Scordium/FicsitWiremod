@@ -18,7 +18,15 @@ public:
 		auto Separator = GetConnection(1).GetString();
 		auto CullEmpty = GetConnection(2).GetBool();
 		
-		Source.ParseIntoArray(Out, *Separator, CullEmpty);
+		if(Separator.Len() > 0) Source.ParseIntoArray(Out, *Separator, CullEmpty);
+		else
+		{
+			Out.Empty();
+			for (int i = 0; i < Source.Len(); i++)
+			{
+				Out.Add(FString::Chr(Source[i]));
+			} 
+		}
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
