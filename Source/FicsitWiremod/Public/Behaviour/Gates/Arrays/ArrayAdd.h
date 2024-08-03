@@ -30,7 +30,7 @@ public:
 		DOREPLIFETIME(AArrayAdd, Out);
 	}
 
-	virtual UObject* GetValue_Implementation(const class FString& ValueName) override{ return Out; }
+	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }
 
 	virtual void OnInputConnected_Implementation(const FConnectionData& Data, int Index, UObject* Setter) override
 	{

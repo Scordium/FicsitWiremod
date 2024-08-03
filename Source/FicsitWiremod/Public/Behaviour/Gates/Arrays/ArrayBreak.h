@@ -74,8 +74,8 @@ public:
 		UCCDynamicValueBase* IndexedCacheData = ArrayIndexedCache.IsValidIndex(Index) ? ArrayIndexedCache[Index] : nullptr;
 		auto Out = ArrayCache->GetElement(Index, IndexedCacheData);
 		ArrayIndexedCache.SetNum(ArrayCache->Length());
-		ArrayIndexedCache[Index] = Out;
-
+		if(ArrayIndexedCache.IsValidIndex(Index)) ArrayIndexedCache[Index] = Out;
+		
 		return Out;
 	}
 };
