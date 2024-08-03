@@ -15,7 +15,7 @@ class FICSITWIREMOD_API AChangeDetector : public AFGWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		auto Value = UCCDynamicValueUtils::FromValue(GetConnection(0), this);
+		auto Value = UCCDynamicValueUtils::FromValue(GetConnection(0), CachedValue);
 
 		if(CachedValue == nullptr) Out = false;
 		else Out = !CachedValue->Equals(Value);

@@ -110,9 +110,6 @@ class FICSITWIREMOD_API AWiremodVanillaConnections : public AModSubsystem
 	GENERATED_BODY()
 
 public:
-
-	//A shitty bandaid because USubsystemActorManager can't find the subsystem instance despite it being registered and accessible through this variable.
-	inline static AWiremodVanillaConnections* Self;
 	
 	// Sets default values for this actor's properties
 	AWiremodVanillaConnections() : Super()
@@ -127,14 +124,13 @@ protected:
 	virtual void BeginPlay() override
 	{
 		Super::BeginPlay();
-		Self = this;
 		if(!HasAuthority()) return;
 
 		LoadConnections();
 		DrawWires(true);
 	}
 
-	FVanillaBuildingDataKeyValuePair GetOrDefault(UObject* Object)
+	FVanillaBuildingDataKeyValuePair GetDataUnchecked(UObject* Object)
 	{
 		for(auto& Data : SavedVanillaBuildableData)
 		{
@@ -142,6 +138,16 @@ protected:
 		}
 
 		return FVanillaBuildingDataKeyValuePair(Object);
+	}
+
+	FVanillaBuildingDataKeyValuePair* GetData(UObject* Object)
+	{
+		for(auto& Data : SavedVanillaBuildableData)
+		{
+			if(Data.Buildable == Object) return &Data;
+		}
+
+		return nullptr;
 	}
 	
 	void LoadConnections()
@@ -170,7 +176,7 @@ protected:
 
 public:
 	UFUNCTION()
-	void DrawWiresForBuildable(FVanillaBuildingDataKeyValuePair KeyValuePair, bool SkipDestruct = false);
+	void DrawWiresForBuildable(const FVanillaBuildingDataKeyValuePair& KeyValuePair, bool SkipDestruct = false);
 	
 	virtual void Tick(float DeltaTime) override;
 
@@ -182,7 +188,7 @@ public:
 	void AddConnection(FDynamicConnectionData Connection, int Index, UObject* Setter)
 	{
 		if(!Connection.Receiver.Object) return;
-		auto Entry = GetOrDefault(Connection.Receiver.Object);
+		auto Entry = GetDataUnchecked(Connection.Receiver.Object);
 		
 		if(auto ConnectionActor = Cast<AActor>(Connection.Receiver.Object); ConnectionActor && !Connection.Transmitter.UseLocalWirePosition)
 		{
@@ -235,7 +241,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ResetConnection(UObject* Buildable, int Index, UObject* Setter)
 	{
-		auto Data = GetOrDefault(Buildable);
+		auto Data = GetDataUnchecked(Buildable);
 
 		if(!Data.Data.OwnerData.GetCanDisconnect(Setter)) return;
 
@@ -250,7 +256,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetBuildableOwner(UObject* Buildable, UObject* NewOwner, UObject* Setter)
 	{
-		auto Data = GetOrDefault(Buildable);
+		auto Data = GetDataUnchecked(Buildable);
 		Data.Data.OwnerData.SetOwner(NewOwner, Setter);
 		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
 	}
@@ -258,7 +264,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetConnectingRule(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
 	{
-		auto Data = GetOrDefault(Buildable);
+		auto Data = GetDataUnchecked(Buildable);
 		Data.Data.OwnerData.SetConnectingRule(Rule, Setter);
 		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
 	}
@@ -266,7 +272,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetDisconnectingRule(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
 	{
-		auto Data = GetOrDefault(Buildable);
+		auto Data = GetDataUnchecked(Buildable);
 		Data.Data.OwnerData.SetDisconnectingRule(Rule, Setter);
 		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
 	}
@@ -274,7 +280,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetConfiguringRule(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
 	{
-		auto Data = GetOrDefault(Buildable);
+		auto Data = GetDataUnchecked(Buildable);
 		Data.Data.OwnerData.SetConfiguringRule(Rule, Setter);
 		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
 	}
@@ -282,7 +288,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetCanDismantle(UObject* Buildable, bool CanDismantle, UObject* Setter)
 	{
-		auto Data = GetOrDefault(Buildable);
+		auto Data = GetDataUnchecked(Buildable);
 		if(!Data.Data.OwnerData.GetCanConfigure(Setter)) return;
 		Data.Data.OwnerData.AllowDismantle = CanDismantle;
 		UpdateBuildable(Buildable, Data.Data.Connections, Data.Data.OwnerData);
@@ -332,10 +338,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateBuildable(UObject* Buildable, TArray<FDynamicConnectionData> Connections, FWiremodOwnerData OwnerData)
 	{
-		auto element = SavedVanillaBuildableData.FindByPredicate([Buildable](const FVanillaBuildingDataKeyValuePair& X){ return X.Buildable == Buildable; });
+		if(!Buildable) return;
 		
-		if(!element) SavedVanillaBuildableData.Add(FVanillaBuildingDataKeyValuePair(Buildable, FVanillaInterfaceData(Connections, OwnerData)));
-		else element->Data = FVanillaInterfaceData(Connections, OwnerData);
+		auto Element = GetData(Buildable);
+		
+		if(!Element) SavedVanillaBuildableData.Add(FVanillaBuildingDataKeyValuePair(Buildable, FVanillaInterfaceData(Connections, OwnerData)));
+		else Element->Data = FVanillaInterfaceData(Connections, OwnerData);
 		UpdateConnectionData();
 	}
 
@@ -352,7 +360,7 @@ public:
 	void SetWireHidden(UObject* Buildable, int Index, bool Hidden, UObject* Setter)
 	{
 		//Get data
-		auto Data = GetOrDefault(Buildable).Data;
+		auto Data = GetDataUnchecked(Buildable).Data;
 
 		//Check if the user can configure this object
 		if(!Data.OwnerData.GetCanConfigure(Setter)) return;
@@ -371,7 +379,7 @@ public:
 	void SetWireColor(UObject* Buildable, int Index, FLinearColor Color, UObject* Setter)
 	{
 		//Get data
-		auto Data = GetOrDefault(Buildable).Data;
+		auto Data = GetDataUnchecked(Buildable).Data;
 
 		//Check if the user can configure this object
 		if(!Data.OwnerData.GetCanConfigure(Setter)) return;

@@ -11,6 +11,8 @@
 #include "CircuitryStatics.generated.h"
 
 
+class AWiremodVanillaConnections;
+
 UENUM(Blueprintable, BlueprintType)
 enum ECrosscatPatronLevel
 {
@@ -88,6 +90,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	double GetHologramGridSize();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	AWiremodVanillaConnections* GetVanillaConnectionsSubsystem();
+
+	
+
 	inline static UCircuitryStatics* Self;
 protected:
 
@@ -164,6 +171,9 @@ class UCircuitryConfigBlueprintFunctions : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintPure)
+	static AWiremodVanillaConnections* GetVanillaConnectionSubsystem() { return UCircuitryStatics::Self->GetVanillaConnectionsSubsystem(); }
+	
 	UFUNCTION(BlueprintPure)
 	static FLinearColor GetDefaultWireColor() { return UCircuitryStatics::Self->GetDefaultWireColor(); }
 

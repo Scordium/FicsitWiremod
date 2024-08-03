@@ -18,7 +18,7 @@ public:
 	{
 		if(GetConnection(2).GetBool()) Out = nullptr;
 		else if(GetConnection(1).GetBool())
-			Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out ? (UObject*)Out : (UObject*)this);
+			Out = UCCDynamicValueUtils::FromValue(GetConnection(0), Out);
 
 		SetOutputType(0, Out ? Out->ConnectionType.GetValue() : Unknown);
 	}

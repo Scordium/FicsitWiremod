@@ -1,6 +1,8 @@
 ﻿
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
 
+#include "Utility/ConnectionWireBase.h"
+
 void ACircuitryBlueprintConnectionProxy::Tick(float DeltaSeconds)
 {
 	//If our object no longer exists then we should just destroy the proxy.
@@ -11,7 +13,7 @@ void ACircuitryBlueprintConnectionProxy::Tick(float DeltaSeconds)
 	}
 
 	//Find data for this buildable
-	auto Data = AWiremodVanillaConnections::Self->Game_VanillaBuildableData.Find(SavedData.Buildable);
+	auto Data = UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->Game_VanillaBuildableData.Find(SavedData.Buildable);
 
 	//If data was found then we're most likely in a blueprint designer, save the current data to not have any desync issues.
 	if(Data) SavedData.Data = *Data;
@@ -21,16 +23,19 @@ void ACircuitryBlueprintConnectionProxy::Tick(float DeltaSeconds)
 
 void ACircuitryBlueprintConnectionProxy::ApplyConnectionToSystem()
 {
-	if(SavedData.Buildable)
+	if(auto Subsystem = UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem())
 	{
-		AWiremodVanillaConnections::Self->UpdateBuildable(SavedData.Buildable, SavedData.Data.Connections, SavedData.Data.OwnerData);
-		AWiremodVanillaConnections::Self->DrawWiresForBuildable(SavedData.Buildable);
-		ACircuitryLogger::DispatchEvent("[BP_PROXY] Connection applied to subsystem, destroying proxy...", ELogVerbosity::Display);
+		if(SavedData.Buildable)
+		{
+			Subsystem->UpdateBuildable(SavedData.Buildable, SavedData.Data.Connections, SavedData.Data.OwnerData);
+			Subsystem->DrawWiresForBuildable(SavedData.Buildable);
+			ACircuitryLogger::DispatchEvent("[BP_PROXY] Connection applied to subsystem, destroying proxy...", ELogVerbosity::Display);
+		}
+		Execute_Dismantle(this);
 	}
-	Execute_Dismantle(this);
 }
 
-void AWiremodVanillaConnections::DrawWiresForBuildable(FVanillaBuildingDataKeyValuePair KeyValuePair, bool SkipDestruct)
+void AWiremodVanillaConnections::DrawWiresForBuildable(const FVanillaBuildingDataKeyValuePair& KeyValuePair, bool SkipDestruct)
 {
 
 	AActor* Buildable = Cast<AActor>(KeyValuePair.Buildable);

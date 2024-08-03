@@ -16,7 +16,7 @@ public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
 		auto Connection = GetFirstActive();
-		if(Connection.IsValid()) Value = UCCDynamicValueUtils::FromValue(Connection, this);
+		if(Connection.IsValid()) Value = UCCDynamicValueUtils::FromValue(Connection, Value);
 		SetOutputType(0, Value ? Value->ConnectionType.GetValue() : Unknown);
 	}
 	

@@ -34,7 +34,7 @@ public:
 			auto Value = Out.Values[i].Value;
 			//Since all inputs will be disconnected when we change the structure, we don't have to check if the connection types match
 			//The only case where that could happen is if someone changed their save data through some 3P editor, so it's their own fault if something crashes
-			Out.Values[i].Value = UCCDynamicValueUtils::FromValue(GetConnection(i), Value ? (UObject*) Value : (UObject*) this);
+			Out.Values[i].Value = UCCDynamicValueUtils::FromValue(GetConnection(i), Value);
 		}
 	}
 

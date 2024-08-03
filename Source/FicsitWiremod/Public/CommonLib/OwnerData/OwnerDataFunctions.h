@@ -45,7 +45,7 @@ public:
 			if(auto WiremodBuildable = Cast<AFGWiremodBuildable>(Object)) return WiremodBuildable->OwnerData;
 
 			//Vanilla
-			return AWiremodVanillaConnections::Self->GetOwnerData(Object);
+			return UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->GetOwnerData(Object);
 			
 		}
 

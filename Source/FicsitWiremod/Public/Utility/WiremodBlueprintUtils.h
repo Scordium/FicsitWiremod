@@ -84,7 +84,7 @@ public:
 			if(auto WiremodBuildable = Cast<AFGWiremodBuildable>(Object))
 				return WiremodBuildable->InputConnections;
 			
-			auto Connections = AWiremodVanillaConnections::Self->GetAllConnections(Object);
+			auto Connections = UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->GetAllConnections(Object);
 				
 			TArray<FConnectionData> Data = TArray<FConnectionData>();
 			for(auto& Connection : Connections)
@@ -104,7 +104,7 @@ public:
 		if(Object)
 		{
 			if(auto WiremodBuildable = Cast<AFGWiremodBuildable>(Object)) WiremodBuildable->GetInputOccupationStatus(AllowedType, Statuses);
-			else AWiremodVanillaConnections::Self->GetOccupationStatus(Object, AllowedType, Statuses);
+			else UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->GetOccupationStatus(Object, AllowedType, Statuses);
 		}
 	}
 

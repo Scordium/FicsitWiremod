@@ -309,8 +309,8 @@ struct FDynamicConnectionData
 		this->Receiver = Receiver;
 	}
 	
-	bool IsValid() { return Transmitter.IsValid() && Receiver.IsValid(); }
-	bool IsValidForWire() { return Transmitter.IsValidForWire() && Receiver.IsValidForWire() && !Transmitter.WireHidden; }
+	bool IsValid() const { return Transmitter.IsValid() && Receiver.IsValid(); }
+	bool IsValidForWire() const { return Transmitter.IsValidForWire() && Receiver.IsValidForWire() && !Transmitter.WireHidden; }
 };
 
 UCLASS()
