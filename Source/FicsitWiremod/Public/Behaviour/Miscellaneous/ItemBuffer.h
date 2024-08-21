@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "FGFactoryConnectionComponent.h"
+#include "FGResourceSettings.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Buildables/FGBuildableConveyorBelt.h"
 #include "ItemBuffer.generated.h"
@@ -49,12 +50,14 @@ public:
 		//If the buffer is currently being flushed, do not add new items to it.
 		if(CurrentlyFlushingBuffer) return;
 
+		TArray<FInventoryItem> Items;
+		//If there's no item on the conveyor, or we don't have enough space for it - return.
+		if(!GetInputConnector()->Factory_PeekOutput(Items) || !TempStorage->HasEnoughSpaceForItem(Items[0])) return;
+
 		FInventoryItem Item;
 		float Offset;
 		if(GetInputConnector()->Factory_GrabOutput(Item, Offset))
 		{
-			if(!TempStorage->HasEnoughSpaceForItem(Item)) return;
-			
 			TempStorage->AddItem(Item);
 			if(DesiredBufferDescriptor == nullptr || Item.GetItemClass() == DesiredBufferDescriptor)
 			{
