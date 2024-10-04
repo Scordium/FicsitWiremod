@@ -27,6 +27,8 @@ public:
 		
 		return TypeMatch && JsonDataString.Equals(Other.JsonDataString, ESearchCase::CaseSensitive);
 	}
+
+	bool operator!=(const FCircuitryArrayFilterData& Other) const { return !(*this == Other); }
 };
 
 

@@ -58,14 +58,6 @@ public:
 	}
 
 	UFUNCTION()
-	int GetIconId()
-	{
-		VerifyCache();
-		if(CDOCache) return UTextureUtilities::GetIconFromTexture(CDOCache->GetBigIconFromInstance());
-		return -1;
-	}
-
-	UFUNCTION()
 	int GetItemType()
 	{
 		VerifyCache();

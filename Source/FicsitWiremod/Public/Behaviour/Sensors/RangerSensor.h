@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WiremodUtils.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "RangerSensor.generated.h"
 

@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGResourceSettings.h"
+#include "FGInventoryComponent.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/TextureUtilities.h"
 #include "BreakItemStack.generated.h"
+
+class UFGItemDescriptor;
 
 UCLASS()
 class FICSITWIREMOD_API ABreakItemStack : public AFGWiremodBuildable
@@ -55,14 +57,6 @@ public:
 		VerifyCache();
 		if(CDOCache) return CDOCache->mCanBeDiscarded;
 		return false;
-	}
-
-	UFUNCTION()
-	int GetIconId()
-	{
-		VerifyCache();
-		if(CDOCache) return UTextureUtilities::GetIconFromTexture(CDOCache->GetBigIconFromInstance());
-		return -1;
 	}
 
 	UFUNCTION()

@@ -1,13 +1,35 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "FactoryGame.h"
 #include "FGActorRepresentationManager.h"
-#include "FGMapMarkerRepresentation.h"
+#include "FGActorRepresentationInterface.h"
+#include "FGActorRepresentation.h"
+#include "../FGWiremodBuildable.h"
+#include "../../../../../../../Source/FactoryGame/Public/FGActorRepresentationInterface.h"
+#include "../../Utility/CircuitryLogger.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Engine/Texture2DDynamic.h"
+#include "Runtime/CoreUObject/Public/UObject/UObjectGlobals.h"
+#include "Runtime/Engine/Classes/Engine/Texture2D.h"
+#include "Runtime/Engine/Classes/Engine/Texture2DDynamic.h"
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
+#include "Runtime/Engine/Classes/Kismet/KismetMaterialLibrary.h"
+#include "Runtime/Engine/Classes/Materials/MaterialInstance.h"
+#include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
+#include "Runtime/Engine/Classes/Materials/MaterialInterface.h"
 #include "CircuitryMapMarker.generated.h"
+
+
+UCLASS()
+class UFGCircutryMapMarkerRepresentation : public UFGActorRepresentation
+{
+	GENERATED_BODY()
+
+public:
+
+	virtual void UpdateRepresentationCompassMaterial(class UMaterialInstanceDynamic* compassMaterialInstance, APlayerController* ownerPlayerController) const override;
+};
 
 UCLASS()
 class FICSITWIREMOD_API ACircuitryMapMarker : public AFGWiremodBuildable, public IFGActorRepresentationInterface
@@ -19,6 +41,12 @@ public:
 	{
 		Super::BeginPlay();
 		AddAsRepresentation();
+	}
+
+	virtual void Dismantle_Implementation() override
+	{
+		Super::Dismantle_Implementation();
+		RemoveAsRepresentation();
 	}
 
 	virtual void ServerProcess_Implementation(double DeltaTime) override
@@ -46,13 +74,14 @@ public:
 		else TextureCache = GetTexture();
 	}
 
+	
 	UFUNCTION()
 	virtual bool AddAsRepresentation() override
 	{
 		auto Manager = AFGActorRepresentationManager::Get(this);
 		if(!Manager) return false;
 
-		Representation = Manager->CreateAndAddNewRepresentation(this, false, UFGMapMarkerRepresentation::StaticClass());
+		Representation = Manager->CreateAndAddNewRepresentation(this, false, UFGCircutryMapMarkerRepresentation::StaticClass());
 		return true;
 	}
 	
@@ -88,7 +117,7 @@ public:
 	UFUNCTION()
 	virtual FText GetActorRepresentationText() override { return FText::FromString(GetConnection(3).GetString("Circuitry Beacon")); }
 	UFUNCTION()
-	virtual void SetActorRepresentationText( const FText& newText ) override {};
+	virtual void SetActorRepresentationText( const FText& newText ) override {}
 	UFUNCTION()
 	virtual FLinearColor GetActorRepresentationColor() override { return GetConnection(4).GetColor(); }
 	UFUNCTION()
@@ -108,12 +137,14 @@ public:
 	UFUNCTION()
 	virtual void SetActorCompassViewDistance( ECompassViewDistance compassViewDistance ) override {}
 
+	virtual UMaterialInterface* GetActorRepresentationCompassMaterial() override { return BaseMaterial; }
+
 	UPROPERTY()
 	UTexture2D* TextureCache;
 
 	UPROPERTY()
-	bool UsesTransient;
-
-	UPROPERTY()
 	UFGActorRepresentation* Representation;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	UMaterialInterface* BaseMaterial = LoadObject<UMaterialInterface>(nullptr, *FString("/Script/Engine.Material'/Game/FactoryGame/Interface/UI/Minimap/IconMaterials/MM_UI_CompassIcon.MM_UI_CompassIcon'"));
 };

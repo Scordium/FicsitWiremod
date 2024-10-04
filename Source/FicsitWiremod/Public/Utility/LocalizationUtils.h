@@ -9,7 +9,9 @@
 #include "Internationalization/StringTableCore.h"
 #include "Internationalization/StringTableRegistry.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Runtime/CoreUObject/Public/Templates/SubclassOf.h"
 #include "UObject/SavePackage.h"
+#include "WiremodUtils.h"
 #include "LocalizationUtils.generated.h"
 /**
  * 
@@ -17,6 +19,8 @@
 
 #define ENTRY_CHK(Table, Key) UKismetStringTableLibrary::IsRegisteredTableEntry(Table, Key)
 #define SKIP(Key) IsAGenericString(Key)
+
+class AFGWiremodBuildable;
 
 UCLASS()
 class FICSITWIREMOD_API ULocalizationUtils : public UBlueprintFunctionLibrary

@@ -5,9 +5,12 @@
 #include "CoreMinimal.h"
 #include "EnhancedInputComponent.h"
 #include "WiretoolWidget.h"
+#include "../WiremodBaseTool.h"
+#include "../../../../../../../../Source/FactoryGame/Public/FGCharacterPlayer.h"
 #include "Behaviour/WiremodRemoteCalls.h"
 #include "Buildables/FGBuildable.h"
 #include "Equipment/WiremodBaseTool.h"
+#include "Runtime/CoreUObject/Public/UObject/ScriptInterface.h"
 #include "Utility/CircuitryInputMappings.h"
 #include "Utility/WiremodBlueprintUtils.h"
 #include "Utility/WiremodGameWorldModule.h"
@@ -21,8 +24,8 @@ class FICSITWIREMOD_API AWiremodTool : public AWiremodBaseTool
 	void OnScrollDownPress(const FInputActionValue& Value){ if(Value.Get<bool>()) OnScrollDown(); }
 	void OnScrollUpPress(const FInputActionValue& Value){ if(Value.Get<bool>()) OnScrollUp(); }
 	
-	void OnScrollDown(){ if(Widget) Widget->ScrollListDown(SelectedConnection.ConnectionType, HasSelectedConnection()); }
-	void OnScrollUp(){ if(Widget) Widget->ScrollListUp(SelectedConnection.ConnectionType, HasSelectedConnection()); }
+	void OnScrollDown(){ if(Widget.GetObject()) IWiringToolWidget::Execute_ScrollListDown(Widget.GetObject(), SelectedConnection.ConnectionType, HasSelectedConnection()); }
+	void OnScrollUp(){ if(Widget.GetObject()) IWiringToolWidget::Execute_ScrollListUp(Widget.GetObject(), SelectedConnection.ConnectionType, HasSelectedConnection()); }
 	void OnSwitchSnapMode() { SnapToCenter = !SnapToCenter; }
 	void OnSwitchConnectMode() { MultiConnectMode = !MultiConnectMode; }
 
@@ -30,7 +33,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override
 	{
 		if(!IsLocallyControlled()) return;
-		if(!Widget) return;
+		if(!Widget.GetObject()) return;
 		
 		if(!HasSelectedConnection())
 		{
@@ -57,9 +60,9 @@ public:
 		AActor* HitActor = GetTargetLookAt(CircuitryConfig::GetTraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
 		if(!SuccessfulHit)
 		{
-			Widget->ClearUI();
-			SetOutline(nullptr);
+			IWiringToolWidget::Execute_ClearUI(Widget.GetObject());
 			CurrentTarget = nullptr;
+			SetOutline(nullptr);
 			return;
 		}
 		if(HitActor != CurrentTarget) SelectionChanged(HitActor);
@@ -68,24 +71,26 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SelectionChanged(AActor* NewTarget)
 	{
-		Widget->ClearUI();
+		IWiringToolWidget::Execute_ClearUI(Widget.GetObject());
 		auto Building = Cast<AFGBuildable>(NewTarget); 
 		if(!Building || !UWiremodBlueprintUtils::IsObjectCompatible(Building)) HandleUnknownTarget(Building);
 		else
 		{
 			CurrentTarget = Building;
 			SetOutline(Building);
-			Widget->CreateConnectionsList(HasSelectedConnection() ? Input : Output, SelectedConnection.ConnectionType, Building);
+			IWiringToolWidget::Execute_CreateConnectionsList(Widget.GetObject(), HasSelectedConnection() ? Input : Output, SelectedConnection.ConnectionType, Building);
 		}
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void SetOutline(AActor* Object, EOutlineColor Color = EOutlineColor::OC_USABLE) const
+	void SetOutline(AActor* Object, EOutlineColor Color = EOutlineColor::OC_USABLE)
 	{
 		auto Outline = GetInstigatorCharacter()->GetOutline();
-		Outline->HideOutline();
 
+		if (CurrentOutlineActor) Outline->HideOutline(CurrentOutlineActor);
+		
 		if(Object) Outline->ShowOutline(Object, Color);
+		CurrentOutlineActor = Object;
 	}
 
 protected:
@@ -136,7 +141,7 @@ protected:
 	bool CanConnect()
 	{
 		if(!CurrentTarget) return false;
-		if(Widget->CurrentIndex == -1 || Widget->MaxIndex == 0) return false;
+		if(IWiringToolWidget::Execute_GetCurrentIndex(Widget.GetObject()) == -1 || IWiringToolWidget::Execute_GetMaxIndex(Widget.GetObject()) == 0) return false;
 		if(!HasSelectedConnection())
 		{
 			TArray<FBuildingConnection> Connections;
@@ -151,7 +156,7 @@ protected:
 			FBuildableNote Note;
 			UWiremodBlueprintUtils::GetAvailableConnections(CurrentTarget, Input, Connections, Note);
 			if(Connections.Num() == 0) return false;
-			return UConnectionTypeFunctions::IsValidConnectionPair(Connections[Widget->CurrentIndex].ConnectionType, SelectedConnection.ConnectionType);
+			return UConnectionTypeFunctions::IsValidConnectionPair(Connections[IWiringToolWidget::Execute_GetCurrentIndex(Widget.GetObject())].ConnectionType, SelectedConnection.ConnectionType);
 		}
 	}
 
@@ -204,8 +209,8 @@ protected:
 		if(!CanConnect()) return;
 		auto RCO = Cast<UWiremodRemoteCalls>(Cast<AFGPlayerController>(GetWorld()->GetFirstPlayerController())->GetRemoteCallObjectOfClass(UWiremodRemoteCalls::StaticClass()));
 		auto Setter = UWiremodBlueprintUtils::GetSetterObject();
-		auto Index = Widget->CurrentIndex;
-		auto Data = Widget->GetConnectionData();
+		auto Index = IWiringToolWidget::Execute_GetCurrentIndex(Widget.GetObject());
+		auto Data = IWiringToolWidget::Execute_GetConnectionData(Widget.GetObject());
 		
 		if(HasSelectedConnection())
 		{
@@ -253,13 +258,13 @@ protected:
 			{
 				auto RCO = Cast<UWiremodRemoteCalls>(Cast<AFGPlayerController>(GetWorld()->GetFirstPlayerController())->GetRemoteCallObjectOfClass(UWiremodRemoteCalls::StaticClass()));
 				auto Setter = UWiremodBlueprintUtils::GetSetterObject();
-				auto Index = Widget->CurrentIndex;
+				auto Index = IWiringToolWidget::Execute_GetCurrentIndex(Widget.GetObject());
 				if(Index != -1)
 				{
 					RCO->ResetConnections(CurrentTarget, Index, Setter);
 					FFormatNamedArguments Args;
 					Args.Add("ObjectName", Cast<AFGBuildable>(CurrentTarget)->mDisplayName);
-					Args.Add("InputName", FText::FromString(Widget->GetConnectionName()));
+					Args.Add("InputName", FText::FromString(IWiringToolWidget::Execute_GetConnectionName(Widget.GetObject())));
 				
 					auto NotificationText = FText::Format(ResetConnectionsSuccessFormat, Args);
 
@@ -313,12 +318,12 @@ protected:
 	
 	void HandleUnknownTarget(AActor* Target)
 	{
-		SetOutline(Target, EOutlineColor::OC_RED);
 		CurrentTarget = nullptr;
-
-		Widget->ClearUI();
-		if(auto Building = Cast<AFGBuildable>(Target)) Widget->ShowBuildingDisqualifier(FText::FromString("Unknown building: " + Building->mDisplayName.ToString()));
-		else if(auto Wire = Cast<AConnectionWireBase>(Target)) Widget->ShowWireInfo(Wire);
+		SetOutline(Target, EOutlineColor::OC_RED);
+		
+		IWiringToolWidget::Execute_ClearUI(Widget.GetObject());
+		if(auto Building = Cast<AFGBuildable>(Target)) IWiringToolWidget::Execute_ShowBuildingDisqualifier(Widget.GetObject(), FText::FromString("Unknown building: " + Building->mDisplayName.ToString()));
+		else if(auto Wire = Cast<AConnectionWireBase>(Target)) IWiringToolWidget::Execute_ShowWireInfo(Widget.GetObject(), Wire);
 	}
 	
 
@@ -328,11 +333,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	AActor* CurrentTarget;
 
+	UPROPERTY()
+	AActor* CurrentOutlineActor;
+	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	FConnectionData SelectedConnection;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-	UWiretoolWidget* Widget;
+	TScriptInterface<IWiringToolWidget> Widget;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	bool SnapToCenter = true;

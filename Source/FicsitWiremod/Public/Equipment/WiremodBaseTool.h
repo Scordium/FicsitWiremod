@@ -2,13 +2,15 @@
 
 #pragma once
 
-#include "WiremodUtils.h"
 #include "CoreMinimal.h"
+#include "WiremodUtils.h"
 #include "Equipment/FGEquipment.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utility/CircuitryInputMappings.h"
 #include "EnhancedInputSubsystems.h"
 #include "FGPlayerController.h"
+#include "Runtime/Engine/Classes/Engine/EngineTypes.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "UI/FGGameUI.h"
 #include "WiremodBaseTool.generated.h"
 
@@ -59,8 +61,7 @@ public:
 		Super::Destroyed();
 	}
 #endif
-
-	virtual bool ShouldSaveState() const override { return true; }
+	
 
 	template<class T>
 	T* GetFirstContextOfType()

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "CircuitryConnectionsProvider.h"
 #include "FGCharacterPlayer.h"
-#include "FGPlayerState.h"
 #include "WiremodBuildableHologram.h"
 #include "CircuitryInterface.h"
 #include "CircuitryStatics.h"
@@ -14,7 +13,6 @@
 #include "CommonLib/OwnerData/OwnerData.h"
 #include "Engine/ActorChannel.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Utility/WiremodDecalMesh.h"
 #include "FGWiremodBuildable.generated.h"
 
 #define PERMISSION_CHECK(Actor) if(!GetCanConfigure(Actor)) return
@@ -63,9 +61,11 @@ public:
 
 		mHologramClass = AWiremodBuildableHologram::StaticClass();
 		
-		BuildableDecal->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-		BuildableDecal->SetWorldScale3D(FVector(0.35, 0.35, 0.35));
-		BuildableDecal->SetRelativeLocation(FVector(0, 0, 8.5));
+		Decal->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+		Decal->SetWorldScale3D(FVector(0.35, 0.35, 0.35));
+		Decal->SetRelativeLocation(FVector(0, 0, 8.5));
+		Decal->SetStaticMesh(UCircuitryStatics::GetGateDecalMesh());
+		Decal->SetMaterial(0, UCircuitryStatics::GetGateDecalMaterial());
 		
 		FINConnector->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	}
@@ -297,6 +297,9 @@ public:
 		FBuildableNote Note;
 		return GetConnectionsInfo_Implementation(direction, Note);
 	}
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateObjectDecalTexture();
 	
 	UFUNCTION(BlueprintCallable)
 	void GetInputOccupationStatus(EConnectionType AllowedType, TArray<TEnumAsByte<EConnectionOccupationState>>& Out);
@@ -344,7 +347,7 @@ public:
 	class UStaticMeshComponent* Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UWiremodDecalMesh* BuildableDecal = CreateDefaultSubobject<UWiremodDecalMesh>("Buildable Decal");
+	class UStaticMeshComponent* Decal = CreateDefaultSubobject<UStaticMeshComponent>("Decal");
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* FINConnector = CreateDefaultSubobject<UStaticMeshComponent>("FINConnector");

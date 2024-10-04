@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Behaviour/CircuitryInterface.h"
 #include "Blueprint/UserWidget.h"
+#include "Runtime/CoreUObject/Public/UObject/Interface.h"
+#include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 #include "Utility/ConnectionWireBase.h"
 #include "WiretoolWidget.generated.h"
 
@@ -16,6 +18,21 @@ class FICSITWIREMOD_API UWiretoolWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+
+public:
+
+	
+};
+
+UINTERFACE()
+class UWiringToolWidget : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class IWiringToolWidget
+{
+	GENERATED_BODY()
 
 public:
 
@@ -31,10 +48,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void ClearUI();
 
-	UFUNCTION(BlueprintPure, BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	FString GetConnectionName();
 
-	UFUNCTION(BlueprintPure, BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	FConnectionData GetConnectionData();
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
@@ -43,9 +60,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void ScrollListUp(EConnectionType Type, bool ScrollInputs);
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-	int CurrentIndex;
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	int GetCurrentIndex();
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-	int MaxIndex;
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	int GetMaxIndex();
+	
 };

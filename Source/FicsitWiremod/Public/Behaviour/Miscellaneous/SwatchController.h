@@ -68,8 +68,6 @@ public:
 		const auto Roughness = GetConnection(4).GetFloat();
 
 		auto SlotData = FFactoryCustomizationColorSlot(PrimaryColor, SecondaryColor);
-		SlotData.Metallic = Metallic;
-		SlotData.Roughness = Roughness;
 
 		if(SlotData == Cache) return;
 

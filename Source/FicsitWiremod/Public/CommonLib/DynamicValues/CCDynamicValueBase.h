@@ -34,6 +34,8 @@ public:
 	{
 		return Type == Other.Type && Value == Other.Value;
 	}
+
+	bool operator!=(const FDynamicValueStringWrapper& Other) const { return !(*this == Other); }
 };
 
 UCLASS(Blueprintable, BlueprintType, Abstract)
@@ -106,7 +108,7 @@ public:
 
 	void DispatchNotImplemented(const FString& FuncName) const { ACircuitryLogger::DispatchErrorEvent("Function " + FuncName + " is not implemented for class " + GetClass()->GetName()); }
 
-	void DispatchCreated(){ ACircuitryLogger::DispatchEvent("Dynamic value " + GetName() + " was created. This should NOT happen every frame. If you see this spamming a lot (A LOT, NOT JUST 10-20 LINES!!!) in your console/log, please report to Circuitry team.", ELogVerbosity::Display); }
+	void DispatchCreated(){ ACircuitryLogger::DispatchEvent("Dynamic value " + GetName() + " was created", ELogVerbosity::Display); }
 };
 
 UCLASS()

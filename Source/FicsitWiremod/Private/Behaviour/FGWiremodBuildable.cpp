@@ -15,6 +15,7 @@
 #include "CommonLib/DynamicValues/CCStackValue.h"
 #include "CommonLib/DynamicValues/CCStringValue.h"
 #include "CommonLib/DynamicValues/CCVectorValue.h"
+#include "Kismet/KismetMaterialLibrary.h"
 
 void AFGWiremodBuildable::Tick(float DeltaTime)
 {
@@ -381,6 +382,29 @@ bool AFGWiremodBuildable::netFunc_isBlueprinted()
 	return IsValid(mBlueprintDesigner);
 }
 
+void AFGWiremodBuildable::UpdateObjectDecalTexture()
+{
+	auto Texture = GetTexture();
+	UMaterialInstanceDynamic* Material;
+	
+	//Get material
+	auto DecalMaterial = Decal->GetMaterial(0);
+	if(auto DynamicInstance = Cast<UMaterialInstanceDynamic>(DecalMaterial)) Material = DynamicInstance;
+	else Material = UKismetMaterialLibrary::CreateDynamicMaterialInstance(GetWorld(), DecalMaterial);
+
+	//Set material parameters
+	if(!Texture)
+	{
+		Material->SetScalarParameterValue(FName("OpacityMultiplier"), 0);
+	}
+	else
+	{
+		Material->SetTextureParameterValue(FName("Texture"), Texture);
+		Material->SetScalarParameterValue(FName("OpacityMultiplier"), 1);
+	}
+	Decal->SetMaterial(0, Material);
+}
+
 void AFGWiremodBuildable::GetInputOccupationStatus(EConnectionType AllowedType, TArray<TEnumAsByte<EConnectionOccupationState>>& Out)
 {
 	auto Inputs = GetConnections_Implementation(Input);
@@ -469,6 +493,7 @@ void AFGWiremodBuildable::DrawWires_Implementation()
 void AFGWiremodBuildable::PostGateSetup_Implementation(){}
 void AFGWiremodBuildable::SetupGate_Implementation()
 {
-	if(HasAuthority())
-		DrawWires();
+	if(HasAuthority()) DrawWires();
+	
+	UpdateObjectDecalTexture();
 }

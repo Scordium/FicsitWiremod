@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Modules/ModuleManager.h"
+#include "FactoryGame.h"
 
 class FFicsitWiremodModule : public FDefaultGameModuleImpl {
 public:

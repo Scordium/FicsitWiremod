@@ -102,6 +102,8 @@ public:
 		Super::BeginPlay();
 		PrimaryActorTick.UpdateTickIntervalAndCoolDown(Data.GetTickInterval());
 		GenerateSignWidget(Data);
+
+		if (Decal) Decal->DestroyComponent();
 	}
 	
 	void ApplySignLayout(const FManagedSignData& NewData, UObject* Setter)

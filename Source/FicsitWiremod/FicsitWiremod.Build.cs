@@ -10,36 +10,32 @@ public class FicsitWiremod : ModuleRules
 
 	    // FactoryGame transitive dependencies
 	    // Not all of these are required, but including the extra ones saves you from having to add them later.
-	    PublicDependencyModuleNames.AddRange(new[] {
-		    "Core", "CoreUObject",
-		    "Engine",
-		    "DeveloperSettings",
-		    "PhysicsCore",
-		    "InputCore",
-		    "CoreOnline",
-		    "GeometryCollectionEngine",
-		    "ChaosSolverEngine",
-		    "AnimGraphRuntime",
-		    "AssetRegistry",
-		    "NavigationSystem",
-		    "AIModule",
-		    "GameplayTasks",
-		    "SlateCore", "Slate", "UMG",
-		    "RenderCore",
-		    "CinematicCamera",
-		    "Foliage",
-		    "EnhancedInput",
-		    "NetCore",
-		    "GameplayTags",
-		    "HTTP",
-		    "AudioMixer",
-		    "Json",
-		    "JsonUtilities",
-		    "Synthesis"
-	    });
+        PublicDependencyModuleNames.AddRange(new string[] {
+            "Core", "CoreUObject", "CoreOnline",
+            "Engine",
+            "DeveloperSettings",
+            "PhysicsCore",
+            "InputCore",
+			"GeometryCollectionEngine",
+			"AnimGraphRuntime",
+			"AssetRegistry",
+            "NavigationSystem",
+			"AIModule",
+            "GameplayTasks",
+            "SlateCore", "Slate", "UMG",
+			"RenderCore",
+            "CinematicCamera",
+            "Foliage",
+			"NetCore",
+            "GameplayTags",
+            "Json", "JsonUtilities",
+            "AssetRegistry",
+			"HTTP",
+			"EnhancedInput"
+        });
 
-	    // FactoryGame plugins
-	    PublicDependencyModuleNames.AddRange(new[] {
+        // FactoryGame plugins
+        PublicDependencyModuleNames.AddRange(new[] {
 		    "AbstractInstance"
 	    });
 
@@ -49,7 +45,7 @@ public class FicsitWiremod : ModuleRules
 	    });
 
 	    if (Target.Type == TargetRules.TargetType.Editor) {
-		    PublicDependencyModuleNames.AddRange(new string[] {"SML", "OnlineBlueprintSupport", "AnimGraph", "SynthesisEditor", "AssetRegistry"});
+		    PublicDependencyModuleNames.AddRange(new string[] {"SML", "OnlineBlueprintSupport", "AnimGraph", "AssetRegistry"});
 	    }
 	    PublicDependencyModuleNames.AddRange(new string[] {"FactoryGame", "SML"});
     }

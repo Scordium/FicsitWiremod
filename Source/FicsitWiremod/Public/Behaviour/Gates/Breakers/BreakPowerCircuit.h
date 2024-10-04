@@ -5,9 +5,12 @@
 #include "CoreMinimal.h"
 #include "FGCircuitSubsystem.h"
 #include "FGPowerInfoComponent.h"
+#include "../../../../../../../../Source/FactoryGame/Public/FGCircuitSubsystem.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Buildables/FGBuildablePowerStorage.h"
 #include "BreakPowerCircuit.generated.h"
+
+class UFGPowerInfoComponent;
 
 UCLASS()
 class FICSITWIREMOD_API ABreakPowerCircuit : public AFGWiremodBuildable
@@ -27,10 +30,10 @@ public:
 			if(GetConnection(1).GetBool()) Circuit->ResetFuse();
 
 			// Trip fuse
-			if(GetConnection(2).GetBool())
+			if(GetConnection(2).GetBool() && !Circuit->mIsFuseTriggered)
 			{
 				Circuit->mIsFuseTriggered = true;
-				AFGCircuitSubsystem::Get(GetWorld())->PowerCircuit_OnFuseSet();
+				AFGCircuitSubsystem::Get(GetWorld())->PowerCircuit_OnFuseSet({Circuit});
 			}
 
 			//Drain batteries

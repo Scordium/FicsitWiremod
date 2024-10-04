@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FGGameInstance.h"
+#include "FGGlobalSettings.h"
 #include "FGIconLibrary.h"
 #include "FGInventoryComponent.h"
 #include "WiremodUtils.h"
@@ -166,58 +168,6 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	static UTexture2D* GetTextureFromIconId(int Id)
-	{
-		if(!IconToTextureMap.Contains(Id))
-		{
-			auto IconLib = UFGIconLibrary::Get();
-			auto Texture = IconLib->GetTextureFromIconID(Id);
-			if(!Texture) return nullptr;
-			
-			TextureToIconMap.Add(Texture, Id);
-			IconToTextureMap.Add(Id, Texture);
-		}
-
-		return IconToTextureMap[Id].Get();
-	}
-
-	UFUNCTION(BlueprintPure)
-	static int32 GetIconFromTexture(UTexture2D* Texture)
-	{
-		if(!Texture) return -1;
-
-		if(!TextureToIconMap.Contains(Texture))
-		{
-			auto IconLib = UFGIconLibrary::Get();
-			auto Id = IconLib->GetIconIDForTexture(Texture);
-			
-			TextureToIconMap.Add(Texture, Id);
-			IconToTextureMap.Add(Id, Texture);
-		}
-
-		return TextureToIconMap[Texture];
-	}
-
-	UFUNCTION(BlueprintCallable)
-	static int32 GetIconFromDescriptor(TSubclassOf<UFGItemDescriptor> ItemDescriptor)
-	{
-		if(!ItemDescriptor) return -1;
-		return GetIconFromTexture(UFGItemDescriptor::GetBigIcon(ItemDescriptor));
-	}
-
-	UFUNCTION(BlueprintCallable)
-	static int32 GetIconFromStack(FInventoryStack Stack)
-	{
-		return GetIconFromDescriptor(Stack.Item.GetItemClass());
-	}
-
-	UFUNCTION(BlueprintCallable)
-	static int32 GetIconFromItemAmount(FItemAmount ItemAmount)
-	{
-		return GetIconFromDescriptor(ItemAmount.ItemClass);
-	}
-
-	UFUNCTION(BlueprintPure)
 	static FVector2D GetTextureSize(UTexture* Texture)
 	{
 		if(!Texture) return FVector2D::ZeroVector;
@@ -237,9 +187,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static UTexture2D* CreateTexture(const FVector2D& Size) { return UTexture2D::CreateTransient(Size.X, Size.Y); }
-	
-	static inline TMap<TSoftObjectPtr<UTexture2D>, int32> TextureToIconMap;
-	static inline TMap<int32, TSoftObjectPtr<UTexture2D>> IconToTextureMap;
 
 	static inline TArray<FString> EngineAssetPaths =
 	{
