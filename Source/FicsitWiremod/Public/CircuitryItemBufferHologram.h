@@ -40,6 +40,7 @@ public:
 
 	virtual void ConfigureActor(class AFGBuildable* inBuildable) const override
 	{
+		Super::ConfigureActor(inBuildable);
 		if(auto ItemBuffer = Cast<AItemBuffer>(inBuildable)) ItemBuffer->FlipMesh = mScrollRotation%2 == 1;
 	}
 

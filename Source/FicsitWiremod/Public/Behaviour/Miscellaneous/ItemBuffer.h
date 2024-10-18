@@ -46,6 +46,8 @@ public:
 	virtual void Factory_Tick(float dt) override
 	{
 		if(!GetInputConnector() || !TempStorage) return;
+		if (!GetInputConnector()->IsConnected()) return;
+		if (!HasAuthority()) return;
 
 		//If the buffer is currently being flushed, do not add new items to it.
 		if(CurrentlyFlushingBuffer) return;
