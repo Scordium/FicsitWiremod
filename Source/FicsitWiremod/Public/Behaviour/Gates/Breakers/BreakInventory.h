@@ -27,6 +27,11 @@ public:
 		}
 	}
 
+	virtual void ClientProcess_Implementation(double DeltaTime) override
+	{
+		if (Inventory) CalculateItemCount();
+	}
+
 
 	UFUNCTION(BlueprintPure)
 	bool IsEmpty() const
@@ -101,7 +106,7 @@ public:
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-		DOREPLIFETIME(ABreakInventory, Inventory)
+		DOREPLIFETIME(ABreakInventory, Inventory);
 	}
 	
 	UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly, Replicated)
