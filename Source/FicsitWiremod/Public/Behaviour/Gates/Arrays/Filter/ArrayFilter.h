@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "../../../FGWiremodBuildable.h"
+#include "../../../../CommonLib/DynamicValues/CCArrayValueBase.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "Filters/CircuitryArrayFilterBase.h"
@@ -19,19 +21,18 @@ public:
 		const auto& Connection = GetConnection(0);
 		if(!Out || Connection.ConnectionType != Out->ConnectionType)
 		{
-			Out = nullptr;
+			IsFilterActive = false;
 			SetOutputType(0, Unknown);
-			if(auto NewValue = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromType(Connection.ConnectionType, this)))
-			{
-				IsFilterActive = NewValue->SetFilter(FilterData);
-				Out = NewValue;
-			}
+			Out = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromType(Connection.ConnectionType, this));
 		}
 
 		if(Out)
 		{
 			Out->FromConnectionValue(Connection.Object, Connection.FunctionName, Connection.FromProperty);
+			
+			if (!IsFilterActive) IsFilterActive = Out->SetFilter(FilterData);
 			if(IsFilterActive) Out->ApplyFilter();
+			
 			SetOutputType(0, Out->ConnectionType);
 		}
 	}
@@ -71,9 +72,9 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite, SaveGame)
 	UCCArrayValueBase* Out;
 
-	UPROPERTY(BlueprintReadWrite, SaveGame)
+	UPROPERTY(BlueprintReadWrite)
 	bool IsFilterActive;
 	
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, SaveGame)
 	FCircuitryArrayFilterData FilterData;
 };

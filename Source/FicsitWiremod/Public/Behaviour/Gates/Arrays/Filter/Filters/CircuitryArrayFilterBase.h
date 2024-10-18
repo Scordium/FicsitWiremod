@@ -14,10 +14,10 @@ struct FCircuitryArrayFilterData
 
 public:
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, SaveGame)
 	TEnumAsByte<EConnectionType> FilterType;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, SaveGame)
 	FString JsonDataString;
 
 	bool operator==(const FCircuitryArrayFilterData& Other) const

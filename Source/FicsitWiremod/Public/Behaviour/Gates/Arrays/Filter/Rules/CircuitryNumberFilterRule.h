@@ -45,7 +45,7 @@ public:
 		case NFRT_GreaterOrEqual: return CompareValue >= Value;
 		case NFRT_GreaterThan: return CompareValue > Value;
 		case NFRT_IsInRange: return CompareValue >= Value && CompareValue <= AuxValue;
-		case NFRT_IsNotInRange: return CompareValue <= Value || CompareValue >= AuxValue;
+		case NFRT_IsNotInRange: return CompareValue < Value || CompareValue > AuxValue;
 		default: return false;
 		}
 	}
