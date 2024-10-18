@@ -7,6 +7,7 @@ public class FicsitWiremod : ModuleRules
     public FicsitWiremod(ReadOnlyTargetRules Target) : base(Target)
     {
 	    PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+	    CppStandard = CppStandardVersion.Cpp20;
 
 	    // FactoryGame transitive dependencies
 	    // Not all of these are required, but including the extra ones saves you from having to add them later.
@@ -29,14 +30,13 @@ public class FicsitWiremod : ModuleRules
 			"NetCore",
             "GameplayTags",
             "Json", "JsonUtilities",
-            "AssetRegistry",
 			"HTTP",
 			"EnhancedInput"
         });
 
         // FactoryGame plugins
         PublicDependencyModuleNames.AddRange(new[] {
-		    "AbstractInstance"
+		    "AbstractInstance",
 	    });
 
 	    // Header stubs
@@ -45,7 +45,7 @@ public class FicsitWiremod : ModuleRules
 	    });
 
 	    if (Target.Type == TargetRules.TargetType.Editor) {
-		    PublicDependencyModuleNames.AddRange(new string[] {"SML", "OnlineBlueprintSupport", "AnimGraph", "AssetRegistry"});
+		    PublicDependencyModuleNames.AddRange(new string[] {"OnlineBlueprintSupport", "AnimGraph", "AssetRegistry"});
 	    }
 	    PublicDependencyModuleNames.AddRange(new string[] {"FactoryGame", "SML"});
     }

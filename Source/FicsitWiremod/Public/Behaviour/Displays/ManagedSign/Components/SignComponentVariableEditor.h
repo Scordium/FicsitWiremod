@@ -127,7 +127,7 @@ class FICSITWIREMOD_API USignComponentVariableEditor : public USignComponentVari
 
 public:
 
-	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override
 	{
 		auto DeltaChange = InDeltaTime * (1/.12);
 		if(BindingDragState == 2) DeltaChange *= -1;
