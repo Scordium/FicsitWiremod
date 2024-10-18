@@ -40,14 +40,17 @@ public:
 		Value = UReflectionUtilities::GetFloat(REFLECTION_ARGS, false);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCNumberValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetFloat(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return FString::SanitizeFloat(Value); }
@@ -126,14 +129,17 @@ public:
 	}
 	virtual bool Contains(const FConnectionData& Element) override { return Value.Contains(Element.GetFloat()); }
 	
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCNumberArrayValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetFloatArray(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }

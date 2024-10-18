@@ -39,14 +39,17 @@ public:
 		Value = UReflectionUtilities::GetRecipe(REFLECTION_ARGS);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCRecipeValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetRecipe(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return ::IsValid(Value) ? UFGRecipe::GetRecipeName(Value).ToString() : FString("N/A");}
@@ -127,14 +130,17 @@ public:
 	}
 	virtual bool Contains(const FConnectionData& Element) override { return Value.Contains(Element.GetRecipe()); }
 	
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCRecipeArrayValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetRecipeArray(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }

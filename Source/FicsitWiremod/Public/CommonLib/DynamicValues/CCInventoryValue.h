@@ -39,14 +39,17 @@ public:
 		Value = UReflectionUtilities::GetInventory(REFLECTION_ARGS);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCInventoryValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetInventory(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override
@@ -122,14 +125,17 @@ public:
 	}
 	virtual bool Contains(const FConnectionData& Element) override { return Value.Contains(Element.GetInventory()); }
 	
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCInventoryArrayValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetInventoryArray(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }

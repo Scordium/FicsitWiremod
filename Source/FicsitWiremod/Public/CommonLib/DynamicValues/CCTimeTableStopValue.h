@@ -40,14 +40,17 @@ public:
 		Value = UReflectionUtilities::GetTrainStop(REFLECTION_ARGS);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
 		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value.Station == Value.Station;
 
-		return false;
+		return Super::Equals(Other, ComparePointers);
+	}
+
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetTrainStop(Object, SourceName, FromProperty).Station == Value.Station;
 	}
 
 	virtual FString ToString() override { return Value.Station ? Value.Station->GetStationName().ToString() : "N/A"; }
@@ -85,10 +88,8 @@ public:
 		Value = UReflectionUtilities::GetTrainStopArray(REFLECTION_ARGS);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
 		if(auto OtherSource = Cast<ThisClass>(Other))
 		{
 			if(Value.Num() != OtherSource->Value.Num()) return false;
@@ -101,7 +102,21 @@ public:
 			return true;
 		}
 
-		return false;
+		return Super::Equals(Other, ComparePointers);
+	}
+
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		auto OtherSource = UReflectionUtilities::GetTrainStopArray(Object, SourceName, FromProperty);
+
+		if(Value.Num() != OtherSource.Num()) return false;
+        
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			if(Value[i].Station != OtherSource[i].Station) return false;
+		}
+        
+		return true;
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetTimeTableStop()); }

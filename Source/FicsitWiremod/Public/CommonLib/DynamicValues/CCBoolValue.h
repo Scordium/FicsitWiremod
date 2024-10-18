@@ -42,14 +42,17 @@ public:
 		Value = UReflectionUtilities::GetBool(REFLECTION_ARGS, Value);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCBoolValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetBool(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return Value ? "true" : "false"; }
@@ -161,14 +164,17 @@ public:
 		return Out;
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCBoolArrayValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetBoolArray(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual int FindFirst(const FConnectionData& Element) override

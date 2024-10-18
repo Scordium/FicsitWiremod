@@ -39,14 +39,12 @@ public:
 		Value = UReflectionUtilities::GetStack(REFLECTION_ARGS);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCStackValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value.Item.GetItemClass() == Value.Item.GetItemClass() && OtherSource->Value.NumItems == Value.NumItems;
 
-		return false;
+		return Super::Equals(Other, ComparePointers);
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value.NumItems) + " " + UFGItemDescriptor::GetItemName(Value.Item.GetItemClass()).ToString(); }
@@ -140,11 +138,9 @@ public:
 		return false;
 	}
 	
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCStackArrayValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 		{
 			if(OtherSource->Value.Num() != Value.Num()) return false;
 
@@ -160,7 +156,7 @@ public:
 			return true;
 		}
 
-		return false;
+		return Super::Equals(Other, ComparePointers);
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }

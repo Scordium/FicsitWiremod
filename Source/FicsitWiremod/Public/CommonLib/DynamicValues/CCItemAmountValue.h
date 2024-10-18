@@ -40,14 +40,19 @@ public:
 		Value = UReflectionUtilities::GetItemAmount(REFLECTION_ARGS);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCItemAmountValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value.Amount == Value.Amount && OtherSource->Value.ItemClass == Value.ItemClass;
 
-		return false;
+		return Super::Equals(Other, ComparePointers);
+	}
+
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		auto OtherValue = UReflectionUtilities::GetItemAmount(Object, SourceName, FromProperty);
+
+		return OtherValue.Amount == Value.Amount && OtherValue.ItemClass == Value.ItemClass;
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value.Amount) + " of " + UFGItemDescriptor::GetItemName(Value.ItemClass).ToString();}
@@ -139,11 +144,9 @@ public:
 		return false;
 	}
 	
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCItemAmountArrayValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 		{
 			if(OtherSource->Value.Num() != Value.Num()) return false;
 
@@ -159,7 +162,25 @@ public:
 			return true;
 		}
 
-		return false;
+		return Super::Equals(Other, ComparePointers);
+	}
+
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		auto OtherSource = UReflectionUtilities::GetItemAmountArray(Object, SourceName, FromProperty);
+
+		if(OtherSource.Num() != Value.Num()) return false;
+        
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			auto A = OtherSource[i];
+			auto B = Value[i];
+        
+			bool Equal = A.Amount == B.Amount && A.ItemClass == B.ItemClass;
+			if(!Equal) return false;
+		}
+        
+		return true;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }

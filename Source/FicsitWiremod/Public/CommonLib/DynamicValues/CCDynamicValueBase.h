@@ -104,7 +104,8 @@ public:
 
 	bool operator ==(UCCDynamicValueBase* Other) { return Equals(Other); }
 	bool operator !=(UCCDynamicValueBase* Other) { return !Equals(Other); }
-	virtual bool Equals(UCCDynamicValueBase* Other){ return this == Other; }
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true){ return ComparePointers && this == Other; }
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) { return false; }
 
 	void DispatchNotImplemented(const FString& FuncName) const { ACircuitryLogger::DispatchErrorEvent("Function " + FuncName + " is not implemented for class " + GetClass()->GetName()); }
 

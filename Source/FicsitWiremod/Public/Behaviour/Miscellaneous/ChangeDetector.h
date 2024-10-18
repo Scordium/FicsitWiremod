@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "../../CommonLib/DynamicValues/CCDynamicValueBase.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "ChangeDetector.generated.h"
@@ -15,12 +16,12 @@ class FICSITWIREMOD_API AChangeDetector : public AFGWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		auto Value = UCCDynamicValueUtils::FromValue(GetConnection(0), CachedValue);
+		auto Connection = GetConnection(0);
 
-		if(CachedValue == nullptr) Out = false;
-		else Out = !CachedValue->Equals(Value);
+		if(CachedValue == nullptr) CachedValue = UCCDynamicValueUtils::FromValue(GetConnection(0), CachedValue);
+		else Out = !CachedValue->Equals(Connection.Object, Connection.FunctionName, Connection.FromProperty);
 
-		CachedValue = Value;
+		if (Out) CachedValue->FromConnectionValue(Connection.Object, Connection.FunctionName, Connection.FromProperty);
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override

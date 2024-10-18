@@ -34,14 +34,17 @@ public:
 		Value = UReflectionUtilities::GetUnmanaged<FPixelScreenData>(REFLECTION_ARGS);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
+		if(auto OtherSource = Cast<ThisClass>(Other))
+			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		if(auto OtherSource = Cast<UCCPixelImageValue>(Other))
-			return Value == OtherSource->Value;
-
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value.Width) + "x" + FString::FromInt(Value.Height);}
@@ -120,14 +123,17 @@ public:
 	}
 	virtual bool Contains(const FConnectionData& Element) override { return Value.Contains(Element.GetPixelImage()); }
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCPixelImageArrayValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value == Value;
+		
+		return Super::Equals(Other, ComparePointers);
+	}
 
-		return false;
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual int FindFirst(const FConnectionData& Element) override

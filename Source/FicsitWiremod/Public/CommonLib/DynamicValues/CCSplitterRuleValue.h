@@ -40,14 +40,18 @@ public:
 		Value = UReflectionUtilities::GetSplitterRule(REFLECTION_ARGS);
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCSplitterRuleValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 			return OtherSource->Value.ItemClass == Value.ItemClass && OtherSource->Value.OutputIndex == Value.OutputIndex;
 
-		return false;
+		return Super::Equals(Other, ComparePointers);
+	}
+
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		auto OtherSource = UReflectionUtilities::GetSplitterRule(Object, SourceName, FromProperty);
+		return OtherSource.ItemClass == Value.ItemClass && OtherSource.OutputIndex == Value.OutputIndex;
 	}
 
 	virtual FString ToString() override
@@ -195,11 +199,9 @@ public:
 		return Out;
 	}
 
-	virtual bool Equals(UCCDynamicValueBase* Other) override
+	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
-		if(this == Other) return true;
-
-		if(auto OtherSource = Cast<UCCSplitterRuleArrayValue>(Other))
+		if(auto OtherSource = Cast<ThisClass>(Other))
 		{
 			if(OtherSource->Value.Num() != Value.Num()) return false;
 
@@ -215,7 +217,25 @@ public:
 			return true;
 		}
 
-		return false;
+		return Super::Equals(Other, ComparePointers);
+	}
+
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	{
+		auto OtherSource = UReflectionUtilities::GetSplitterRuleArray(Object, SourceName, FromProperty);
+
+		if(OtherSource.Num() != Value.Num()) return false;
+        
+		for(int i = 0; i < Value.Num(); i++)
+		{
+			auto A = OtherSource[i];
+			auto B = Value[i];
+        
+			bool Equal = A.ItemClass == B.ItemClass && A.OutputIndex == B.OutputIndex;
+			if(!Equal) return false;
+		}
+        
+		return true;
 	}
 
 	virtual int FindFirst(const FConnectionData& Element) override
