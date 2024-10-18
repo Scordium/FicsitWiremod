@@ -82,16 +82,7 @@ public:
 		}
 	}
 
-	UFUNCTION(BlueprintCallable)
-	void SetOutline(AActor* Object, EOutlineColor Color = EOutlineColor::OC_USABLE)
-	{
-		auto Outline = GetInstigatorCharacter()->GetOutline();
-
-		if (CurrentOutlineActor) Outline->HideOutline(CurrentOutlineActor);
-		
-		if(Object) Outline->ShowOutline(Object, Color);
-		CurrentOutlineActor = Object;
-	}
+	
 
 protected:
 
@@ -332,9 +323,6 @@ protected:
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	AActor* CurrentTarget;
-
-	UPROPERTY()
-	AActor* CurrentOutlineActor;
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	FConnectionData SelectedConnection;

@@ -1,6 +1,4 @@
-﻿// 
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "WiremodUtils.h"
@@ -20,6 +18,20 @@ class FICSITWIREMOD_API AWiremodBaseTool : public AFGEquipment
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION(BlueprintCallable)
+	void SetOutline(AActor* Object, EOutlineColor Color = EOutlineColor::OC_USABLE)
+	{
+		auto Outline = GetInstigatorCharacter()->GetOutline();
+
+		if (CurrentOutlineActor) Outline->HideOutline(CurrentOutlineActor);
+		
+		if(Object) Outline->ShowOutline(Object, Color);
+		CurrentOutlineActor = Object;
+	}
+
+	UPROPERTY()
+	AActor* CurrentOutlineActor;
 
 	UFUNCTION(BlueprintCallable)
 	AActor* GetTargetLookAt(double TraceDistance, TEnumAsByte<ETraceTypeQuery> Channel, FVector& Location, bool& Success)
