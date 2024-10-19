@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "ArrayGet.h"
-#include "ArrayLength.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "ArrayBreak.generated.h"
 
@@ -19,9 +18,9 @@ public:
 		ArrayCache = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(0), ArrayCache));
 	}
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction,FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override
 	{
-		if(direction == Input) return Super::GetConnectionsInfo_Implementation(direction, Note);
+		if(direction == Input) return Super::GetConnections_Implementation(direction);
 		if(!ArrayCache) return TArray<FBuildingConnection>();
 
 		const EConnectionType ElementType = UConnectionTypeFunctions::ArrayToBase(ArrayCache->ConnectionType);

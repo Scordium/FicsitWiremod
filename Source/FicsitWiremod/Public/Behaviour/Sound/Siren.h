@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../MultistateWiremodBuildable.h"
+#include "MultistateWiremodBuildable.h"
 #include "Behaviour/MultistateWiremodBuildable.h"
 #include "Components/AudioComponent.h"
 #include "Runtime/Engine/Classes/Components/AudioComponent.h"

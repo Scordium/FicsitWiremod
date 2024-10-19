@@ -1,6 +1,4 @@
-﻿// 
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
@@ -36,9 +34,9 @@ public:
 		Out.Add(Value);
 	}
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override
 	{
-		if(direction == Output) return Super::GetConnectionsInfo_Implementation(direction, Note);
+		if(direction == Output) return Super::GetConnections_Implementation(direction);
 		
 		int NumCreate = (InputConnections.Num() + 1) / 2 + 1;
 		auto Type = GetFirstConnected().ConnectionType;

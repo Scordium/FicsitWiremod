@@ -3,12 +3,8 @@
 #include "CoreMinimal.h"
 #include "WiremodUtils.h"
 #include "Equipment/FGEquipment.h"
-#include "Kismet/GameplayStatics.h"
 #include "Utility/CircuitryInputMappings.h"
-#include "EnhancedInputSubsystems.h"
-#include "FGPlayerController.h"
 #include "Runtime/Engine/Classes/Engine/EngineTypes.h"
-#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "UI/FGGameUI.h"
 #include "WiremodBaseTool.generated.h"
 
@@ -20,33 +16,15 @@ class FICSITWIREMOD_API AWiremodBaseTool : public AFGEquipment
 public:
 
 	UFUNCTION(BlueprintCallable)
-	void SetOutline(AActor* Object, EOutlineColor Color = EOutlineColor::OC_USABLE)
-	{
-		auto Outline = GetInstigatorCharacter()->GetOutline();
-
-		if (CurrentOutlineActor) Outline->HideOutline(CurrentOutlineActor);
-		
-		if(Object) Outline->ShowOutline(Object, Color);
-		CurrentOutlineActor = Object;
-	}
+	void SetOutline(AActor* Object, EOutlineColor Color = EOutlineColor::OC_USABLE);
 
 	UPROPERTY()
 	AActor* CurrentOutlineActor;
 
 	UFUNCTION(BlueprintCallable)
-	AActor* GetTargetLookAt(double TraceDistance, TEnumAsByte<ETraceTypeQuery> Channel, FVector& Location, bool& Success)
-	{
-		auto camera = UGameplayStatics::GetPlayerCameraManager(this, 0);
+	AActor* GetTargetLookAt(double TraceDistance, TEnumAsByte<ETraceTypeQuery> Channel, FVector& Location, bool& Success);
 
-		FVector Start = camera->GetCameraLocation();
-		FVector End = camera->GetCameraLocation() + camera->GetActorForwardVector() * TraceDistance;
-		FHitResult Result;
 
-		Success = UKismetSystemLibrary::LineTraceSingle(this, Start, End, Channel, false, TArray<AActor*>(), EDrawDebugTrace::None, Result, true);
-		return UWiremodUtils::GetActualHitTarget(Result, Location);
-	}
-
-	
 	virtual void WasEquipped_Implementation() override
 	{
 		Super::WasEquipped_Implementation();
@@ -74,7 +52,6 @@ public:
 	}
 #endif
 	
-
 	template<class T>
 	T* GetFirstContextOfType()
 	{
@@ -85,62 +62,9 @@ public:
 
 		return nullptr;
 	}
-		
-
-	void InjectMappings()
-	{
-		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
-		if(!Player)
-		{
-			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY TOOL KEYBIND HANDLER] Somehow, the player reference was null when injecting mappings.");
-			return;
-		}
-		
-		auto LocalPlayer = Player->GetLocalPlayer();
-		if(!LocalPlayer)
-		{
-			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY TOOL KEYBIND HANDLER] Somehow, the local player reference was null when injecting mappings.");
-			return;
-		}
-		
-		auto EnhancedInputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		if(!EnhancedInputSystem)
-		{
-			ACircuitryLogger::DispatchErrorEvent("[KEYBIND HANDLER] Input System is nullptr.");
-			return;
-		}
-		
-		for(auto& InputsContext : InputsContexts) EnhancedInputSystem->AddMappingContext(InputsContext.Value, MappingContextPriority);
-		ApplyScrollWheelPatch();
-	}
-
-	void EjectMappings()
-	{
-		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
-		if(!Player)
-		{
-			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY TOOL KEYBIND HANDLER] Somehow, the player reference was null when ejecting mappings.");
-			return;
-		}
-		
-		auto LocalPlayer = Player->GetLocalPlayer();
-		if(!LocalPlayer)
-		{
-			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY TOOL KEYBIND HANDLER] Somehow, the local player reference was null when ejecting mappings.");
-			return;
-		}
-		
-		auto EnhancedInputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		if(!EnhancedInputSystem)
-		{
-			ACircuitryLogger::DispatchErrorEvent("[KEYBIND HANDLER] Input System is nullptr.");
-			return;
-		}
-		
-		for(auto& InputsContext : InputsContexts) EnhancedInputSystem->RemoveMappingContext(InputsContext.Value);
-		RemoveScrollWheelPatch();
-	}
-
+	
+	void InjectMappings();
+	void EjectMappings();
 	
 	UFUNCTION(BlueprintImplementableEvent) void ApplyScrollWheelPatch();
 	UFUNCTION(BlueprintImplementableEvent) void RemoveScrollWheelPatch();
@@ -154,20 +78,7 @@ public:
 protected:
 
 	UFUNCTION(BlueprintCallable)
-	void ShowNotification(const FText& Text)
-	{
-		auto Player = Cast<AFGPlayerController>(GetInstigatorController());
-		if(!Player) return;
-
-		auto GameUI = Player->GetGameUI();
-		if(!GameUI)
-		{
-			ACircuitryLogger::DispatchErrorEvent("Game UI was null when trying to display notification text");
-			return;
-		}
-
-		GameUI->ShowTextNotification(Text);
-	}
+	void ShowNotification(const FText& Text);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void HideHudHints();

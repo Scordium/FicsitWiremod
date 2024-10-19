@@ -1,7 +1,5 @@
 ﻿#include "Behaviour/Miscellaneous/CircuitryMapMarker.h"
 
-
-
 void UFGCircutryMapMarkerRepresentation::UpdateRepresentationCompassMaterial(class UMaterialInstanceDynamic* compassMaterialInstance, APlayerController* ownerPlayerController) const
 {
 	auto Actor = Cast<ACircuitryMapMarker>(mRealActor);

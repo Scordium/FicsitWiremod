@@ -28,11 +28,11 @@ public:
 		return Cache;
 	}
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection Direction, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection Direction) override
 	{
 		TArray<FBuildingConnection> Connections;
 
-		if(Direction == Input) return Super::GetConnectionsInfo_Implementation(Direction, Note);
+		if(Direction == Input) return Super::GetConnections_Implementation(Direction);
 
 		for(int i = 0; i < MaxSignalValue; i++)
 		{

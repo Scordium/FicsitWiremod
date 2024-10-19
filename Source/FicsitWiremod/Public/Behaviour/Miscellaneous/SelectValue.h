@@ -1,6 +1,4 @@
-﻿// 
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Behaviour/MultistateWiremodBuildable.h"
@@ -51,9 +49,9 @@ public:
 
 	virtual UObject* GetValue_Implementation(const FString& ValueName) override{ return Out; }
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override
 	{
-		if(direction == Output) return Super::GetConnectionsInfo_Implementation(direction, Note);
+		if(direction == Output) return Super::GetConnections_Implementation(direction);
 		else
 		{
 			auto Connections = GenerateInputList();

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "CustomStruct.h"
 #include "BreakCustomStruct.generated.h"
 
 UCLASS()
@@ -52,9 +53,9 @@ public:
 			OutObjects.Add(Val.Value);
 	}
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override
 	{
-		if(direction == Input) return Super::GetConnectionsInfo_Implementation(direction, Note);
+		if(direction == Input) return Super::GetConnections_Implementation(direction);
 		else
 		{
 			auto Out = TArray<FBuildingConnection>();

@@ -45,28 +45,7 @@ public:
 	}
 	
 	UFUNCTION(BlueprintCallable)
-	FNamedDynamicValue& FindValue(FString Name, bool AllowCached = true)
-	{
-		if(AllowCached && CachedValues.Contains(Name))
-			return CachedValues[Name];
-
-		for (FNamedDynamicValue& Value : SavedValues)
-		{
-			if(Value.GetInternalName().ToString() == Name)
-			{
-				CachedValues.Add(Name, Value);
-				return Value;
-			}
-			else if(Value.Name == Name)
-			{
-				CachedValues.Add(Name, Value);
-				Value.SetInternalName(Name);
-				return Value;
-			}
-		}
-		
-		return FallbackValue;
-	}
+	FNamedDynamicValue& FindValue(FString Name, bool AllowCached = true);
 
 	virtual bool CanUseFactoryClipboard_Implementation() override{ return true; }
 	virtual TSubclassOf<UFGFactoryClipboardSettings> GetClipboardSettingsClass_Implementation() override { return UConstantClipboardData::StaticClass(); }
@@ -93,9 +72,9 @@ public:
 		return FindValue(ValueName);
 	}
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override
 	{
-		if(direction == Input) return TArray<FBuildingConnection>();
+		if(direction == Input) return {};
 		
 		TArray<FBuildingConnection> Out;
 		for (FNamedDynamicValue& Value : SavedValues)

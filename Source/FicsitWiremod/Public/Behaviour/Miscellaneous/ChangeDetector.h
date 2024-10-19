@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../../CommonLib/DynamicValues/CCDynamicValueBase.h"
+#include "CommonLib/DynamicValues/CCDynamicValueBase.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "ChangeDetector.generated.h"

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../FGWiremodBuildable.h"
+#include "FGWiremodBuildable.h"
 #include "SoundEmitter.generated.h"
 
 UCLASS()

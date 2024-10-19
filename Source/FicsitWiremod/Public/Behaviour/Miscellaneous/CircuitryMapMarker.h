@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "FactoryGame.h"
 #include "FGActorRepresentationManager.h"
 #include "FGActorRepresentationInterface.h"
 #include "FGActorRepresentation.h"

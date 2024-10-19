@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../../../FGWiremodBuildable.h"
-#include "../../../../CommonLib/DynamicValues/CCArrayValueBase.h"
+#include "FGWiremodBuildable.h"
+#include "CommonLib/DynamicValues/CCArrayValueBase.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "Filters/CircuitryArrayFilterBase.h"

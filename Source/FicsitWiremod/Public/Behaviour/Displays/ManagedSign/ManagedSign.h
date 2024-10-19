@@ -161,9 +161,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AFGBuildableWidgetSign> VanillaVersion;
 
-	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override
+	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override
 	{
-		if(direction == Output) return Super::GetConnectionsInfo_Implementation(direction, Note);
+		if(direction == Output) return Super::GetConnections_Implementation(direction);
 		
 		TArray<FBuildingConnection> Out;
 		for(auto& Connection : Data.Connections)

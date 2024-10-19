@@ -89,8 +89,8 @@ struct FCustomStruct
 	}
 
 	bool operator !=(const FCustomStruct& Other) { return !(*this == Other); }
+	FCustomStruct Duplicate(UObject* WorldContext);
 };
-
 
 
 UCLASS()

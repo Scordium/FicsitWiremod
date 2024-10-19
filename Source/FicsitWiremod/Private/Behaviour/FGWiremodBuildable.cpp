@@ -137,13 +137,18 @@ void AFGWiremodBuildable::OnInputDisconnected_Internal(int Index)
 TArray<FBuildingConnection> AFGWiremodBuildable::GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note)
 {
 	Note = ConnectionsInfo.Note;
-	
+	return GetConnections_Implementation(direction);
+}
+
+TArray<FBuildingConnection> AFGWiremodBuildable::GetConnections_Implementation(EConnectionDirection direction)
+{
+	FBuildableNote Note;
 	switch (direction)
 	{
 	case Input: return ConnectionsInfo.Inputs;
 	case Output: return ConnectionsInfo.Outputs;
 		//Possibly add more cases here for other behaviors?
-	default: return TArray<FBuildingConnection>();
+	default: return {};
 	}
 }
 

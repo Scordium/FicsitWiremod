@@ -292,11 +292,7 @@ public:
 	
 	
 	virtual TArray<FBuildingConnection> GetConnectionsInfo_Implementation(EConnectionDirection direction, FBuildableNote& Note) override;
-	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override
-	{
-		FBuildableNote Note;
-		return GetConnectionsInfo_Implementation(direction, Note);
-	}
+	virtual TArray<FBuildingConnection> GetConnections_Implementation(EConnectionDirection direction) override;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateObjectDecalTexture();

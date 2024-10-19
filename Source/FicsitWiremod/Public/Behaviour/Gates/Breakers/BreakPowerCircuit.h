@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGCircuitSubsystem.h"
 #include "FGPowerInfoComponent.h"
-#include "../../../../../../../../Source/FactoryGame/Public/FGCircuitSubsystem.h"
+#include "FGCircuitSubsystem.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Buildables/FGBuildablePowerStorage.h"
 #include "BreakPowerCircuit.generated.h"

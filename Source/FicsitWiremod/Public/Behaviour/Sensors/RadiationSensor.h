@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FGRadiationInterface.h"
-#include "../FGWiremodBuildable.h"
+#include "FGWiremodBuildable.h"
 #include "Runtime/CoreUObject/Public/Templates/SubclassOf.h"
 #include "RadiationSensor.generated.h"
 

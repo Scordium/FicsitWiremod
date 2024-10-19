@@ -22,9 +22,6 @@
 #include "CCVectorValue.h"
 #include "CCSplitterRuleValue.h"
 #include "CCTimeTableStopValue.h"
-#include "FGInventoryComponent.h"
-#include "FGPowerCircuit.h"
-#include "FGRecipe.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "CCDynamicValueUtils.generated.h"
 
