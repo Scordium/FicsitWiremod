@@ -1,4 +1,4 @@
-﻿// 
+// 
 
 #pragma once
 
@@ -265,7 +265,15 @@ public:
 	{
 		if(!Success)
 		{
-			auto Error = "[CIRCUITRY API] Something went wrong when trying to fetch compatibility packages: " + Response.Get()->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")";
+			FString Error = "[CIRCUITRY API] Something went wrong when trying to fetch compatibility packages: ";
+			if(Response.IsValid())
+			{
+				Error += Response.Get()->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")";
+			}
+			else
+			{
+				Error += "No response";
+			}
 			ACircuitryLogger::DispatchErrorEvent(Error);
 			return;
 		}

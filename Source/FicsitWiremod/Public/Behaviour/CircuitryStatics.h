@@ -1,4 +1,4 @@
-﻿// 
+// 
 
 #pragma once
 
@@ -136,7 +136,16 @@ protected:
 	{
 		if(!Success)
 		{
-			ACircuitryLogger::DispatchErrorEvent("Failed to fetch patrons: " + Response->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")"); 
+			FString Error = "Failed to fetch patrons: ";
+			if(Response.IsValid())
+			{
+				Error += Response.Get()->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")";
+			}
+			else
+			{
+				Error += "No response";
+			}
+			ACircuitryLogger::DispatchErrorEvent(Error);
 			OnPatronsListFetched.Broadcast(TArray<FCrosscatPatronData>(), false);
 			return;
 		}
