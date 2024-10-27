@@ -50,6 +50,11 @@ public:
 	
 	bool operator ==(const FNamedDynamicValue& Other) const { return Value ? Value->Equals(Other.Value) : false; }
 
+	bool IsDataTypeEqual(const FNamedDynamicValue& Other) const {
+		if (!Value || !Other.Value) return false;
+		return Name == Other.Name && Other.Value->ConnectionType == Value->ConnectionType;
+	}
+
 	operator UCCDynamicValueBase* () const { return Value; }
 
 private:
