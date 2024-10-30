@@ -136,7 +136,14 @@ protected:
 	{
 		if(!Success)
 		{
-			ACircuitryLogger::DispatchErrorEvent("Failed to fetch patrons: " + Response->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")"); 
+			FString ErrorText;
+
+			if (Response.IsValid())
+				ErrorText = Response->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")";
+			else
+				ErrorText = "CURL responded with invalid data.";
+			
+			ACircuitryLogger::DispatchErrorEvent("Failed to fetch patrons: " + ErrorText); 
 			OnPatronsListFetched.Broadcast(TArray<FCrosscatPatronData>(), false);
 			return;
 		}

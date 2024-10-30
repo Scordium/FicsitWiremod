@@ -265,8 +265,14 @@ public:
 	{
 		if(!Success)
 		{
-			auto Error = "[CIRCUITRY API] Something went wrong when trying to fetch compatibility packages: " + Response.Get()->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")";
-			ACircuitryLogger::DispatchErrorEvent(Error);
+			FString ErrorText;
+
+			if (Response.IsValid())
+				ErrorText = Response->GetContentAsString() + " (" + FString::FromInt(Response->GetResponseCode()) + ")";
+			else
+				ErrorText = "CURL responded with invalid data.";
+			
+			ACircuitryLogger::DispatchErrorEvent("[CIRCUITRY API] Something went wrong when trying to fetch compatibility packages: " + ErrorText);
 			return;
 		}
 
