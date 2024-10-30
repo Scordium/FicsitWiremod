@@ -132,6 +132,7 @@ bool AWiremodVanillaConnections::HandleDynamicConnections(const TArray<FDynamicC
 		case ItemDescriptor: ConnectionData.Receiver.Set(ConnectionData.Transmitter.GetItemDescriptor()); break;
 		case ArrayOfSplitterRule: ConnectionData.Receiver.Set(ConnectionData.Transmitter.GetSplitterRuleArray()); break;
 		case ArrayOfItemDescriptor: ConnectionData.Receiver.Set(ConnectionData.Transmitter.GetItemDescriptorArray()); break;
+		case Entity: ConnectionData.Receiver.SetEntity(ConnectionData.Transmitter.GetEntity()); break;
 		default: break;
 		}
 	}

@@ -71,7 +71,7 @@ public:
 		&& DisplayName.EqualTo(other.DisplayName);
 	}
 
-	
+
 	FConnectionData()
 	{
 		this->Object = nullptr;
@@ -160,6 +160,7 @@ public:
 	void SetString(FString Value) const { UReflectionUtilities::SetString(Object, FunctionName, FromProperty, Value); }
 	void SetColor(FLinearColor Value) const { UReflectionUtilities::SetColor(Object, FunctionName, FromProperty, Value); }
 	void SetRecipe(TSubclassOf<UFGRecipe> Value) const { UReflectionUtilities::SetRecipe(Object, FunctionName, FromProperty, Value); }
+	void SetEntity(AActor* Value) const { UReflectionUtilities::SetEntity(Object, FunctionName, FromProperty, Value); }
 
 	template<typename T>
 	void Set(T Value) const { UReflectionUtilities::SetUnmanaged(Object, FunctionName, FromProperty, Value); }

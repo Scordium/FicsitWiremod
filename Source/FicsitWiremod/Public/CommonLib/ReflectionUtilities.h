@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FGBuildablePortalBase.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
 #include "FGRecipe.h"
@@ -13,7 +14,6 @@
 #include "Buildables/FGBuildableRailroadSwitchControl.h"
 #include "Buildables/FGBuildableSplitterSmart.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Utility/CircuitryLogger.h"
 #include "ReflectionUtilities.generated.h"
 
 #define REFLECTION_PARAMS UObject* Object, FName SourceName, bool FromProperty
@@ -106,6 +106,8 @@ public:
 			return UReflectionExternalFunctions::GetSignText(Sign, SourceName.ToString(), DefaultValue);
 		else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
 			return station->GetStationIdentifier()->GetStationName().ToString();
+		else if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
+			return Portal->GetPortalName().ToString();
 		else
 			return GenericProcess<FString, FStrProperty>(REFLECTION_ARGS,  DefaultValue);
 	}
@@ -382,16 +384,12 @@ public:
 		
 			signData.TextElementData[SourceName.ToString()] = Value;
 			sign->SetPrefabSignData(signData);
-		
-			return;
 		}
 		else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
-		{
 			station->GetStationIdentifier()->SetStationName(FText::FromString(Value));
-			return;
-		}
-	
-		GenericSet(REFLECTION_ARGS, Value);
+		else if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
+			Portal->SetPortalName(FText::FromString(Value));
+		else GenericSet(REFLECTION_ARGS, Value);
 	}
 
 	static void SetColor(REFLECTION_PARAMS, FLinearColor Value)
@@ -431,6 +429,24 @@ public:
 	}
 
 	static void SetSplitterRules(REFLECTION_PARAMS, TArray<FSplitterSortRule> Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+	static void SetEntity(REFLECTION_PARAMS, AActor* Value)
+	{
+		if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
+		{
+			if (auto OtherPortal = Cast<AFGBuildablePortalBase>(Value))
+			{
+				if(Portal->GetLinkedPortal() != OtherPortal)
+				{
+					Portal->DisconnectLinkedPortal();
+					OtherPortal->DisconnectLinkedPortal();
+				}
+				Portal->MakeLinkToPortal(OtherPortal);
+				OtherPortal->MakeLinkToPortal(Portal);
+			}
+		}
+		else GenericSet(REFLECTION_ARGS, Value);
+	}
 
 	template<typename T>
 	static void SetUnmanaged(REFLECTION_PARAMS, T Value) { GenericSet(REFLECTION_ARGS, Value); }
