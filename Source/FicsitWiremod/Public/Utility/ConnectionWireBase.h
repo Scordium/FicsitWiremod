@@ -40,13 +40,7 @@ protected:
 
 public:
 	// Called every frame
-	virtual void Tick(float DeltaTime) override
-	{
-		if(!PreviewMode)
-			if(HasAuthority())
-				if(!AssignedConnection.IsValidForWire())
-					Invalidate();
-	}
+	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
 	void DrawWireFromData();
@@ -64,10 +58,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DestroyAllSplineMeshes()
 	{
-		TInlineComponentArray<UConnectionWireSplineMesh*> SplineMeshes;
-		GetComponents<UConnectionWireSplineMesh>(SplineMeshes);
-		for (auto SplineMesh : SplineMeshes)
-			if(SplineMesh) SplineMesh->DestroyComponent();
+		for (auto SplineMesh : TInlineComponentArray<UConnectionWireSplineMesh*>(this)) SplineMesh->DestroyComponent();
 	}
 
 	UFUNCTION(BlueprintCallable)

@@ -38,9 +38,6 @@ public:
 	FLinearColor WireColor = FLinearColor::White;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool WireHidden = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FVector> WirePositions;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
@@ -56,7 +53,6 @@ public:
 		FunctionName  = data.FunctionName;
 		ConnectionType = data.ConnectionType;
 		WireColor = data.WireColor;
-		WireHidden = data.WireHidden;
 		WirePositions = data.WirePositions;
 		FromProperty = data.FromProperty;
 		UseLocalWirePosition = data.UseLocalWirePosition;
@@ -69,6 +65,17 @@ public:
 		return Object == other.Object
 		&& FunctionName == other.FunctionName
 		&& DisplayName.EqualTo(other.DisplayName);
+	}
+
+	bool EqualsFully(const FConnectionData& Other) const
+	{
+		return Object == Other.Object
+		&& FunctionName == Other.FunctionName
+		&& DisplayName.EqualTo(Other.DisplayName)
+		&& ConnectionType == Other.ConnectionType
+		&& WireColor == Other.WireColor
+		&& WirePositions == Other.WirePositions
+		&& FromProperty == Other.FromProperty;
 	}
 
 
@@ -93,7 +100,6 @@ public:
 		FunctionName  = Original.FunctionName;
 		ConnectionType = Original.ConnectionType;
 		WireColor = Original.WireColor;
-		WireHidden = Original.WireHidden;
 		WirePositions = LocalPositions;
 		FromProperty = Original.FromProperty;
 		UseLocalWirePosition = true;
@@ -112,7 +118,7 @@ public:
 
 	bool IsValidForWire() const
 	{
-		return !WireHidden && ::IsValid(Object) && !Object->GetClass()->IsChildOf(UCCDynamicValueBase::StaticClass());
+		return IsValid() && !Object->GetClass()->IsChildOf(UCCDynamicValueBase::StaticClass());
 	}
 
 	bool IsA(EConnectionType Type) { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
@@ -311,7 +317,7 @@ struct FDynamicConnectionData
 	}
 	
 	bool IsValid() const { return Transmitter.IsValid() && Receiver.IsValid(); }
-	bool IsValidForWire() const { return Transmitter.IsValidForWire() && Receiver.IsValidForWire() && !Transmitter.WireHidden; }
+	bool IsValidForWire() const { return Transmitter.IsValidForWire() && Receiver.IsValidForWire(); }
 };
 
 UCLASS()

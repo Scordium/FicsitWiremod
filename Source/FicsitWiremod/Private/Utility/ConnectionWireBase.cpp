@@ -22,6 +22,12 @@ AConnectionWireBase::AConnectionWireBase() : Super()
 }
 
 
+void AConnectionWireBase::Tick(float DeltaTime)
+{
+	if(!PreviewMode && !AssignedConnection.IsValidForWire()) Invalidate();
+
+	if (!PreviewMode) SetActorHiddenInGame(!CircuitryConfig::ShouldWireBeVisible());
+}
 
 void AConnectionWireBase::DrawWireFromData()
 {

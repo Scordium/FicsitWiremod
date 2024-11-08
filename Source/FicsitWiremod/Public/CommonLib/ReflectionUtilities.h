@@ -450,8 +450,6 @@ public:
 
 	template<typename T>
 	static void SetUnmanaged(REFLECTION_PARAMS, T Value) { GenericSet(REFLECTION_ARGS, Value); }
-
-	
 	
 	template <typename T, typename PropType>
 	static T FromPropertyValue(REFLECTION_PARAMS, T DefaultValue)

@@ -8,14 +8,25 @@
 #include "Utility/CircuitryLogger.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Module/GameInstanceModule.h"
+#include "FGEquipment.h"
 #include "CircuitryStatics.generated.h"
 
 
 class AWiremodVanillaConnections;
 
 UENUM(Blueprintable, BlueprintType)
+enum EWireVisibilityMode
+{
+	OnlyTools,
+	OnlyDebugger,
+	Always,
+	Never
+};
+
+UENUM(Blueprintable, BlueprintType)
 enum ECrosscatPatronLevel
 {
+	Donator,
 	Bronze,
 	Silver,
 	Gold,
@@ -55,25 +66,12 @@ public:
 	static UStaticMesh* GetGateMesh(){ return Self ? Self->GateMesh : LoadObject<UStaticMesh>(NULL, *FString("/FicsitWiremod/Assets/Models/WiremodChipBase.WiremodChipBase")); }
 	static UStaticMesh* GetGateDecalMesh() { return Self ? Self->GateDecalMesh : LoadObject<UStaticMesh>(NULL, *FString("/Engine/BasicShapes/Plane.Plane")); }
 	static UMaterial* GetGateDecalMaterial() { return Self ? Self->GateDecalMaterial : LoadObject<UMaterial>(NULL, *FString("/FicsitWiremod/Assets/Materials/WiremodBuildableDecalMaterial.WiremodBuildableDecalMaterial")); }
-	static UTexture* GetDefaultDecalTexture() { return Self ? Self->DecalDefaultTexture : LoadObject<UTexture>(NULL, *FString("/FicsitWiremod/Assets/Icons/WiremodIcon.WiremodIcon")); }
-	static TSubclassOf<AFGDecorationTemplate> GetDefaultDecoratorClass()
-	{
-		if(Self) return Self->Decorator;
-		
-		return TSubclassOf<AFGDecorationTemplate>();
-	}
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	FLinearColor GetDefaultWireColor();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetDefaultWireColor(const FLinearColor& Color);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	bool GetIsWireDefaultHidden();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetIsWireDefaultHidden(bool Value);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	double GetWireEmission();
@@ -93,8 +91,18 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	AWiremodVanillaConnections* GetVanillaConnectionsSubsystem();
 
-	
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetWireVisibility(EWireVisibilityMode Mode);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	EWireVisibilityMode GetWireVisibility();
+
+	UFUNCTION()
+	bool GetWireIsCurrentlyVisible() const { return ShowWires; }
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateCurrentEquipment(AFGEquipment* NewEquipment);
+	
 	inline static UCircuitryStatics* Self;
 protected:
 
@@ -112,6 +120,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AFGDecorationTemplate> Decorator;
+
+	UPROPERTY(BlueprintReadWrite)
+	AFGEquipment* CurrentEquipment = nullptr;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool ShowWires;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetSelf() { Self = this; }
@@ -191,12 +205,6 @@ public:
 	static bool GetShouldToolsKeepStateOnUnequip() { return UCircuitryStatics::Self->ShouldToolsKeepStateOnUnequip(); }
 
 	UFUNCTION(BlueprintPure)
-	static bool GetIsWireDefaultHidden() { return UCircuitryStatics::Self->GetIsWireDefaultHidden(); }
-
-	UFUNCTION(BlueprintCallable)
-	static void SetIsWireDefaultHidden(bool Value) { UCircuitryStatics::Self->SetIsWireDefaultHidden(Value); }
-
-	UFUNCTION(BlueprintPure)
 	static double GetTraceDistance() { return UCircuitryStatics::Self->TraceDistance(); }
 
 	UFUNCTION(BlueprintPure)
@@ -207,6 +215,15 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static double GetHologramGridSize() { return UCircuitryStatics::Self->GetHologramGridSize(); }
+
+	UFUNCTION(BlueprintPure)
+	static EWireVisibilityMode GetWireVisibilityMode() { return UCircuitryStatics::Self->GetWireVisibility(); }
+
+	UFUNCTION(BlueprintCallable)
+	static void SetWireVisibilityMode(EWireVisibilityMode Mode) { return UCircuitryStatics::Self->SetWireVisibility(Mode); }
+
+	UFUNCTION(BlueprintPure)
+	static bool ShouldWireBeVisible() { return UCircuitryStatics::Self->GetWireIsCurrentlyVisible(); }
 
 	UFUNCTION(BlueprintPure)
 	static FString GetWikiUrl() { return UCircuitryStatics::CircuitryWiki; }

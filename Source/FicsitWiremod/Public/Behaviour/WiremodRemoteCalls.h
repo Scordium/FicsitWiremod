@@ -89,9 +89,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
 	void SetWireColor(AFGBuildable* Buildable, int Index, FLinearColor Color, UObject* Setter);
-
-	UFUNCTION(BlueprintCallable, Reliable, Server)
-	void SetWireHidden(AFGBuildable* Buildable, int Index, bool Hidden, UObject* Setter);
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{

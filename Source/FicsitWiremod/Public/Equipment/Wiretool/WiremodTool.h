@@ -9,7 +9,6 @@
 #include "FGCharacterPlayer.h"
 #include "Behaviour/WiremodRemoteCalls.h"
 #include "Buildables/FGBuildable.h"
-#include "Equipment/WiremodBaseTool.h"
 #include "Runtime/CoreUObject/Public/UObject/ScriptInterface.h"
 #include "Utility/CircuitryInputMappings.h"
 #include "Utility/WiremodBlueprintUtils.h"
@@ -116,7 +115,6 @@ protected:
 		SelectedConnection.FunctionName = FName("Self");
 		SelectedConnection.ConnectionType = Entity;
 		SelectedConnection.WireColor = CircuitryConfig::GetDefaultWireColor();
-		SelectedConnection.WireHidden = CircuitryConfig::GetIsWireDefaultHidden();
 		SelectedConnection.WirePositions = TArray
 		{
 			SnapToCenter ? HitActor->GetActorLocation() : Location,
@@ -313,8 +311,9 @@ protected:
 		SetOutline(Target, EOutlineColor::OC_RED);
 		
 		IWiringToolWidget::Execute_ClearUI(Widget.GetObject());
-		if(auto Building = Cast<AFGBuildable>(Target)) IWiringToolWidget::Execute_ShowBuildingDisqualifier(Widget.GetObject(), FText::FromString("Unknown building: " + Building->mDisplayName.ToString()));
-		else if(auto Wire = Cast<AConnectionWireBase>(Target)) IWiringToolWidget::Execute_ShowWireInfo(Widget.GetObject(), Wire);
+		
+		if(auto Building = Cast<AFGBuildable>(Target))
+			IWiringToolWidget::Execute_ShowBuildingDisqualifier(Widget.GetObject(), FText::FromString("Unknown building: " + Building->mDisplayName.ToString()));
 	}
 	
 

@@ -46,7 +46,6 @@ void UWiremodRemoteCalls::SetSignLayout_Implementation(AManagedSign* Sign, const
 void UWiremodRemoteCalls::CreateGlobalConnection_Implementation(AFGBuildable* Buildable, int Index, const FDynamicValueStringWrapper& Value, const FConnectionData& Input, UObject* Setter)
 {
 	auto Data = FConnectionData(UCCDynamicValueUtils::FromWrapper(this, Value), FName("Value"), Value.Type);
-	Data.WireHidden = true;
 
 	if(Buildable->GetClass()->ImplementsInterface(ICircuitryProcessableInterface::UClassType::StaticClass()))
 		ICircuitryProcessableInterface::Execute_OnInputConnected(Buildable, Data, Index, Setter);
@@ -85,10 +84,4 @@ void UWiremodRemoteCalls::SetWireColor_Implementation(AFGBuildable* Buildable, i
 {
 	if(auto Circuitry = Cast<AFGWiremodBuildable>(Buildable)) Circuitry->SetWireColor(Index, Color, Setter);
 	else UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->SetWireColor(Buildable, Index, Color, Setter);
-}
-
-void UWiremodRemoteCalls::SetWireHidden_Implementation(AFGBuildable* Buildable, int Index, bool Hidden, UObject* Setter)
-{
-	if(auto Circuitry = Cast<AFGWiremodBuildable>(Buildable)) Circuitry->SetWireHidden(Index, Hidden, Setter);
-	else UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->SetWireHidden(Buildable, Index, Hidden, Setter);
 }

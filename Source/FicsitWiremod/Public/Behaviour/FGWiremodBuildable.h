@@ -79,6 +79,14 @@ protected:
 		PostGateSetup();
 	}
 
+	virtual FText GetLookAtDecription_Implementation(class AFGCharacterPlayer* byCharacter, const FUseState& state) const override
+	{
+		auto BaseText = Super::GetLookAtDecription_Implementation(byCharacter, state);
+		auto ConvertedString = BaseText.ToString().Replace(*mDisplayName.ToString(), *GetCustomNameOrDefault().ToString());
+
+		return FText::FromString(ConvertedString);
+	}
+
 	virtual void OnInputConnected_Internal(const FConnectionData& Data, int Index);
 	virtual void OnInputDisconnected_Internal(int Index);
 
@@ -134,18 +142,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	int GetNumConnected();
-	
-	UFUNCTION(BlueprintCallable)
-	void SetWireHidden(int Index, bool IsHidden, UObject* Setter)
-	{
-		PERMISSION_CHECK(Setter);
-		
-		if(!InputConnections.IsValidIndex(Index)) return;
-
-		InputConnections[Index].WireHidden = IsHidden;
-
-		DrawWires();
-	}
 
 	UFUNCTION(BlueprintCallable)
 	void SetWireColor(int Index, FLinearColor Color, UObject* Setter)
@@ -161,7 +157,7 @@ public:
 	
 
 	UFUNCTION(BlueprintPure)
-	FText GetCustomNameOrDefault()
+	FText GetCustomNameOrDefault() const
 	{
 		if(OwnerData.CustomName.IsEmpty()) return mDisplayName;
 		return OwnerData.CustomName;

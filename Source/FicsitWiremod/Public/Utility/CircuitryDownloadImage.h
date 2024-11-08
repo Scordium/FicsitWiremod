@@ -60,6 +60,14 @@ struct FCircuitryImageDownloadTask
 		else Delegates.Add(Delegate);
 	}
 
+	void RemoveDelegatesForObject(const UObject* Object)
+	{
+		for (const FCircuitryDownloadImageDelegate& Delegate : TArray(Delegates))
+		{
+			if (Delegate.GetUObject() == Object) Delegates.Remove(Delegate);
+		} 
+	}
+
 	void OnDownloadFinished(UTexture* ResultTexture, bool DownloadSuccess)
 	{
 		Finished = true;
@@ -185,6 +193,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DownloadImage(const FString& Url, FCircuitryDownloadImageDelegate OnFinish, bool AllowCache = true)
 	{
+		//Delete existing awaited tasks for this object to prevent system caching the wrong image in case an older task takes longer to finish than current one.
+		for (auto& Task : Cache)
+		{
+			Task.Value.RemoveDelegatesForObject(OnFinish.GetUObject());
+		}
+		
+		
 		if(AllowCache)
 		{
 			if(auto CachedTask = Cache.Find(Url))
@@ -193,7 +208,7 @@ public:
 				return;
 			}
 		}
-
+		
 		//If the url starts with "asset://" then we should return whatever we find in that path
 		if(Url.StartsWith("asset://"))
 		{

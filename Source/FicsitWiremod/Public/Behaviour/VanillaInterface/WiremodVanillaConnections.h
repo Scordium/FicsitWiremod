@@ -357,25 +357,6 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void SetWireHidden(UObject* Buildable, int Index, bool Hidden, UObject* Setter)
-	{
-		//Get data
-		auto Data = GetDataUnchecked(Buildable).Data;
-
-		//Check if the user can configure this object
-		if(!Data.OwnerData.GetCanConfigure(Setter)) return;
-
-		//Check if the index for the wire is valid (this should never happen under normal circumstances, but we're checking it anyway.)
-		if(!Data.Connections.IsValidIndex(Index)) return;
-
-		//Set value
-		Data.Connections[Index].Transmitter.WireHidden = Hidden;
-
-		UpdateBuildable(Buildable, Data.Connections, Data.OwnerData);
-		DrawWiresForBuildable(FVanillaBuildingDataKeyValuePair(Buildable, Data));
-	}
-
-	UFUNCTION(BlueprintCallable)
 	void SetWireColor(UObject* Buildable, int Index, FLinearColor Color, UObject* Setter)
 	{
 		//Get data

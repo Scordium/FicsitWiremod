@@ -43,9 +43,6 @@ public:
 	void ShowBuildingDisqualifier(const FText& Text);
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void ShowWireInfo(AConnectionWireBase* Wire);
-
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void ClearUI();
 
 	UFUNCTION(BlueprintImplementableEvent)

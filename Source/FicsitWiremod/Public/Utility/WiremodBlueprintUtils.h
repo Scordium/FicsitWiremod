@@ -25,7 +25,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FConnectionData Data;
 
-	bool operator==(const FBuildableInputInfo& Other) const { return Info == Other.Info && Data == Other.Data; }
+	bool operator==(const FBuildableInputInfo& Other) const { return Info == Other.Info && Data.EqualsFully(Other.Data); }
 };
 
 UCLASS()
@@ -145,4 +145,7 @@ public:
 
 		return Out;
 	}
+
+	UFUNCTION(BlueprintPure, DisplayName="Equals", meta=(Keywords="equals, ==, info equals"))
+	static bool BuildableInputInfoEquals(const FBuildableInputInfo& A, const FBuildableInputInfo& B) { return A == B; }
 };

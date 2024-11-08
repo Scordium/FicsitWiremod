@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "CircuitryStatics.h"
 #include "WiremodUtils.h"
 #include "Equipment/FGEquipment.h"
 #include "Utility/CircuitryInputMappings.h"
@@ -28,13 +29,21 @@ public:
 	virtual void WasEquipped_Implementation() override
 	{
 		Super::WasEquipped_Implementation();
-		if(IsLocallyControlled()) InjectMappings();
+		if(IsLocallyControlled())
+		{
+			InjectMappings();
+			if (TrackedInInstanceModule) UCircuitryStatics::Self->UpdateCurrentEquipment(this);
+		}
 	}
 
 	virtual void WasUnEquipped_Implementation() override
 	{
 		Super::WasUnEquipped_Implementation();
-		if(IsLocallyControlled()) EjectMappings();
+		if(IsLocallyControlled())
+		{
+			EjectMappings();
+			if (TrackedInInstanceModule) UCircuitryStatics::Self->UpdateCurrentEquipment(nullptr);
+		}
 	}
 
 	virtual void OnInteractWidgetAddedOrRemoved(UFGInteractWidget* widget, bool added) override
@@ -75,6 +84,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<FName, UFGInputMappingContext*> InputsContexts;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool TrackedInInstanceModule = false;
+	
 protected:
 
 	UFUNCTION(BlueprintCallable)

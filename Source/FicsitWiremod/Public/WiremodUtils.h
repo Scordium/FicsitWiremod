@@ -2,6 +2,7 @@
 
 #pragma once
 #include "AbstractInstanceManager.h"
+#include "FGBuildingDescriptor.h"
 #include "Behaviour/CircuitryInterface.h"
 #include "Buildables/FGBuildable.h"
 
@@ -84,6 +85,14 @@ public:
 		}
 
 		return UFGItemDescriptor::GetBigIcon(Buildable->GetBuiltWithDescriptor());
+	}
+
+	UFUNCTION(BlueprintPure)
+	static TSubclassOf<UFGBuildingDescriptor> GetBuiltWithDescriptor(AFGBuildable* Buildable)
+	{
+		if (!Buildable) return nullptr;
+
+		return TSubclassOf<UFGBuildingDescriptor>(Buildable->GetBuiltWithDescriptor());
 	}
 
 };
