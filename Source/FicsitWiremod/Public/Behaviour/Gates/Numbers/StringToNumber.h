@@ -14,7 +14,7 @@ class FICSITWIREMOD_API AStringToNumber : public AFGWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		Out = FCString::Atof(*WM_GetString(0));
+		Out = FCString::Atof(*GetConnection(0).GetString());
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

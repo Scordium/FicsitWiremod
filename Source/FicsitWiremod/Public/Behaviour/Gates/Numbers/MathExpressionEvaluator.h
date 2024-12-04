@@ -14,7 +14,7 @@ class FICSITWIREMOD_API AMathExpressionEvaluator : public AFGWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		FString Expression = WM_GetString(0);
+		FString Expression = GetConnection(0).GetString();
 
 		if(Expression == LastExpression) return;
 

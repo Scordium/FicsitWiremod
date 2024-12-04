@@ -15,47 +15,85 @@ class FICSITWIREMOD_API ADivideNumbers : public AMultistateWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		//0 - Divide all connected
-		if(CurrentStateIndex == 0)
+		switch (CurrentStateIndex)
 		{
-			TArray<FConnectionData> Connected;
-			GetAllConnected(Connected);
-
-			double Result = 0;
-			for(int i = 0; i < Connected.Num(); i++)
+			//Default mode - divide all connected from first to last
+		case 0:
 			{
-				double Value = Connected[i].GetFloat();
-				Result = (i == 0) ? Value : Result / Value;
+				TArray<FConnectionData> Connected;
+				GetAllConnected(Connected);
+
+				double Result = 0;
+				if (Connected.Num() > 0)
+				{
+					Result = Connected[0].GetFloat();
+
+					for(int i = 1; i < Connected.Num(); i++)
+						Result /= Connected[i].GetFloat();
+				}
+				
+				Out = Result;
+				break;
+			}
+			//Array mode - divide all array elements from first to last
+		case 1:
+			{
+				auto Array = GetConnection(0).GetFloatArray();
+
+				double Result = 0;
+				if (Array.Num() > 0)
+				{
+					Result = Array[0];
+					for(int i = 1; i < Array.Num(); i++) Result /= Array[i];
+				}
+				
+				Out = Result;
+				break;
+			}
+			//Array single mode - divide each element in array by number
+		case 2:
+			{
+				auto Array = GetConnection(0).GetFloatArray();
+				double Value = GetConnection(1).GetFloat();
+				for(int i = 0; i < Array.Num(); i++) Array[i] /= Value;
+
+				Out_Array = Array;
+				break;
 			}
 
-			Out = Result;	
-		}
-
-		//1 - Divide all array elements
-		else if(CurrentStateIndex == 1)
-		{
-			auto Array = GetConnection(0).GetFloatArray();
-
-			double Result = 0;
-			for(int i = 0; i < Array.Num(); i++)
+			//Array mode - divide each element in array A by same index element from array B
+		case 3:
 			{
-				Result = (i == 0) ? Array[i] : Result / Array[i];
+				Out_Array.Empty();
+				const auto ArrayA = GetConnection(0).GetFloatArray();
+				const auto ArrayB = GetConnection(1).GetFloatArray();
+
+				for (int i = 0; i < FMath::Max(ArrayA.Num(), ArrayB.Num()); i++)
+				{
+					if (ArrayA.IsValidIndex(i))
+					{
+						const auto BValue = ArrayB.IsValidIndex(i) ? ArrayB[i] : 1;
+
+						Out_Array.Add(ArrayA[i] / BValue);
+					}
+					else Out_Array.Add(ArrayB[i]);
+				}
+
+				break;
 			}
 
-			Out = Result;
-		}
-
-		//2 - Divide each array element by a value
-		else if(CurrentStateIndex == 2)
-		{
-			auto Array = GetConnection(0).GetFloatArray();
-			double Value = GetConnection(1).GetFloat();;
-			for(int i = 0; i < Array.Num(); i++) Array[i] /= Value;
-
-			Out_Array = Array;
+		default: break;
 		}
 	}
 
+	virtual void OnStateSelected_Internal(int Index) override
+	{
+		Super::OnStateSelected_Internal(Index);
+
+		Out = 0;
+		Out_Array.Empty();
+	}
+	
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override
 	{
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -65,9 +103,9 @@ public:
 	}
 
 
-	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame)
 	double Out;
 
-	UPROPERTY(Replicated, SaveGame, VisibleInstanceOnly)
+	UPROPERTY(Replicated, SaveGame)
 	TArray<double> Out_Array;
 };

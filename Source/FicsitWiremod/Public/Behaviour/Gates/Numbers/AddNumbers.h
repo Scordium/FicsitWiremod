@@ -15,42 +15,74 @@ class FICSITWIREMOD_API AAddNumbers : public AMultistateWiremodBuildable
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-
-		//0 - Sum of all connected inputs
-		if(CurrentStateIndex == 0)
+		switch (CurrentStateIndex)
 		{
-			TArray<FConnectionData> Connected;
-			GetAllConnected(Connected);
-
-			double Output = 0;
-			for (auto Data : Connected)
+			//Default mode - sum of all connected inputs
+		case 0:
 			{
-				Output += Data.GetFloat();
+				TArray<FConnectionData> Connected;
+				GetAllConnected(Connected);
+
+				double Output = 0;
+				for (auto Data : Connected)
+				{
+					Output += Data.GetFloat();
+				}
+
+				Out = Output;
+				break;
+			}
+			//Array mode - sum of all array elements
+		case 1:
+			{
+				auto Array = GetConnection(0).GetFloatArray();
+				double Output = 0;
+
+				for(auto Element : Array) Output += Element;
+				Out = Output;
+				break;
+			}
+			//Array single add mode - Add a value to each element in the array
+		case 2:
+			{
+				Out_Array = GetConnection(0).GetFloatArray();
+				const double Value = GetConnection(1).GetFloat();;
+
+				for(int i = 0; i < Out_Array.Num(); i++) Out_Array[i] += Value;
+				break;
 			}
 
-			Out = Output;
+			//Array add mode - Return sum of individual elements in two arrays (Out[I] = A[I] + B[I])
+		case 3:
+			{
+				Out_Array.Empty();
+				const auto ArrayA = GetConnection(0).GetFloatArray();
+				const auto ArrayB = GetConnection(1).GetFloatArray();
+
+				for (int i = 0; i < FMath::Max(ArrayA.Num(), ArrayB.Num()); i++)
+				{
+					if (ArrayA.IsValidIndex(i))
+					{
+						const auto BValue = ArrayB.IsValidIndex(i) ? ArrayB[i] : 0;
+
+						Out_Array.Add(ArrayA[i] + BValue);
+					}
+					else Out_Array.Add(ArrayB[i]);
+				}
+
+				break;
+			}
+
+			default: break;
 		}
+	}
 
-		//1 - Array sum
-		else if(CurrentStateIndex == 1)
-		{
-			auto Array = GetConnection(0).GetFloatArray();
-			double Output = 0;
+	virtual void OnStateSelected_Internal(int Index) override
+	{
+		Super::OnStateSelected_Internal(Index);
 
-			for(auto Element : Array) Output += Element;
-			Out = Output;
-		}
-
-		//2 - Add a value to all elements in array
-		else if(CurrentStateIndex == 2)
-		{
-			auto Array = GetConnection(0).GetFloatArray();
-			double Value = GetConnection(1).GetFloat();;
-
-			for(int i = 0; i < Array.Num(); i++) Array[i] += Value;
-
-			Out_Array = Array;
-		}
+		Out = 0;
+		Out_Array.Empty();
 	}
 
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override

@@ -120,12 +120,6 @@ protected:
 
 	UFUNCTION(BlueprintPure)
 	EConnectionType GetInputType(int Index);
-	
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE double WM_GetFloat(int InputIndex, double DefaultValue = 0.f) { return GetConnection(InputIndex).GetFloat(DefaultValue); }
-	
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE FString WM_GetString(int InputIndex, FString DefaultValue = "") { return GetConnection(InputIndex).GetString(DefaultValue); }
 
 public:
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override;
