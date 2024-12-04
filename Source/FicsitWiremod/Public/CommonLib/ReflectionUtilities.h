@@ -386,7 +386,10 @@ public:
 			sign->SetPrefabSignData(signData);
 		}
 		else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
-			station->GetStationIdentifier()->SetStationName(FText::FromString(Value));
+		{
+			if (auto StationIdentifier = station->GetStationIdentifier())
+				StationIdentifier->SetStationName(FText::FromString(Value));
+		}
 		else if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
 			Portal->SetPortalName(FText::FromString(Value));
 		else GenericSet(REFLECTION_ARGS, Value);
