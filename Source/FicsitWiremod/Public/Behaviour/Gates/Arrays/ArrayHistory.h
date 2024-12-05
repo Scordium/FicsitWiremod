@@ -58,6 +58,12 @@ public:
 		DOREPLIFETIME(AArrayHistory, Cache)
 	}
 
+	virtual void GatherReplicatedObjects_Implementation(TArray<UObject*>& Out) override
+	{
+		Super::GatherReplicatedObjects_Implementation(Out);
+		Out.Add(Cache);
+	}
+
 	virtual UObject* GetValue_Implementation(const FString& ValueName) override { return Cache; }
 
 
