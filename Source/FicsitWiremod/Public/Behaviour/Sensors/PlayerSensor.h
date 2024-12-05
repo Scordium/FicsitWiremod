@@ -13,30 +13,20 @@ class FICSITWIREMOD_API APlayerSensor : public AFGWiremodBuildable
 	GENERATED_BODY()
 
 public:
-	virtual void ServerProcess_Implementation(double DeltaTime) override { FindPlayer(); }
-
-	void FindPlayer()
+	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		TArray<AActor*> Players;
-		UGameplayStatics::GetAllActorsOfClass(this, AFGCharacterPlayer::StaticClass(), Players);
+		auto Players = GetWorld()->GetGameState()->PlayerArray;
 
-		for(const auto& PlayerActor : Players)
+		PlayerList.Empty();
+		for (auto BaseState : Players)
 		{
-			const auto CharacterPlayer = Cast<AFGCharacterPlayer>(PlayerActor);
-			if(!CharacterPlayer) continue;
+			auto PlayerState = Cast<AFGPlayerState>(BaseState);
+			if (!PlayerState) continue;
+			
+			PlayerList.Add(PlayerState->GetPawn());
 
-			const auto PlayerState = Cast<AFGPlayerState>(CharacterPlayer->GetPlayerState());
-			if(!PlayerState) continue;
-			auto PlayerId = UPlayerUtilities::GetUserIdSafe(PlayerState);
-
-			if(PlayerId == TrackedPlayerId)
-			{
-				Player = CharacterPlayer;
-				return;
-			}
+			if (UPlayerUtilities::GetUserIdSafe(PlayerState) == TrackedPlayerId) Player = PlayerState->GetPawn();
 		}
-
-		Player = nullptr;
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -44,7 +34,7 @@ public:
 	{
 		PERMISSION_CHECK(Setter);
 		TrackedPlayerId = PlayerId;
-		FindPlayer();
+		Player = nullptr;
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
@@ -60,4 +50,7 @@ public:
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	AActor* Player;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	TArray<AActor*> PlayerList;
 };

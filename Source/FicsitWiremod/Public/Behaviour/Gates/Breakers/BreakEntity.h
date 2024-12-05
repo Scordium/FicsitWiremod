@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FGBuildablePortal.h"
 #include "FGFreightWagon.h"
 #include "FGRailroadVehicle.h"
 #include "FGVehicle.h"
@@ -36,6 +37,18 @@ public:
 	{
 		//If it's a player, try to return playername
 		if(auto Player = Cast<AFGCharacterPlayer>(Entity)) return Player->GetPlayerState() ? Player->GetPlayerState()->GetPlayerName() : "Offline player";
+
+		//If it's a train station, return its name
+		if (auto Station = Cast<AFGBuildableRailroadStation>(Entity))
+		{
+			return Station->GetStationIdentifier()->GetStationName().ToString();
+		}
+
+		//If it's a portal, return portal name
+		if (auto Portal = Cast<AFGBuildablePortalBase>(Entity))
+		{
+			return Portal->GetPortalName().ToString();
+		}
 
 		//If it's a buildable, try to return buildable name
 		if(auto Buildable = Cast<AFGBuildable>(Entity))
