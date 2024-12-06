@@ -6,68 +6,81 @@
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Pixel.generated.h"
 
+
 UCLASS()
-class FICSITWIREMOD_API APixel : public AFGWiremodBuildable
+class FICSITWIREMOD_API ABuildablePixelBase : public AFGWiremodBuildable
 {
 	GENERATED_BODY()
 
 public:
 
-	virtual void ClientProcess_Implementation(double DeltaTime) override
+	UPROPERTY(Replicated, BlueprintReadOnly, SaveGame)
+	FVector Scale = FVector::OneVector;
+
+	virtual void BeginPlay() override
 	{
-		const auto Color = GetConnection(0).GetColor();
-		const auto Emission = GetConnection(1).GetFloat(1);
+		Super::BeginPlay();
 
-		if(Color != ColorCache || Emission != EmissionCache)
+		SetActorScale3D(Scale);
+	}
+
+	virtual void ClientProcess_Implementation(double DeltaTime) override final
+	{
+		auto NewColor = GetColor();
+		auto NewEmission = GetEmission();
+
+		if(Color != NewColor || Emission != NewEmission)
 		{
-			ColorCache = Color;
-			EmissionCache = Emission;
-
-			SetColorAndEmission(Color, Emission);
+			Color = NewColor;
+			Emission = NewEmission;
+			UpdateColorAndEmission();
 		}
 	}
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetColorAndEmission(FLinearColor Color, double Emission);
-	
-	UPROPERTY()
-	FLinearColor ColorCache;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override
+	{
+		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	UPROPERTY()
-	double EmissionCache;
+		DOREPLIFETIME(ThisClass, Scale)
+	}
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateColorAndEmission();
+	
+	UPROPERTY(BlueprintReadOnly)
+	FLinearColor Color;
+
+	UPROPERTY(BlueprintReadOnly)
+	double Emission;
+
+protected:
+
+	virtual FLinearColor GetColor(){ return FLinearColor::Black; }
+	virtual double GetEmission() { return 0; }
 };
 
 UCLASS()
-class FICSITWIREMOD_API ABoolPixel : public AFGWiremodBuildable
+class FICSITWIREMOD_API APixel : public ABuildablePixelBase
+{
+	GENERATED_BODY()
+
+public:
+	virtual FLinearColor GetColor() override { return GetConnection(0).GetColor(); }
+	virtual double GetEmission() override { return GetConnection(1).GetFloat(1); }
+};
+
+UCLASS()
+class FICSITWIREMOD_API ABoolPixel : public ABuildablePixelBase
 {
 	GENERATED_BODY()
 
 public:
 
-	virtual void ClientProcess_Implementation(double DeltaTime) override
+	virtual FLinearColor GetColor() override
 	{
-		auto Value = GetConnection(0).GetBool();
-		auto Color = Value
+		return GetConnection(0).GetBool()
 		? GetConnection(3).GetColor(FLinearColor::Green)
 		: GetConnection(2).GetColor(FLinearColor::Red);
-		
-		const auto Emission = GetConnection(1).GetFloat(1);
-
-		if(Color != ColorCache || Emission != EmissionCache)
-		{
-			ColorCache = Color;
-			EmissionCache = Emission;
-
-			SetColorAndEmission(Color, Emission);
-		}
 	}
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetColorAndEmission(FLinearColor Color, double Emission);
-	
-	UPROPERTY()
-	FLinearColor ColorCache;
-
-	UPROPERTY()
-	double EmissionCache;
+	virtual double GetEmission() override { return GetConnection(1).GetFloat(1); }
 };

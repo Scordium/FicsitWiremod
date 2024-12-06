@@ -14,6 +14,8 @@ UCLASS()
 class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 {
 	GENERATED_BODY()
+	
+public:
 	AWiremodBuildableHologram()
 	{
 		mNeedsValidFloor = false;
@@ -40,8 +42,6 @@ class FICSITWIREMOD_API AWiremodBuildableHologram : public AFGBuildableHologram
 	}
 
 	virtual int32 GetRotationStep() const override { return 5; }
-
-public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	double GetGridSize();
