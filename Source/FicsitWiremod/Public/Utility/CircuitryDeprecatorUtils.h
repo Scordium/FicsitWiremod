@@ -23,7 +23,6 @@ public:
 	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf="Old"))
 	static void GenerateMultistateBuildable(AFGWiremodBuildable* Old, TSubclassOf<AMultistateWiremodBuildable> Class, int StateIndex, TSubclassOf<UFGRecipe> WithRecipe)
 	{
-		Old->DestroyWires();
 		auto const Transform = Old->GetActorTransform();
 		auto NewBuildable = Cast<AMultistateWiremodBuildable>(Old->GetWorld()->SpawnActor(Class.GetDefaultObject()->GetClass(), &Transform));
 		NewBuildable->SetBuiltWithRecipe(WithRecipe);
