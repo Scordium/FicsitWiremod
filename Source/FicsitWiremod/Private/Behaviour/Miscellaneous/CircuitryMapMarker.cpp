@@ -8,5 +8,4 @@ void UFGCircutryMapMarkerRepresentation::UpdateRepresentationCompassMaterial(cla
 	compassMaterialInstance->SetTextureParameterValue(FName("Icon"), Actor->TextureCache);
 	//compassMaterialInstance->SetTextureParameterValue(FName("Border"), Actor->TextureCache);
 	//compassMaterialInstance->SetTextureParameterValue(FName("InnerBackground"), Actor->TextureCache);
-	if (Actor->TextureCache) ACircuitryLogger::DispatchWarningEvent(Actor->TextureCache->GetName());
 }
