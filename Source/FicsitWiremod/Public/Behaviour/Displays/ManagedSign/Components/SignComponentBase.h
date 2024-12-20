@@ -228,6 +228,19 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SubscribeToVariableUpdates(TSubclassOf<USignComponentVariableName> Variable, FUpdateEditorVariableValue Event) { EditorVariableBindings.Add(Variable, Event); }
 
+	UFUNCTION(BlueprintCallable)
+	void ForceRefreshVariableBinding(TSubclassOf<USignComponentVariableName> Variable)
+	{
+		for(auto& Var : ComponentData.Variables)
+		{
+			if(Var.Name == Variable)
+			{
+				if(auto Delegate = EditorVariableBindings.Find(Variable)) Delegate->ExecuteIfBound(Var);
+				return;
+			}
+		}
+	}
+	
 	UFUNCTION()
 	void HandleVariableUpdate(const FSignComponentVariableData& Data)
 	{
@@ -295,6 +308,21 @@ protected:
 				return;
 			}
 		}
+	}
+
+	UFUNCTION(BlueprintCallable)
+	bool GetVariable(TSubclassOf<USignComponentVariableName> VariableName, FSignComponentVariableData& Variable)
+	{
+		for(auto& Var : ComponentData.Variables)
+		{
+			if(Var.Name == VariableName)
+			{
+				Variable = Var;
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	UFUNCTION(BlueprintPure)

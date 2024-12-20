@@ -47,7 +47,7 @@ public:
 
 	UCCDynamicValueBase() { DispatchCreated(); }
 
-	explicit UCCDynamicValueBase(EConnectionType Type)
+	UCCDynamicValueBase(EConnectionType Type)
 	{
 		ConnectionType = Type;
 		DispatchCreated();
