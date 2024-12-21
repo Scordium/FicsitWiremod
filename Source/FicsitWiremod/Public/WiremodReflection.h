@@ -261,7 +261,11 @@ public:
 			}
 
 		case ArrayOfPixelImage: return "[" + CC_INT(GetPixelImageArray().Num()) + " elements]";
-		case Texture: return "?";
+			
+		case Texture:
+			if (auto Texture = GetTexture()) return Texture->GetClass()->GetName();
+			else return "null or invalid";
+			
 		case ArrayOfTexture: return "[" + CC_INT(GetTextureArray().Num()) + " elements]";
 		case SplitterRule:
 			{
