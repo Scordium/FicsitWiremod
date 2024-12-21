@@ -4,13 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
-#include "Behaviour/MultistateWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
-#include "Kismet/KismetTextLibrary.h"
 #include "ToString.generated.h"
 
 UCLASS()
-class FICSITWIREMOD_API AToString : public AMultistateWiremodBuildable
+class FICSITWIREMOD_API AToString : public AFGWiremodBuildable
 {
 	GENERATED_BODY()
 
@@ -18,53 +16,9 @@ public:
 
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		switch (CurrentStateIndex)
-		{
-			//Number (Float)
-		case 1:
-			{
-				double Value = GetConnection(0).GetFloat();
-				bool Truncate = GetConnection(1).GetBool();
-				if(!Truncate)
-				{
-					Out = FString::SanitizeFloat(Value);
-					break;
-				}
-				
-				int MinFrac = GetConnection(2).GetFloat();
-				int MaxFrac = GetConnection(3).GetFloat();
-
-				Out = UKismetTextLibrary::Conv_DoubleToText(
-					Value,
-					HalfToZero,
-					false,
-					true,
-					1,
-					324,
-					MinFrac,
-					MaxFrac).ToString();
-				break;
-			}
-
-		default:
-			ValueParserCache = UCCDynamicValueUtils::FromValue(GetConnection(0), ValueParserCache);
-			if(ValueParserCache) Out = ValueParserCache->ToString();
-			else Out = "";
-			break;
-		}
-	}
-
-	virtual void OnInputConnected_Internal(const FConnectionData& Data, int Index) override
-	{
-		if(Index == 0 && Data.ConnectionType != StoredType)
-		{
-			StoredType = Data.ConnectionType;
-
-			//Check if we need to swap the connection list for number formatting
-			if(StoredType == Number) OnStateSelected_Internal(1);
-			else OnStateSelected_Internal(0);
-		}
-		Super::OnInputConnected_Internal(Data, Index);
+		ValueParserCache = UCCDynamicValueUtils::FromValue(GetConnection(0), ValueParserCache);
+		if(ValueParserCache) Out = ValueParserCache->ToString();
+		else Out = "";
 	}
 
 
@@ -74,9 +28,6 @@ public:
 
 		DOREPLIFETIME(AToString, Out)
 	}
-	
-	UPROPERTY(SaveGame)
-	TEnumAsByte<EConnectionType> StoredType;
 	
 	UPROPERTY(Replicated, SaveGame)
 	FString Out;
