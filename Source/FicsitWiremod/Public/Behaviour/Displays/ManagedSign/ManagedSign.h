@@ -48,6 +48,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TArray<FManagedSignConnectionSettings> Connections;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	bool TransparencyEnabled = false;
+
 	float GetTickInterval() const
 	{
 		if(TicksPerSecond == 0) return 0;
@@ -62,7 +65,8 @@ public:
 		&& DotsPerInch == Other.DotsPerInch
 		&& EmissionLevel == Other.EmissionLevel
 		&& TicksPerSecond == Other.TicksPerSecond
-		&& MatteLevel == Other.MatteLevel;
+		&& MatteLevel == Other.MatteLevel
+		&& TransparencyEnabled == Other.TransparencyEnabled;
 	}
 };
 
