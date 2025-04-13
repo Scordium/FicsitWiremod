@@ -62,6 +62,16 @@ public:
 		return FString::Format(*FString("{0} [{1}]"), Args);
 	}
 
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());
+
+		Object->SetField("ItemClass", MakeShareable(new FJsonValueString(FSoftClassPath(Value.ItemClass).ToString())));
+		Object->SetNumberField("OutputIndex", Value.OutputIndex);
+
+		return MakeShareable(new FJsonValueObject(Object));
+	}
+
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
 		FString Class, OutputIndex;
@@ -114,6 +124,23 @@ public:
 		Value = UReflectionUtilities::GetSplitterRuleArray(REFLECTION_ARGS);
 	}
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());
+
+			Object->SetField("ItemClass", MakeShareable(new FJsonValueString(FSoftClassPath(ArrayValue.ItemClass).ToString())));
+			Object->SetNumberField("OutputIndex", ArrayValue.OutputIndex);
+
+			Array.Add(MakeShareable(new FJsonValueObject(Object)));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{

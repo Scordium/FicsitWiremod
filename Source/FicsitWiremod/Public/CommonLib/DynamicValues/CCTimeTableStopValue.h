@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "CCArrayValueBase.h"
 #include "CCDynamicValueBase.h"
-#include "Behaviour/Gates/Breakers/BreakTimeTableStop.h"
+#include "JsonUtilities.h"
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCTimeTableStopValue.generated.h"
 
+#define TO_JSON(val) UJsonUtilities::TimeTableStopToJson(val)
 /**
  * 
  */
@@ -54,6 +55,11 @@ public:
 	}
 
 	virtual FString ToString() override { return Value.Station ? Value.Station->GetStationName().ToString() : "N/A"; }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		return TO_JSON(Value);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	FTimeTableStopData Value;
@@ -158,6 +164,18 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(TO_JSON(ArrayValue));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual TArray<FString> ToStringArray() override
 	{

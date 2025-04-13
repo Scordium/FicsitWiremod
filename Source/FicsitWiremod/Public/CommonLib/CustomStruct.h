@@ -48,7 +48,7 @@ public:
 		InternalName = FName(NewInternalName);
 	}
 	
-	bool operator ==(const FNamedDynamicValue& Other) const { return Value ? Value->Equals(Other.Value) : false; }
+	bool operator ==(const FNamedDynamicValue& Other) const { return Value ? Value->Equals(Other.Value) : (Value == nullptr && Other.Value == nullptr); }
 
 	bool IsDataTypeEqual(const FNamedDynamicValue& Other) const {
 		if (!Value || !Other.Value) return false;
@@ -95,6 +95,19 @@ struct FCustomStruct
 
 	bool operator !=(const FCustomStruct& Other) { return !(*this == Other); }
 	FCustomStruct Duplicate(UObject* WorldContext);
+
+	TSharedRef<FJsonValue> ToJson() const
+	{
+		const TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+		JsonObject->SetField(FString("__CIRCUITRY_STRUCT_NAME__"), MakeShareable(new FJsonValueString(Name)));
+		for (const FNamedDynamicValue& Value : Values)
+		{
+			JsonObject->SetField(Value.Name, Value.Value->ToJson());
+		}
+		
+		return MakeShareable(new FJsonValueObject(JsonObject));
+	}
 };
 
 

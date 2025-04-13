@@ -15,8 +15,8 @@ class FICSITWIREMOD_API AArrayAppend : public AFGWiremodBuildable, public IDynam
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		ArrayCache1 = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(0), ArrayCache1));
-		ArrayCache2 = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(1), ArrayCache2));
+		ArrayCache1 = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(0), ArrayCache1, false));
+		ArrayCache2 = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromValue(GetConnection(1), ArrayCache2, false));
 		
 		auto OutType = ArrayCache1 ? ArrayCache1->ConnectionType.GetValue() : (ArrayCache2 ? ArrayCache2->ConnectionType.GetValue() : Unknown); 
 		

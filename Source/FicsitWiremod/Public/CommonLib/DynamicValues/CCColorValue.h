@@ -8,6 +8,8 @@
 #include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryColorArrayFilter.h"
 #include "CCColorValue.generated.h"
 
+
+#define TO_JSON(val) MakeShareable(new FJsonValueString(UFGBlueprintFunctionLibrary::LinearColorToHex(val)))
 /**
  * 
  */
@@ -54,6 +56,11 @@ public:
 	}
 
 	virtual FString ToString() override { return Value.ToString(); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		return TO_JSON(Value);
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
@@ -142,6 +149,18 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(TO_JSON(ArrayValue));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{

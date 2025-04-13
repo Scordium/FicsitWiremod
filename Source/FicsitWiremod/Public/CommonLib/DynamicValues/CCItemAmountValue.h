@@ -6,7 +6,6 @@
 #include "CCDynamicValueBase.h"
 #include "ItemAmount.h"
 #include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryItemArrayFilter.h"
-#include "CommonLib/FileUtilities.h"
 #include "CCItemAmountValue.generated.h"
 
 /**
@@ -56,6 +55,18 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value.Amount) + " of " + UFGItemDescriptor::GetItemName(Value.ItemClass).ToString();}
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());
+
+		if (Value.ItemClass) Object->SetStringField("ItemClass", FSoftClassPath(Value.ItemClass).ToString());
+		else Object->SetField("ItemClass", MakeShareable(new FJsonValueNull()));
+
+		Object->SetNumberField("Amount", Value.Amount);
+
+		return MakeShareable(new FJsonValueObject(Object));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
@@ -184,6 +195,25 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());
+
+			if (ArrayValue.ItemClass) Object->SetStringField("ItemClass", FSoftClassPath(ArrayValue.ItemClass).ToString());
+			else Object->SetField("ItemClass", MakeShareable(new FJsonValueNull()));
+
+			Object->SetNumberField("Amount", ArrayValue.Amount);
+			
+			Array.Add(MakeShareable(new FJsonValueObject(Object)));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{

@@ -6,7 +6,6 @@
 #include "CCDynamicValueBase.h"
 #include "CommonLib/CustomStruct.h"
 #include "CCCustomStructValue.generated.h"
-
 /**
  * 
  */
@@ -52,6 +51,8 @@ public:
 	}
 
 	virtual FString ToString() override { return Value.Name + "[" + FString::FromInt(Value.Values.Num()) + " values]"; }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override { return Value.ToJson(); }
 	
 	UPROPERTY(Replicated, SaveGame)
 	FCustomStruct Value;
@@ -129,6 +130,18 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(ArrayValue.ToJson());
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual TArray<FString> ToStringArray() override
 	{

@@ -48,6 +48,11 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value.Width) + "x" + FString::FromInt(Value.Height);}
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		return MakeShareable(new FJsonValueString("Why."));
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	FPixelScreenData Value;

@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "FGSaveInterface.h"
+#include "JsonValue.h"
+#include "UnrealNetwork.h"
 #include "CommonLib/ConnectionType.h"
-#include "Net/UnrealNetwork.h"
-#include "UObject/Object.h"
 #include "CCDynamicValueBase.generated.h"
 /**
  * 
@@ -64,6 +64,11 @@ public:
 	{
 		DispatchNotImplemented("TO_STRING");
 		return "";
+	}
+	
+	virtual TSharedPtr<FJsonValue> ToJson()
+	{
+		return MakeShareable(new FJsonValueNull());
 	}
 
 	UFUNCTION(BlueprintPure)

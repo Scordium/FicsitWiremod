@@ -55,6 +55,11 @@ public:
 
 	virtual FString ToString() override { return FString::SanitizeFloat(Value); }
 
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		return MakeShareable(new FJsonValueNumber(Value));
+	}
+
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
 		Value = FCString::Atod(*Wrapper.Value);
@@ -143,6 +148,18 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(MakeShareable(new FJsonValueNumber(ArrayValue)));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{

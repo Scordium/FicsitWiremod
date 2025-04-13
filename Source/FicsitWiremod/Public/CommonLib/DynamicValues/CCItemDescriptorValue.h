@@ -61,6 +61,11 @@ public:
 		return CDO->mDisplayName.ToString();
 	}
 
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		return MakeShareable(new FJsonValueString(FSoftClassPath(Value).ToString()));
+	}
+
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
 		const auto Descriptor = FSoftClassPath(Wrapper.Value).TryLoadClass<UFGItemDescriptor>();
@@ -107,6 +112,18 @@ public:
 		Value = UReflectionUtilities::GetItemDescriptorArray(REFLECTION_ARGS);
 	}
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(MakeShareable(new FJsonValueString(FSoftClassPath(ArrayValue).ToString())));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{

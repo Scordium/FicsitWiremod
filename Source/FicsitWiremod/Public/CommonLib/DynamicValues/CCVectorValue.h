@@ -6,7 +6,6 @@
 #include "CCDynamicValueBase.h"
 #include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryVectorArrayFilter.h"
 #include "CCVectorValue.generated.h"
-
 /**
  * 
  */
@@ -53,6 +52,17 @@ public:
 	}
 
 	virtual FString ToString() override { return Value.ToCompactString(); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());
+
+		Object->SetNumberField("X", Value.X);
+		Object->SetNumberField("Y", Value.Y);
+		Object->SetNumberField("Z", Value.Z);
+
+		return MakeShareable(new FJsonValueObject(Object));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
@@ -141,6 +151,24 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());
+
+			Object->SetNumberField("X", ArrayValue.X);
+			Object->SetNumberField("Y", ArrayValue.Y);
+			Object->SetNumberField("Z", ArrayValue.Z);
+			
+			Array.Add(MakeShareable(new FJsonValueObject(Object)));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{

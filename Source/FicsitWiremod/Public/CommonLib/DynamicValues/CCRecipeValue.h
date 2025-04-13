@@ -1,11 +1,8 @@
-﻿// 
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "FGRecipe.h"
-#include "CommonLib/FileUtilities.h"
 #include "CCRecipeValue.generated.h"
 
 /**
@@ -53,6 +50,11 @@ public:
 	}
 
 	virtual FString ToString() override { return ::IsValid(Value) ? UFGRecipe::GetRecipeName(Value).ToString() : FString("N/A");}
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		return MakeShareable(new FJsonValueString(FSoftClassPath(Value).ToString()));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
@@ -144,6 +146,18 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(MakeShareable(new FJsonValueString(FSoftClassPath(ArrayValue).ToString())));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{

@@ -6,7 +6,6 @@
 #include "CCArrayValueBase.h"
 #include "CCDynamicValueBase.h"
 #include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryBoolArrayFilter.h"
-#include "Behaviour/Gates/Arrays/Filter/Rules/CircuitryBoolFilterRule.h"
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCBoolValue.generated.h"
 
@@ -57,6 +56,8 @@ public:
 
 	virtual FString ToString() override { return Value ? "true" : "false"; }
 
+	virtual TSharedPtr<FJsonValue> ToJson() override { return MakeShareable(new FJsonValueBoolean(Value)); }
+
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
 		Value = Wrapper.Value.Equals("true", ESearchCase::IgnoreCase);
@@ -102,6 +103,18 @@ public:
 		Value = UReflectionUtilities::GetBoolArray(REFLECTION_ARGS);
 	}
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(MakeShareable(new FJsonValueBoolean(ArrayValue)));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{

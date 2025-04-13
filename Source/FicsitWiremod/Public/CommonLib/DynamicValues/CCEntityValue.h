@@ -8,6 +8,8 @@
 #include "FGCharacterPlayer.h"
 #include "CCEntityValue.generated.h"
 
+#define TO_JSON(val) MakeShareable(new FJsonValueString(UKismetSystemLibrary::GetObjectName(val)))
+
 /**
  * 
  */
@@ -65,6 +67,9 @@ public:
 		}
 		return ObjectName;
 	}
+
+	virtual TSharedPtr<FJsonValue> ToJson() override { return TO_JSON(Value); }
+	
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	AActor* Value;
@@ -143,6 +148,18 @@ public:
 	virtual bool Contains(const FConnectionData& Element) override { return Value.Contains(Element.GetEntity()); }
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(TO_JSON(ArrayValue));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual TArray<FString> ToStringArray() override
 	{

@@ -55,6 +55,11 @@ public:
 
 	virtual FString ToString() override { return "?"; }
 
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		return MakeShareable(new FJsonValueString(Value ? Value->GetName() : ""));
+	}
+
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
 		FString Val = Wrapper.Value;
@@ -147,6 +152,18 @@ public:
 	virtual bool Contains(const FConnectionData& Element) override { return Value.Contains(Element.GetTexture()); }
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(MakeShareable(new FJsonValueString(ArrayValue ? ArrayValue->GetName() : "")));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual TArray<FString> ToStringArray() override
 	{

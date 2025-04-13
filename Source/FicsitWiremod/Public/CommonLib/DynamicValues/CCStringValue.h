@@ -12,6 +12,7 @@
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCStringValue.generated.h"
 
+
 /**
  * 
  */
@@ -64,6 +65,11 @@ public:
 
 	virtual FString ToString() override { return Value; }
 
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		return MakeShareable(new FJsonValueString(Value));
+	}
+	
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
 		Value = Wrapper.Value;
@@ -150,6 +156,18 @@ public:
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
+
+	virtual TSharedPtr<FJsonValue> ToJson() override
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& ArrayValue : Value)
+		{
+			Array.Add(MakeShareable(new FJsonValueString(ArrayValue)));
+		}
+
+		return MakeShareable(new FJsonValueArray(Array));
+	}
 
 	virtual bool FromWrapperValue(const FDynamicValueStringWrapper& Wrapper) override
 	{
