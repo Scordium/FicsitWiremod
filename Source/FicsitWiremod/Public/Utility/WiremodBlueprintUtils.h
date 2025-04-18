@@ -7,7 +7,6 @@
 #include "WiremodGameWorldModule.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
-#include "CommonLib/BackwardsCompatibilityHandler.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "WiremodBlueprintUtils.generated.h"
 /**
@@ -71,7 +70,6 @@ public:
 
 		//Interface
 		if(Object->GetClass()->ImplementsInterface(ICircuitryConnectionsProvider::UClassType::StaticClass())) return true;
-
 		//Vanilla
 		return AWiremodAPI::Self->IsBuildableRegistered(Object);
 	}

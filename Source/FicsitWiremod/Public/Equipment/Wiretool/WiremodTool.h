@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CircuitryWireSupport.h"
 #include "EnhancedInputComponent.h"
 #include "WiretoolWidget.h"
 #include "WiremodBaseTool.h"
@@ -47,7 +48,7 @@ public:
 
 			FVector LastPoint = (IsValid(CurrentTarget) && CanConnectAny() && SnapToCenter) ? CurrentTarget->GetActorLocation() : Location;
 
-			SelectedConnection.WirePositions[SelectedConnection.WirePositions.Num() - 1] = LastPoint;
+			SelectedConnection.WirePositions[SelectedConnection.WirePositions.Num() - 1] = GetNextWirePointPosition(LastPoint);
 
 
 			UWiremodGameWorldModule::Self->WirePreviewActor->AssignedConnection.Transmitter.WireColor = CircuitryConfig::GetDefaultWireColor();
@@ -70,6 +71,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SelectionChanged(AActor* NewTarget)
 	{
+		TargetWireSupport = Cast<ACircuitryWireSupport>(NewTarget);
+		
 		IWiringToolWidget::Execute_ClearUI(Widget.GetObject());
 		auto Building = Cast<AFGBuildable>(NewTarget); 
 		if(!Building || !UWiremodBlueprintUtils::IsObjectCompatible(Building)) HandleUnknownTarget(Building);
@@ -166,10 +169,19 @@ protected:
 		return false;
 	}
 
+	void AddNewWirePoint() { AddNewWirePoint(false); }
 	UFUNCTION(BlueprintCallable)
-	void AddNewWirePoint()
+	void AddNewWirePoint(bool CheckSupportsOnly = false)
 	{
 		if(!IsLocallyControlled()) return;
+
+		if (TargetWireSupport)
+		{
+			AddNewWirePoint(TargetWireSupport->GetSnapPositionWorldSpace());
+			return;
+		}
+
+		if (CheckSupportsOnly) return;
 
 		bool SuccessfulHit;
 		FVector Location;
@@ -177,6 +189,11 @@ protected:
 
 		if(!SuccessfulHit) return;
 
+		AddNewWirePoint(Location);
+	}
+
+	void AddNewWirePoint(const FVector& Location)
+	{
 		SelectedConnection.WirePositions.Insert(Location, SelectedConnection.WirePositions.Num() - 1);
 	}
 
@@ -191,11 +208,23 @@ protected:
 	}
 
 	UFUNCTION(BlueprintCallable)
+	FVector GetNextWirePointPosition(const FVector& FallbackPosition)
+	{
+		if (TargetWireSupport) return TargetWireSupport->GetSnapPositionWorldSpace();
+
+		return FallbackPosition;
+	}
+
+	UFUNCTION(BlueprintCallable)
 	void OnConnectionSelected()
 	{
 		if(!IsLocallyControlled()) return;
 		
-		if(!CanConnect()) return;
+		if(!CanConnect())
+		{
+			AddNewWirePoint(true);
+			return;
+		}
 		auto RCO = Cast<UWiremodRemoteCalls>(Cast<AFGPlayerController>(GetWorld()->GetFirstPlayerController())->GetRemoteCallObjectOfClass(UWiremodRemoteCalls::StaticClass()));
 		auto Setter = UWiremodBlueprintUtils::GetSetterObject();
 		auto Index = IWiringToolWidget::Execute_GetCurrentIndex(Widget.GetObject());
@@ -322,6 +351,10 @@ protected:
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	AActor* CurrentTarget;
+
+	UPROPERTY()
+	ACircuitryWireSupport* TargetWireSupport;
+
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	FConnectionData SelectedConnection;

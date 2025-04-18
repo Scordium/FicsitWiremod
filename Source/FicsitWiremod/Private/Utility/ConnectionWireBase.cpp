@@ -76,7 +76,7 @@ void AConnectionWireBase::DrawWireFromPoints(const TArray<FVector>& Points, ESpl
 		FVector StartTan = Spline->GetTangentAtSplinePoint(i, ESplineCoordinateSpace::Local);
 		FVector EndPos = Spline->GetLocationAtSplinePoint(i - 1, ESplineCoordinateSpace::Local);
 		FVector EndTan = Spline->GetTangentAtSplinePoint(i - 1, ESplineCoordinateSpace::Local);
-		SplineMesh->SetStartAndEnd(StartPos, StartTan, EndPos, EndTan, true);
+		SplineMesh->SetStartAndEnd(StartPos, StartTan, EndPos, EndTan);
 	}
 
 	UpdateWireVisuals();
