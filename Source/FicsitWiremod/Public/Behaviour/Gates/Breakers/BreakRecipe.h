@@ -31,6 +31,17 @@ public:
 	UFUNCTION()
 	double GetManufacturingTime() { return IsValid(Recipe) ? UFGRecipe::GetManufacturingDuration(Recipe) : 0; }
 
+	UFUNCTION()
+	UTexture2D* GetProductIcon()
+	{
+		if (!IsValid(Recipe)) return nullptr;
+
+		auto Products = GetProducts();
+		if (Products.Num() == 0 || !IsValid(Products[0].ItemClass)) return nullptr;
+
+		return UFGItemDescriptor::GetBigIcon(Products[0].ItemClass);
+	}
+
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
