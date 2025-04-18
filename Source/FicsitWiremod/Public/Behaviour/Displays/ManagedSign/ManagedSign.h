@@ -210,6 +210,16 @@ public:
 	}
 };
 
+UENUM(BlueprintType)
+enum EComponentSortingMethod
+{
+	None,
+	Alphabetic,
+	AlphabeticReversed,
+	TypeName,
+	TypeNameReversed
+};
+
 USTRUCT(Blueprintable, BlueprintType)
 struct FSignComponentEditorVariablesCategory
 {
@@ -250,6 +260,62 @@ public:
 		if(CurrentString.Len() == 0) return Outer ? Outer->CreateCategoryString(CategoryName) : CategoryName;
 		else return Outer ? Outer->CreateCategoryString(CategoryName + " | " + CurrentString) : CategoryName + " | " + CurrentString;  
 	}
+
+	void SortComponents(EComponentSortingMethod SortingMethod)
+	{
+		switch (SortingMethod)
+		{
+			case EComponentSortingMethod::Alphabetic:
+				{
+					Components.Sort([](USignEditorComponentBase& A, USignEditorComponentBase& B) -> bool
+					{
+						return A.GetComponentName().ToString() < B.GetComponentName().ToString();
+					});
+					break;
+				}
+
+			case EComponentSortingMethod::AlphabeticReversed:
+				{
+					Components.Sort([](USignEditorComponentBase& A, USignEditorComponentBase& B) -> bool
+					{
+						return A.GetComponentName().ToString() > B.GetComponentName().ToString();
+					});
+					break;
+				}
+
+			case EComponentSortingMethod::TypeName:
+				{
+					Components.Sort([](USignEditorComponentBase& A, USignEditorComponentBase& B) -> bool
+					{
+						auto DescriptorA = A.ComponentData.ComponentDescriptor.GetDefaultObject();
+						auto DescriptorB = B.ComponentData.ComponentDescriptor.GetDefaultObject();
+						
+						return DescriptorA->DisplayName.ToString() < DescriptorB->DisplayName.ToString();
+					});
+					break;
+				}
+			
+			case EComponentSortingMethod::TypeNameReversed:
+				{
+					Components.Sort([](USignEditorComponentBase& A, USignEditorComponentBase& B) -> bool
+					{
+						auto DescriptorA = A.ComponentData.ComponentDescriptor.GetDefaultObject();
+						auto DescriptorB = B.ComponentData.ComponentDescriptor.GetDefaultObject();
+						
+						return DescriptorA->DisplayName.ToString() > DescriptorB->DisplayName.ToString();
+					});
+					break;
+				}
+
+			default: return;
+		}
+
+
+		for (auto& Subcategory : Subcategories)
+		{
+			if (Subcategory.Value) Subcategory.Value->SortComponents(SortingMethod);
+		}
+	}
 };
 
 UCLASS()
@@ -260,19 +326,46 @@ class UManagedSignUtilityFunctions : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable)
-	static TArray<USignComponentsCategory*> SplitComponentsByCategories(const TArray<USignEditorComponentBase*>& Components, UObject* WorldContext)
+	static TArray<USignComponentsCategory*> SplitComponentsByCategories(const TArray<USignEditorComponentBase*>& Components, EComponentSortingMethod SortingMethod, UObject* WorldContext)
 	{
 		auto TopCategory = NewObject<USignComponentsCategory>(WorldContext);
 		TopCategory->CategoryName = "Default";
 
 		for (USignEditorComponentBase* Component : Components)
 			TopCategory->AddItem(Component->ComponentData.Metadata.Category, Component);
+
+		TopCategory->SortComponents(SortingMethod);
 		
 		TArray<USignComponentsCategory*> Categories;
 		TopCategory->Subcategories.GenerateValueArray(Categories);
 		TopCategory->Subcategories.Empty();
 
 		if(TopCategory->Components.Num() != 0) Categories.Insert(TopCategory, 0);
+
+		switch (SortingMethod)
+		{
+			case EComponentSortingMethod::Alphabetic:
+			case EComponentSortingMethod::TypeName:
+				{
+					Categories.Sort([](USignComponentsCategory& A, USignComponentsCategory& B) -> bool
+					{
+						return A.CategoryName < B.CategoryName;
+					});
+					break;
+				}
+
+			case EComponentSortingMethod::AlphabeticReversed:
+			case EComponentSortingMethod::TypeNameReversed:
+				{
+					Categories.Sort([](USignComponentsCategory& A, USignComponentsCategory& B) -> bool
+					{
+						return A.CategoryName > B.CategoryName;
+					});
+					break;
+				}
+
+			default: break;
+		}
 
 		return Categories;
 	}
