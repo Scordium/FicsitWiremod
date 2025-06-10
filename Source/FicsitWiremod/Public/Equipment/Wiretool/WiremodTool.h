@@ -352,7 +352,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	AActor* CurrentTarget;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	ACircuitryWireSupport* TargetWireSupport;
 
 	

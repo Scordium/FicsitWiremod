@@ -32,7 +32,7 @@ class FICSITWIREMOD_API AFGWiremodBuildable : public AFGBuildable, public ICircu
 {
 	GENERATED_BODY()
 
-	virtual bool ShouldSave_Implementation() const override{return true;};
+	virtual bool ShouldSave_Implementation() const override{return true;}
 	
 public:
 
@@ -42,7 +42,7 @@ public:
 	virtual TSubclassOf<UUserWidget> GetCompactWidget_Implementation() override;
 	virtual UTexture2D* GetTexture() override { return UFGItemDescriptor::GetBigIcon(GetBuiltWithDescriptor()); }
 	// End IWiremodInterface
-
+	
 	
 	AFGWiremodBuildable(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer)
 	{
@@ -325,6 +325,9 @@ public:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, SaveGame, Replicated)
 	FWiremodOwnerData OwnerData;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, SaveGame, Replicated)
+	ACircuitryBreadboard* BreadboardReference = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UUserWidget> CompactWidget;

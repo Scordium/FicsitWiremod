@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CircuitryBreadboard.h"
 #include "Behaviour/CircuitryStatics.h"
 #include "Hologram/FGBuildableHologram.h"
 #include "WiremodBuildableHologram.generated.h"
@@ -30,9 +31,16 @@ public:
 	
 	virtual void SetHologramLocationAndRotation(const FHitResult& hitResult) override;
 
+	virtual void FilterAttachmentPoints(TArray<const FFGAttachmentPoint*>& Points, class AFGBuildable* pBuildable, const FHitResult& HitResult) const override;
+
+	virtual void ConfigureActor(class AFGBuildable* inBuildable) const override;
+
 	virtual bool IsValidHitResult(const FHitResult& hitResult) const override
 	{
-		return IsValid(hitResult.GetActor());
+		if (!BreadboardReference) return IsValid(hitResult.GetActor());
+
+		auto Coordinates = BreadboardReference->GetClosestBoardPointCoordinates(hitResult.Location);
+		return !BreadboardReference->IsCellOccupied(Coordinates);
 	};
 
 	virtual void ScrollRotate(int32 delta, int32 step) override
@@ -46,4 +54,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	double GetGridSize();
 	double GetGridSize_Implementation() { return mGridSnapSize; }
+
+protected:
+	UPROPERTY()
+	ACircuitryBreadboard* BreadboardReference;
 };

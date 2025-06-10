@@ -1,8 +1,8 @@
 {
 	"FileVersion": 3,
 	"Version": 0,
-	"VersionName": "0.13.91",
-	"SemVersion": "0.13.91",
+	"VersionName": "0.14.0",
+	"SemVersion": "0.14.0",
 	"FriendlyName": "Circuitry - Logic Gates and More",
 	"Description": "Create cool control circuits and contraptions using logic gates, sensors, and other stuff!",
 	"Category": "Modding",
@@ -31,9 +31,9 @@
 	"Plugins": [
 		{
 			"Name": "SML",
-			"SemVersion": "^3.8.0",
+			"SemVersion": "^3.9.0",
 			"Enabled": true
 		}
 	],
-	"GameVersion": ">=382498"
+	"GameVersion": ">=383729"
 }

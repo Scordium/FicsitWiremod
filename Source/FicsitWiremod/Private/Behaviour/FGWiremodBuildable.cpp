@@ -83,6 +83,7 @@ void AFGWiremodBuildable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(AFGWiremodBuildable, ConnectionsInfo);
 	DOREPLIFETIME(AFGWiremodBuildable, InputConnections);
 	DOREPLIFETIME(AFGWiremodBuildable, OwnerData);
+	DOREPLIFETIME(AFGWiremodBuildable, BreadboardReference);
 }
 
 void AFGWiremodBuildable::OnInputConnected_Implementation(const FConnectionData& Data, int Index, UObject* Setter)

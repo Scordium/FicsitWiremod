@@ -13,7 +13,20 @@ void ABuildablePixelHologram::SetHologramLocationAndRotation(const FHitResult& H
 		StartPosition = Location;
 		StartImpactNormal = Normal;
 
-		if (!TrySnapToActor(HitResult)) SetActorLocationAndRotation(StartPosition, CalculateRotation(Normal));
+		if (!TrySnapToActor(HitResult))
+		{
+			if (auto Breadboard = Cast<ACircuitryBreadboard>(HitResult.GetActor()))
+			{
+				Size = FVector::OneVector;
+				BreadboardReference = Breadboard;
+				SetActorLocation(Breadboard->GetClosestGridPoint(HitResult.Location));
+			}
+			else
+			{
+				BreadboardReference = nullptr;
+				SetActorLocationAndRotation(StartPosition, CalculateRotation(Normal));
+			}
+		}
 	}
 	else
 	{
@@ -75,6 +88,8 @@ bool ABuildablePixelHologram::DoMultiStepPlacement(bool isInputFromARelease)
 {
 	if (CurrentStep == BPPS_Build)
 	{
+		if (IsValid(BreadboardReference)) return true;
+		
 		if (IsCurrentBuildMode(ZoopMode))
 		{
 			CurrentStep = BPPS_Zoop;
