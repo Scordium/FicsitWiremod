@@ -48,7 +48,6 @@ public:
 	FNamedDynamicValue& FindValue(FString Name, bool AllowCached = true);
 
 	virtual bool CanUseFactoryClipboard_Implementation() override{ return true; }
-	virtual TSubclassOf<UFGFactoryClipboardSettings> GetClipboardSettingsClass_Implementation() override { return UConstantClipboardData::StaticClass(); }
 	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return StaticClass(); }
 	virtual UFGFactoryClipboardSettings* CopySettings_Implementation() override
 	{
@@ -58,8 +57,10 @@ public:
 
 		return Settings;
 	}
-	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard) override
+	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard, AFGPlayerController* player) override
 	{
+		if (player) PERMISSION_CHECK(player->GetPawn()) false;
+		
 		auto Settings = Cast<UConstantClipboardData>(factoryClipboard);
 		SavedValues = Settings->Values;
 		OnRep_ValuesUpdated();

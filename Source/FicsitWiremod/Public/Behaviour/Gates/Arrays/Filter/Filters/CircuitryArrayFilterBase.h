@@ -4,6 +4,7 @@
 #include "CommonLib/ConnectionType.h"
 #include "UObject/Object.h"
 #include "JsonObjectConverter.h"
+#include "JsonUtilities.h"
 #include "Net/UnrealNetwork.h"
 #include "CircuitryArrayFilterBase.generated.h"
 
@@ -63,7 +64,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(FilterData.JsonDataString), Object)) return false;
 
-		return FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), StructDescriptor, StructPtr);
+		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), StructDescriptor, StructPtr);
 	}
 
 	FCircuitryArrayFilterData SerializeArrayFilter(const UScriptStruct* StructDescriptor, const void* StructPtr)

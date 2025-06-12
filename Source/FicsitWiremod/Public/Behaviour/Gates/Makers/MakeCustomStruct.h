@@ -42,7 +42,7 @@ public:
 
 	virtual bool CanUseFactoryClipboard_Implementation() override { return true; }
 	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return StaticClass(); }
-	virtual TSubclassOf<UFGFactoryClipboardSettings> GetClipboardSettingsClass_Implementation() override { return UCustomStructClipboard::StaticClass(); }
+	
 	virtual UFGFactoryClipboardSettings* CopySettings_Implementation() override
 	{
 		auto Val = NewObject<UCustomStructClipboard>();
@@ -50,8 +50,10 @@ public:
 		return Val;
 	}
 
-	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard) override
+	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard, AFGPlayerController* player) override
 	{
+		if (player) PERMISSION_CHECK(player->GetPawn()) false;
+		
 		auto Val = Cast<UCustomStructClipboard>(factoryClipboard);
 		auto NewStruct = FCustomStruct();
 		NewStruct.Name = Val->Value.Name;

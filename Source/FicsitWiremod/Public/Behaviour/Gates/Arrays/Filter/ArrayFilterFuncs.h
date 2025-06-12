@@ -40,7 +40,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
 
-		return FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -61,7 +61,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
 
-		return FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -82,7 +82,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
 
-		return FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -103,7 +103,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
 
-		return FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -124,7 +124,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
 
-		return FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -145,7 +145,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
 
-		return FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -166,7 +166,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
 
-		return FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)

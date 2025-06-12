@@ -31,7 +31,8 @@ public class FicsitWiremod : ModuleRules
             "GameplayTags",
             "Json", "JsonUtilities",
 			"HTTP",
-			"EnhancedInput"
+			"EnhancedInput",
+			"OnlineSubsystem","OnlineSubsystemUtils","OnlineSubsystemNull","OnlineIntegration"
         });
 
         // FactoryGame plugins

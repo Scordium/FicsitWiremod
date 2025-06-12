@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGGameState.h"
 #include "JsonObjectConverter.h"
+#include "JsonUtilities.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/FileUtilities.h"
 #include "CommonLib/PlayerOwnedClipboardData.h"
@@ -134,7 +135,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Json), Object)) return;
 
-		if(!FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Layout)) return;
+		if(!UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Layout)) return;
 
 		Data = Layout;
 	}
@@ -187,7 +188,6 @@ public:
 
 	virtual bool CanUseFactoryClipboard_Implementation() override { return true; }
 	virtual TSubclassOf<UObject> GetClipboardMappingClass_Implementation() override { return StaticClass();}
-	virtual TSubclassOf<UFGFactoryClipboardSettings> GetClipboardSettingsClass_Implementation() override { return UManagedSignClipboardData::StaticClass(); }
 
 	virtual UFGFactoryClipboardSettings* CopySettings_Implementation() override
 	{
@@ -196,8 +196,10 @@ public:
 		return Clipboard;
 	}
 
-	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard) override
+	virtual bool PasteSettings_Implementation(UFGFactoryClipboardSettings* factoryClipboard, class AFGPlayerController* player) override
 	{
+		if (player) PERMISSION_CHECK(player->GetPawn()) false;
+		
 		if(auto Clipboard = Cast<UManagedSignClipboardData>(factoryClipboard))
 		{
 			if(Data.Size != Clipboard->Data.Size) return false;
@@ -401,7 +403,7 @@ public:
 		TSharedPtr<FJsonObject> Object;
 		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Json), Object)) return false;
 
-		if(!FJsonObjectConverter::JsonObjectToUStruct(Object.ToSharedRef(), &Out)) return false;
+		if(!UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out)) return false;
 
 		return true;
 	}
