@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FGBuildableConveyorMonitor.h"
 #include "FGBuildablePortalBase.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
@@ -187,6 +188,19 @@ public:
 	
 	static TArray<double> GetFloatArray(REFLECTION_PARAMS)
 	{
+		const FName ConveyorMonitorAverage = FName("CC_MONITORAVG");
+		if (auto ConveyorMonitor = Cast<AFGBuildableConveyorMonitor>(Object); ConveyorMonitor && SourceName == ConveyorMonitorAverage)
+		{
+			TArray<double> AverageGraph;
+			for (const FItemMonitorData& Data : ConveyorMonitor->GetAverageDataForUIRepresentation())
+			{
+				AverageGraph.Add(Data.FloatLocalAverage);
+			}
+			
+			return AverageGraph;
+		}
+		
+		
 		return GenericProcess<TArray<double>, FArrayProperty>(REFLECTION_ARGS);
 	}
 	
