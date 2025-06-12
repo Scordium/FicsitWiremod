@@ -8,29 +8,6 @@
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCInventoryValue.generated.h"
 
-#define TO_JSON(val) \
-const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());\
-\
-Object->SetBoolField("IsEmpty", val->IsEmpty());\
-Object->SetNumberField("NumSlots", val->GetSizeLinear());\
-Object->SetNumberField("NumItems", val->GetNumItems(nullptr));\
-\
-TArray<TSharedPtr<FJsonValue>> StacksJson;\
-TArray<FInventoryStack> Stacks;\
-val->GetInventoryStacks(Stacks);\
-for (const FInventoryStack& Stack : Stacks)\
-{\
-	const TSharedRef<FJsonObject> StackObject = MakeShareable(new FJsonObject());\
-	if (auto StackClass = Stack.Item.GetItemClass())\
-		StackObject->SetStringField("ItemClass", StackClass->GetName());\
-	else StackObject->SetField("ItemClass", nullptr);\
-\
-	StackObject->SetNumberField("Amount", Stack.NumItems);\
-\
-	StacksJson.Add(MakeShareable(new FJsonValueObject(StackObject)));\
-}\
-\
-Object->SetArrayField("Stacks", StacksJson);
 /**
  * 
  */
@@ -87,10 +64,7 @@ public:
 
 	virtual TSharedPtr<FJsonValue> ToJson() override
 	{
-		if (!Value) return MakeShareable(new FJsonValueNull());
-
-		TO_JSON(Value);
-		return MakeShareable(new FJsonValueObject(Object));
+		return UJsonUtilities::InventoryToJson(Value);
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
@@ -176,9 +150,7 @@ public:
 		TArray<TSharedPtr<FJsonValue>> Array;
 		for (UFGInventoryComponent* Inventory : Value)
 		{
-			TO_JSON(Inventory);
-
-			Array.Add(MakeShareable(new FJsonValueObject(Object)));
+			Array.Add(UJsonUtilities::InventoryToJson(Inventory));
 		}
 
 		return MakeShareable(new FJsonValueArray(Array));

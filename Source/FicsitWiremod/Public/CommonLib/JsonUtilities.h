@@ -48,6 +48,35 @@ public:
 		return MakeShareable(new FJsonValueObject(Object));
 	}
 
+	static TSharedRef<FJsonValue> InventoryToJson(const UFGInventoryComponent* Inventory)
+	{
+		if (!Inventory) return MakeShareable(new FJsonValueNull()); 
+		const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());
+		
+		Object->SetBoolField("IsEmpty", Inventory->IsEmpty());
+		Object->SetNumberField("NumSlots", Inventory->GetSizeLinear());
+		Object->SetNumberField("NumItems", Inventory->GetNumItems(nullptr));
+		
+		TArray<TSharedPtr<FJsonValue>> StacksJson;
+		TArray<FInventoryStack> Stacks;
+		Inventory->GetInventoryStacks(Stacks);
+		for (const FInventoryStack& Stack : Stacks)
+		{
+			const TSharedRef<FJsonObject> StackObject = MakeShareable(new FJsonObject());
+			if (auto StackClass = Stack.Item.GetItemClass())
+				StackObject->SetStringField("ItemClass", StackClass->GetName());
+			else StackObject->SetField("ItemClass", nullptr);
+			
+			StackObject->SetNumberField("Amount", Stack.NumItems);
+			
+			StacksJson.Add(MakeShareable(new FJsonValueObject(StackObject)));
+		}
+		
+		Object->SetArrayField("Stacks", StacksJson);
+
+		return MakeShareable(new FJsonValueObject(Object));
+	}
+
 	template<typename OutStructType>
 	static bool JsonObjectToUStruct(const TSharedRef<FJsonObject>& JsonObject, OutStructType* OutStruct, int64 CheckFlags = 0, int64 SkipFlags = 0, const bool bStrictMode = false)
 	{

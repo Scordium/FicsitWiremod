@@ -9,7 +9,6 @@
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCTimeTableStopValue.generated.h"
 
-#define TO_JSON(val) UJsonUtilities::TimeTableStopToJson(val)
 /**
  * 
  */
@@ -58,7 +57,7 @@ public:
 
 	virtual TSharedPtr<FJsonValue> ToJson() override
 	{
-		return TO_JSON(Value);
+		return UJsonUtilities::TimeTableStopToJson(Value);
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
@@ -171,7 +170,7 @@ public:
 
 		for (const auto& ArrayValue : Value)
 		{
-			Array.Add(TO_JSON(ArrayValue));
+			Array.Add(UJsonUtilities::TimeTableStopToJson(ArrayValue));
 		}
 
 		return MakeShareable(new FJsonValueArray(Array));

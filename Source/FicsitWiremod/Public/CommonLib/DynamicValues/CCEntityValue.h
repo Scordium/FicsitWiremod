@@ -8,8 +8,6 @@
 #include "FGCharacterPlayer.h"
 #include "CCEntityValue.generated.h"
 
-#define TO_JSON(val) MakeShareable(new FJsonValueString(UKismetSystemLibrary::GetObjectName(val)))
-
 /**
  * 
  */
@@ -68,7 +66,7 @@ public:
 		return ObjectName;
 	}
 
-	virtual TSharedPtr<FJsonValue> ToJson() override { return TO_JSON(Value); }
+	virtual TSharedPtr<FJsonValue> ToJson() override { return MakeShareable(new FJsonValueString(UKismetSystemLibrary::GetObjectName(Value))); }
 	
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
@@ -155,7 +153,7 @@ public:
 
 		for (const auto& ArrayValue : Value)
 		{
-			Array.Add(TO_JSON(ArrayValue));
+			Array.Add(MakeShareable(new FJsonValueString(UKismetSystemLibrary::GetObjectName(ArrayValue))));
 		}
 
 		return MakeShareable(new FJsonValueArray(Array));
