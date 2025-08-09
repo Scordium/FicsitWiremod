@@ -225,37 +225,59 @@ public:
 	FLinearColor netFunc_getColor(FString FunctionName, FLinearColor DefaultValue = FLinearColor::Black);
 	
 	UFUNCTION() void netFunc_setBool(int InputIndex, bool Value);
+	UFUNCTION()	void netFuncMeta_setBool(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setBoolArray(int InputIndex, TArray<bool> Value);
+	UFUNCTION()	void netFuncMeta_setBoolArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	
 	UFUNCTION() void netFunc_setNumber(int InputIndex, double Value);
+	UFUNCTION()	void netFuncMeta_setNumber(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setNumberArray(int InputIndex, TArray<double> Value);
+	UFUNCTION()	void netFuncMeta_setNumberArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	
 	UFUNCTION() void netFunc_setString(int InputIndex, FString Value);
+	UFUNCTION()	void netFuncMeta_setString(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setStringArray(int InputIndex, TArray<FString> Value);
+	UFUNCTION()	void netFuncMeta_setStringArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	
 	UFUNCTION() void netFunc_setVector(int InputIndex, FVector Value);
+	UFUNCTION()	void netFuncMeta_setVector(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setVectorArray(int InputIndex, TArray<FVector> Value);
+	UFUNCTION()	void netFuncMeta_setVectorArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	
 	UFUNCTION() void netFunc_setInventory(int InputIndex, UFGInventoryComponent* Value);
+	UFUNCTION()	void netFuncMeta_setInventory(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setInventoryArray(int InputIndex, TArray<UFGInventoryComponent*> Value);
+	UFUNCTION()	void netFuncMeta_setInventoryArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	
 	UFUNCTION() void netFunc_setPowerGrid(int InputIndex, UFGPowerCircuit* Value);
+	UFUNCTION()	void netFuncMeta_setPowerGrid(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setPowerGridArray(int InputIndex, TArray<UFGPowerCircuit*> Value);
+	UFUNCTION()	void netFuncMeta_setPowerGridArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	
 	UFUNCTION() void netFunc_setEntity(int InputIndex, AActor* Value);
+	UFUNCTION()	void netFuncMeta_setEntity(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setEntityArray(int InputIndex, TArray<AActor*> Value);
+	UFUNCTION()	void netFuncMeta_setEntityArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	
 	UFUNCTION() void netFunc_setRecipe(int InputIndex, TSubclassOf<UFGRecipe> Value);
+	UFUNCTION()	void netFuncMeta_setRecipe(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setRecipeArray(int InputIndex, TArray<TSubclassOf<UFGRecipe>> Value);
+	UFUNCTION()	void netFuncMeta_setRecipeArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	
 	UFUNCTION() void netFunc_setColor(int InputIndex, FLinearColor Value);
+	UFUNCTION()	void netFuncMeta_setColor(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setColorArray(int InputIndex, TArray<FLinearColor> Value);
+	UFUNCTION()	void netFuncMeta_setColorArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 
 	UFUNCTION() void netFunc_setStack(int InputIndex, FInventoryStack Value);
+	UFUNCTION()	void netFuncMeta_setStack(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setStackArray(int InputIndex, TArray<FInventoryStack> Value);
+	UFUNCTION()	void netFuncMeta_setStackArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 
 	UFUNCTION() void netFunc_setItemAmount(int InputIndex, FItemAmount Value);
+	UFUNCTION()	void netFuncMeta_setItemAmount(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 	UFUNCTION() void netFunc_setItemAmountArray(int InputIndex, TArray<FItemAmount> Value);
+	UFUNCTION()	void netFuncMeta_setItemAmountArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime);
 
 	//Unsupported by FIN
 	//UFUNCTION() void netFunc_setSplitterRule(int InputIndex, FSplitterSortRule Value);

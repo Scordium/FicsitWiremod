@@ -179,6 +179,19 @@ void AFGWiremodBuildable::netFunc_setBool(int InputIndex, bool Value)
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setBool(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setBool";
+	DisplayName = FText::FromString("Set Bool");
+	Description = FText::FromString("Sets a Bool parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setBoolArray(int InputIndex, TArray<bool> Value)
 {
@@ -187,6 +200,19 @@ void AFGWiremodBuildable::netFunc_setBoolArray(int InputIndex, TArray<bool> Valu
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setBoolArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setBoolArray";
+	DisplayName = FText::FromString("Set Bool Array");
+	Description = FText::FromString("Sets a Bool Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setNumber(int InputIndex, double Value)
@@ -197,6 +223,19 @@ void AFGWiremodBuildable::netFunc_setNumber(int InputIndex, double Value)
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setNumber(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setNumber";
+	DisplayName = FText::FromString("Set Number");
+	Description = FText::FromString("Sets a Number parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setNumberArray(int InputIndex, TArray<double> Value)
 {
@@ -205,6 +244,19 @@ void AFGWiremodBuildable::netFunc_setNumberArray(int InputIndex, TArray<double> 
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setNumberArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setNumberArray";
+	DisplayName = FText::FromString("Set Number Array");
+	Description = FText::FromString("Sets a Number Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setString(int InputIndex, FString Value)
@@ -215,6 +267,19 @@ void AFGWiremodBuildable::netFunc_setString(int InputIndex, FString Value)
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setString(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setString";
+	DisplayName = FText::FromString("Set String");
+	Description = FText::FromString("Sets a String parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setStringArray(int InputIndex, TArray<FString> Value)
 {
@@ -223,6 +288,19 @@ void AFGWiremodBuildable::netFunc_setStringArray(int InputIndex, TArray<FString>
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setStringArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setStringArray";
+	DisplayName = FText::FromString("Set String Array");
+	Description = FText::FromString("Sets a String Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setVector(int InputIndex, FVector Value)
@@ -234,6 +312,19 @@ void AFGWiremodBuildable::netFunc_setVector(int InputIndex, FVector Value)
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setVector(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setVector";
+	DisplayName = FText::FromString("Set Vector");
+	Description = FText::FromString("Sets a Vector parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setVectorArray(int InputIndex, TArray<FVector> Value)
 {
@@ -242,6 +333,19 @@ void AFGWiremodBuildable::netFunc_setVectorArray(int InputIndex, TArray<FVector>
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setVectorArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setVectorArray";
+	DisplayName = FText::FromString("Set Vector Array");
+	Description = FText::FromString("Sets a Vector Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setInventory(int InputIndex, UFGInventoryComponent* Value)
@@ -252,6 +356,19 @@ void AFGWiremodBuildable::netFunc_setInventory(int InputIndex, UFGInventoryCompo
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setInventory(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setInventory";
+	DisplayName = FText::FromString("Set Inventory");
+	Description = FText::FromString("Sets an Inventory parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setInventoryArray(int InputIndex, TArray<UFGInventoryComponent*> Value)
 {
@@ -260,6 +377,19 @@ void AFGWiremodBuildable::netFunc_setInventoryArray(int InputIndex, TArray<UFGIn
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setInventoryArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setInventoryArray";
+	DisplayName = FText::FromString("Set Inventory Array");
+	Description = FText::FromString("Sets an Inventory Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setPowerGrid(int InputIndex, UFGPowerCircuit* Value)
@@ -270,6 +400,19 @@ void AFGWiremodBuildable::netFunc_setPowerGrid(int InputIndex, UFGPowerCircuit* 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setPowerGrid(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setPowerGrid";
+	DisplayName = FText::FromString("Set Power Grid");
+	Description = FText::FromString("Sets a Power Grid parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setPowerGridArray(int InputIndex, TArray<UFGPowerCircuit*> Value)
 {
@@ -278,6 +421,19 @@ void AFGWiremodBuildable::netFunc_setPowerGridArray(int InputIndex, TArray<UFGPo
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setPowerGridArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setPowerGridArray";
+	DisplayName = FText::FromString("Set Power Grid Array");
+	Description = FText::FromString("Sets a Power Grid Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setEntity(int InputIndex, AActor* Value)
@@ -288,6 +444,19 @@ void AFGWiremodBuildable::netFunc_setEntity(int InputIndex, AActor* Value)
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setEntity(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setEntity";
+	DisplayName = FText::FromString("Set Entity");
+	Description = FText::FromString("Sets an Entity parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setEntityArray(int InputIndex, TArray<AActor*> Value)
 {
@@ -296,6 +465,19 @@ void AFGWiremodBuildable::netFunc_setEntityArray(int InputIndex, TArray<AActor*>
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setEntityArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setEntityArray";
+	DisplayName = FText::FromString("Set Entity Array");
+	Description = FText::FromString("Sets an Entity Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setRecipe(int InputIndex, TSubclassOf<UFGRecipe> Value)
@@ -306,6 +488,19 @@ void AFGWiremodBuildable::netFunc_setRecipe(int InputIndex, TSubclassOf<UFGRecip
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setRecipe(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setRecipe";
+	DisplayName = FText::FromString("Set Recipe");
+	Description = FText::FromString("Sets a Recipe parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setRecipeArray(int InputIndex, TArray<TSubclassOf<UFGRecipe>> Value)
 {
@@ -314,6 +509,19 @@ void AFGWiremodBuildable::netFunc_setRecipeArray(int InputIndex, TArray<TSubclas
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setRecipeArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setRecipeArray";
+	DisplayName = FText::FromString("Set Recipe Array");
+	Description = FText::FromString("Sets a Recipe Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setColor(int InputIndex, FLinearColor Value)
@@ -324,6 +532,19 @@ void AFGWiremodBuildable::netFunc_setColor(int InputIndex, FLinearColor Value)
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setColor(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setColor";
+	DisplayName = FText::FromString("Set Color");
+	Description = FText::FromString("Sets a Color parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setColorArray(int InputIndex, TArray<FLinearColor> Value)
 {
@@ -332,6 +553,19 @@ void AFGWiremodBuildable::netFunc_setColorArray(int InputIndex, TArray<FLinearCo
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setColorArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setColorArray";
+	DisplayName = FText::FromString("Set Color Array");
+	Description = FText::FromString("Sets a Color Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setStack(int InputIndex, FInventoryStack Value)
@@ -342,6 +576,19 @@ void AFGWiremodBuildable::netFunc_setStack(int InputIndex, FInventoryStack Value
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setStack(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setStack";
+	DisplayName = FText::FromString("Set Stack");
+	Description = FText::FromString("Sets a Stack parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setStackArray(int InputIndex, TArray<FInventoryStack> Value)
 {
@@ -350,6 +597,19 @@ void AFGWiremodBuildable::netFunc_setStackArray(int InputIndex, TArray<FInventor
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setStackArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setStackArray";
+	DisplayName = FText::FromString("Set Stack Array");
+	Description = FText::FromString("Sets a Stack Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 void AFGWiremodBuildable::netFunc_setItemAmount(int InputIndex, FItemAmount Value)
@@ -360,6 +620,19 @@ void AFGWiremodBuildable::netFunc_setItemAmount(int InputIndex, FItemAmount Valu
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
 }
+void AFGWiremodBuildable::netFuncMeta_setItemAmount(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setItemAmount";
+	DisplayName = FText::FromString("Set Item Amount");
+	Description = FText::FromString("Sets an Item Amount parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
+}
 
 void AFGWiremodBuildable::netFunc_setItemAmountArray(int InputIndex, TArray<FItemAmount> Value)
 {
@@ -368,6 +641,19 @@ void AFGWiremodBuildable::netFunc_setItemAmountArray(int InputIndex, TArray<FIte
 
 	auto InputData = FConnectionData(InputObject, FName("Value"), InputObject->ConnectionType.GetValue());
 	Execute_OnInputConnected(this, InputData, InputIndex, nullptr);
+}
+void AFGWiremodBuildable::netFuncMeta_setItemAmountArray(FString& InternalName, FText& DisplayName, FText& Description, TArray<FString>& ParameterInternalNames, TArray<FText>& ParameterDisplayNames, TArray<FText>& ParameterDescriptions, int32& Runtime)
+{
+	InternalName = "setItemAmountArray";
+	DisplayName = FText::FromString("Set Item Amount Array");
+	Description = FText::FromString("Sets an Item Amount Array parameter");
+	ParameterInternalNames.Add("InputIndex");
+	ParameterDisplayNames.Add(FText::FromString("Input Index"));
+	ParameterDescriptions.Add(FText::FromString("Index of the Parameter"));
+	ParameterInternalNames.Add("Value");
+	ParameterDisplayNames.Add(FText::FromString("Value"));
+	ParameterDescriptions.Add(FText::FromString("Value of the Parameter"));
+	Runtime = 0;
 }
 
 bool AFGWiremodBuildable::netFunc_getBool(FString FunctionName, bool DefaultValue){ return FConnectionData(this, FName(FunctionName), Boolean).GetBool(DefaultValue); }
