@@ -22,7 +22,12 @@ AActor* AWiremodBaseTool::GetTargetLookAt(double TraceDistance, TEnumAsByte<ETra
 	FVector End = camera->GetCameraLocation() + camera->GetActorForwardVector() * TraceDistance;
 	FHitResult Result;
 
-	Success = UKismetSystemLibrary::LineTraceSingle(this, Start, End, Channel, false, TArray<AActor*>(), EDrawDebugTrace::None, Result, true);
+	TArray<AActor*> RaycastIgnoredActors =
+	{
+		GetInstigatorCharacter() //Ignoring player character holding the tool (self-collission)
+	};
+
+	Success = UKismetSystemLibrary::LineTraceSingle(this, Start, End, Channel, false, RaycastIgnoredActors, EDrawDebugTrace::None, Result, true);
 	return UWiremodUtils::GetActualHitTarget(Result, Location);
 }
 
