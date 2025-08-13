@@ -16,10 +16,11 @@ void AWiremodBaseTool::SetOutline(AActor* Object, EOutlineColor Color)
 AActor* AWiremodBaseTool::GetTargetLookAt(double TraceDistance, TEnumAsByte<ETraceTypeQuery> Channel, FVector& Location,
 	bool& Success)
 {
+	constexpr double RaycastStartOffset = 200; //arbitrary, but works well.
 	auto camera = UGameplayStatics::GetPlayerCameraManager(this, 0);
 
-	FVector Start = camera->GetCameraLocation();
-	FVector End = camera->GetCameraLocation() + camera->GetActorForwardVector() * TraceDistance;
+	FVector Start = camera->GetCameraLocation() + camera->GetActorForwardVector() * RaycastStartOffset;
+	FVector End = camera->GetCameraLocation() + camera->GetActorForwardVector() * (TraceDistance + RaycastStartOffset);
 	FHitResult Result;
 
 	Success = UKismetSystemLibrary::LineTraceSingle(this, Start, End, Channel, false, TArray<AActor*>(), EDrawDebugTrace::None, Result, true);
