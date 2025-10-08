@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FGBuildableDoor.h"
+#include "FGBuildableDroneStation.h"
 #include "FGCharacterPlayer.h"
 #include "FGPipeSubsystem.h"
 #include "FGPowerConnectionComponent.h"
@@ -54,6 +55,14 @@ public:
 	{
 		if(auto Door = Cast<AFGBuildableDoor>(Actor))
 			return Door->mDoorState == EDoorState::DS_Closed;
+
+		return false;
+	}
+
+	static bool GetDroneIsInStation(UObject* Actor)
+	{
+		if (auto DroneStation = Cast<AFGBuildableDroneStation>(Actor))
+			return DroneStation->GetDockedDrone() != nullptr;
 
 		return false;
 	}

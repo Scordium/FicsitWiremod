@@ -72,6 +72,8 @@ public:
 	{
 		if(SourceName == "WM_DOORCONTROL_FUNC")
 			return UReflectionExternalFunctions::GetDoorIsLocked(Object);
+		else if(SourceName == "WM_DRONE_DOCKED")
+			return UReflectionExternalFunctions::GetDroneIsInStation(Object);
 		else if(auto Panel = Cast<AFGBuildableLightsControlPanel>(Object); Panel && SourceName == "IsTimeOfDayAware")
 			return Panel->GetLightControlData().IsTimeOfDayAware;
 		else
