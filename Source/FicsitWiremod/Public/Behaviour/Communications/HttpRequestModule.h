@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericPlatformHttp.h"
 #include "HttpModule.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCStringValue.h"
@@ -47,6 +48,13 @@ public:
 			}
 
 			auto Request = MakeHttpRequest(Url, Headers, Content, Timeout, Verb);
+
+			if (Request->GetHeader(TEXT("Content-Type")).IsEmpty() || !FGenericPlatformHttp::IsURLEncoded(Request->GetContent()))
+			{
+				ACircuitryLogger::DispatchErrorEvent("HTTP Module Failed.\nInvalid content-type header.\nCheck module description for info.");
+				return;
+			}
+			
 			CurrentUrl = Url;
 			if(!Request->ProcessRequest()) ResponseCode = -1;
 			else ResponseCode = 100;
@@ -79,6 +87,7 @@ public:
 				Request->SetHeader(Header.Name, HeaderValue->Value);
 			}
 		}
+		
 		Request->OnRequestProgress().BindUObject(this, &AHttpRequestModule::OnRequestProgressUpdated);
 		Request->OnProcessRequestComplete().BindUObject(this, &AHttpRequestModule::OnRequestComplete);
 		Request->SetContentAsString(Content);
