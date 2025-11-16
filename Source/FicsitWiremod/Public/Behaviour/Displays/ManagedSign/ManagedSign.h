@@ -143,8 +143,8 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void OnSignDataChanged(const FManagedSignData& NewData);
-	void OnSignDataChanged_Implementation(const FManagedSignData& NewData){ GenerateSignWidget(NewData); }
-	
+	void OnSignDataChanged_Implementation(const FManagedSignData& NewData);
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void GenerateSignWidget(const FManagedSignData& NewData);
 	

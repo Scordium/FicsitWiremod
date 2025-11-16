@@ -1,5 +1,22 @@
 ﻿#include "Behaviour/Displays/ManagedSign/ManagedSign.h"
 
+void AManagedSign::OnSignDataChanged_Implementation(const FManagedSignData& NewData)
+{
+	for (int i = 0; i < NewData.Connections.Num() && i < InputConnections.Num(); ++i)
+	{
+		auto CurrentConnection = GetConnection(i);
+		if (!CurrentConnection.IsValid()) continue;
+		
+		auto& NewConnection = NewData.Connections[i];
+		if (UConnectionTypeFunctions::IsValidConnectionPair(NewConnection.Type, CurrentConnection.ConnectionType) == false)
+		{
+			OnInputDisconnected_Internal(i);
+		}
+	}
+	
+	GenerateSignWidget(NewData);
+}
+
 void USignComponentsCategory::AddItem(const FString& ItemCategory, USignEditorComponentBase* Component, int NestingLevel)
 {
 	FString CategoryThis = ItemCategory.TrimStartAndEnd();
