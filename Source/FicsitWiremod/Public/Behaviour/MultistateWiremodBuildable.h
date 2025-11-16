@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FGWiremodBuildable.h"
+#include "TextureUtilities.h"
 #include "MultistateWiremodBuildable.generated.h"
 
 USTRUCT(BlueprintType)
@@ -127,4 +128,39 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FWiremodBuildableState> States;
+
+#if WITH_EDITOR
+	virtual FModuleDocumentation GenerateWikiModuleFile(UTexture2D* Icon) override
+	{
+		auto Base = Super::GenerateWikiModuleFile(Icon);
+
+		Base.Modes.Empty();
+		for(auto& State : States)
+		{
+			auto ModuleMode = FModuleMode();
+
+			ModuleMode.Name = State.Name.ToString();
+			ModuleMode.Description = State.Description.ToString();
+			ACircuitryLogger::DispatchEvent("Step 3 - Image for mode.", ELogVerbosity::Display);
+			if (State.Icon == nullptr) ACircuitryLogger::DispatchErrorEvent("Mode image is NULL. Using provided icon instead.");
+			
+			ModuleMode.Image = UTextureUtilities::EncodeTextureAsBase64(State.Icon ? State.Icon : Icon);
+			ModuleMode.ResetsInputs = State.ForceDisconnectInputs;
+			
+			for (auto& Input : State.Connections.Inputs)
+			{
+				ModuleMode.Inputs.Add(Input);
+			}
+
+			for (auto& Output : State.Connections.Outputs)
+			{
+				ModuleMode.Outputs.Add(Output);
+			}
+
+			Base.Modes.Add(ModuleMode);
+		}
+		
+		return Base;
+	}
+#endif
 };

@@ -3,19 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGGameInstance.h"
-#include "FGGlobalSettings.h"
-#include "FGIconLibrary.h"
-#include "FGInventoryComponent.h"
 #include "WiremodUtils.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/Image.h"
 #include "Engine/DataTable.h"
 #include "Engine/Texture2DDynamic.h"
-#include "Engine/TextureRenderTarget2D.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Resources/FGItemDescriptor.h"
-#include "Slate/WidgetRenderer.h"
 #include "TextureUtilities.generated.h"
 
 UENUM(Blueprintable, BlueprintType)
@@ -198,4 +191,77 @@ public:
 		"Niagara",
 		"Interchange"
 	};
+
+#if WITH_EDITOR
+
+	UFUNCTION(BlueprintCallable)
+	static FString EncodeTextureAsBase64(UTexture2D* Texture)
+	{
+		if(!Texture) return "";
+
+		if (Texture->MipGenSettings != TMGS_NoMipmaps || Texture->CompressionSettings != TC_EditorIcon)
+		{
+			Texture->MipGenSettings = TMGS_NoMipmaps;
+			Texture->CompressionSettings = TC_EditorIcon;
+			Texture->Modify();
+			ACircuitryLogger::DispatchErrorEvent("Resave texture " + Texture->GetName());
+			return "";
+		}
+		
+		bool ResourceCreated = false;
+		if (Texture->GetResource() == NULL)
+		{
+			ResourceCreated = true;
+			Texture->CreateResource();
+		}
+
+		uint8* FormatedImageData = static_cast<uint8*>( Texture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+		FString Result;
+		
+		if (FormatedImageData)
+		{
+			const int Width = Texture->GetPlatformData()->Mips[0].SizeX;
+			const int Height = Texture->GetPlatformData()->Mips[0].SizeY;
+			const int Depth = Texture->GetPlatformData()->Mips[0].SizeZ;
+			const EPixelFormat PixelFormat = Texture->GetPlatformData()->PixelFormat;
+			const EGammaSpace GammaSpace = Texture->GetGammaSpace();
+		
+			TArray64<uint8> Data;
+			ERawImageFormat::Type RawPixelFormat = ERawImageFormat::Type::Invalid;
+
+			switch (PixelFormat)
+			{
+			case PF_R8G8B8A8:
+			case PF_B8G8R8A8:
+			case PF_DXT5:
+					RawPixelFormat = ERawImageFormat::Type::BGRA8;
+				break;
+
+			default:
+				ACircuitryLogger::DispatchErrorEvent("Unknown Pixel Format - " + UEnum::GetValueAsString(PixelFormat));
+				break;
+					
+			}
+
+			if (RawPixelFormat != ERawImageFormat::Type::Invalid)
+			{
+				FImageView View = FImageView(FormatedImageData, Width, Height, Depth, RawPixelFormat, GammaSpace);
+				FImageUtils::CompressImage(Data, *FString("png"), View);
+			
+				Result = "data:image/png;base64," + FBase64::Encode(Data.GetData(), Data.Num());
+			}
+		}
+		else
+		{
+			ACircuitryLogger::DispatchErrorEvent("Formatted image data is null. " + Texture->GetName());
+			Result = "";
+		}
+		
+		Texture->GetPlatformData()->Mips[0].BulkData.Unlock();
+		if (ResourceCreated) Texture->ReleaseResource();
+
+		return Result;
+	}
+#endif
+	
 };

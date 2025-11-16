@@ -15,7 +15,15 @@ class FICSITWIREMOD_API UBaseHelpModule : public UObject
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Execute();
-	virtual void Execute_Implementation(){};
+	virtual void Execute_Implementation(){}
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void ExecuteOnObject(UObject* Object);
+	virtual void ExecuteOnObject_Implementation(UObject* Object) { Execute(); }
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void ExecuteOnClass(TSubclassOf<UObject> Class);
+	virtual void ExecuteOnClass_Implementation(TSubclassOf<UObject> Class) { Execute(); }
 };

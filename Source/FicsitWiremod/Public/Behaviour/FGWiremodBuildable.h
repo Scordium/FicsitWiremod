@@ -8,6 +8,8 @@
 #include "WiremodBuildableHologram.h"
 #include "CircuitryInterface.h"
 #include "CircuitryStatics.h"
+#include "TextureUtilities.h"
+#include "WikiParser.h"
 #include "WiremodReflection.h"
 #include "Buildables/FGBuildable.h"
 #include "CommonLib/OwnerData/OwnerData.h"
@@ -377,4 +379,40 @@ public:
 
 		return Out;
 	}
+
+#if WITH_EDITOR
+	UFUNCTION(BlueprintCallable)
+	virtual FModuleDocumentation GenerateWikiModuleFile(UTexture2D* Icon)
+	{
+		ACircuitryLogger::DispatchEvent("Parsing class " + GetClass()->GetName(), ELogVerbosity::Display);
+		ACircuitryLogger::DispatchEvent("Step 1 - Basic metadata", ELogVerbosity::Display);
+		auto ModuleDocument = FModuleDocumentation();
+		ModuleDocument.ClassName = FSoftClassPath(GetClass()).GetAssetName();
+		ModuleDocument.ModuleName = mDisplayName.ToString();
+		ModuleDocument.ModuleDescription = mDescription.ToString();
+
+		ACircuitryLogger::DispatchEvent("Step 2 - Module Image. Image is " + (Icon ? Icon->GetName() : "NULL"), ELogVerbosity::Display);
+		ModuleDocument.ModuleImage = UTextureUtilities::EncodeTextureAsBase64(Icon);
+		
+		
+		auto DummyMode = FModuleMode();
+		DummyMode.Name = "Default";
+		DummyMode.Description = "This buildable doesn't have modes.\nThis is a fake mode so that the UI can be reused.";
+		DummyMode.ResetsInputs = false;
+
+		for (auto& Input : ConnectionsInfo.Inputs)
+		{
+			DummyMode.Inputs.Add(Input);
+		}
+
+		for (auto& Output : ConnectionsInfo.Outputs)
+		{
+			DummyMode.Outputs.Add(Output);
+		}
+
+		ModuleDocument.Modes.Add(DummyMode);
+
+		return ModuleDocument;
+	}
+#endif
 };

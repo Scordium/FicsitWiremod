@@ -4,6 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BaseHelpModule.h"
+
+#if PLATFORM_WINDOWS
+#include "Windows/WindowsPlatformProcess.h"
+#elif PLATFORM_UNIX || PLATFORM_LINUX
+#include "Linux/LinuxPlatformProcess.h"
+#endif
+
 #include "BrowserLinkHelpModule.generated.h"
 
 /**
