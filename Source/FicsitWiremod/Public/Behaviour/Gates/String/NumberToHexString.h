@@ -3,18 +3,34 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MultistateWiremodBuildable.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "NumberToHexString.generated.h"
 
 UCLASS()
-class FICSITWIREMOD_API ANumberToHexString : public AFGWiremodBuildable
+class FICSITWIREMOD_API ANumberToHexString : public AMultistateWiremodBuildable
 {
 	GENERATED_BODY()
 
 public:
 	virtual void ServerProcess_Implementation(double DeltaTime) override
 	{
-		Out = Convert(GetConnection(0).GetFloat());
+		if (CurrentStateIndex == 0)
+		{
+			Out = Convert(GetConnection(0).GetFloat());
+		}
+		else if (CurrentStateIndex == 1)
+		{
+			auto const NumberArray = GetConnection(0).GetFloatArray();
+
+			OutArray.SetNum(NumberArray.Num());
+
+			for (int i = 0; i < NumberArray.Num(); i++)
+			{
+				OutArray[i] = Convert(NumberArray[i]);
+			}
+		}
+	
 	}
 
 
@@ -23,11 +39,23 @@ public:
 		Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 		DOREPLIFETIME(ANumberToHexString, Out);
+		DOREPLIFETIME(ANumberToHexString, OutArray);
+	}
+
+	virtual void OnStateSelected_Internal(int Index) override
+	{
+		Super::OnStateSelected_Internal(Index);
+
+		Out = "";
+		OutArray.Empty();
 	}
 
 
 	UPROPERTY(EditInstanceOnly, Replicated, SaveGame)
 	FString Out;
+
+	UPROPERTY(EditInstanceOnly, Replicated, SaveGame)
+	TArray<FString> OutArray;
 
 private:
 
