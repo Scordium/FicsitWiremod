@@ -69,6 +69,14 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
+	AActor* GetAimTarget()
+	{
+		bool SuccessfulHit;
+		FVector Location;
+		return  GetTargetLookAt(CircuitryConfig::GetTraceDistance(), ETraceTypeQuery::TraceTypeQuery1, Location, SuccessfulHit);
+	}
+
+	UFUNCTION(BlueprintCallable)
 	void SelectionChanged(AActor* NewTarget)
 	{
 		TargetWireSupport = Cast<ACircuitryWireSupport>(NewTarget);
