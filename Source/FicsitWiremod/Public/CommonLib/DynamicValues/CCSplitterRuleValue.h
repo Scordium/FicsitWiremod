@@ -27,7 +27,7 @@ public:
 		DOREPLIFETIME(UCCSplitterRuleValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -48,9 +48,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		auto OtherSource = UReflectionUtilities::GetSplitterRule(Object, SourceName, FromProperty);
+		auto OtherSource = UReflectionUtilities::GetSplitterRule(Object, SourceName, FromProperty, Meta);
 		return OtherSource.ItemClass == Value.ItemClass && OtherSource.OutputIndex == Value.OutputIndex;
 	}
 
@@ -111,7 +111,7 @@ public:
 		DOREPLIFETIME(UCCSplitterRuleArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -247,9 +247,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		auto OtherSource = UReflectionUtilities::GetSplitterRuleArray(Object, SourceName, FromProperty);
+		auto OtherSource = UReflectionUtilities::GetSplitterRuleArray(Object, SourceName, FromProperty, Meta);
 
 		if(OtherSource.Num() != Value.Num()) return false;
         

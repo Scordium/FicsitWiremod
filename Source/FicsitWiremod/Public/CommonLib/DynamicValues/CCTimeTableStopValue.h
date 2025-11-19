@@ -27,7 +27,7 @@ public:
 		DOREPLIFETIME(ThisClass, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -48,9 +48,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		return UReflectionUtilities::GetTrainStop(Object, SourceName, FromProperty).Station == Value.Station;
+		return UReflectionUtilities::GetTrainStop(Object, SourceName, FromProperty, Meta).Station == Value.Station;
 	}
 
 	virtual FString ToString() override { return Value.Station ? Value.Station->GetStationName().ToString() : "N/A"; }
@@ -80,7 +80,7 @@ public:
 		DOREPLIFETIME(ThisClass, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -110,9 +110,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		auto OtherSource = UReflectionUtilities::GetTrainStopArray(Object, SourceName, FromProperty);
+		auto OtherSource = UReflectionUtilities::GetTrainStopArray(Object, SourceName, FromProperty, Meta);
 
 		if(Value.Num() != OtherSource.Num()) return false;
         

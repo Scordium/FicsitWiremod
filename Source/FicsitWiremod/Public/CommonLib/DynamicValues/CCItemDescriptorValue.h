@@ -27,7 +27,7 @@ public:
 		DOREPLIFETIME(UCCItemDescriptorValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -48,9 +48,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		return UReflectionUtilities::GetItemDescriptor(Object, SourceName, FromProperty, nullptr) == Value;
+		return UReflectionUtilities::GetItemDescriptor(Object, SourceName, FromProperty, Meta, nullptr) == Value;
 	}
 
 	virtual FString ToString() override
@@ -99,7 +99,7 @@ public:
 		DOREPLIFETIME(UCCItemDescriptorArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -198,9 +198,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		return UReflectionUtilities::GetItemDescriptorArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetItemDescriptorArray(Object, SourceName, FromProperty, Meta) == Value;
 	}
 
 	virtual int FindFirst(const FConnectionData& Element) override

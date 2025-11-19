@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGSaveInterface.h"
 #include "JsonValue.h"
+#include "ReflectionUtilities.h"
 #include "UnrealNetwork.h"
 #include "CommonLib/ConnectionType.h"
 #include "CCDynamicValueBase.generated.h"
@@ -54,7 +55,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty)
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata)
 	{
 		DispatchNotImplemented("SET_DYNAMIC_VALUE");
 	}
@@ -110,7 +111,7 @@ public:
 	bool operator ==(UCCDynamicValueBase* Other) { return Equals(Other); }
 	bool operator !=(UCCDynamicValueBase* Other) { return !Equals(Other); }
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true){ return ComparePointers && this == Other; }
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) { return false; }
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) { return false; }
 
 	void DispatchNotImplemented(const FString& FuncName) const { ACircuitryLogger::DispatchErrorEvent("Function " + FuncName + " is not implemented for class " + GetClass()->GetName()); }
 

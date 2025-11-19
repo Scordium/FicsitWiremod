@@ -21,7 +21,7 @@ public:
 		DOREPLIFETIME(UCCPixelImageValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -42,9 +42,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Object, SourceName, FromProperty, Meta) == Value;
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value.Width) + "x" + FString::FromInt(Value.Height);}
@@ -74,7 +74,7 @@ public:
 		DOREPLIFETIME(UCCPixelImageArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -136,9 +136,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Object, SourceName, FromProperty, Meta) == Value;
 	}
 
 	virtual int FindFirst(const FConnectionData& Element) override

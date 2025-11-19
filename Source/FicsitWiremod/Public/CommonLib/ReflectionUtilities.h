@@ -17,8 +17,17 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ReflectionUtilities.generated.h"
 
-#define REFLECTION_PARAMS UObject* Object, FName SourceName, bool FromProperty
-#define REFLECTION_ARGS Object, SourceName, FromProperty
+USTRUCT(BlueprintType)
+struct FConnectionMeta
+{
+	GENERATED_BODY()
+
+public:
+	void* CachedDataPointer = nullptr;
+};
+
+#define REFLECTION_PARAMS UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata
+#define REFLECTION_ARGS Object, SourceName, FromProperty, Metadata
 /**
  * 
  */
@@ -37,6 +46,8 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UObject* GetValue(const FString& ValueName);
+
+	void* GetRawValuePointer(const FString& ValueName);
 };
 
 
@@ -474,11 +485,27 @@ public:
 	static T FromPropertyValue(REFLECTION_PARAMS, T DefaultValue)
 	{
 		if(!IsValid(Object)) return DefaultValue;
+
+		if (Metadata.CachedDataPointer != nullptr)
+		{
+			return *static_cast<T*>(Metadata.CachedDataPointer);
+		}
 		
 		auto Val = Object->GetClass()->FindPropertyByName(SourceName);
 		if(!Val) return DefaultValue;
 		if(!Val->IsA<PropType>()) return DefaultValue;
-		return *Val->ContainerPtrToValuePtr<T>(Object);
+		
+		auto ValuePointer = Val->ContainerPtrToValuePtr<T>(Object);
+
+		//HEED MY WARNING, MORTAL!
+		//This line causes disturbance in the programming force
+		//Do not look at it, do not acknowledge it, do not try to change it
+		//If you show weakness, it will attack and won't stop until you switch careers.
+		//Any and all attempts to make this better have ended in death or severe brain aneurysms or burn(out) injuries
+		//39 buried, 0 found.
+		*(void**)&Metadata.CachedDataPointer = ValuePointer;
+		
+		return *ValuePointer;
 	}
 
 	static double FromNumericPropertyValue(REFLECTION_PARAMS, double DefaultValue)
@@ -502,18 +529,16 @@ public:
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
 		{
 			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString());
-			return FromPropertyValue<T, PropType>(ValueBase, "Value", true, DefaultValue);
+			return FromPropertyValue<T, PropType>(ValueBase, "Value", true, Metadata, DefaultValue);
 		}
 
 		struct{T RetVal;} Params{DefaultValue};
-		if(!ProcessFunction<PropType>(Object, SourceName, &Params)) return FromPropertyValue<T, PropType>(REFLECTION_ARGS, DefaultValue);
+		if(!ProcessFunction<PropType>(REFLECTION_ARGS, &Params)) return FromPropertyValue<T, PropType>(REFLECTION_ARGS, DefaultValue);
 		return Params.RetVal;
 	}
 
 	static double NumericProcess(REFLECTION_PARAMS, double DefaultValue)
 	{
-		//Explicit return value check because UE5 now uses double, but some code still uses float so we have to account for that,
-		//Not to mention int returns as well, i am so fucking done with this code.
 		if(!Object) return DefaultValue;
 
 		if(FromProperty)
@@ -522,7 +547,7 @@ public:
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
 		{
 			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString());
-			return FromNumericPropertyValue(ValueBase, "Value", true, DefaultValue);
+			return FromNumericPropertyValue(ValueBase, "Value", true, Metadata, DefaultValue);
 		}
 		
 		auto Function = Object->FindFunction(SourceName);
@@ -531,7 +556,8 @@ public:
 		auto FuncProperty = Function->ChildProperties;
 		if(!FuncProperty) return FromNumericPropertyValue(REFLECTION_ARGS, DefaultValue);
 
-		
+		//Explicit return value check because UE5 now uses double, but some code still uses float so we have to account for that,
+		//Not to mention int returns as well, i am so fucking done with this code.
 		if(FuncProperty->IsA<FIntProperty>()) return GenericProcess<int, FIntProperty>(REFLECTION_ARGS, DefaultValue);
 		else if(FuncProperty->IsA<FEnumProperty>()) return GenericProcess<int, FEnumProperty>(REFLECTION_ARGS, DefaultValue);
 		else if(FuncProperty->IsA<FFloatProperty>()) return GenericProcess<float, FFloatProperty>(REFLECTION_ARGS, DefaultValue);
@@ -550,7 +576,8 @@ public:
 		}
 		
 		struct{T SetVal;} Params{Value};
-		ProcessFunction(Object, SourceName, &Params);
+		ProcessFunction(REFLECTION_ARGS, &Params);
+		
 	}
 
 	static void NumericSet(REFLECTION_PARAMS, double Value)
@@ -572,33 +599,52 @@ public:
 		if(FuncProperty->IsA<FIntProperty>())
 		{
 			struct { int Value; } params{(int) Value};
-			ProcessFunction<FIntProperty>(Object, SourceName, &params);
+			ProcessFunction<FIntProperty>(REFLECTION_ARGS, &params);
 		}
 		else if(FuncProperty->IsA<FEnumProperty>())
 		{
 			struct { int Value; } params{(int) Value};
-			ProcessFunction<FEnumProperty>(Object, SourceName, &params);
+			ProcessFunction<FEnumProperty>(REFLECTION_ARGS, &params);
 		}
 		else if(FuncProperty->IsA<FFloatProperty>())
 		{
 			struct { float Value; } params{(float) Value};
-			ProcessFunction<FFloatProperty>(Object, SourceName, &params);
+			ProcessFunction<FFloatProperty>(REFLECTION_ARGS, &params);
 		}
 		else
 		{
 			struct { double Value; } params{Value};
-			ProcessFunction<FDoubleProperty>(Object, SourceName, &params);
+			ProcessFunction<FDoubleProperty>(REFLECTION_ARGS, &params);
 		}
 	}
 
 
 	template<typename PropType = FProperty>
-	static bool ProcessFunction(UObject* Object, FName SourceName, void* Params)
+	static bool ProcessFunction(REFLECTION_PARAMS, void* Params)
 	{
 		if(IsValid(Object))
 		{
-			if(auto Function = Object->FindFunction(SourceName))
+			UFunction* Function = nullptr;
+
+			//Try to get by cached pointer
+			if (Metadata.CachedDataPointer != nullptr)
+				Function = static_cast<UFunction*>(Metadata.CachedDataPointer);
+
+			//If still null, find by reflection.
+			if (Function == nullptr)
+				Function = Object->FindFunction(SourceName);
+
+			//Sanity check
+			if(Function)
 			{
+				//HEED MY WARNING, MORTAL!
+				//This line causes disturbance in the programming force
+				//Do not look at it, do not acknowledge it, do not try to change it
+				//If you show weakness, it will attack and won't stop until you switch careers.
+				//Any and all attempts to make this better have ended in death or severe brain aneurysms or burn(out) injuries
+				//39 buried, 0 found.
+				*(void**)&Metadata.CachedDataPointer = Function;
+				
 				auto ReturnProp = Function->GetReturnProperty();
 				if(ReturnProp && !ReturnProp->IsA<PropType>()) return false;
 				

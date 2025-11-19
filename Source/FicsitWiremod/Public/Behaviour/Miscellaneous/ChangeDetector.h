@@ -19,9 +19,9 @@ public:
 		auto Connection = GetConnection(0);
 
 		if(CachedValue == nullptr) CachedValue = UCCDynamicValueUtils::FromValue(GetConnection(0), CachedValue);
-		else Out = !CachedValue->Equals(Connection.Object, Connection.FunctionName, Connection.FromProperty);
+		else Out = !CachedValue->Equals(Connection.Object, Connection.FunctionName, Connection.FromProperty, Connection.Meta);
 
-		if (Out) CachedValue->FromConnectionValue(Connection.Object, Connection.FunctionName, Connection.FromProperty);
+		if (Out) CachedValue->FromConnectionValue(Connection.Object, Connection.FunctionName, Connection.FromProperty, Connection.Meta);
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override

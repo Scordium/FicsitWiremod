@@ -25,7 +25,7 @@ public:
 		DOREPLIFETIME(UCCVectorValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -46,9 +46,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		return UReflectionUtilities::GetVector(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetVector(Object, SourceName, FromProperty, Meta) == Value;
 	}
 
 	virtual FString ToString() override { return Value.ToCompactString(); }
@@ -95,7 +95,7 @@ public:
 		DOREPLIFETIME(UCCVectorArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -145,9 +145,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
 	{
-		return UReflectionUtilities::GetVectorArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetVectorArray(Object, SourceName, FromProperty, Meta) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }

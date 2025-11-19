@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "FGInventoryComponent.h"
+#include "CCArrayValueBase.h"
+#include "Filter/Filters/CircuitryItemArrayFilter.h"
 #include "CCStackValue.generated.h"
 /**
  * 
@@ -25,7 +27,7 @@ public:
 		DOREPLIFETIME(UCCStackValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -96,7 +98,7 @@ public:
 		DOREPLIFETIME(UCCStackArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))

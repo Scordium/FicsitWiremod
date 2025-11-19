@@ -1,6 +1,7 @@
 // Copyright Coffee Stain Studios. All Rights Reserved.
 
 #pragma once
+#include "CCDynamicValueBase.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
 #include "FGRailroadTimeTable.h"
@@ -13,7 +14,6 @@
 #include "Utility/CircuitryLogger.h"
 
 #include "WiremodReflection.generated.h"
-
 
 
 USTRUCT(BlueprintType)
@@ -45,6 +45,9 @@ public:
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, SaveGame)
 	bool UseLocalWirePosition = false;
+
+	UPROPERTY(NotReplicated)
+	FConnectionMeta Meta = FConnectionMeta();
 	
 	FConnectionData operator =(const FConnectionData& data)
 	{
@@ -124,52 +127,52 @@ public:
 	bool IsA(EConnectionType Type) { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	bool IsA(EConnectionType Type) const { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	
-	bool GetBool(bool DefaultValue = false) const { return UReflectionUtilities::GetBool(Object, FunctionName, FromProperty, DefaultValue); }
-	double GetFloat(double DefaultValue = 0) const { return UReflectionUtilities::GetFloat(Object, FunctionName, FromProperty, DefaultValue); }
-	FString GetString(FString DefaultValue = "") const { return UReflectionUtilities::GetString(Object, FunctionName, FromProperty, DefaultValue); }
-	FVector GetVector(FVector DefaultValue = FVector::ZeroVector) const { return UReflectionUtilities::GetVector(Object, FunctionName, FromProperty, DefaultValue); }
-	UFGInventoryComponent* GetInventory() const { return UReflectionUtilities::GetInventory(Object, FunctionName, FromProperty); }
-	UFGPowerCircuit* GetCircuit() const { return UReflectionUtilities::GetCircuit(Object, FunctionName, FromProperty); }
-	AActor* GetEntity() const { return UReflectionUtilities::GetEntity(Object, FunctionName, FromProperty); }
-	TSubclassOf<UFGRecipe> GetRecipe() const { return UReflectionUtilities::GetRecipe(Object, FunctionName, FromProperty); }
-	FLinearColor GetColor(FLinearColor DefaultValue = FLinearColor::Black) const { return UReflectionUtilities::GetColor(Object, FunctionName, FromProperty, DefaultValue); }
-	FInventoryStack GetStack() const { return UReflectionUtilities::GetStack(Object, FunctionName, FromProperty); }
-	FItemAmount GetItemAmount() const { return UReflectionUtilities::GetItemAmount(Object, FunctionName, FromProperty); }
-	FCustomStruct GetCustomStruct() const { return UReflectionUtilities::GetUnmanaged<FCustomStruct>(Object, FunctionName, FromProperty); }
-	FPixelScreenData GetPixelImage() const { return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Object, FunctionName, FromProperty); }
-	UTexture* GetTexture() const { return UReflectionUtilities::GetTexture(Object, FunctionName, FromProperty); }
-	FSplitterSortRule GetSplitterRule() const { return UReflectionUtilities::GetSplitterRule(Object, FunctionName, FromProperty); }
-	TSubclassOf<UFGItemDescriptor> GetItemDescriptor(TSubclassOf<UFGItemDescriptor> DefaultValue = TSubclassOf<UFGItemDescriptor>()) const { return UReflectionUtilities::GetItemDescriptor(Object, FunctionName, FromProperty, DefaultValue); }
-	AFGRailroadTimeTable* GetTimeTable() const { return UReflectionUtilities::GetUnmanaged<AFGRailroadTimeTable*>(Object, FunctionName, FromProperty, nullptr); }
-	FTimeTableStopData GetTimeTableStop() const { return UReflectionUtilities::GetTrainStop(Object, FunctionName, FromProperty); }
+	bool GetBool(bool DefaultValue = false) const { return UReflectionUtilities::GetBool(Object, FunctionName, FromProperty, Meta, DefaultValue); }
+	double GetFloat(double DefaultValue = 0) const { return UReflectionUtilities::GetFloat(Object, FunctionName, FromProperty, Meta, DefaultValue); }
+	FString GetString(FString DefaultValue = "") const { return UReflectionUtilities::GetString(Object, FunctionName, FromProperty, Meta, DefaultValue); }
+	FVector GetVector(FVector DefaultValue = FVector::ZeroVector) const { return UReflectionUtilities::GetVector(Object, FunctionName, FromProperty, Meta, DefaultValue); }
+	UFGInventoryComponent* GetInventory() const { return UReflectionUtilities::GetInventory(Object, FunctionName, FromProperty, Meta); }
+	UFGPowerCircuit* GetCircuit() const { return UReflectionUtilities::GetCircuit(Object, FunctionName, FromProperty, Meta); }
+	AActor* GetEntity() const { return UReflectionUtilities::GetEntity(Object, FunctionName, FromProperty, Meta); }
+	TSubclassOf<UFGRecipe> GetRecipe() const { return UReflectionUtilities::GetRecipe(Object, FunctionName, FromProperty, Meta); }
+	FLinearColor GetColor(FLinearColor DefaultValue = FLinearColor::Black) const { return UReflectionUtilities::GetColor(Object, FunctionName, FromProperty, Meta, DefaultValue); }
+	FInventoryStack GetStack() const { return UReflectionUtilities::GetStack(Object, FunctionName, FromProperty, Meta); }
+	FItemAmount GetItemAmount() const { return UReflectionUtilities::GetItemAmount(Object, FunctionName, FromProperty, Meta); }
+	FCustomStruct GetCustomStruct() const { return UReflectionUtilities::GetUnmanaged<FCustomStruct>(Object, FunctionName, FromProperty, Meta); }
+	FPixelScreenData GetPixelImage() const { return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Object, FunctionName, FromProperty, Meta); }
+	UTexture* GetTexture() const { return UReflectionUtilities::GetTexture(Object, FunctionName, FromProperty, Meta); }
+	FSplitterSortRule GetSplitterRule() const { return UReflectionUtilities::GetSplitterRule(Object, FunctionName, FromProperty, Meta); }
+	TSubclassOf<UFGItemDescriptor> GetItemDescriptor(TSubclassOf<UFGItemDescriptor> DefaultValue = TSubclassOf<UFGItemDescriptor>()) const { return UReflectionUtilities::GetItemDescriptor(Object, FunctionName, FromProperty, Meta, DefaultValue); }
+	AFGRailroadTimeTable* GetTimeTable() const { return UReflectionUtilities::GetUnmanaged<AFGRailroadTimeTable*>(Object, FunctionName, FromProperty, Meta); }
+	FTimeTableStopData GetTimeTableStop() const { return UReflectionUtilities::GetTrainStop(Object, FunctionName, FromProperty, Meta); }
 	
-	TArray<bool> GetBoolArray() const { return UReflectionUtilities::GetBoolArray(Object, FunctionName, FromProperty); }
-	TArray<double> GetFloatArray() const { return UReflectionUtilities::GetFloatArray(Object, FunctionName, FromProperty); }
-	TArray<FString> GetStringArray() const { return UReflectionUtilities::GetStringArray(Object, FunctionName, FromProperty); }
-	TArray<FVector> GetVectorArray() const { return UReflectionUtilities::GetVectorArray(Object, FunctionName, FromProperty); }
-	TArray<UFGInventoryComponent*> GetInventoryArray() const { return UReflectionUtilities::GetInventoryArray(Object, FunctionName, FromProperty); }
-	TArray<UFGPowerCircuit*> GetCircuitArray() const { return UReflectionUtilities::GetCircuitArray(Object, FunctionName, FromProperty); }
-	TArray<AActor*> GetEntityArray() const { return UReflectionUtilities::GetEntityArray(Object, FunctionName, FromProperty); }
-	TArray<TSubclassOf<UFGRecipe>> GetRecipeArray() const { return UReflectionUtilities::GetRecipeArray(Object, FunctionName, FromProperty); }
-	TArray<FLinearColor> GetColorArray() const { return UReflectionUtilities::GetColorArray(Object, FunctionName, FromProperty); }
-	TArray<FInventoryStack> GetStackArray() const { return UReflectionUtilities::GetStackArray(Object, FunctionName, FromProperty); }
-	TArray<FItemAmount> GetItemAmountArray() const { return UReflectionUtilities::GetItemAmountArray(Object, FunctionName, FromProperty); }
-	TArray<FCustomStruct> GetCustomStructArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FCustomStruct>>(Object, FunctionName, FromProperty); }
-	TArray<FPixelScreenData> GetPixelImageArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Object, FunctionName, FromProperty); }
-	TArray<UTexture*> GetTextureArray() const { return UReflectionUtilities::GetTextureArray(Object, FunctionName, FromProperty); }
-	TArray<FSplitterSortRule> GetSplitterRuleArray() const { return UReflectionUtilities::GetSplitterRuleArray(Object, FunctionName, FromProperty); }
-	TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray() const { return UReflectionUtilities::GetItemDescriptorArray(Object, FunctionName, FromProperty); }
-	TArray<FTimeTableStopData> GetTimeTableStops() const { return UReflectionUtilities::GetTrainStopArray(Object, FunctionName, FromProperty); }
+	TArray<bool> GetBoolArray() const { return UReflectionUtilities::GetBoolArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<double> GetFloatArray() const { return UReflectionUtilities::GetFloatArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<FString> GetStringArray() const { return UReflectionUtilities::GetStringArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<FVector> GetVectorArray() const { return UReflectionUtilities::GetVectorArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<UFGInventoryComponent*> GetInventoryArray() const { return UReflectionUtilities::GetInventoryArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<UFGPowerCircuit*> GetCircuitArray() const { return UReflectionUtilities::GetCircuitArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<AActor*> GetEntityArray() const { return UReflectionUtilities::GetEntityArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<TSubclassOf<UFGRecipe>> GetRecipeArray() const { return UReflectionUtilities::GetRecipeArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<FLinearColor> GetColorArray() const { return UReflectionUtilities::GetColorArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<FInventoryStack> GetStackArray() const { return UReflectionUtilities::GetStackArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<FItemAmount> GetItemAmountArray() const { return UReflectionUtilities::GetItemAmountArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<FCustomStruct> GetCustomStructArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FCustomStruct>>(Object, FunctionName, FromProperty, Meta); }
+	TArray<FPixelScreenData> GetPixelImageArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Object, FunctionName, FromProperty, Meta); }
+	TArray<UTexture*> GetTextureArray() const { return UReflectionUtilities::GetTextureArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<FSplitterSortRule> GetSplitterRuleArray() const { return UReflectionUtilities::GetSplitterRuleArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray() const { return UReflectionUtilities::GetItemDescriptorArray(Object, FunctionName, FromProperty, Meta); }
+	TArray<FTimeTableStopData> GetTimeTableStops() const { return UReflectionUtilities::GetTrainStopArray(Object, FunctionName, FromProperty, Meta); }
 	
-	void SetBool(bool Value) const { UReflectionUtilities::SetBool(Object, FunctionName, FromProperty, Value); }
-	void SetFloat(double Value) const { UReflectionUtilities::SetFloat(Object, FunctionName, FromProperty, Value); }
-	void SetString(FString Value) const { UReflectionUtilities::SetString(Object, FunctionName, FromProperty, Value); }
-	void SetColor(FLinearColor Value) const { UReflectionUtilities::SetColor(Object, FunctionName, FromProperty, Value); }
-	void SetRecipe(TSubclassOf<UFGRecipe> Value) const { UReflectionUtilities::SetRecipe(Object, FunctionName, FromProperty, Value); }
-	void SetEntity(AActor* Value) const { UReflectionUtilities::SetEntity(Object, FunctionName, FromProperty, Value); }
+	void SetBool(bool Value) const { UReflectionUtilities::SetBool(Object, FunctionName, FromProperty, Meta, Value); }
+	void SetFloat(double Value) const { UReflectionUtilities::SetFloat(Object, FunctionName, FromProperty, Meta, Value); }
+	void SetString(FString Value) const { UReflectionUtilities::SetString(Object, FunctionName, FromProperty, Meta, Value); }
+	void SetColor(FLinearColor Value) const { UReflectionUtilities::SetColor(Object, FunctionName, FromProperty, Meta, Value); }
+	void SetRecipe(TSubclassOf<UFGRecipe> Value) const { UReflectionUtilities::SetRecipe(Object, FunctionName, FromProperty, Meta, Value); }
+	void SetEntity(AActor* Value) const { UReflectionUtilities::SetEntity(Object, FunctionName, FromProperty, Meta, Value); }
 
 	template<typename T>
-	void Set(T Value) const { UReflectionUtilities::SetUnmanaged(Object, FunctionName, FromProperty, Value); }
+	void Set(T Value) const { UReflectionUtilities::SetUnmanaged(Object, FunctionName, FromProperty, Meta, Value); }
 	
 	bool ProcessFunction(void* Params) const
 	{

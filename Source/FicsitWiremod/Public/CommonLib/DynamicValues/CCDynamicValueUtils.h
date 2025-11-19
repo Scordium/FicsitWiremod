@@ -88,8 +88,6 @@ public:
 	template<class T>
 	static T* FromType(EConnectionType Type, UObject* WorldContext)
 	{
-		
-
 		return Cast<T>(FromType(Type, WorldContext));
 	}
 
@@ -100,7 +98,7 @@ public:
 			if (auto Dynamic = Cast<UCCDynamicValueBase>(Data.Object)) return Dynamic;
 		
 		auto Out = FromType(Data.ConnectionType, WorldContext ? WorldContext : Data.Object);
-		if(Out) Out->FromConnectionValue(Data.Object, Data.FunctionName, Data.FromProperty);
+		if(Out) Out->FromConnectionValue(Data.Object, Data.FunctionName, Data.FromProperty, Data.Meta);
 		return Out;
 	}
 
