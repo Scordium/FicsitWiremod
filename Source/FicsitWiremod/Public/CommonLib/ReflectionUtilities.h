@@ -488,7 +488,7 @@ public:
 
 		if (Metadata.CachedDataPointer != nullptr)
 		{
-			return *static_cast<T*>(Metadata.CachedDataPointer);
+			//return *static_cast<T*>(Metadata.CachedDataPointer);
 		}
 		
 		auto Val = Object->GetClass()->FindPropertyByName(SourceName);
@@ -496,13 +496,7 @@ public:
 		if(!Val->IsA<PropType>()) return DefaultValue;
 		
 		auto ValuePointer = Val->ContainerPtrToValuePtr<T>(Object);
-
-		//HEED MY WARNING, MORTAL!
-		//This line causes disturbance in the programming force
-		//Do not look at it, do not acknowledge it, do not try to change it
-		//If you show weakness, it will attack and won't stop until you switch careers.
-		//Any and all attempts to make this better have ended in death or severe brain aneurysms or burn(out) injuries
-		//39 buried, 0 found.
+		
 		*(void**)&Metadata.CachedDataPointer = ValuePointer;
 		
 		return *ValuePointer;
@@ -624,27 +618,10 @@ public:
 	{
 		if(IsValid(Object))
 		{
-			UFunction* Function = nullptr;
-
-			//Try to get by cached pointer
-			if (Metadata.CachedDataPointer != nullptr)
-				Function = static_cast<UFunction*>(Metadata.CachedDataPointer);
-
-			//If still null, find by reflection.
-			if (Function == nullptr)
-				Function = Object->FindFunction(SourceName);
-
-			//Sanity check
+			UFunction* Function = Object->FindFunction(SourceName);;
+			
 			if(Function)
 			{
-				//HEED MY WARNING, MORTAL!
-				//This line causes disturbance in the programming force
-				//Do not look at it, do not acknowledge it, do not try to change it
-				//If you show weakness, it will attack and won't stop until you switch careers.
-				//Any and all attempts to make this better have ended in death or severe brain aneurysms or burn(out) injuries
-				//39 buried, 0 found.
-				*(void**)&Metadata.CachedDataPointer = Function;
-				
 				auto ReturnProp = Function->GetReturnProperty();
 				if(ReturnProp && !ReturnProp->IsA<PropType>()) return false;
 				
