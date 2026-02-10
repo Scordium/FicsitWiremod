@@ -49,7 +49,7 @@ public:
 
 			auto Request = MakeHttpRequest(Url, Headers, Content, Timeout, Verb);
 
-			if (Request->GetHeader(TEXT("Content-Type")).IsEmpty() || !FGenericPlatformHttp::IsURLEncoded(Request->GetContent()))
+			if (Request->GetHeader(TEXT("Content-Type")).IsEmpty() && !FGenericPlatformHttp::IsURLEncoded(Request->GetContent()))
 			{
 				ACircuitryLogger::DispatchErrorEvent("HTTP Module Failed.\nInvalid content-type header.\nCheck module description for info.");
 				return;
