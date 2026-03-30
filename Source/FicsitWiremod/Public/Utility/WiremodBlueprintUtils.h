@@ -146,4 +146,12 @@ public:
 
 	UFUNCTION(BlueprintPure, DisplayName="Equals", meta=(Keywords="equals, ==, info equals"))
 	static bool BuildableInputInfoEquals(const FBuildableInputInfo& A, const FBuildableInputInfo& B) { return A == B; }
+
+	UFUNCTION(BlueprintPure)
+	static FString GetValueStringFromBuildable(const FBuildingConnection& Connection, UObject* Object)
+	{
+		if (Connection.ValueStringResolver == nullptr || Connection.ValueStringResolver.GetDefaultObject() == nullptr) return "?";
+
+		return Connection.ValueStringResolver.GetDefaultObject()->ResolveString(Object, Connection.FunctionName, Connection.ConnectionType, Connection.FromProperty);
+	}
 };

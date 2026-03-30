@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ValueStringResolverBase.h"
 #include "CommonLib/ConnectionType.h"
 #include "Engine/DataTable.h"
 #include "UObject/Interface.h"
@@ -52,6 +53,12 @@ struct FBuildingConnection : public FTableRowBase
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
 	UBaseHelpModule* HelpInfo = nullptr;
+
+	/*
+	 * 
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UValueStringResolverBase> ValueStringResolver = UValueStringResolverBase::StaticClass();
 	
 	FBuildingConnection(){};
 

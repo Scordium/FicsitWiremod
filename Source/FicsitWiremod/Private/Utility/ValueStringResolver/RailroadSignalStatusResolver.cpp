@@ -1,0 +1,2 @@
+﻿//
+#include "RailroadSignalStatusResolver.h"

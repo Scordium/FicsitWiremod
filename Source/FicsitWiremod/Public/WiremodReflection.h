@@ -292,6 +292,7 @@ public:
 			ACircuitryLogger::DispatchErrorEvent("Failed to find switch case for EConnectionType::" + TypeString + " in function GET_STRINGIFIED_VALUE. Returning default value instead...");
 			return "?";
 		}
+		return UValueStringResolverBase::StaticClass()->GetDefaultObject<UValueStringResolverBase>()->ResolveString(Object, FunctionName, ConnectionType, FromProperty);
 	}
 };
 
