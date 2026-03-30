@@ -78,15 +78,6 @@ struct FPixelScreenData
 		return Area && sqrt(Area) < 75;
 	}
 
-	TArray<TArray<FLinearColor>> MakeGrid() const
-	{
-		TArray<TArray<FLinearColor>> Out;
-		
-		for(int i = 0; i < Data.Num(); i++) Out.Add(Data[i].RowData);
-		
-		return Out;
-	}
-
 	bool operator ==(const FPixelScreenData& Other) const
 	{
 		if(Width != Other.Width || Height != Other.Height) return false;
@@ -95,11 +86,17 @@ struct FPixelScreenData
 
 	UTexture2D* MakeTexture() const
 	{
-		auto GridData = MakeGrid();
-		auto Texture = UTexture2D::CreateTransient(
-		Width, 
-		Height
-		);
+		if (Width <= 0 || Height <= 0) return nullptr;
+		auto Texture = UTexture2D::CreateTransient(Width, Height);
+		
+		TArray<FColor> RawBytes;
+		for (int y = 0; y < Height; y++)
+		{
+			for (int x = 0; x < Width; x++)
+			{
+				RawBytes.Add(Data[y].RowData[x].ToFColor(false));
+			}
+		}
 
 		Texture->CreateResource();
 		// Lock the texture so it can be modified
@@ -111,7 +108,7 @@ struct FPixelScreenData
 		{
 			for( int32 x=0; x<Width; x++ )
 			{
-				FormatedImageData[y * Width + x] = GridData[y][x].ToFColor(false);
+				FormatedImageData[y * Width + x] = RawBytes[y * Width + x];
 			}
 		}
 
