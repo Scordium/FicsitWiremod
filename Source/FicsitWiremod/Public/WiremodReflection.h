@@ -10,11 +10,47 @@
 #include "CommonLib/ConnectionType.h"
 #include "CommonLib/CustomStruct.h"
 #include "CommonLib/ReflectionUtilities.h"
-#include "GameFramework/PlayerState.h"
-#include "Utility/CircuitryLogger.h"
+#include "Utility/ValueStringResolver/ValueStringResolverBase.h"
 
 #include "WiremodReflection.generated.h"
 
+//
+//Experimental
+#define GENERATE_GET(type, name_suffix) type Get##name_suffix() const { return UReflectionUtilities::Get##name_suffix(Object, FunctionName, FromProperty); }
+#define GENERATE_SET(type, name_suffix) void Set##name_suffix(type Value) const { UReflectionUtilities::Set##name_suffix(Object, FunctionName, FromProperty, Value); }
+
+#define GENERATE_GET_DEFAULT(type, name_suffix, default_get) type Get##name_suffix(type DefaultValue = default_get) const { return UReflectionUtilities::Get##name_suffix(Object, FunctionName, FromProperty, DefaultValue); }
+
+#define GENERATE_GET_SET(type, name_suffix) \
+	GENERATE_GET(type, name_suffix) \
+	GENERATE_SET(type, name_suffix)
+
+#define GENERATE_GET_SET_DEFAULT(type, name_suffix, default_get) \
+	GENERATE_GET_DEFAULT(type, name_suffix, default_get) \
+	GENERATE_SET(type, name_suffix)
+
+#define CIRCUITRY_READWRITE(type, name_suffix) \
+	GENERATE_GET_SET(type, name_suffix) \
+	GENERATE_GET_SET(TArray<type>, name_suffix##Array) \
+	
+
+#define CIRCUITRY_READWRITE_DEFAULT(type, name_suffix, default_get_value) \
+	GENERATE_GET_SET_DEFAULT(type, name_suffix, default_get_value) \
+	GENERATE_GET_SET(TArray<type>, name_suffix##Array)
+
+#define CIRCUITRY_READONLY(type, name_suffix) \
+	GENERATE_GET(type, name_suffix) \
+	GENERATE_GET(TArray<type>, name_suffix##Array)
+
+#define CIRCUITRY_READONLY_DEFAULT(type, name_suffix, default_get_value) \
+	GENERATE_GET_DEFAULT(type, name_suffix, default_get_value) \
+	GENERATE_GET(TArray<type>, name_suffix##Array)
+
+#define GENERATE_GET_UNMANAGED(type, get_name) \
+	type get_name() const { return UReflectionUtilities::GetUnmanaged<type>(Object, FunctionName, FromProperty); }
+
+//
+//
 
 USTRUCT(BlueprintType)
 struct FConnectionData
@@ -45,9 +81,6 @@ public:
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, SaveGame)
 	bool UseLocalWirePosition = false;
-
-	UPROPERTY(NotReplicated)
-	FConnectionMeta Meta = FConnectionMeta();
 	
 	FConnectionData operator =(const FConnectionData& data)
 	{
@@ -123,56 +156,31 @@ public:
 	{
 		return IsValid() && !Object->GetClass()->IsChildOf(UCCDynamicValueBase::StaticClass());
 	}
-
+	
 	bool IsA(EConnectionType Type) { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	bool IsA(EConnectionType Type) const { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
-	
-	bool GetBool(bool DefaultValue = false) const { return UReflectionUtilities::GetBool(Object, FunctionName, FromProperty, Meta, DefaultValue); }
-	double GetFloat(double DefaultValue = 0) const { return UReflectionUtilities::GetFloat(Object, FunctionName, FromProperty, Meta, DefaultValue); }
-	FString GetString(FString DefaultValue = "") const { return UReflectionUtilities::GetString(Object, FunctionName, FromProperty, Meta, DefaultValue); }
-	FVector GetVector(FVector DefaultValue = FVector::ZeroVector) const { return UReflectionUtilities::GetVector(Object, FunctionName, FromProperty, Meta, DefaultValue); }
-	UFGInventoryComponent* GetInventory() const { return UReflectionUtilities::GetInventory(Object, FunctionName, FromProperty, Meta); }
-	UFGPowerCircuit* GetCircuit() const { return UReflectionUtilities::GetCircuit(Object, FunctionName, FromProperty, Meta); }
-	AActor* GetEntity() const { return UReflectionUtilities::GetEntity(Object, FunctionName, FromProperty, Meta); }
-	TSubclassOf<UFGRecipe> GetRecipe() const { return UReflectionUtilities::GetRecipe(Object, FunctionName, FromProperty, Meta); }
-	FLinearColor GetColor(FLinearColor DefaultValue = FLinearColor::Black) const { return UReflectionUtilities::GetColor(Object, FunctionName, FromProperty, Meta, DefaultValue); }
-	FInventoryStack GetStack() const { return UReflectionUtilities::GetStack(Object, FunctionName, FromProperty, Meta); }
-	FItemAmount GetItemAmount() const { return UReflectionUtilities::GetItemAmount(Object, FunctionName, FromProperty, Meta); }
-	FCustomStruct GetCustomStruct() const { return UReflectionUtilities::GetUnmanaged<FCustomStruct>(Object, FunctionName, FromProperty, Meta); }
-	FPixelScreenData GetPixelImage() const { return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Object, FunctionName, FromProperty, Meta); }
-	UTexture* GetTexture() const { return UReflectionUtilities::GetTexture(Object, FunctionName, FromProperty, Meta); }
-	FSplitterSortRule GetSplitterRule() const { return UReflectionUtilities::GetSplitterRule(Object, FunctionName, FromProperty, Meta); }
-	TSubclassOf<UFGItemDescriptor> GetItemDescriptor(TSubclassOf<UFGItemDescriptor> DefaultValue = TSubclassOf<UFGItemDescriptor>()) const { return UReflectionUtilities::GetItemDescriptor(Object, FunctionName, FromProperty, Meta, DefaultValue); }
-	AFGRailroadTimeTable* GetTimeTable() const { return UReflectionUtilities::GetUnmanaged<AFGRailroadTimeTable*>(Object, FunctionName, FromProperty, Meta); }
-	FTimeTableStopData GetTimeTableStop() const { return UReflectionUtilities::GetTrainStop(Object, FunctionName, FromProperty, Meta); }
-	
-	TArray<bool> GetBoolArray() const { return UReflectionUtilities::GetBoolArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<double> GetFloatArray() const { return UReflectionUtilities::GetFloatArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<FString> GetStringArray() const { return UReflectionUtilities::GetStringArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<FVector> GetVectorArray() const { return UReflectionUtilities::GetVectorArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<UFGInventoryComponent*> GetInventoryArray() const { return UReflectionUtilities::GetInventoryArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<UFGPowerCircuit*> GetCircuitArray() const { return UReflectionUtilities::GetCircuitArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<AActor*> GetEntityArray() const { return UReflectionUtilities::GetEntityArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<TSubclassOf<UFGRecipe>> GetRecipeArray() const { return UReflectionUtilities::GetRecipeArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<FLinearColor> GetColorArray() const { return UReflectionUtilities::GetColorArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<FInventoryStack> GetStackArray() const { return UReflectionUtilities::GetStackArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<FItemAmount> GetItemAmountArray() const { return UReflectionUtilities::GetItemAmountArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<FCustomStruct> GetCustomStructArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FCustomStruct>>(Object, FunctionName, FromProperty, Meta); }
-	TArray<FPixelScreenData> GetPixelImageArray() const { return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Object, FunctionName, FromProperty, Meta); }
-	TArray<UTexture*> GetTextureArray() const { return UReflectionUtilities::GetTextureArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<FSplitterSortRule> GetSplitterRuleArray() const { return UReflectionUtilities::GetSplitterRuleArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray() const { return UReflectionUtilities::GetItemDescriptorArray(Object, FunctionName, FromProperty, Meta); }
-	TArray<FTimeTableStopData> GetTimeTableStops() const { return UReflectionUtilities::GetTrainStopArray(Object, FunctionName, FromProperty, Meta); }
-	
-	void SetBool(bool Value) const { UReflectionUtilities::SetBool(Object, FunctionName, FromProperty, Meta, Value); }
-	void SetFloat(double Value) const { UReflectionUtilities::SetFloat(Object, FunctionName, FromProperty, Meta, Value); }
-	void SetString(FString Value) const { UReflectionUtilities::SetString(Object, FunctionName, FromProperty, Meta, Value); }
-	void SetColor(FLinearColor Value) const { UReflectionUtilities::SetColor(Object, FunctionName, FromProperty, Meta, Value); }
-	void SetRecipe(TSubclassOf<UFGRecipe> Value) const { UReflectionUtilities::SetRecipe(Object, FunctionName, FromProperty, Meta, Value); }
-	void SetEntity(AActor* Value) const { UReflectionUtilities::SetEntity(Object, FunctionName, FromProperty, Meta, Value); }
+
+	CIRCUITRY_READWRITE_DEFAULT(bool, Bool, false)
+	CIRCUITRY_READWRITE_DEFAULT(double, Float, 0)
+	CIRCUITRY_READWRITE_DEFAULT(FString, String, "")
+	CIRCUITRY_READWRITE_DEFAULT(FVector, Vector, FVector::ZeroVector)
+	CIRCUITRY_READWRITE(UFGInventoryComponent*, Inventory)
+	CIRCUITRY_READWRITE(UFGPowerCircuit*, Circuit)
+	CIRCUITRY_READWRITE(AActor*, Entity)
+	CIRCUITRY_READWRITE(TSubclassOf<UFGRecipe>, Recipe)
+	CIRCUITRY_READWRITE_DEFAULT(FLinearColor, Color, FLinearColor::Black)
+	CIRCUITRY_READWRITE(FInventoryStack, Stack)
+	CIRCUITRY_READWRITE(FItemAmount, ItemAmount)
+	CIRCUITRY_READWRITE(FCustomStruct, CustomStruct)
+	CIRCUITRY_READWRITE(FPixelScreenData, PixelImage)
+	CIRCUITRY_READWRITE(UTexture*, Texture)
+	CIRCUITRY_READWRITE(FSplitterSortRule, SplitterRule)
+	CIRCUITRY_READWRITE_DEFAULT(TSubclassOf<UFGItemDescriptor>, ItemDescriptor, TSubclassOf<UFGItemDescriptor>())
+	GENERATE_GET_UNMANAGED(AFGRailroadTimeTable*, GetTimeTable)
+	CIRCUITRY_READWRITE(FTimeTableStopData, TimeTableStop)
 
 	template<typename T>
-	void Set(T Value) const { UReflectionUtilities::SetUnmanaged(Object, FunctionName, FromProperty, Meta, Value); }
+	void Set(T Value) const { UReflectionUtilities::SetUnmanaged(Object, FunctionName, FromProperty, Value); }
 	
 	bool ProcessFunction(void* Params) const
 	{
@@ -189,109 +197,6 @@ public:
 	
 	FString GetStringifiedValue() const
 	{
-		switch (ConnectionType)
-		{
-		case Unknown: return "?";
-		case Boolean: return GetBool() ? "true" : "false";
-		case Number: return FString::SanitizeFloat(GetFloat());
-		case String: return GetString();
-		case Vector: return GetVector().ToCompactString();
-		case Inventory:
-			{
-				auto inv = GetInventory();
-				if(!inv) return "Invalid Inv.";
-
-				TArray<FInventoryStack> Stacks;
-				inv->GetInventoryStacks(Stacks);
-				
-				return CC_INT(Stacks.Num()) + "/" + CC_INT(inv->GetSizeLinear()) + " slots occupied";
-			};
-		case PowerGrid: return "?";
-		case Entity:
-			{
-				auto Entity = GetEntity();
-				auto ObjectName = UKismetSystemLibrary::GetObjectName(Entity);
-				
-				if(auto Player = Cast<AFGCharacterPlayer>(Entity))
-				{
-					//Check if the player state is valid. If the player is offline it will be null and crash if not handled properly
-					if(auto State = Player->GetPlayerState()) return ObjectName + "(Player " + State->GetPlayerName() + ")";
-					return ObjectName + "(Offline player)";
-				}
-				return ObjectName;
-			}
-		case Recipe:
-			{
-				auto Recipe = GetRecipe();
-				return ::IsValid(Recipe) ? UFGRecipe::GetRecipeName(Recipe).ToString() : FString();
-			}
-		case Color: return GetColor().ToString();
-		case ArrayOfBoolean: return "[" + CC_INT(GetBoolArray().Num()) + " elements]";
-		case ArrayOfNumber: return "[" + CC_INT(GetFloatArray().Num()) + " elements]";
-		case ArrayOfString: return "[" + CC_INT(GetStringArray().Num()) + " elements]";
-		case ArrayOfVector: return "[" + CC_INT(GetVectorArray().Num()) + " elements]";
-		case ArrayOfEntity: return "[" + CC_INT(GetEntityArray().Num()) + " elements]";
-		case ArrayOfColor: return "[" + CC_INT(GetColorArray().Num()) + " elements]";
-		case ArrayOfInventory: return "[" + CC_INT(GetInventoryArray().Num()) + " elements]";
-		case ArrayOfPowerGrid: return "[" + CC_INT(GetCircuitArray().Num()) + " elements]";
-		case ArrayOfStack: return "[" + CC_INT(GetStackArray().Num()) + " elements]";
-		case ArrayOfRecipe: return "[" + CC_INT(GetRecipeArray().Num()) + " elements]";
-		case Stack:
-			{
-				auto Stack = GetStack();
-				return CC_INT(Stack.NumItems) + " " + UFGItemDescriptor::GetItemName(Stack.Item.GetItemClass()).ToString();
-			}
-		case Integer: return CC_INT(GetFloat());
-		case Any: return "?";
-		case AnyArray: return "?";
-		case AnyNonArray: return "?";
-		case ItemAmount:
-			{
-				auto Item = GetItemAmount();
-				return CC_INT(Item.Amount) + " of " + UFGItemDescriptor::GetItemName(Item.ItemClass).ToString();
-			}
-		case ArrayOfItemAmount: return "[" + CC_INT(GetItemAmountArray().Num()) + " elements]";
-		case CustomStruct:
-			{
-				auto Val = GetCustomStruct();
-				return  Val.Name + " [" + CC_INT(Val.Values.Num()) + " values]";
-			}
-
-		case PixelImage:
-			{
-				auto Value = GetPixelImage();
-				return CC_INT(Value.Width) + "x" + CC_INT(Value.Height);
-			}
-
-		case ArrayOfPixelImage: return "[" + CC_INT(GetPixelImageArray().Num()) + " elements]";
-			
-		case Texture:
-			if (auto Texture = GetTexture()) return Texture->GetClass()->GetName();
-			else return "null or invalid";
-			
-		case ArrayOfTexture: return "[" + CC_INT(GetTextureArray().Num()) + " elements]";
-		case SplitterRule:
-			{
-				auto Val = GetSplitterRule();
-				auto Name = FStringFormatArg(Val.ItemClass == nullptr ? "N/A" : UFGItemDescriptor::GetItemName(Val.ItemClass).ToString());
-				auto Index = FStringFormatArg(Val.OutputIndex);
-				auto Args = FStringFormatOrderedArguments(TArray{Name, Index});
-				return FString::Format(*FString("{0} [{1}]"), Args);
-			}
-		case ArrayOfSplitterRule: return "[" + CC_INT(GetSplitterRuleArray().Num()) + " elements]";
-		case ItemDescriptor: return UFGItemDescriptor::GetItemName(GetItemDescriptor()).ToString();
-		case ArrayOfItemDescriptor: return "[" + CC_INT(GetItemDescriptorArray().Num()) + " elements]";
-		case TrainStop:
-			{
-				auto Station = GetTimeTableStop().Station;
-				return Station ? Station->GetStationName().ToString() : "N/A";
-			}
-		case ArrayOfTrainStop: return "[" + CC_INT(GetTimeTableStops().Num()) + " elements]";
-		default:
-			auto TypeString = UEnum::GetValueAsString<EConnectionType>(ConnectionType);
-			ACircuitryLogger::DispatchErrorEvent("Failed to find switch case for EConnectionType::" + TypeString + " in function GET_STRINGIFIED_VALUE. Returning default value instead...");
-			return "?";
-		}
 		return UValueStringResolverBase::StaticClass()->GetDefaultObject<UValueStringResolverBase>()->ResolveString(Object, FunctionName, ConnectionType, FromProperty);
 	}
 };
@@ -385,9 +290,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	static FSplitterSortRule GetSplitterRule(const FConnectionData& Data) { return Data.GetSplitterRule(); }
-
-	UFUNCTION(BlueprintCallable)
-	static UFGPowerInfoComponent* GetPowerInfo(const FConnectionData& Data) { return UReflectionUtilities::GetPowerInfo(Data.Object); }
 
 	UFUNCTION(BlueprintCallable)
 	static TArray<bool> GetBoolArray(const FConnectionData& Data) { return Data.GetBoolArray(); }

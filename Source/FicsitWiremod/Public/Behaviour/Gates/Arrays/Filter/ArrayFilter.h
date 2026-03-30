@@ -28,7 +28,7 @@ public:
 
 		if(Out)
 		{
-			Out->FromConnectionValue(Connection.Object, Connection.FunctionName, Connection.FromProperty, Connection.Meta);
+			Out->FromConnectionValue(Connection.Object, Connection.FunctionName, Connection.FromProperty);
 			
 			if (!IsFilterActive) IsFilterActive = Out->SetFilter(FilterData);
 			if(IsFilterActive) Out->ApplyFilter();

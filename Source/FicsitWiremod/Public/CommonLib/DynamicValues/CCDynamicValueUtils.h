@@ -99,6 +99,7 @@ public:
 		
 		auto Out = FromType(Data.ConnectionType, WorldContext ? WorldContext : Data.Object);
 		if(Out) Out->FromConnectionValue(Data.Object, Data.FunctionName, Data.FromProperty, Data.Meta);
+		if(Out) Out->FromConnectionValue(Data.Object, Data.FunctionName, Data.FromProperty);
 		return Out;
 	}
 

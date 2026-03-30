@@ -27,7 +27,7 @@ public:
 		DOREPLIFETIME(UCCTextureValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -48,9 +48,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
 	{
-		return UReflectionUtilities::GetTexture(Object, SourceName, FromProperty, Meta) == Value;
+		return UReflectionUtilities::GetTexture(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return "?"; }
@@ -96,7 +96,7 @@ public:
 		DOREPLIFETIME(UCCTextureArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -117,9 +117,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
 	{
-		return UReflectionUtilities::GetTextureArray(Object, SourceName, FromProperty, Meta) == Value;
+		return UReflectionUtilities::GetTextureArray(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetTexture()); }

@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CCImageData.h"
+#include "CustomStruct.h"
 #include "FGBuildableConveyorMonitor.h"
 #include "FGBuildablePortalBase.h"
 #include "FGInventoryComponent.h"
@@ -17,17 +19,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ReflectionUtilities.generated.h"
 
-USTRUCT(BlueprintType)
-struct FConnectionMeta
-{
-	GENERATED_BODY()
-
-public:
-	void* CachedDataPointer = nullptr;
-};
-
-#define REFLECTION_PARAMS UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata
-#define REFLECTION_ARGS Object, SourceName, FromProperty, Metadata
+#define REFLECTION_PARAMS UObject* Object, FName SourceName, bool FromProperty
+#define REFLECTION_ARGS Object, SourceName, FromProperty
 /**
  * 
  */
@@ -90,200 +83,6 @@ public:
 		else
 			return GenericProcess(REFLECTION_ARGS,  DefaultValue);
 	}
-	
-	static double GetFloat(REFLECTION_PARAMS, double DefaultValue = 0) 
-	{
-		if(auto panel = Cast<AFGBuildableLightsControlPanel>(Object))
-		{
-			//Control panels store their data in struct, so to get the values we have to manually disassemble the struct.
-			if(SourceName == "ColorSlotIndex")
-				return panel->GetLightControlData().ColorSlotIndex;
-			else
-				return panel->GetLightControlData().Intensity;
-		}
-		else if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
-			return UReflectionExternalFunctions::GetSignValue(Sign, SourceName.ToString(), DefaultValue);
-		else if(auto FluidTank = Cast<AFGBuildablePipeReservoir>(Object))
-		{
-			if(SourceName == "Content")
-				return FluidTank->GetFluidBox()->Content;
-			else
-				return FluidTank->GetFluidBox()->MaxContent;
-		}
-
-		return NumericProcess(REFLECTION_ARGS, DefaultValue);
-	}
-	
-	static FString GetString(REFLECTION_PARAMS, FString DefaultValue = "") 
-	{
-		if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
-			return UReflectionExternalFunctions::GetSignText(Sign, SourceName.ToString(), DefaultValue);
-		else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
-			return station->GetStationIdentifier()->GetStationName().ToString();
-		else if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
-			return Portal->GetPortalName().ToString();
-		else
-			return GenericProcess<FString, FStrProperty>(REFLECTION_ARGS,  DefaultValue);
-	}
-	
-	static FVector GetVector(REFLECTION_PARAMS, FVector DefaultValue = FVector::ZeroVector)
-	{
-		return GenericProcess<FVector, FStructProperty>(REFLECTION_ARGS, DefaultValue);
-	}
-	
-	static UFGInventoryComponent* GetInventory(REFLECTION_PARAMS)
-	{
-		return GenericProcess<UFGInventoryComponent*, FObjectPropertyBase>(REFLECTION_ARGS);
-	}
-	
-	static UFGPowerCircuit* GetCircuit(REFLECTION_PARAMS)
-	{
-		return GenericProcess<UFGPowerCircuit*, FObjectPropertyBase>(REFLECTION_ARGS);
-	}
-	
-	static AActor* GetEntity(REFLECTION_PARAMS) 
-	{
-		if(SourceName == "Self")
-			return Cast<AActor>(Object);
-		else
-			return GenericProcess<AActor*, FObjectPropertyBase>(REFLECTION_ARGS, nullptr);
-	}
-	
-	static TSubclassOf<UFGRecipe> GetRecipe(REFLECTION_PARAMS) 
-	{
-		return GenericProcess(REFLECTION_ARGS,  TSubclassOf<UFGRecipe>());
-	}
-	
-	static FLinearColor GetColor(REFLECTION_PARAMS, FLinearColor DefaultValue = FLinearColor::Black)
-	{
-		return GenericProcess<FLinearColor, FStructProperty>(REFLECTION_ARGS,  DefaultValue);
-	}
-	
-	static FInventoryStack GetStack(REFLECTION_PARAMS)
-	{
-		return GenericProcess<FInventoryStack, FStructProperty>(REFLECTION_ARGS);
-	}
-	
-	static FItemAmount GetItemAmount(REFLECTION_PARAMS)
-	{
-		return GenericProcess<FItemAmount, FStructProperty>(REFLECTION_ARGS);
-	}
-	
-	static UTexture* GetTexture(REFLECTION_PARAMS)
-	{
-		return GenericProcess<UTexture*>(REFLECTION_ARGS);
-	}
-	
-	static FSplitterSortRule GetSplitterRule(REFLECTION_PARAMS)
-	{
-		return GenericProcess<FSplitterSortRule, FStructProperty>(REFLECTION_ARGS);
-	}
-
-	static TSubclassOf<UFGItemDescriptor> GetItemDescriptor(REFLECTION_PARAMS, TSubclassOf<UFGItemDescriptor> DefaultValue)
-	{
-		return GenericProcess(REFLECTION_ARGS, DefaultValue);
-	}
-
-	static FTimeTableStopData GetTrainStop(REFLECTION_PARAMS)
-	{
-		return GenericProcess<FTimeTableStopData, FStructProperty>(REFLECTION_ARGS);
-	}
-
-	static UFGPowerInfoComponent* GetPowerInfo(UObject* Object)
-	{
-		return UReflectionExternalFunctions::GetPowerInfo(Object);
-	}
-
-	static TArray<bool> GetBoolArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<bool>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<double> GetFloatArray(REFLECTION_PARAMS)
-	{
-		const FName ConveyorMonitorAverage = FName("CC_MONITORAVG");
-		if (auto ConveyorMonitor = Cast<AFGBuildableConveyorMonitor>(Object); ConveyorMonitor && SourceName == ConveyorMonitorAverage)
-		{
-			TArray<double> AverageGraph;
-			for (const FItemMonitorData& Data : ConveyorMonitor->GetAverageDataForUIRepresentation())
-			{
-				AverageGraph.Add(Data.FloatLocalAverage);
-			}
-			
-			return AverageGraph;
-		}
-		
-		
-		return GenericProcess<TArray<double>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<FString> GetStringArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<FString>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<FVector> GetVectorArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<FVector>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<UFGInventoryComponent*> GetInventoryArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<UFGInventoryComponent*>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<UFGPowerCircuit*> GetCircuitArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<UFGPowerCircuit*>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<AActor*> GetEntityArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<AActor*>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<TSubclassOf<UFGRecipe>> GetRecipeArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<TSubclassOf<UFGRecipe>>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<FLinearColor> GetColorArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<FLinearColor>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<FInventoryStack> GetStackArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<FInventoryStack>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<FItemAmount> GetItemAmountArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<FItemAmount>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<UTexture*> GetTextureArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<UTexture*>, FArrayProperty>(REFLECTION_ARGS);
-	}
-	
-	static TArray<FSplitterSortRule> GetSplitterRuleArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<FSplitterSortRule>, FArrayProperty>(REFLECTION_ARGS);
-	}
-
-	static TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>, FArrayProperty>(REFLECTION_ARGS);
-	}
-
-	static TArray<FTimeTableStopData> GetTrainStopArray(REFLECTION_PARAMS)
-	{
-		return GenericProcess<TArray<FTimeTableStopData>>(REFLECTION_ARGS);
-	}
-
-	template<typename T>
-	static T GetUnmanaged(REFLECTION_PARAMS, T DefaultValue = T()){ return GenericProcess(REFLECTION_ARGS, DefaultValue); }
 
 	static void SetBool(REFLECTION_PARAMS, bool Value)
 	{
@@ -328,6 +127,29 @@ public:
 		}
 
 		GenericSet(REFLECTION_ARGS, Value);
+	}
+	
+	static double GetFloat(REFLECTION_PARAMS, double DefaultValue = 0) 
+	{
+		if(auto panel = Cast<AFGBuildableLightsControlPanel>(Object))
+		{
+			//Control panels store their data in struct, so to get the values we have to manually disassemble the struct.
+			if(SourceName == "ColorSlotIndex")
+				return panel->GetLightControlData().ColorSlotIndex;
+			else
+				return panel->GetLightControlData().Intensity;
+		}
+		else if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
+			return UReflectionExternalFunctions::GetSignValue(Sign, SourceName.ToString(), DefaultValue);
+		else if(auto FluidTank = Cast<AFGBuildablePipeReservoir>(Object))
+		{
+			if(SourceName == "Content")
+				return FluidTank->GetFluidBox()->Content;
+			else
+				return FluidTank->GetFluidBox()->MaxContent;
+		}
+
+		return NumericProcess(REFLECTION_ARGS, DefaultValue);
 	}
 
 	static void SetFloat(REFLECTION_PARAMS, double Value)
@@ -397,6 +219,18 @@ public:
 
 		NumericSet(REFLECTION_ARGS, Value);
 	}
+	
+	static FString GetString(REFLECTION_PARAMS, FString DefaultValue = "") 
+	{
+		if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
+			return UReflectionExternalFunctions::GetSignText(Sign, SourceName.ToString(), DefaultValue);
+		else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
+			return station->GetStationIdentifier()->GetStationName().ToString();
+		else if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
+			return Portal->GetPortalName().ToString();
+		else
+			return GenericProcess<FString, FStrProperty>(REFLECTION_ARGS,  DefaultValue);
+	}
 
 	static void SetString(REFLECTION_PARAMS, FString Value)
 	{
@@ -421,7 +255,49 @@ public:
 			Portal->SetPortalName(FText::FromString(Value));
 		else GenericSet(REFLECTION_ARGS, Value);
 	}
-
+	
+	static FVector GetVector(REFLECTION_PARAMS, FVector DefaultValue = FVector::ZeroVector) { return GenericProcess<FVector, FStructProperty>(REFLECTION_ARGS, DefaultValue);}
+	static void SetVector(REFLECTION_PARAMS, FVector Value){ GenericSet(REFLECTION_ARGS, Value); }
+	
+	static UFGInventoryComponent* GetInventory(REFLECTION_PARAMS) { return GenericProcess<UFGInventoryComponent*, FObjectPropertyBase>(REFLECTION_ARGS); }
+	static void SetInventory(REFLECTION_PARAMS, UFGInventoryComponent* Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static UFGPowerCircuit* GetCircuit(REFLECTION_PARAMS) { return GenericProcess<UFGPowerCircuit*, FObjectPropertyBase>(REFLECTION_ARGS); }
+	static void SetCircuit(REFLECTION_PARAMS, UFGPowerCircuit* Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static AActor* GetEntity(REFLECTION_PARAMS) 
+	{
+		if(SourceName == "Self")
+			return Cast<AActor>(Object);
+		else
+			return GenericProcess<AActor*, FObjectPropertyBase>(REFLECTION_ARGS, nullptr);
+	}
+	static void SetEntity(REFLECTION_PARAMS, AActor* Value)
+	{
+		if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
+		{
+			if (auto OtherPortal = Cast<AFGBuildablePortalBase>(Value))
+			{
+				if(Portal->GetLinkedPortal() != OtherPortal)
+				{
+					Portal->DisconnectLinkedPortal();
+					OtherPortal->DisconnectLinkedPortal();
+				}
+				Portal->MakeLinkToPortal(OtherPortal);
+				OtherPortal->MakeLinkToPortal(Portal);
+			}
+		}
+		else GenericSet(REFLECTION_ARGS, Value);
+	}
+	
+	static TSubclassOf<UFGRecipe> GetRecipe(REFLECTION_PARAMS) { return GenericProcess(REFLECTION_ARGS,  TSubclassOf<UFGRecipe>()); }
+	static void SetRecipe(REFLECTION_PARAMS, TSubclassOf<UFGRecipe> Value)
+	{
+		if(!Value) return;
+		GenericSet(REFLECTION_ARGS, Value);
+	}
+	
+	static FLinearColor GetColor(REFLECTION_PARAMS, FLinearColor DefaultValue = FLinearColor::Black) { return GenericProcess<FLinearColor, FStructProperty>(REFLECTION_ARGS,  DefaultValue); }
 	static void SetColor(REFLECTION_PARAMS, FLinearColor Value)
 	{
 		if(auto sign = Cast<AFGBuildableWidgetSign>(Object))
@@ -451,32 +327,104 @@ public:
 		}
 		GenericSet(REFLECTION_ARGS, Value);
 	}
+	
+	static FInventoryStack GetStack(REFLECTION_PARAMS) { return GenericProcess<FInventoryStack, FStructProperty>(REFLECTION_ARGS); }
+	static void SetStack(REFLECTION_PARAMS, FInventoryStack Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static FItemAmount GetItemAmount(REFLECTION_PARAMS) { return GenericProcess<FItemAmount, FStructProperty>(REFLECTION_ARGS); }
+	static void SetItemAmount(REFLECTION_PARAMS, FItemAmount Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static UTexture* GetTexture(REFLECTION_PARAMS) { return GenericProcess<UTexture*>(REFLECTION_ARGS); }
+	static void SetTexture(REFLECTION_PARAMS, UTexture* Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static FSplitterSortRule GetSplitterRule(REFLECTION_PARAMS) { return GenericProcess<FSplitterSortRule, FStructProperty>(REFLECTION_ARGS); }
+	static void SetSplitterRule(REFLECTION_PARAMS, FSplitterSortRule Value) { GenericSet(REFLECTION_ARGS, Value); }
 
-	static void SetRecipe(REFLECTION_PARAMS, TSubclassOf<UFGRecipe> Value)
+	static TSubclassOf<UFGItemDescriptor> GetItemDescriptor(REFLECTION_PARAMS, TSubclassOf<UFGItemDescriptor> DefaultValue) { return GenericProcess(REFLECTION_ARGS, DefaultValue); }
+	static void SetItemDescriptor(REFLECTION_PARAMS, TSubclassOf<UFGItemDescriptor> Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+	static FTimeTableStopData GetTimeTableStop(REFLECTION_PARAMS) { return GenericProcess<FTimeTableStopData, FStructProperty>(REFLECTION_ARGS); }
+	static void SetTimeTableStop(REFLECTION_PARAMS, FTimeTableStopData Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+	static UFGPowerInfoComponent* GetPowerInfo(UObject* Object) { return UReflectionExternalFunctions::GetPowerInfo(Object); }
+
+
+	static FPixelScreenData GetPixelImage(REFLECTION_PARAMS) { return GenericProcess<FPixelScreenData, FStructProperty>(REFLECTION_ARGS); }
+	static void SetPixelImage(REFLECTION_PARAMS, FPixelScreenData Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+	static FCustomStruct GetCustomStruct(REFLECTION_PARAMS) { return GenericProcess<FCustomStruct, FStructProperty>(REFLECTION_ARGS); }
+	static void SetCustomStruct(REFLECTION_PARAMS, FCustomStruct Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+	static TArray<bool> GetBoolArray(REFLECTION_PARAMS) { return GenericProcess<TArray<bool>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetBoolArray(REFLECTION_PARAMS, TArray<bool> Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<double> GetFloatArray(REFLECTION_PARAMS)
 	{
-		if(!Value) return;
-		GenericSet(REFLECTION_ARGS, Value);
-	}
-
-	static void SetSplitterRules(REFLECTION_PARAMS, TArray<FSplitterSortRule> Value) { GenericSet(REFLECTION_ARGS, Value); }
-
-	static void SetEntity(REFLECTION_PARAMS, AActor* Value)
-	{
-		if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
+		const FName ConveyorMonitorAverage = FName("CC_MONITORAVG");
+		if (auto ConveyorMonitor = Cast<AFGBuildableConveyorMonitor>(Object); ConveyorMonitor && SourceName == ConveyorMonitorAverage)
 		{
-			if (auto OtherPortal = Cast<AFGBuildablePortalBase>(Value))
+			TArray<double> AverageGraph;
+			for (const FItemMonitorData& Data : ConveyorMonitor->GetAverageDataForUIRepresentation())
 			{
-				if(Portal->GetLinkedPortal() != OtherPortal)
-				{
-					Portal->DisconnectLinkedPortal();
-					OtherPortal->DisconnectLinkedPortal();
-				}
-				Portal->MakeLinkToPortal(OtherPortal);
-				OtherPortal->MakeLinkToPortal(Portal);
+				AverageGraph.Add(Data.FloatLocalAverage);
 			}
+			
+			return AverageGraph;
 		}
-		else GenericSet(REFLECTION_ARGS, Value);
+		
+		
+		return GenericProcess<TArray<double>, FArrayProperty>(REFLECTION_ARGS);
 	}
+	static void SetFloatArray(REFLECTION_PARAMS, TArray<double> Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<FString> GetStringArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FString>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetStringArray(REFLECTION_PARAMS, const TArray<FString>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<FVector> GetVectorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FVector>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetVectorArray(REFLECTION_PARAMS, const TArray<FVector>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<UFGInventoryComponent*> GetInventoryArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UFGInventoryComponent*>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetInventoryArray(REFLECTION_PARAMS, const TArray<UFGInventoryComponent*>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<UFGPowerCircuit*> GetCircuitArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UFGPowerCircuit*>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetCircuitArray(REFLECTION_PARAMS, const TArray<UFGPowerCircuit*>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<AActor*> GetEntityArray(REFLECTION_PARAMS) { return GenericProcess<TArray<AActor*>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetEntityArray(REFLECTION_PARAMS, const TArray<AActor*>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<TSubclassOf<UFGRecipe>> GetRecipeArray(REFLECTION_PARAMS) { return GenericProcess<TArray<TSubclassOf<UFGRecipe>>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetRecipeArray(REFLECTION_PARAMS, const TArray<TSubclassOf<UFGRecipe>>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<FLinearColor> GetColorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FLinearColor>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetColorArray(REFLECTION_PARAMS, const TArray<FLinearColor>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<FInventoryStack> GetStackArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FInventoryStack>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetStackArray(REFLECTION_PARAMS, const TArray<FInventoryStack>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<FItemAmount> GetItemAmountArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FItemAmount>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetItemAmountArray(REFLECTION_PARAMS, const TArray<FItemAmount>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<UTexture*> GetTextureArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UTexture*>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetTextureArray(REFLECTION_PARAMS, const TArray<UTexture*>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	
+	static TArray<FSplitterSortRule> GetSplitterRuleArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FSplitterSortRule>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetSplitterRuleArray(REFLECTION_PARAMS, const TArray<FSplitterSortRule>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+	static TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>, FArrayProperty>(REFLECTION_ARGS); }
+	static void SetItemDescriptorArray(REFLECTION_PARAMS, const TArray<TSubclassOf<UFGItemDescriptor>>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+	static TArray<FTimeTableStopData> GetTimeTableStopArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FTimeTableStopData>>(REFLECTION_ARGS); }
+	static void SetTimeTableStopArray(REFLECTION_PARAMS, const TArray<FTimeTableStopData>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+
+	static TArray<FPixelScreenData> GetPixelImageArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FPixelScreenData>>(REFLECTION_ARGS); }
+	static void SetPixelImageArray(REFLECTION_PARAMS, const TArray<FPixelScreenData>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+	static TArray<FCustomStruct> GetCustomStructArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FCustomStruct>>(REFLECTION_ARGS); }
+	static void SetCustomStructArray(REFLECTION_PARAMS, const TArray<FCustomStruct>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+
+	template<typename T>
+	static T GetUnmanaged(REFLECTION_PARAMS, T DefaultValue = T()){ return GenericProcess(REFLECTION_ARGS, DefaultValue); }
 
 	template<typename T>
 	static void SetUnmanaged(REFLECTION_PARAMS, T Value) { GenericSet(REFLECTION_ARGS, Value); }
@@ -485,19 +433,12 @@ public:
 	static T FromPropertyValue(REFLECTION_PARAMS, T DefaultValue)
 	{
 		if(!IsValid(Object)) return DefaultValue;
-
-		if (Metadata.CachedDataPointer != nullptr)
-		{
-			//return *static_cast<T*>(Metadata.CachedDataPointer);
-		}
 		
 		auto Val = Object->GetClass()->FindPropertyByName(SourceName);
 		if(!Val) return DefaultValue;
 		if(!Val->IsA<PropType>()) return DefaultValue;
 		
 		auto ValuePointer = Val->ContainerPtrToValuePtr<T>(Object);
-		
-		*(void**)&Metadata.CachedDataPointer = ValuePointer;
 		
 		return *ValuePointer;
 	}
@@ -523,7 +464,7 @@ public:
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
 		{
 			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString());
-			return FromPropertyValue<T, PropType>(ValueBase, "Value", true, Metadata, DefaultValue);
+			return FromPropertyValue<T, PropType>(ValueBase, "Value", true, DefaultValue);
 		}
 
 		struct{T RetVal;} Params{DefaultValue};
@@ -541,7 +482,7 @@ public:
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
 		{
 			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString());
-			return FromNumericPropertyValue(ValueBase, "Value", true, Metadata, DefaultValue);
+			return FromNumericPropertyValue(ValueBase, "Value", true, DefaultValue);
 		}
 		
 		auto Function = Object->FindFunction(SourceName);

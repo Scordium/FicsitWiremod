@@ -23,7 +23,7 @@ public:
 		DOREPLIFETIME(UCCRecipeValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -44,9 +44,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
 	{
-		return UReflectionUtilities::GetRecipe(Object, SourceName, FromProperty, Meta) == Value;
+		return UReflectionUtilities::GetRecipe(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return ::IsValid(Value) ? UFGRecipe::GetRecipeName(Value).ToString() : FString("N/A");}
@@ -90,7 +90,7 @@ public:
 		DOREPLIFETIME(UCCRecipeArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -140,9 +140,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty, FConnectionMeta& Meta) override
+	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
 	{
-		return UReflectionUtilities::GetRecipeArray(Object, SourceName, FromProperty, Meta) == Value;
+		return UReflectionUtilities::GetRecipeArray(Object, SourceName, FromProperty) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }

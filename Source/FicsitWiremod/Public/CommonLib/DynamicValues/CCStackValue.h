@@ -27,7 +27,7 @@ public:
 		DOREPLIFETIME(UCCStackValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
@@ -54,8 +54,8 @@ public:
 	{
 		const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());
 
-		Object->SetField("ItemClass", MakeShareable(new FJsonValueString(FSoftClassPath(Value.Item.GetItemClass()).ToString())));
-		Object->SetNumberField("Amount", Value.NumItems);
+		Object->SetField("itemClass", MakeShareable(new FJsonValueString(FSoftClassPath(Value.Item.GetItemClass()).ToString())));
+		Object->SetNumberField("amount", Value.NumItems);
 
 		return MakeShareable(new FJsonValueObject(Object));
 	}
@@ -98,7 +98,7 @@ public:
 		DOREPLIFETIME(UCCStackArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty, const FConnectionMeta& Metadata) override
+	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
 	{
 		if(!Object) return;
 		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
