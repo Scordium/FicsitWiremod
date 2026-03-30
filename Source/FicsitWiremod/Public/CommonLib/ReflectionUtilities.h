@@ -7,6 +7,7 @@
 #include "CustomStruct.h"
 #include "FGBuildableConveyorMonitor.h"
 #include "FGBuildablePortalBase.h"
+#include "FGElevatorTypes.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
 #include "FGRecipe.h"
@@ -348,6 +349,8 @@ public:
 
 	static UFGPowerInfoComponent* GetPowerInfo(UObject* Object) { return UReflectionExternalFunctions::GetPowerInfo(Object); }
 
+	static FElevatorFloorStopInfo GetElevatorFloor(REFLECTION_PARAMS) { return GenericProcess<FElevatorFloorStopInfo, FStructProperty>(REFLECTION_ARGS); }
+	static void SetElevatorFloor(REFLECTION_PARAMS, FElevatorFloorStopInfo Value) { GenericSet(REFLECTION_ARGS, Value); }
 
 	static FPixelScreenData GetPixelImage(REFLECTION_PARAMS) { return GenericProcess<FPixelScreenData, FStructProperty>(REFLECTION_ARGS); }
 	static void SetPixelImage(REFLECTION_PARAMS, FPixelScreenData Value) { GenericSet(REFLECTION_ARGS, Value); }
@@ -416,6 +419,8 @@ public:
 	static TArray<FTimeTableStopData> GetTimeTableStopArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FTimeTableStopData>>(REFLECTION_ARGS); }
 	static void SetTimeTableStopArray(REFLECTION_PARAMS, const TArray<FTimeTableStopData>& Value) { GenericSet(REFLECTION_ARGS, Value); }
 
+	static TArray<FElevatorFloorStopInfo> GetElevatorFloorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FElevatorFloorStopInfo>>(REFLECTION_ARGS); }
+	static void SetElevatorFloorArray(REFLECTION_PARAMS, const TArray<FElevatorFloorStopInfo>& Value) { GenericSet(REFLECTION_ARGS, Value); }
 
 	static TArray<FPixelScreenData> GetPixelImageArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FPixelScreenData>>(REFLECTION_ARGS); }
 	static void SetPixelImageArray(REFLECTION_PARAMS, const TArray<FPixelScreenData>& Value) { GenericSet(REFLECTION_ARGS, Value); }

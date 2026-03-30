@@ -8,6 +8,7 @@
 #include "CCColorValue.h"
 #include "CCCustomStructValue.h"
 #include "CCDynamicValueBase.h"
+#include "CCElevatorFloorValue.h"
 #include "CCEntityValue.h"
 #include "CCIntegerValue.h"
 #include "CCInventoryValue.h"
@@ -60,6 +61,7 @@ public:
 		case SplitterRule: return NewObject<UCCSplitterRuleValue>(Level);
 		case ItemDescriptor: return NewObject<UCCItemDescriptorValue>(Level);
 		case TrainStop: return NewObject<UCCTimeTableStopValue>(Level);
+		case ElevatorFloor: return NewObject<UCCElevatorFloorValue>(Level);
 		case ArrayOfBoolean: return NewObject<UCCBoolArrayValue>(Level);
 		case ArrayOfColor: return NewObject<UCCColorArrayValue>(Level);
 		case ArrayOfEntity: return NewObject<UCCEntityArrayValue>(Level);
@@ -77,6 +79,7 @@ public:
 		case ArrayOfSplitterRule: return NewObject<UCCSplitterRuleArrayValue>(Level);
 		case ArrayOfItemDescriptor: return NewObject<UCCItemDescriptorArrayValue>(Level);
 		case ArrayOfTrainStop: return NewObject<UCCTimeTableStopArrayValue>(Level);
+		case ArrayOfElevatorFloor: return NewObject<UCCElevatorFloorArrayValue>(Level);
 		case Unknown: return nullptr;
 		default:
 			auto TypeString = UEnum::GetValueAsString<EConnectionType>(Type);
@@ -98,7 +101,6 @@ public:
 			if (auto Dynamic = Cast<UCCDynamicValueBase>(Data.Object)) return Dynamic;
 		
 		auto Out = FromType(Data.ConnectionType, WorldContext ? WorldContext : Data.Object);
-		if(Out) Out->FromConnectionValue(Data.Object, Data.FunctionName, Data.FromProperty, Data.Meta);
 		if(Out) Out->FromConnectionValue(Data.Object, Data.FunctionName, Data.FromProperty);
 		return Out;
 	}

@@ -178,6 +178,7 @@ public:
 	CIRCUITRY_READWRITE_DEFAULT(TSubclassOf<UFGItemDescriptor>, ItemDescriptor, TSubclassOf<UFGItemDescriptor>())
 	GENERATE_GET_UNMANAGED(AFGRailroadTimeTable*, GetTimeTable)
 	CIRCUITRY_READWRITE(FTimeTableStopData, TimeTableStop)
+	CIRCUITRY_READWRITE(FElevatorFloorStopInfo, ElevatorFloor)
 
 	template<typename T>
 	void Set(T Value) const { UReflectionUtilities::SetUnmanaged(Object, FunctionName, FromProperty, Value); }

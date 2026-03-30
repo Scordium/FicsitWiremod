@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Misc/EnumerateRange.h"
 #include "Utility/CircuitryLogger.h"
 #include "ConnectionType.generated.h"
 
@@ -50,7 +49,9 @@ enum EConnectionType
 	ArrayOfItemDescriptor,
 	TrainStop,
 	ArrayOfTrainStop,
-	EntityPowerInfo
+	EntityPowerInfo,
+	ElevatorFloor,
+	ArrayOfElevatorFloor
 };
 
 UENUM(BlueprintType)
@@ -110,6 +111,7 @@ public:
 		case SplitterRule: return ArrayOfSplitterRule;
 		case ItemDescriptor: return ArrayOfItemDescriptor;
 		case TrainStop: return ArrayOfTrainStop;
+		case ElevatorFloor: return ArrayOfElevatorFloor;
 		default:
 			auto TypeString = UEnum::GetValueAsString<EConnectionType>(in);
 			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + TypeString + " in function BASE_TO_ARRAY");
@@ -142,6 +144,7 @@ public:
 		case ArrayOfSplitterRule: return SplitterRule;
 		case ArrayOfItemDescriptor: return ItemDescriptor;
 		case ArrayOfTrainStop: return TrainStop;
+		case ArrayOfElevatorFloor: return ElevatorFloor;
 		default:
 			auto TypeString = UEnum::GetValueAsString<EConnectionType>(in);
 			ACircuitryLogger::DispatchErrorEvent("Failed to find a switch case for EConnectionType::" + TypeString + " in function ARRAY_TO_BASE");
@@ -171,6 +174,7 @@ public:
 		case EConnectionType::ArrayOfSplitterRule:
 		case EConnectionType::ArrayOfItemDescriptor:
 		case EConnectionType::ArrayOfTrainStop:
+		case EConnectionType::ArrayOfElevatorFloor:
 			return true;
 
 		default: return false;
