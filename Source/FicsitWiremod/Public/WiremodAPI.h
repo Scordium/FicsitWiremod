@@ -185,18 +185,17 @@ public:
 	UFUNCTION(BlueprintPure, DisplayName="Is Registered", Category="Wiremod API")
 	bool IsBuildableRegistered(UObject* Object)
 	{
-		auto Buildable = Cast<AFGBuildable>(Object);
-		if(!IsValid(Buildable)) return false;
+		if(!IsValid(Object)) return false;
 		
-		auto list = GetListOrDefault(UWiremodUtils::GetModReference(Buildable->GetClass()));
-		auto className = UWiremodUtils::GetClassName(Buildable->GetClass());
+		auto list = GetListOrDefault(UWiremodUtils::GetModReference(Object->GetClass()));
+		auto className = UWiremodUtils::GetClassName(Object->GetClass());
 		
 		return list->GetRowNames().Contains(className);
 	}
 
 
 	UFUNCTION(BlueprintCallable)
-	FBuildingConnections FindConnections(AFGBuildable* Buildable)
+	FBuildingConnections FindConnections(UObject* Buildable)
 	{
 		if(!IsValid(Buildable)) return FBuildingConnections();
 		
@@ -207,7 +206,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void GetConnections(AFGBuildable* Buildable, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, FBuildableNote& Note)
+	void GetConnections(UObject* Buildable, EConnectionDirection Direction, TArray<FBuildingConnection>& Connections, FBuildableNote& Note)
 	{
 		auto FoundData = FindConnections(Buildable);
 		Note = FoundData.Note;

@@ -82,13 +82,12 @@ public:
 		TargetWireSupport = Cast<ACircuitryWireSupport>(NewTarget);
 		
 		IWiringToolWidget::Execute_ClearUI(Widget.GetObject());
-		auto Building = Cast<AFGBuildable>(NewTarget); 
-		if(!Building || !UWiremodBlueprintUtils::IsObjectCompatible(Building)) HandleUnknownTarget(Building);
+		if(!UWiremodBlueprintUtils::IsObjectCompatible(NewTarget)) HandleUnknownTarget(NewTarget);
 		else
 		{
-			CurrentTarget = Building;
-			SetOutline(Building);
-			IWiringToolWidget::Execute_CreateConnectionsList(Widget.GetObject(), HasSelectedConnection() ? Input : Output, SelectedConnection.ConnectionType, Building);
+			CurrentTarget = NewTarget;
+			SetOutline(NewTarget);
+			IWiringToolWidget::Execute_CreateConnectionsList(Widget.GetObject(), HasSelectedConnection() ? Input : Output, SelectedConnection.ConnectionType, NewTarget);
 		}
 	}
 
@@ -289,7 +288,7 @@ protected:
 				{
 					RCO->ResetConnections(CurrentTarget, Index, Setter);
 					FFormatNamedArguments Args;
-					Args.Add("ObjectName", Cast<AFGBuildable>(CurrentTarget)->mDisplayName);
+					Args.Add("ObjectName", UWiremodBlueprintUtils::GetObjectName(CurrentTarget));
 					Args.Add("InputName", FText::FromString(IWiringToolWidget::Execute_GetConnectionName(Widget.GetObject())));
 				
 					auto NotificationText = FText::Format(ResetConnectionsSuccessFormat, Args);

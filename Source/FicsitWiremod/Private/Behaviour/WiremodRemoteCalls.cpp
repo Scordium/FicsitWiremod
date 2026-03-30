@@ -27,7 +27,7 @@ void UWiremodRemoteCalls::UpdateRemoteControlData_Implementation(ARemoteControlR
 	if(Receiver) Receiver->SetData(NewData, Setter);
 }
 
-void UWiremodRemoteCalls::SetBuildableOwner_Implementation(AFGBuildable* Buildable, UObject* NewOwner, UObject* Setter)
+void UWiremodRemoteCalls::SetBuildableOwner_Implementation(UObject* Buildable, UObject* NewOwner, UObject* Setter)
 {
 	if(auto WiremodBuildable = Cast<AFGWiremodBuildable>(Buildable)) WiremodBuildable->SetBuildableOwner(NewOwner, Setter);
 	else UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->SetBuildableOwner(Buildable, NewOwner, Setter);
@@ -43,7 +43,7 @@ void UWiremodRemoteCalls::SetSignLayout_Implementation(AManagedSign* Sign, const
 	if(Sign) Sign->ApplySignLayout(Data, Setter);
 }
 
-void UWiremodRemoteCalls::CreateGlobalConnection_Implementation(AFGBuildable* Buildable, int Index, const FDynamicValueStringWrapper& Value, const FConnectionData& Input, UObject* Setter)
+void UWiremodRemoteCalls::CreateGlobalConnection_Implementation(UObject* Buildable, int Index, const FDynamicValueStringWrapper& Value, const FConnectionData& Input, UObject* Setter)
 {
 	auto Data = FConnectionData(UCCDynamicValueUtils::FromWrapper(this, Value), FName("Value"), Value.Type, true);
 
@@ -56,31 +56,31 @@ void UWiremodRemoteCalls::CreateGlobalConnection_Implementation(AFGBuildable* Bu
 	}
 }
 
-void UWiremodRemoteCalls::SetConfiguringRule_Implementation(AFGBuildable* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
+void UWiremodRemoteCalls::SetConfiguringRule_Implementation(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
 {
 	if(auto Circuitry = Cast<AFGWiremodBuildable>(Buildable)) Circuitry->SetConfiguringRule(Rule, Setter);
 	else UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->SetConfiguringRule(Buildable, Rule, Setter);
 }
 
-void UWiremodRemoteCalls::SetConnectingRule_Implementation(AFGBuildable* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
+void UWiremodRemoteCalls::SetConnectingRule_Implementation(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
 {
 	if(auto Circuitry = Cast<AFGWiremodBuildable>(Buildable)) Circuitry->SetConnectingRule(Rule, Setter);
 	else UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->SetConnectingRule(Buildable, Rule, Setter);
 }
 
-void UWiremodRemoteCalls::SetResettingRule_Implementation(AFGBuildable* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
+void UWiremodRemoteCalls::SetResettingRule_Implementation(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter)
 {
 	if(auto Circuitry = Cast<AFGWiremodBuildable>(Buildable)) Circuitry->SetDisconnectingRule(Rule, Setter);
 	else UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->SetDisconnectingRule(Buildable, Rule, Setter);
 }
 
-void UWiremodRemoteCalls::SetCanDismantle_Implementation(AFGBuildable* Buildable, bool CanDismantle, UObject* Setter)
+void UWiremodRemoteCalls::SetCanDismantle_Implementation(UObject* Buildable, bool CanDismantle, UObject* Setter)
 {
 	if(auto Circuitry = Cast<AFGWiremodBuildable>(Buildable)) Circuitry->SetCanDismantle(CanDismantle, Setter);
 	else UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->SetCanDismantle(Buildable, CanDismantle, Setter);
 }
 
-void UWiremodRemoteCalls::SetWireColor_Implementation(AFGBuildable* Buildable, int Index, FLinearColor Color, UObject* Setter)
+void UWiremodRemoteCalls::SetWireColor_Implementation(UObject* Buildable, int Index, FLinearColor Color, UObject* Setter)
 {
 	if(auto Circuitry = Cast<AFGWiremodBuildable>(Buildable)) Circuitry->SetWireColor(Index, Color, Setter);
 	else UCircuitryConfigBlueprintFunctions::GetVanillaConnectionSubsystem()->SetWireColor(Buildable, Index, Color, Setter);

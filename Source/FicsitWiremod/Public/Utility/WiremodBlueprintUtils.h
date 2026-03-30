@@ -55,7 +55,7 @@ public:
 		}
 		
 		//Vanilla
-		if(auto Buildable = Cast<AFGBuildable>(Object)) AWiremodAPI::Self->GetConnections(Buildable, Direction, Connections, Note);
+		AWiremodAPI::Self->GetConnections(Object, Direction, Connections, Note);
 	}
 
 	///Whether the object is compatible for displaying inputs or outputs.
@@ -121,7 +121,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	static TArray<FBuildableInputInfo> GetBuildableInfo(AFGBuildable* Buildable)
+	static TArray<FBuildableInputInfo> GetBuildableInfo(UObject* Buildable)
 	{
 		auto Out = TArray<FBuildableInputInfo>();
 		if(Buildable)

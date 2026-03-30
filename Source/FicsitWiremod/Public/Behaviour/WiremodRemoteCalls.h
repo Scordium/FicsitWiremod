@@ -64,7 +64,7 @@ public:
 	void UpdateRemoteControlData(ARemoteControlReceiver* Receiver, const FRemoteControlData& NewData, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
-	void SetBuildableOwner(AFGBuildable* Buildable, UObject* NewOwner, UObject* Setter);
+	void SetBuildableOwner(UObject* Buildable, UObject* NewOwner, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
 	void SetCustomStructData(ACustomStructProcessor* Processor, const FCustomStructReplicatable& Data, UObject* Setter);
@@ -73,22 +73,22 @@ public:
 	void SetSignLayout(AManagedSign* Sign, const FManagedSignData& Data, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
-	void CreateGlobalConnection(AFGBuildable* Buildable, int Index, const FDynamicValueStringWrapper& Value, const FConnectionData& Input, UObject* Setter);
+	void CreateGlobalConnection(UObject* Buildable, int Index, const FDynamicValueStringWrapper& Value, const FConnectionData& Input, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
-	void SetConfiguringRule(AFGBuildable* Buildable, EWiremodInteractionRule Rule, UObject* Setter);
+	void SetConfiguringRule(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
-	void SetResettingRule(AFGBuildable* Buildable, EWiremodInteractionRule Rule, UObject* Setter);
+	void SetResettingRule(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
-	void SetConnectingRule(AFGBuildable* Buildable, EWiremodInteractionRule Rule, UObject* Setter);
+	void SetConnectingRule(UObject* Buildable, EWiremodInteractionRule Rule, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
-	void SetCanDismantle(AFGBuildable* Buildable, bool CanDismantle, UObject* Setter);
+	void SetCanDismantle(UObject* Buildable, bool CanDismantle, UObject* Setter);
 
 	UFUNCTION(BlueprintCallable, Reliable, Server)
-	void SetWireColor(AFGBuildable* Buildable, int Index, FLinearColor Color, UObject* Setter);
+	void SetWireColor(UObject* Buildable, int Index, FLinearColor Color, UObject* Setter);
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override
 	{
