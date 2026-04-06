@@ -10,11 +10,11 @@ class UElevatorStateResolver : public UValueStringResolverBase
 	GENERATED_BODY()
 
 public:
-	virtual FString ResolveString_Implementation(UObject* Object, FName SourceName, EConnectionType Type, bool FromProperty) const override
+	virtual FString ResolveString_Implementation(const FConnectionPointer& Pointer, EConnectionType Type) const override
 	{
-		if (Type != EConnectionType::Integer) return Super::ResolveString_Implementation(Object, SourceName, Type, FromProperty);
+		if (Type != EConnectionType::Integer) return Super::ResolveString_Implementation(Pointer, Type);
 
-		auto Value = (EElevatorState) UReflectionUtilities::GetFloat(Object, SourceName, FromProperty);
+		auto Value = (EElevatorState) UReflectionUtilities::GetFloat(Pointer);
 
 		FString Result = FString::FromInt((int) Value);
 		

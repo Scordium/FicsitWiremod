@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
+#include "CircuitryRecipeFilterRule.h"
 #include "FGRecipe.h"
 #include "CCRecipeValue.generated.h"
 
@@ -23,17 +24,9 @@ public:
 		DOREPLIFETIME(UCCRecipeValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCRecipeValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetRecipe(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetRecipe)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -44,9 +37,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetRecipe(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetRecipe(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return ::IsValid(Value) ? UFGRecipe::GetRecipeName(Value).ToString() : FString("N/A");}
@@ -90,20 +83,17 @@ public:
 		DOREPLIFETIME(UCCRecipeArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCRecipeArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetRecipeArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetRecipeArray)
 	}
 
-	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetRecipe()); }
+	virtual void AddElement(const FConnectionData& Element) override
+	{
+		auto NewElement = Element.GetRecipe();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Add(NewElement);
+	}
+	
 	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
@@ -119,7 +109,8 @@ public:
 	{
 		if(!Value.IsValidIndex(Index)) return;
 
-		Value.Insert(Element.GetRecipe(), Index);
+		auto NewElement = Element.GetRecipe();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Insert(NewElement, Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
@@ -140,9 +131,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetRecipeArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetRecipeArray(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
@@ -222,7 +213,22 @@ public:
 			Value.Append(ThisArray->Value);
 		}
 	}
+
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
+	{
+		if (FilterData.FilterType != ConnectionType) return false;
+		
+		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
+	}
+
+	virtual void OnValueUpdate() override
+	{
+		Filter.FilterValues(Value);
+	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<TSubclassOf<UFGRecipe>> Value;
+
+	UPROPERTY(SaveGame, BlueprintReadWrite)
+	FCircuitryRecipeFilterRule Filter;
 };

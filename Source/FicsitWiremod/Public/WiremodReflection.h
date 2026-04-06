@@ -16,10 +16,10 @@
 
 //
 //Experimental
-#define GENERATE_GET(type, name_suffix) type Get##name_suffix() const { return UReflectionUtilities::Get##name_suffix(Object, FunctionName, FromProperty); }
-#define GENERATE_SET(type, name_suffix) void Set##name_suffix(type Value) const { UReflectionUtilities::Set##name_suffix(Object, FunctionName, FromProperty, Value); }
+#define GENERATE_GET(type, name_suffix) type Get##name_suffix() const { return UReflectionUtilities::Get##name_suffix(ToPointer()); }
+#define GENERATE_SET(type, name_suffix) void Set##name_suffix(type Value) const { UReflectionUtilities::Set##name_suffix(ToPointer(), Value); }
 
-#define GENERATE_GET_DEFAULT(type, name_suffix, default_get) type Get##name_suffix(type DefaultValue = default_get) const { return UReflectionUtilities::Get##name_suffix(Object, FunctionName, FromProperty, DefaultValue); }
+#define GENERATE_GET_DEFAULT(type, name_suffix, default_get) type Get##name_suffix(type DefaultValue = default_get) const { return UReflectionUtilities::Get##name_suffix(ToPointer(), DefaultValue); }
 
 #define GENERATE_GET_SET(type, name_suffix) \
 	GENERATE_GET(type, name_suffix) \
@@ -47,7 +47,7 @@
 	GENERATE_GET(TArray<type>, name_suffix##Array)
 
 #define GENERATE_GET_UNMANAGED(type, get_name) \
-	type get_name() const { return UReflectionUtilities::GetUnmanaged<type>(Object, FunctionName, FromProperty); }
+	type get_name() const { return UReflectionUtilities::GetUnmanaged<type>(ToPointer()); }
 
 //
 //
@@ -160,6 +160,8 @@ public:
 	bool IsA(EConnectionType Type) { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 	bool IsA(EConnectionType Type) const { return UConnectionTypeFunctions::IsValidConnectionPair(ConnectionType, Type); }
 
+	FConnectionPointer ToPointer() const { return FConnectionPointer(Object, FunctionName, FromProperty); }
+
 	CIRCUITRY_READWRITE_DEFAULT(bool, Bool, false)
 	CIRCUITRY_READWRITE_DEFAULT(double, Float, 0)
 	CIRCUITRY_READWRITE_DEFAULT(FString, String, "")
@@ -181,7 +183,7 @@ public:
 	CIRCUITRY_READWRITE(FElevatorFloorStopInfo, ElevatorFloor)
 
 	template<typename T>
-	void Set(T Value) const { UReflectionUtilities::SetUnmanaged(Object, FunctionName, FromProperty, Value); }
+	void Set(T Value) const { UReflectionUtilities::SetUnmanaged(ToPointer(), Value); }
 	
 	bool ProcessFunction(void* Params) const
 	{
@@ -198,7 +200,7 @@ public:
 	
 	FString GetStringifiedValue() const
 	{
-		return UValueStringResolverBase::StaticClass()->GetDefaultObject<UValueStringResolverBase>()->ResolveString(Object, FunctionName, ConnectionType, FromProperty);
+		return UValueStringResolverBase::StaticClass()->GetDefaultObject<UValueStringResolverBase>()->ResolveString(ToPointer(), ConnectionType);
 	}
 };
 

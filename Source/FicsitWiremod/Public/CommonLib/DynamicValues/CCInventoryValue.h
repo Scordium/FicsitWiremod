@@ -26,17 +26,9 @@ public:
 		DOREPLIFETIME(UCCInventoryValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCInventoryValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetInventory(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetInventory)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -47,9 +39,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetInventory(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetInventory(Pointer) == Value;
 	}
 
 	virtual FString ToString() override
@@ -87,17 +79,9 @@ public:
 		DOREPLIFETIME(UCCInventoryArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCInventoryArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetInventoryArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetInventoryArray)
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetInventory()); }
@@ -138,9 +122,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetInventoryArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetInventoryArray(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }

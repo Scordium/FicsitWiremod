@@ -27,17 +27,9 @@ public:
 		DOREPLIFETIME(ThisClass, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<ThisClass>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetTimeTableStop(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetTimeTableStop)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -48,9 +40,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetTimeTableStop(Object, SourceName, FromProperty).Station == Value.Station;
+		return UReflectionUtilities::GetTimeTableStop(Pointer).Station == Value.Station;
 	}
 
 	virtual FString ToString() override { return Value.Station ? Value.Station->GetStationName().ToString() : "N/A"; }
@@ -80,17 +72,9 @@ public:
 		DOREPLIFETIME(ThisClass, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<ThisClass>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetTimeTableStopArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetTimeTableStopArray)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -110,9 +94,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		auto OtherSource = UReflectionUtilities::GetTimeTableStopArray(Object, SourceName, FromProperty);
+		auto OtherSource = UReflectionUtilities::GetTimeTableStopArray(Pointer);
 
 		if(Value.Num() != OtherSource.Num()) return false;
         

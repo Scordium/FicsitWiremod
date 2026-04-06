@@ -16,4 +16,21 @@ public:
 	{	
 		return RuleUsed ? Other == Value : IfUnused;
 	}
+
+	void FilterValues(TArray<bool>& Values)
+	{
+		if (!RuleUsed) return;
+		if (Values.IsEmpty()) return;
+		
+		int CurrentIndex = 0;
+		while (CurrentIndex < Values.Num())
+		{
+			auto MatchesFilter = CheckFilterMatch(Values[CurrentIndex]);
+			
+			if (MatchesFilter)
+				CurrentIndex++;
+			else
+				Values.RemoveAt(CurrentIndex);
+		}
+	}
 };

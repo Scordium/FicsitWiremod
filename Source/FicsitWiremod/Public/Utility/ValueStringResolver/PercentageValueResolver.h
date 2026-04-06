@@ -14,11 +14,11 @@ class FICSITWIREMOD_API UPercentageValueResolver : public UValueStringResolverBa
 {
 	GENERATED_BODY()
 public:
-	virtual FString ResolveString_Implementation(UObject* Object, FName SourceName, EConnectionType Type, bool FromProperty) const override
+	virtual FString ResolveString_Implementation(const FConnectionPointer& Pointer, EConnectionType Type) const override
 	{
-		if (Type != EConnectionType::Number) return Super::ResolveString_Implementation(Object, SourceName, Type, FromProperty);
+		if (Type != EConnectionType::Number) return Super::ResolveString_Implementation(Pointer, Type);
 
-		auto Value = UReflectionUtilities::GetFloat(Object, SourceName, FromProperty);
+		auto Value = UReflectionUtilities::GetFloat(Pointer);
 		return FString::SanitizeFloat(Value) + FString::Printf(TEXT(" (%.2f%%)"), Value*100.0);
 	}
 };

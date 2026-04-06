@@ -33,6 +33,23 @@ public:
 		return Out;
 	}
 
+	void FilterValues(TArray<TSubclassOf<UFGItemDescriptor>>& Values)
+	{
+		if (!RuleUsed) return;
+		if (Values.IsEmpty()) return;
+		
+		int CurrentIndex = 0;
+		while (CurrentIndex < Values.Num())
+		{
+			auto MatchesFilter = CheckFilterMatch(Values[CurrentIndex]);
+			
+			if (MatchesFilter)
+				CurrentIndex++;
+			else
+				Values.RemoveAt(CurrentIndex);
+		}
+	}
+
 	bool operator()(const TSubclassOf<UFGItemDescriptor>& Other) const { return CheckFilterMatch(Other, true); }
 };
 
@@ -57,6 +74,40 @@ public:
 
 	bool Predicate_Stack(const FInventoryStack& Other) const { return CheckFilterMatch(Other.Item.GetItemClass(), Other.NumItems, true); }
 
+	void FilterValues(TArray<FItemAmount>& Values)
+	{
+		if (!RuleUsed) return;
+		if (Values.IsEmpty()) return;
+		
+		int CurrentIndex = 0;
+		while (CurrentIndex < Values.Num())
+		{
+			auto MatchesFilter = CheckFilterMatch(Values[CurrentIndex].ItemClass, Values[CurrentIndex].Amount);
+			
+			if (MatchesFilter)
+				CurrentIndex++;
+			else
+				Values.RemoveAt(CurrentIndex);
+		}
+	}
+
+	void FilterValues(TArray<FInventoryStack>& Values)
+	{
+		if (!RuleUsed) return;
+		if (Values.IsEmpty()) return;
+		
+		int CurrentIndex = 0;
+		while (CurrentIndex < Values.Num())
+		{
+			auto MatchesFilter = CheckFilterMatch(Values[CurrentIndex].Item.GetItemClass(), Values[CurrentIndex].NumItems);
+			
+			if (MatchesFilter)
+				CurrentIndex++;
+			else
+				Values.RemoveAt(CurrentIndex);
+		}
+	}
+	
 private:
 
 	bool CheckFilterMatch(TSubclassOf<UFGItemDescriptor> Desc, int Amount, bool IfUnused = false) const

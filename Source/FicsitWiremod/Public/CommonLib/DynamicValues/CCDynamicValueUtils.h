@@ -101,7 +101,7 @@ public:
 			if (auto Dynamic = Cast<UCCDynamicValueBase>(Data.Object)) return Dynamic;
 		
 		auto Out = FromType(Data.ConnectionType, WorldContext ? WorldContext : Data.Object);
-		if(Out) Out->FromConnectionValue(Data.Object, Data.FunctionName, Data.FromProperty);
+		if(Out) Out->FromConnectionValue(Data.ToPointer());
 		return Out;
 	}
 

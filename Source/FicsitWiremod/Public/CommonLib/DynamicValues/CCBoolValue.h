@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "CCArrayValueBase.h"
 #include "CCDynamicValueBase.h"
-#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryBoolArrayFilter.h"
+#include "CircuitryBoolFilterRule.h"
+#include "JsonUtilities.h"
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCBoolValue.generated.h"
 
@@ -28,18 +29,7 @@ public:
 		DOREPLIFETIME(UCCBoolValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
-	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCBoolValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetBool(REFLECTION_ARGS, Value);
-	}
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override { DYNAMIC_FROMPOINTER(GetBool) }
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
 	{
@@ -49,9 +39,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetBool(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetBool(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return Value ? "true" : "false"; }
@@ -90,18 +80,7 @@ public:
 		DOREPLIFETIME(UCCBoolArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
-	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCBoolArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetBoolArray(REFLECTION_ARGS);
-	}
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override { DYNAMIC_FROMPOINTER(GetBoolArray) }
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
 
 	virtual TSharedPtr<FJsonValue> ToJson() override
@@ -135,9 +114,12 @@ public:
 		return FDynamicValueStringWrapper(ConnectionType, Output);
 	}
 
+	virtual void AddElement(const FConnectionData& Element) override
+	{
+		auto NewElement = Element.GetBool();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Add(NewElement);
+	}
 	
-
-	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetBool()); }
 	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
@@ -153,8 +135,9 @@ public:
 	virtual void InsertElement(const FConnectionData& Element, int Index) override
 	{
 		if(!Value.IsValidIndex(Index)) return;
-		
-		Value.Insert(Element.GetBool(), Index);
+
+		auto NewElement = Element.GetBool();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Insert(NewElement, Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
@@ -185,9 +168,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetBoolArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetBoolArray(Pointer) == Value;
 	}
 
 	virtual int FindFirst(const FConnectionData& Element) override
@@ -223,18 +206,19 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if(!Filter) Filter = NewObject<UCircuitryBoolArrayFilter>(this);
-		return Filter->FromJson(FilterData);
+		if (FilterData.FilterType != ConnectionType) return false;
+		
+		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}
 
-	virtual void ApplyFilter() override
+	virtual void OnValueUpdate() override
 	{
-		if(Filter) Value = Filter->FilterValues(Value);
+		Filter.FilterValues(Value);
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<bool> Value;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	UCircuitryBoolArrayFilter* Filter = nullptr;
+	FCircuitryBoolFilterRule Filter;
 };

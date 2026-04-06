@@ -150,8 +150,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	static FString GetValueStringFromBuildable(const FBuildingConnection& Connection, UObject* Object)
 	{
-		if (Connection.ValueStringResolver == nullptr || Connection.ValueStringResolver.GetDefaultObject() == nullptr) return "?";
+		auto Pointer = FConnectionPointer(Object, Connection.FunctionName, Connection.FromProperty);
+		
+		auto Resolver = Connection.ValueStringResolver;
+		if (!Resolver || !Resolver.GetDefaultObject()) Resolver = UValueStringResolverBase::StaticClass();
 
-		return Connection.ValueStringResolver.GetDefaultObject()->ResolveString(Object, Connection.FunctionName, Connection.ConnectionType, Connection.FromProperty);
+		return Resolver.GetDefaultObject()->ResolveString(Pointer, Connection.ConnectionType);
 	}
 };

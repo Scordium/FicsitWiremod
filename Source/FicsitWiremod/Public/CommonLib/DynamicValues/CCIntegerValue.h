@@ -27,17 +27,9 @@ public:
 		DOREPLIFETIME(UCCIntegerValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCIntegerValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetFloat(REFLECTION_ARGS, Value);
+		DYNAMIC_FROMPOINTER_DEFAULT(GetFloat, Value)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -48,9 +40,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetFloat(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetFloat(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value); }

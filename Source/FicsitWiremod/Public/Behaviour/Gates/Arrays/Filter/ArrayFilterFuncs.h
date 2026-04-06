@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Filters/CircuitryArrayFilterBase.h"
+#include "JsonUtilities.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Rules/CircuitryBoolFilterRule.h"
 #include "Rules/CircuitryColorFilterRule.h"
@@ -11,6 +11,7 @@
 #include "Rules/CircuitryNumberFilterRule.h"
 #include "Rules/CircuitryStringFilterRule.h"
 #include "Rules/CircuitryVectorFilterRule.h"
+#include "Rules/CircuitryRecipeFilterRule.h"
 #include "ArrayFilterFuncs.generated.h"
 
 /**
@@ -23,24 +24,12 @@ class FICSITWIREMOD_API UArrayFilterFuncs : public UBlueprintFunctionLibrary
 
 public:
 
-	static void WriteString(FString* Out, const UScriptStruct* Struct, const void* StructPtr)
-	{
-		auto Writer = TJsonWriterFactory<>::Create(Out, 0);
-		TSharedRef<FJsonObject> Object = MakeShared<FJsonObject>();
-		FJsonObjectConverter::UStructToJsonObject(Struct, StructPtr, Object);
-		
-		FJsonSerializer::Serialize(Object, Writer);
-	}
-
 	UFUNCTION(BlueprintCallable)
 	static bool BoolRuleFromData(const FCircuitryArrayFilterData& Data, FCircuitryBoolFilterRule& Out)
 	{
 		if(Data.FilterType != Boolean) return false;
 		
-		TSharedPtr<FJsonObject> Object;
-		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
-
-		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::DeserializeJson(Data.JsonDataString, Out.StaticStruct(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -48,7 +37,7 @@ public:
 	{
 		FCircuitryArrayFilterData Out;
 		Out.FilterType = Boolean;
-		WriteString(&Out.JsonDataString, In.StaticStruct(), &In);
+		UJsonUtilities::SerializeJson(In.StaticStruct(), &In, &Out.JsonDataString);
 		
 		return Out;
 	}
@@ -58,10 +47,7 @@ public:
 	{
 		if(Data.FilterType != Number) return false;
 		
-		TSharedPtr<FJsonObject> Object;
-		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
-
-		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::DeserializeJson(Data.JsonDataString, Out.StaticStruct(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -69,7 +55,7 @@ public:
 	{
 		FCircuitryArrayFilterData Out;
 		Out.FilterType = Number;
-		WriteString(&Out.JsonDataString, In.StaticStruct(), &In);
+		UJsonUtilities::SerializeJson(In.StaticStruct(), &In, &Out.JsonDataString);
 		
 		return Out;
 	}
@@ -79,10 +65,7 @@ public:
 	{
 		if(Data.FilterType != String) return false;
 		
-		TSharedPtr<FJsonObject> Object;
-		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
-
-		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::DeserializeJson(Data.JsonDataString, Out.StaticStruct(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -90,7 +73,7 @@ public:
 	{
 		FCircuitryArrayFilterData Out;
 		Out.FilterType = String;
-		WriteString(&Out.JsonDataString, In.StaticStruct(), &In);
+		UJsonUtilities::SerializeJson(In.StaticStruct(), &In, &Out.JsonDataString);
 		
 		return Out;
 	}
@@ -100,10 +83,7 @@ public:
 	{
 		if(Data.FilterType != Vector) return false;
 		
-		TSharedPtr<FJsonObject> Object;
-		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
-
-		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::DeserializeJson(Data.JsonDataString, Out.StaticStruct(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -111,7 +91,7 @@ public:
 	{
 		FCircuitryArrayFilterData Out;
 		Out.FilterType = Vector;
-		WriteString(&Out.JsonDataString, In.StaticStruct(), &In);
+		UJsonUtilities::SerializeJson(In.StaticStruct(), &In, &Out.JsonDataString);
 		
 		return Out;
 	}
@@ -121,10 +101,7 @@ public:
 	{
 		if(Data.FilterType != Color) return false;
 		
-		TSharedPtr<FJsonObject> Object;
-		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
-
-		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::DeserializeJson(Data.JsonDataString, Out.StaticStruct(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -132,7 +109,7 @@ public:
 	{
 		FCircuitryArrayFilterData Out;
 		Out.FilterType = Color;
-		WriteString(&Out.JsonDataString, In.StaticStruct(), &In);
+		UJsonUtilities::SerializeJson(In.StaticStruct(), &In, &Out.JsonDataString);
 		
 		return Out;
 	}
@@ -142,10 +119,7 @@ public:
 	{
 		if(Data.FilterType != ItemAmount) return false;
 		
-		TSharedPtr<FJsonObject> Object;
-		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
-
-		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::DeserializeJson(Data.JsonDataString, Out.StaticStruct(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -153,7 +127,7 @@ public:
 	{
 		FCircuitryArrayFilterData Out;
 		Out.FilterType = ItemAmount;
-		WriteString(&Out.JsonDataString, In.StaticStruct(), &In);
+		UJsonUtilities::SerializeJson(In.StaticStruct(), &In, &Out.JsonDataString);
 		
 		return Out;
 	}
@@ -163,10 +137,7 @@ public:
 	{
 		if(Data.FilterType != ItemDescriptor) return false;
 		
-		TSharedPtr<FJsonObject> Object;
-		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data.JsonDataString), Object)) return false;
-
-		return UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Out);
+		return UJsonUtilities::DeserializeJson(Data.JsonDataString, Out.StaticStruct(), &Out);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -174,7 +145,25 @@ public:
 	{
 		FCircuitryArrayFilterData Out;
 		Out.FilterType = ItemDescriptor;
-		WriteString(&Out.JsonDataString, In.StaticStruct(), &In);
+		UJsonUtilities::SerializeJson(In.StaticStruct(), &In, &Out.JsonDataString);
+		
+		return Out;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static bool RecipeRuleFromData(const FCircuitryArrayFilterData& Data, FCircuitryRecipeFilterRule& Out)
+	{
+		if (Data.FilterType != Recipe) return false;
+
+		return UJsonUtilities::DeserializeJson(Data.JsonDataString, Out.StaticStruct(), &Out);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static FCircuitryArrayFilterData RecipeRuleToData(const FCircuitryRecipeFilterRule& In)
+	{
+		FCircuitryArrayFilterData Out;
+		Out.FilterType = Recipe;
+		UJsonUtilities::SerializeJson(In.StaticStruct(), &In, &Out.JsonDataString);
 		
 		return Out;
 	}

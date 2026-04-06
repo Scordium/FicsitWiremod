@@ -6,6 +6,7 @@
 #include "FGSaveInterface.h"
 #include "JsonValue.h"
 #include "UnrealNetwork.h"
+#include "ConnectionPointer.h"
 #include "CommonLib/ConnectionType.h"
 #include "CCDynamicValueBase.generated.h"
 /**
@@ -13,6 +14,30 @@
  */
 
 #define ARRAY_SEPARATOR "\uFFFA"
+
+#define DYNAMIC_FROMPOINTER(func) \
+if(!Pointer.Target) return; \
+if(Pointer.Target->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass())) \
+	if(auto SameType = Cast<ThisClass>(IDynamicValuePasser::Execute_GetValue(Pointer.Target, Pointer.SourceName.ToString()))) \
+	{ \
+		Value = SameType->Value; \
+		OnValueUpdate(); \
+		return; \
+	} \
+Value = UReflectionUtilities::func(Pointer);\
+OnValueUpdate();
+
+#define DYNAMIC_FROMPOINTER_DEFAULT(func, default_val) \
+if(!Pointer.Target) return; \
+if(Pointer.Target->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass())) \
+	if(auto SameType = Cast<ThisClass>(IDynamicValuePasser::Execute_GetValue(Pointer.Target, Pointer.SourceName.ToString()))) \
+	{ \
+		Value = SameType->Value; \
+		OnValueUpdate(); \
+		return; \
+	} \
+Value = UReflectionUtilities::func(Pointer, default_val);\
+OnValueUpdate();
 
 USTRUCT(Blueprintable, BlueprintType)
 struct FDynamicValueStringWrapper
@@ -54,7 +79,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty)
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer)
 	{
 		DispatchNotImplemented("SET_DYNAMIC_VALUE");
 	}
@@ -91,6 +116,8 @@ public:
 		DispatchNotImplemented("FROM_WRAPPER_VALUE");
 		return false;
 	}
+
+	virtual void OnValueUpdate(){}
 	
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual bool ShouldSave_Implementation() const override { return true; }
@@ -110,7 +137,7 @@ public:
 	bool operator ==(UCCDynamicValueBase* Other) { return Equals(Other); }
 	bool operator !=(UCCDynamicValueBase* Other) { return !Equals(Other); }
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true){ return ComparePointers && this == Other; }
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) { return false; }
+	virtual bool Equals(const FConnectionPointer& Pointer) { return false; }
 
 	void DispatchNotImplemented(const FString& FuncName) const { ACircuitryLogger::DispatchErrorEvent("Function " + FuncName + " is not implemented for class " + GetClass()->GetName()); }
 

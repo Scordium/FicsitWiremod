@@ -21,17 +21,9 @@ public:
 		DOREPLIFETIME(UCCPixelImageValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCPixelImageValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetUnmanaged<FPixelScreenData>(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetPixelImage)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -42,9 +34,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetUnmanaged<FPixelScreenData>(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::FromInt(Value.Width) + "x" + FString::FromInt(Value.Height);}
@@ -74,17 +66,9 @@ public:
 		DOREPLIFETIME(UCCPixelImageArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCPixelImageArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetPixelImageArray)
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
@@ -136,9 +120,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetUnmanaged<TArray<FPixelScreenData>>(Pointer) == Value;
 	}
 
 	virtual int FindFirst(const FConnectionData& Element) override

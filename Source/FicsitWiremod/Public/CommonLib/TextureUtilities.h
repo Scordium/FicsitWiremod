@@ -192,21 +192,23 @@ public:
 		"Interchange"
 	};
 
-#if WITH_EDITOR
-
 	UFUNCTION(BlueprintCallable)
-	static FString EncodeTextureAsBase64(UTexture2D* Texture)
+	static FString EncodeTextureAsBase64(UTexture2D* Texture, bool HeadlessEncoding = false)
 	{
 		if(!Texture) return "";
 
-		if (Texture->MipGenSettings != TMGS_NoMipmaps || Texture->CompressionSettings != TC_EditorIcon)
+		if (!HeadlessEncoding)
 		{
-			Texture->MipGenSettings = TMGS_NoMipmaps;
-			Texture->CompressionSettings = TC_EditorIcon;
-			Texture->Modify();
-			ACircuitryLogger::DispatchErrorEvent("Resave texture " + Texture->GetName());
-			return "";
+			if (Texture->MipGenSettings != TMGS_NoMipmaps || Texture->CompressionSettings != TC_EditorIcon)
+			{
+				Texture->MipGenSettings = TMGS_NoMipmaps;
+				Texture->CompressionSettings = TC_EditorIcon;
+				Texture->Modify();
+				ACircuitryLogger::DispatchErrorEvent("Resave texture " + Texture->GetName());
+				return "";
+			}
 		}
+		
 		
 		bool ResourceCreated = false;
 		if (Texture->GetResource() == NULL)
@@ -262,6 +264,6 @@ public:
 
 		return Result;
 	}
-#endif
+
 	
 };

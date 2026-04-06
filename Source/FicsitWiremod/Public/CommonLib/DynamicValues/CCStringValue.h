@@ -5,10 +5,8 @@
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "CCArrayValueBase.h"
-#include "FGTrainStationIdentifier.h"
-#include "ReflectionExternalFunctions.h"
-#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryStringArrayFilter.h"
-#include "Buildables/FGBuildableRailroadStation.h"
+#include "JsonUtilities.h"
+#include "CircuitryStringFilterRule.h"
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCStringValue.generated.h"
 
@@ -32,22 +30,9 @@ public:
 		DOREPLIFETIME(UCCStringValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCStringValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-
-		if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
-			Value = UReflectionExternalFunctions::GetSignText(Sign, SourceName.ToString(), Value);
-		else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
-			Value = station->GetStationIdentifier()->GetStationName().ToString();
-		else
-			Value = UReflectionUtilities::GetString(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetString)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -58,9 +43,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetString(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetString(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return Value; }
@@ -99,20 +84,17 @@ public:
 		DOREPLIFETIME(UCCStringArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCStringArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetStringArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetStringArray)
 	}
 
-	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetString()); }
+	virtual void AddElement(const FConnectionData& Element) override
+	{
+		auto NewElement = Element.GetString();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Add(NewElement);
+	}
+	
 	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
@@ -129,7 +111,8 @@ public:
 	{
 		if(!Value.IsValidIndex(Index)) return;
 
-		Value.Insert(Element.GetString(), Index);
+		auto NewElement = Element.GetString();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Insert(NewElement, Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
@@ -150,9 +133,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetStringArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetStringArray(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
@@ -218,18 +201,19 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if(!Filter) Filter = NewObject<UCircuitryStringArrayFilter>(this);
-		return Filter->FromJson(FilterData);
+		if (FilterData.FilterType != ConnectionType) return false;
+		
+		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}
 
-	virtual void ApplyFilter() override
+	virtual void OnValueUpdate() override
 	{
-		if(Filter) Value = Filter->FilterValues(Value);
+		Filter.FilterValues(Value);
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FString> Value;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	UCircuitryStringArrayFilter* Filter = nullptr;
+	FCircuitryStringFilterRule Filter;
 };

@@ -5,9 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCArrayValueBase.h"
-#include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
-#include "Filters/CircuitryArrayFilterBase.h"
 #include "ArrayFilter.generated.h"
 
 UCLASS()
@@ -21,18 +19,14 @@ public:
 		const auto& Connection = GetConnection(0);
 		if(!Out || Connection.ConnectionType != Out->ConnectionType)
 		{
-			IsFilterActive = false;
 			SetOutputType(0, Unknown);
 			Out = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromType(Connection.ConnectionType, this));
+			UpdateFilter();
 		}
 
 		if(Out)
 		{
-			Out->FromConnectionValue(Connection.Object, Connection.FunctionName, Connection.FromProperty);
-			
-			if (!IsFilterActive) IsFilterActive = Out->SetFilter(FilterData);
-			if(IsFilterActive) Out->ApplyFilter();
-			
+			Out->FromConnectionValue(Connection.ToPointer());
 			SetOutputType(0, Out->ConnectionType);
 		}
 	}
@@ -64,16 +58,21 @@ public:
 	{
 		if(FilterData != NewFilterData)
 		{
-			IsFilterActive = Out->SetFilter(NewFilterData);
 			FilterData = NewFilterData;
+			UpdateFilter();
+		}
+	}
+
+	void UpdateFilter()
+	{
+		if (Out)
+		{
+			Out->SetFilter(FilterData);
 		}
 	}
 	
 	UPROPERTY(Replicated, BlueprintReadWrite, SaveGame)
 	UCCArrayValueBase* Out;
-
-	UPROPERTY(BlueprintReadWrite)
-	bool IsFilterActive;
 	
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	FCircuitryArrayFilterData FilterData;

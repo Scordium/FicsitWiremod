@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
-#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryNumberArrayFilter.h"
 #include "CCNumberValue.generated.h"
 
 /**
@@ -27,17 +26,9 @@ public:
 		DOREPLIFETIME(UCCNumberValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCNumberValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetFloat(REFLECTION_ARGS, false);
+		DYNAMIC_FROMPOINTER_DEFAULT(GetFloat, 0)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -48,9 +39,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetFloat(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetFloat(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::SanitizeFloat(Value); }
@@ -92,20 +83,17 @@ public:
 		DOREPLIFETIME(UCCNumberArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCNumberArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetFloatArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetFloatArray)
 	}	
 
-	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetFloat()); }
+	virtual void AddElement(const FConnectionData& Element) override
+	{
+		auto NewElement = Element.GetFloat();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Add(NewElement);
+	}
+	
 	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
@@ -121,7 +109,8 @@ public:
 	{
 		if(!Value.IsValidIndex(Index)) return;
 
-		Value.Insert(Element.GetFloat(), Index);
+		auto NewElement = Element.GetFloat();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Insert(NewElement, Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
@@ -142,9 +131,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetFloatArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetFloatArray(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
@@ -223,18 +212,19 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if(!Filter) Filter = NewObject<UCircuitryNumberArrayFilter>(this);
-		return Filter->FromJson(FilterData);
+		if (FilterData.FilterType != ConnectionType) return false;
+		
+		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}
 
-	virtual void ApplyFilter() override
+	virtual void OnValueUpdate() override
 	{
-		if(Filter) Value = Filter->FilterValues(Value);
+		Filter.FilterValues(Value);
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<double> Value;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	UCircuitryNumberArrayFilter* Filter = nullptr;
+	FCircuitryNumberFilterRule Filter;
 };

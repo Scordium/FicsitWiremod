@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FGTrainStationIdentifier.h"
+#include "JsonObjectConverter.h"
 #include "ReflectionUtilities.h"
 #include "Runtime/Engine/Classes/Kismet/BlueprintFunctionLibrary.h"
 #include "JsonUtilities.generated.h"
@@ -75,6 +76,31 @@ public:
 		Object->SetArrayField("Stacks", StacksJson);
 
 		return MakeShareable(new FJsonValueObject(Object));
+	}
+
+	static bool DeserializeJson(const FString& Data, const UScriptStruct* StructDescriptor, void* StructPtr)
+	{
+		TSharedPtr<FJsonObject> Object;
+		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Data), Object)) return false;
+
+		return JsonObjectToUStruct(Object.ToSharedRef(), StructDescriptor, StructPtr);
+	}
+
+	static FString SerializeJson(const UScriptStruct* StructDescriptor, const void* StructPtr)
+	{
+		FString Out;
+		SerializeJson(StructDescriptor, StructPtr, &Out);
+		
+		return Out;
+	}
+
+	static bool SerializeJson(const UScriptStruct* StructDescriptor, const void* StructPtr, FString* WriteDest)
+	{
+		auto Writer = TJsonWriterFactory<>::Create(WriteDest, 0);
+		TSharedRef<FJsonObject> Object = MakeShared<FJsonObject>();
+		FJsonObjectConverter::UStructToJsonObject(StructDescriptor, StructPtr, Object);
+		
+		return FJsonSerializer::Serialize(Object, Writer);
 	}
 
 	template<typename OutStructType>

@@ -27,17 +27,9 @@ public:
 		DOREPLIFETIME(UCCTextureValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCTextureValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetTexture(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetTexture)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -48,9 +40,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetTexture(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetTexture(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return "?"; }
@@ -96,17 +88,9 @@ public:
 		DOREPLIFETIME(UCCTextureArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCTextureArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetTextureArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetTextureArray)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -117,9 +101,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetTextureArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetTextureArray(Pointer) == Value;
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetTexture()); }

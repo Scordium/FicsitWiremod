@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ConnectionPointer.h"
 #include "CCImageData.h"
 #include "CustomStruct.h"
 #include "FGBuildableConveyorMonitor.h"
@@ -19,9 +20,6 @@
 #include "Buildables/FGBuildableSplitterSmart.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ReflectionUtilities.generated.h"
-
-#define REFLECTION_PARAMS UObject* Object, FName SourceName, bool FromProperty
-#define REFLECTION_ARGS Object, SourceName, FromProperty
 /**
  * 
  */
@@ -73,37 +71,37 @@ class FICSITWIREMOD_API UReflectionUtilities : public UBlueprintFunctionLibrary
 	
 public:
 	
-	static bool GetBool(REFLECTION_PARAMS, bool DefaultValue = false) 
+	static bool GetBool(const FConnectionPointer& Pointer, bool DefaultValue = false) 
 	{
-		if(SourceName == "WM_DOORCONTROL_FUNC")
-			return UReflectionExternalFunctions::GetDoorIsLocked(Object);
-		else if(SourceName == "WM_DRONE_DOCKED")
-			return UReflectionExternalFunctions::GetDroneIsInStation(Object);
-		else if(auto Panel = Cast<AFGBuildableLightsControlPanel>(Object); Panel && SourceName == "IsTimeOfDayAware")
+		if(Pointer.SourceName == "WM_DOORCONTROL_FUNC")
+			return UReflectionExternalFunctions::GetDoorIsLocked(Pointer.Target);
+		else if(Pointer.SourceName == "WM_DRONE_DOCKED")
+			return UReflectionExternalFunctions::GetDroneIsInStation(Pointer.Target);
+		else if(auto Panel = Cast<AFGBuildableLightsControlPanel>(Pointer.Target); Panel && Pointer.SourceName == "IsTimeOfDayAware")
 			return Panel->GetLightControlData().IsTimeOfDayAware;
 		else
-			return GenericProcess(REFLECTION_ARGS,  DefaultValue);
+			return GenericProcess(Pointer,  DefaultValue);
 	}
 
-	static void SetBool(REFLECTION_PARAMS, bool Value)
+	static void SetBool(const FConnectionPointer& Pointer, bool Value)
 	{
-		if(SourceName.ToString().StartsWith("WM_") && Value)
+		if(Pointer.SourceName.ToString().StartsWith("WM_") && Value)
 		{
-			if(SourceName == "WM_FLUSHTANK_FUNC") UReflectionExternalFunctions::FlushTank(Object);
-			else if(SourceName == "WM_FLUSHNET_FUNC") UReflectionExternalFunctions::FlushNetwork(Object);
-			else if(SourceName == "WM_ON_USE_FUNC") UReflectionExternalFunctions::ExecuteOnUse(Object);
+			if(Pointer.SourceName == "WM_FLUSHTANK_FUNC") UReflectionExternalFunctions::FlushTank(Pointer.Target);
+			else if(Pointer.SourceName == "WM_FLUSHNET_FUNC") UReflectionExternalFunctions::FlushNetwork(Pointer.Target);
+			else if(Pointer.SourceName == "WM_ON_USE_FUNC") UReflectionExternalFunctions::ExecuteOnUse(Pointer.Target);
 		}
-		else if(SourceName.ToString().StartsWith("WMCL_"))
+		else if(Pointer.SourceName.ToString().StartsWith("WMCL_"))
 		{
-			if(SourceName == "WMCL_DOORCONTROL_FUNC") UReflectionExternalFunctions::ChangeDoorState(Object, Value);
-			else if(SourceName == "WMCL_RAILSIGNAL_STOP") UReflectionExternalFunctions::ChangeRailroadSignalState(Object, Value);
-			else if(SourceName == "WMCL_FF_DOGGODOOR") UReflectionExternalFunctions::ChangeDoggoHouseDoorState(Object, Value);
+			if(Pointer.SourceName == "WMCL_DOORCONTROL_FUNC") UReflectionExternalFunctions::ChangeDoorState(Pointer.Target, Value);
+			else if(Pointer.SourceName == "WMCL_RAILSIGNAL_STOP") UReflectionExternalFunctions::ChangeRailroadSignalState(Pointer.Target, Value);
+			else if(Pointer.SourceName == "WMCL_FF_DOGGODOOR") UReflectionExternalFunctions::ChangeDoggoHouseDoorState(Pointer.Target, Value);
 		}
 	
-		if(auto panel = Cast<AFGBuildableLightsControlPanel>(Object))
+		if(auto panel = Cast<AFGBuildableLightsControlPanel>(Pointer.Target))
 		{
 		
-			if(SourceName == "IsLightEnabled")
+			if(Pointer.SourceName == "IsLightEnabled")
 			{
 				if(panel->IsLightEnabled() == Value) return;
 			
@@ -127,48 +125,48 @@ public:
 			return;
 		}
 
-		GenericSet(REFLECTION_ARGS, Value);
+		GenericSet(Pointer, Value);
 	}
 	
-	static double GetFloat(REFLECTION_PARAMS, double DefaultValue = 0) 
+	static double GetFloat(const FConnectionPointer& Pointer, double DefaultValue = 0) 
 	{
-		if(auto panel = Cast<AFGBuildableLightsControlPanel>(Object))
+		if(auto panel = Cast<AFGBuildableLightsControlPanel>(Pointer.Target))
 		{
 			//Control panels store their data in struct, so to get the values we have to manually disassemble the struct.
-			if(SourceName == "ColorSlotIndex")
+			if(Pointer.SourceName == "ColorSlotIndex")
 				return panel->GetLightControlData().ColorSlotIndex;
 			else
 				return panel->GetLightControlData().Intensity;
 		}
-		else if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
-			return UReflectionExternalFunctions::GetSignValue(Sign, SourceName.ToString(), DefaultValue);
-		else if(auto FluidTank = Cast<AFGBuildablePipeReservoir>(Object))
+		else if(auto Sign = Cast<AFGBuildableWidgetSign>(Pointer.Target))
+			return UReflectionExternalFunctions::GetSignValue(Sign, Pointer.SourceName.ToString(), DefaultValue);
+		else if(auto FluidTank = Cast<AFGBuildablePipeReservoir>(Pointer.Target))
 		{
-			if(SourceName == "Content")
+			if(Pointer.SourceName == "Content")
 				return FluidTank->GetFluidBox()->Content;
 			else
 				return FluidTank->GetFluidBox()->MaxContent;
 		}
 
-		return NumericProcess(REFLECTION_ARGS, DefaultValue);
+		return NumericProcess(Pointer, DefaultValue);
 	}
 
-	static void SetFloat(REFLECTION_PARAMS, double Value)
+	static void SetFloat(const FConnectionPointer& Pointer, double Value)
 	{
-		if(SourceName == "WM_RAILSWITCH_FUNC")
+		if(Pointer.SourceName == "WM_RAILSWITCH_FUNC")
 		{
-			if(auto RailSwitch = Cast<AFGBuildableRailroadSwitchControl>(Object))
+			if(auto RailSwitch = Cast<AFGBuildableRailroadSwitchControl>(Pointer.Target))
 			{
 				//If switch is not in the position that we want, switch it to the next one.
 				if(RailSwitch->GetSwitchPosition() != trunc(Value)) RailSwitch->ToggleSwitchPosition();
 				return;
 			}
 		}
-		else if(auto Panel = Cast<AFGBuildableLightsControlPanel>(Object))
+		else if(auto Panel = Cast<AFGBuildableLightsControlPanel>(Pointer.Target))
 		{
 			auto PanelData = Panel->GetLightControlData();
 
-			if(SourceName == "ColorSlotIndex")
+			if(Pointer.SourceName == "ColorSlotIndex")
 			{
 				if(PanelData.ColorSlotIndex == trunc(Value)) return;
 			
@@ -184,98 +182,98 @@ public:
 			Panel->SetLightDataOnControlledLights(PanelData);
 			return;
 		}
-		else if (auto sign = Cast<AFGBuildableWidgetSign>(Object))
+		else if (auto sign = Cast<AFGBuildableWidgetSign>(Pointer.Target))
 		{
 			FPrefabSignData signData;
 			sign->GetSignPrefabData(signData);
 		
-			if(SourceName == "Emissive")
+			if(Pointer.SourceName == "Emissive")
 			{
 				if(signData.Emissive == Value) return;
 				signData.Emissive = Value;
 			}
-			else if(SourceName == "Glossiness")
+			else if(Pointer.SourceName == "Glossiness")
 			{
 				if(signData.Glossiness == Value) return;
 				signData.Glossiness = Value;
 			}
 			else
 			{
-				if(signData.IconElementData.Contains(SourceName.ToString()))
-					if(signData.IconElementData[SourceName.ToString()] == trunc(Value)) return;
+				if(signData.IconElementData.Contains(Pointer.SourceName.ToString()))
+					if(signData.IconElementData[Pointer.SourceName.ToString()] == trunc(Value)) return;
 			
-				signData.IconElementData[SourceName.ToString()] = trunc(Value);
+				signData.IconElementData[Pointer.SourceName.ToString()] = trunc(Value);
 			}
 
 			sign->SetPrefabSignData(signData);
 			return;
 		}
-		else if(SourceName == "SetPendingPotential")
+		else if(Pointer.SourceName == "SetPendingPotential")
 		{
-			if(auto Building = Cast<AFGBuildableFactory>(Object))
+			if(auto Building = Cast<AFGBuildableFactory>(Pointer.Target))
 			{
 				if (Building->GetPendingPotential() == Value) return;
 			}
 		}
 
-		NumericSet(REFLECTION_ARGS, Value);
+		NumericSet(Pointer, Value);
 	}
 	
-	static FString GetString(REFLECTION_PARAMS, FString DefaultValue = "") 
+	static FString GetString(const FConnectionPointer& Pointer, FString DefaultValue = "") 
 	{
-		if(auto Sign = Cast<AFGBuildableWidgetSign>(Object))
-			return UReflectionExternalFunctions::GetSignText(Sign, SourceName.ToString(), DefaultValue);
-		else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
+		if(auto Sign = Cast<AFGBuildableWidgetSign>(Pointer.Target))
+			return UReflectionExternalFunctions::GetSignText(Sign, Pointer.SourceName.ToString(), DefaultValue);
+		else if(auto station = Cast<AFGBuildableRailroadStation>(Pointer.Target))
 			return station->GetStationIdentifier()->GetStationName().ToString();
-		else if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
+		else if (auto Portal = Cast<AFGBuildablePortalBase>(Pointer.Target))
 			return Portal->GetPortalName().ToString();
 		else
-			return GenericProcess<FString, FStrProperty>(REFLECTION_ARGS,  DefaultValue);
+			return GenericProcess<FString, FStrProperty>(Pointer,  DefaultValue);
 	}
 
-	static void SetString(REFLECTION_PARAMS, FString Value)
+	static void SetString(const FConnectionPointer& Pointer, FString Value)
 	{
-		if(auto sign = Cast<AFGBuildableWidgetSign>(Object))
+		if(auto sign = Cast<AFGBuildableWidgetSign>(Pointer.Target))
 		{
 			FPrefabSignData signData;
 
 			sign->GetSignPrefabData(signData);
 		
-			if(signData.TextElementData.Contains(SourceName.ToString()))
-				if(signData.TextElementData[SourceName.ToString()].Equals(Value)) return;
+			if(signData.TextElementData.Contains(Pointer.SourceName.ToString()))
+				if(signData.TextElementData[Pointer.SourceName.ToString()].Equals(Value)) return;
 		
-			signData.TextElementData[SourceName.ToString()] = Value;
+			signData.TextElementData[Pointer.SourceName.ToString()] = Value;
 			sign->SetPrefabSignData(signData);
 		}
-		else if(auto station = Cast<AFGBuildableRailroadStation>(Object))
+		else if(auto station = Cast<AFGBuildableRailroadStation>(Pointer.Target))
 		{
 			if (auto StationIdentifier = station->GetStationIdentifier())
 				StationIdentifier->SetStationName(FText::FromString(Value));
 		}
-		else if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
+		else if (auto Portal = Cast<AFGBuildablePortalBase>(Pointer.Target))
 			Portal->SetPortalName(FText::FromString(Value));
-		else GenericSet(REFLECTION_ARGS, Value);
+		else GenericSet(Pointer, Value);
 	}
 	
-	static FVector GetVector(REFLECTION_PARAMS, FVector DefaultValue = FVector::ZeroVector) { return GenericProcess<FVector, FStructProperty>(REFLECTION_ARGS, DefaultValue);}
-	static void SetVector(REFLECTION_PARAMS, FVector Value){ GenericSet(REFLECTION_ARGS, Value); }
+	static FVector GetVector(const FConnectionPointer& Pointer, FVector DefaultValue = FVector::ZeroVector) { return GenericProcess<FVector, FStructProperty>(Pointer, DefaultValue);}
+	static void SetVector(const FConnectionPointer& Pointer, FVector Value){ GenericSet(Pointer, Value); }
 	
-	static UFGInventoryComponent* GetInventory(REFLECTION_PARAMS) { return GenericProcess<UFGInventoryComponent*, FObjectPropertyBase>(REFLECTION_ARGS); }
-	static void SetInventory(REFLECTION_PARAMS, UFGInventoryComponent* Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static UFGInventoryComponent* GetInventory(const FConnectionPointer& Pointer) { return GenericProcess<UFGInventoryComponent*, FObjectPropertyBase>(Pointer); }
+	static void SetInventory(const FConnectionPointer& Pointer, UFGInventoryComponent* Value) { GenericSet(Pointer, Value); }
 	
-	static UFGPowerCircuit* GetCircuit(REFLECTION_PARAMS) { return GenericProcess<UFGPowerCircuit*, FObjectPropertyBase>(REFLECTION_ARGS); }
-	static void SetCircuit(REFLECTION_PARAMS, UFGPowerCircuit* Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static UFGPowerCircuit* GetCircuit(const FConnectionPointer& Pointer) { return GenericProcess<UFGPowerCircuit*, FObjectPropertyBase>(Pointer); }
+	static void SetCircuit(const FConnectionPointer& Pointer, UFGPowerCircuit* Value) { GenericSet(Pointer, Value); }
 	
-	static AActor* GetEntity(REFLECTION_PARAMS) 
+	static AActor* GetEntity(const FConnectionPointer& Pointer) 
 	{
-		if(SourceName == "Self")
-			return Cast<AActor>(Object);
+		if(Pointer.SourceName == "Self")
+			return Cast<AActor>(Pointer.Target);
 		else
-			return GenericProcess<AActor*, FObjectPropertyBase>(REFLECTION_ARGS, nullptr);
+			return GenericProcess<AActor*, FObjectPropertyBase>(Pointer, nullptr);
 	}
-	static void SetEntity(REFLECTION_PARAMS, AActor* Value)
+	static void SetEntity(const FConnectionPointer& Pointer, AActor* Value)
 	{
-		if (auto Portal = Cast<AFGBuildablePortalBase>(Object))
+		if (auto Portal = Cast<AFGBuildablePortalBase>(Pointer.Target))
 		{
 			if (auto OtherPortal = Cast<AFGBuildablePortalBase>(Value))
 			{
@@ -288,36 +286,36 @@ public:
 				OtherPortal->MakeLinkToPortal(Portal);
 			}
 		}
-		else GenericSet(REFLECTION_ARGS, Value);
+		else GenericSet(Pointer, Value);
 	}
 	
-	static TSubclassOf<UFGRecipe> GetRecipe(REFLECTION_PARAMS) { return GenericProcess(REFLECTION_ARGS,  TSubclassOf<UFGRecipe>()); }
-	static void SetRecipe(REFLECTION_PARAMS, TSubclassOf<UFGRecipe> Value)
+	static TSubclassOf<UFGRecipe> GetRecipe(const FConnectionPointer& Pointer) { return GenericProcess(Pointer,  TSubclassOf<UFGRecipe>()); }
+	static void SetRecipe(const FConnectionPointer& Pointer, TSubclassOf<UFGRecipe> Value)
 	{
 		if(!Value) return;
-		GenericSet(REFLECTION_ARGS, Value);
+		GenericSet(Pointer, Value);
 	}
 	
-	static FLinearColor GetColor(REFLECTION_PARAMS, FLinearColor DefaultValue = FLinearColor::Black) { return GenericProcess<FLinearColor, FStructProperty>(REFLECTION_ARGS,  DefaultValue); }
-	static void SetColor(REFLECTION_PARAMS, FLinearColor Value)
+	static FLinearColor GetColor(const FConnectionPointer& Pointer, FLinearColor DefaultValue = FLinearColor::Black) { return GenericProcess<FLinearColor, FStructProperty>(Pointer,  DefaultValue); }
+	static void SetColor(const FConnectionPointer& Pointer, FLinearColor Value)
 	{
-		if(auto sign = Cast<AFGBuildableWidgetSign>(Object))
+		if(auto sign = Cast<AFGBuildableWidgetSign>(Pointer.Target))
 		{
 
 			FPrefabSignData signData;
 			sign->GetSignPrefabData(signData);
 		
-			if(SourceName == "TextColor")
+			if(Pointer.SourceName == "TextColor")
 			{
 				if(signData.ForegroundColor == Value) return;
 				signData.ForegroundColor = Value;
 			}
-			else if(SourceName == "BackgroundColor")
+			else if(Pointer.SourceName == "BackgroundColor")
 			{
 				if(signData.BackgroundColor == Value) return;
 				signData.BackgroundColor = Value;
 			}
-			else if(SourceName == "AuxColor")
+			else if(Pointer.SourceName == "AuxColor")
 			{
 				if(signData.AuxiliaryColor == Value) return;
 				signData.AuxiliaryColor = Value;
@@ -326,45 +324,45 @@ public:
 			sign->SetPrefabSignData(signData);
 			return;
 		}
-		GenericSet(REFLECTION_ARGS, Value);
+		GenericSet(Pointer, Value);
 	}
 	
-	static FInventoryStack GetStack(REFLECTION_PARAMS) { return GenericProcess<FInventoryStack, FStructProperty>(REFLECTION_ARGS); }
-	static void SetStack(REFLECTION_PARAMS, FInventoryStack Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static FInventoryStack GetStack(const FConnectionPointer& Pointer) { return GenericProcess<FInventoryStack, FStructProperty>(Pointer); }
+	static void SetStack(const FConnectionPointer& Pointer, FInventoryStack Value) { GenericSet(Pointer, Value); }
 	
-	static FItemAmount GetItemAmount(REFLECTION_PARAMS) { return GenericProcess<FItemAmount, FStructProperty>(REFLECTION_ARGS); }
-	static void SetItemAmount(REFLECTION_PARAMS, FItemAmount Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static FItemAmount GetItemAmount(const FConnectionPointer& Pointer) { return GenericProcess<FItemAmount, FStructProperty>(Pointer); }
+	static void SetItemAmount(const FConnectionPointer& Pointer, FItemAmount Value) { GenericSet(Pointer, Value); }
 	
-	static UTexture* GetTexture(REFLECTION_PARAMS) { return GenericProcess<UTexture*>(REFLECTION_ARGS); }
-	static void SetTexture(REFLECTION_PARAMS, UTexture* Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static UTexture* GetTexture(const FConnectionPointer& Pointer) { return GenericProcess<UTexture*>(Pointer); }
+	static void SetTexture(const FConnectionPointer& Pointer, UTexture* Value) { GenericSet(Pointer, Value); }
 	
-	static FSplitterSortRule GetSplitterRule(REFLECTION_PARAMS) { return GenericProcess<FSplitterSortRule, FStructProperty>(REFLECTION_ARGS); }
-	static void SetSplitterRule(REFLECTION_PARAMS, FSplitterSortRule Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static FSplitterSortRule GetSplitterRule(const FConnectionPointer& Pointer) { return GenericProcess<FSplitterSortRule, FStructProperty>(Pointer); }
+	static void SetSplitterRule(const FConnectionPointer& Pointer, FSplitterSortRule Value) { GenericSet(Pointer, Value); }
 
-	static TSubclassOf<UFGItemDescriptor> GetItemDescriptor(REFLECTION_PARAMS, TSubclassOf<UFGItemDescriptor> DefaultValue) { return GenericProcess(REFLECTION_ARGS, DefaultValue); }
-	static void SetItemDescriptor(REFLECTION_PARAMS, TSubclassOf<UFGItemDescriptor> Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TSubclassOf<UFGItemDescriptor> GetItemDescriptor(const FConnectionPointer& Pointer, TSubclassOf<UFGItemDescriptor> DefaultValue) { return GenericProcess(Pointer, DefaultValue); }
+	static void SetItemDescriptor(const FConnectionPointer& Pointer, TSubclassOf<UFGItemDescriptor> Value) { GenericSet(Pointer, Value); }
 
-	static FTimeTableStopData GetTimeTableStop(REFLECTION_PARAMS) { return GenericProcess<FTimeTableStopData, FStructProperty>(REFLECTION_ARGS); }
-	static void SetTimeTableStop(REFLECTION_PARAMS, FTimeTableStopData Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static FTimeTableStopData GetTimeTableStop(const FConnectionPointer& Pointer) { return GenericProcess<FTimeTableStopData, FStructProperty>(Pointer); }
+	static void SetTimeTableStop(const FConnectionPointer& Pointer, FTimeTableStopData Value) { GenericSet(Pointer, Value); }
 
 	static UFGPowerInfoComponent* GetPowerInfo(UObject* Object) { return UReflectionExternalFunctions::GetPowerInfo(Object); }
 
-	static FElevatorFloorStopInfo GetElevatorFloor(REFLECTION_PARAMS) { return GenericProcess<FElevatorFloorStopInfo, FStructProperty>(REFLECTION_ARGS); }
-	static void SetElevatorFloor(REFLECTION_PARAMS, FElevatorFloorStopInfo Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static FElevatorFloorStopInfo GetElevatorFloor(const FConnectionPointer& Pointer) { return GenericProcess<FElevatorFloorStopInfo, FStructProperty>(Pointer); }
+	static void SetElevatorFloor(const FConnectionPointer& Pointer, FElevatorFloorStopInfo Value) { GenericSet(Pointer, Value); }
 
-	static FPixelScreenData GetPixelImage(REFLECTION_PARAMS) { return GenericProcess<FPixelScreenData, FStructProperty>(REFLECTION_ARGS); }
-	static void SetPixelImage(REFLECTION_PARAMS, FPixelScreenData Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static FPixelScreenData GetPixelImage(const FConnectionPointer& Pointer) { return GenericProcess<FPixelScreenData, FStructProperty>(Pointer); }
+	static void SetPixelImage(const FConnectionPointer& Pointer, FPixelScreenData Value) { GenericSet(Pointer, Value); }
 
-	static FCustomStruct GetCustomStruct(REFLECTION_PARAMS) { return GenericProcess<FCustomStruct, FStructProperty>(REFLECTION_ARGS); }
-	static void SetCustomStruct(REFLECTION_PARAMS, FCustomStruct Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static FCustomStruct GetCustomStruct(const FConnectionPointer& Pointer) { return GenericProcess<FCustomStruct, FStructProperty>(Pointer); }
+	static void SetCustomStruct(const FConnectionPointer& Pointer, FCustomStruct Value) { GenericSet(Pointer, Value); }
 
-	static TArray<bool> GetBoolArray(REFLECTION_PARAMS) { return GenericProcess<TArray<bool>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetBoolArray(REFLECTION_PARAMS, TArray<bool> Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<bool> GetBoolArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<bool>, FArrayProperty>(Pointer); }
+	static void SetBoolArray(const FConnectionPointer& Pointer, TArray<bool> Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<double> GetFloatArray(REFLECTION_PARAMS)
+	static TArray<double> GetFloatArray(const FConnectionPointer& Pointer)
 	{
 		const FName ConveyorMonitorAverage = FName("CC_MONITORAVG");
-		if (auto ConveyorMonitor = Cast<AFGBuildableConveyorMonitor>(Object); ConveyorMonitor && SourceName == ConveyorMonitorAverage)
+		if (auto ConveyorMonitor = Cast<AFGBuildableConveyorMonitor>(Pointer.Target); ConveyorMonitor && Pointer.SourceName == ConveyorMonitorAverage)
 		{
 			TArray<double> AverageGraph;
 			for (const FItemMonitorData& Data : ConveyorMonitor->GetAverageDataForUIRepresentation())
@@ -376,161 +374,161 @@ public:
 		}
 		
 		
-		return GenericProcess<TArray<double>, FArrayProperty>(REFLECTION_ARGS);
+		return GenericProcess<TArray<double>, FArrayProperty>(Pointer);
 	}
-	static void SetFloatArray(REFLECTION_PARAMS, TArray<double> Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static void SetFloatArray(const FConnectionPointer& Pointer, TArray<double> Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<FString> GetStringArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FString>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetStringArray(REFLECTION_PARAMS, const TArray<FString>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<FString> GetStringArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FString>, FArrayProperty>(Pointer); }
+	static void SetStringArray(const FConnectionPointer& Pointer, const TArray<FString>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<FVector> GetVectorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FVector>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetVectorArray(REFLECTION_PARAMS, const TArray<FVector>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<FVector> GetVectorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FVector>, FArrayProperty>(Pointer); }
+	static void SetVectorArray(const FConnectionPointer& Pointer, const TArray<FVector>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<UFGInventoryComponent*> GetInventoryArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UFGInventoryComponent*>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetInventoryArray(REFLECTION_PARAMS, const TArray<UFGInventoryComponent*>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<UFGInventoryComponent*> GetInventoryArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<UFGInventoryComponent*>, FArrayProperty>(Pointer); }
+	static void SetInventoryArray(const FConnectionPointer& Pointer, const TArray<UFGInventoryComponent*>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<UFGPowerCircuit*> GetCircuitArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UFGPowerCircuit*>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetCircuitArray(REFLECTION_PARAMS, const TArray<UFGPowerCircuit*>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<UFGPowerCircuit*> GetCircuitArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<UFGPowerCircuit*>, FArrayProperty>(Pointer); }
+	static void SetCircuitArray(const FConnectionPointer& Pointer, const TArray<UFGPowerCircuit*>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<AActor*> GetEntityArray(REFLECTION_PARAMS) { return GenericProcess<TArray<AActor*>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetEntityArray(REFLECTION_PARAMS, const TArray<AActor*>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<AActor*> GetEntityArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<AActor*>, FArrayProperty>(Pointer); }
+	static void SetEntityArray(const FConnectionPointer& Pointer, const TArray<AActor*>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<TSubclassOf<UFGRecipe>> GetRecipeArray(REFLECTION_PARAMS) { return GenericProcess<TArray<TSubclassOf<UFGRecipe>>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetRecipeArray(REFLECTION_PARAMS, const TArray<TSubclassOf<UFGRecipe>>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<TSubclassOf<UFGRecipe>> GetRecipeArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<TSubclassOf<UFGRecipe>>, FArrayProperty>(Pointer); }
+	static void SetRecipeArray(const FConnectionPointer& Pointer, const TArray<TSubclassOf<UFGRecipe>>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<FLinearColor> GetColorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FLinearColor>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetColorArray(REFLECTION_PARAMS, const TArray<FLinearColor>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<FLinearColor> GetColorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FLinearColor>, FArrayProperty>(Pointer); }
+	static void SetColorArray(const FConnectionPointer& Pointer, const TArray<FLinearColor>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<FInventoryStack> GetStackArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FInventoryStack>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetStackArray(REFLECTION_PARAMS, const TArray<FInventoryStack>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<FInventoryStack> GetStackArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FInventoryStack>, FArrayProperty>(Pointer); }
+	static void SetStackArray(const FConnectionPointer& Pointer, const TArray<FInventoryStack>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<FItemAmount> GetItemAmountArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FItemAmount>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetItemAmountArray(REFLECTION_PARAMS, const TArray<FItemAmount>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<FItemAmount> GetItemAmountArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FItemAmount>, FArrayProperty>(Pointer); }
+	static void SetItemAmountArray(const FConnectionPointer& Pointer, const TArray<FItemAmount>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<UTexture*> GetTextureArray(REFLECTION_PARAMS) { return GenericProcess<TArray<UTexture*>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetTextureArray(REFLECTION_PARAMS, const TArray<UTexture*>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<UTexture*> GetTextureArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<UTexture*>, FArrayProperty>(Pointer); }
+	static void SetTextureArray(const FConnectionPointer& Pointer, const TArray<UTexture*>& Value) { GenericSet(Pointer, Value); }
 	
-	static TArray<FSplitterSortRule> GetSplitterRuleArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FSplitterSortRule>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetSplitterRuleArray(REFLECTION_PARAMS, const TArray<FSplitterSortRule>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<FSplitterSortRule> GetSplitterRuleArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FSplitterSortRule>, FArrayProperty>(Pointer); }
+	static void SetSplitterRuleArray(const FConnectionPointer& Pointer, const TArray<FSplitterSortRule>& Value) { GenericSet(Pointer, Value); }
 
-	static TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>, FArrayProperty>(REFLECTION_ARGS); }
-	static void SetItemDescriptorArray(REFLECTION_PARAMS, const TArray<TSubclassOf<UFGItemDescriptor>>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>, FArrayProperty>(Pointer); }
+	static void SetItemDescriptorArray(const FConnectionPointer& Pointer, const TArray<TSubclassOf<UFGItemDescriptor>>& Value) { GenericSet(Pointer, Value); }
 
-	static TArray<FTimeTableStopData> GetTimeTableStopArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FTimeTableStopData>>(REFLECTION_ARGS); }
-	static void SetTimeTableStopArray(REFLECTION_PARAMS, const TArray<FTimeTableStopData>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<FTimeTableStopData> GetTimeTableStopArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FTimeTableStopData>>(Pointer); }
+	static void SetTimeTableStopArray(const FConnectionPointer& Pointer, const TArray<FTimeTableStopData>& Value) { GenericSet(Pointer, Value); }
 
-	static TArray<FElevatorFloorStopInfo> GetElevatorFloorArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FElevatorFloorStopInfo>>(REFLECTION_ARGS); }
-	static void SetElevatorFloorArray(REFLECTION_PARAMS, const TArray<FElevatorFloorStopInfo>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<FElevatorFloorStopInfo> GetElevatorFloorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FElevatorFloorStopInfo>>(Pointer); }
+	static void SetElevatorFloorArray(const FConnectionPointer& Pointer, const TArray<FElevatorFloorStopInfo>& Value) { GenericSet(Pointer, Value); }
 
-	static TArray<FPixelScreenData> GetPixelImageArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FPixelScreenData>>(REFLECTION_ARGS); }
-	static void SetPixelImageArray(REFLECTION_PARAMS, const TArray<FPixelScreenData>& Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static TArray<FPixelScreenData> GetPixelImageArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FPixelScreenData>>(Pointer); }
+	static void SetPixelImageArray(const FConnectionPointer& Pointer, const TArray<FPixelScreenData>& Value) { GenericSet(Pointer, Value); }
 
-	static TArray<FCustomStruct> GetCustomStructArray(REFLECTION_PARAMS) { return GenericProcess<TArray<FCustomStruct>>(REFLECTION_ARGS); }
-	static void SetCustomStructArray(REFLECTION_PARAMS, const TArray<FCustomStruct>& Value) { GenericSet(REFLECTION_ARGS, Value); }
-
-	template<typename T>
-	static T GetUnmanaged(REFLECTION_PARAMS, T DefaultValue = T()){ return GenericProcess(REFLECTION_ARGS, DefaultValue); }
+	static TArray<FCustomStruct> GetCustomStructArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FCustomStruct>>(Pointer); }
+	static void SetCustomStructArray(const FConnectionPointer& Pointer, const TArray<FCustomStruct>& Value) { GenericSet(Pointer, Value); }
 
 	template<typename T>
-	static void SetUnmanaged(REFLECTION_PARAMS, T Value) { GenericSet(REFLECTION_ARGS, Value); }
+	static T GetUnmanaged(const FConnectionPointer& Pointer, T DefaultValue = T()){ return GenericProcess(Pointer, DefaultValue); }
+
+	template<typename T>
+	static void SetUnmanaged(const FConnectionPointer& Pointer, T Value) { GenericSet(Pointer, Value); }
 	
 	template <typename T, typename PropType>
-	static T FromPropertyValue(REFLECTION_PARAMS, T DefaultValue)
+	static T FromPropertyValue(const FConnectionPointer& Pointer, T DefaultValue)
 	{
-		if(!IsValid(Object)) return DefaultValue;
+		if(!IsValid(Pointer.Target)) return DefaultValue;
 		
-		auto Val = Object->GetClass()->FindPropertyByName(SourceName);
+		auto Val = Pointer.Target->GetClass()->FindPropertyByName(Pointer.SourceName);
 		if(!Val) return DefaultValue;
 		if(!Val->IsA<PropType>()) return DefaultValue;
 		
-		auto ValuePointer = Val->ContainerPtrToValuePtr<T>(Object);
+		auto ValuePointer = Val->ContainerPtrToValuePtr<T>(Pointer.Target);
 		
 		return *ValuePointer;
 	}
 
-	static double FromNumericPropertyValue(REFLECTION_PARAMS, double DefaultValue)
+	static double FromNumericPropertyValue(const FConnectionPointer& Pointer, double DefaultValue)
 	{
-		if(!IsValid(Object)) return DefaultValue;
+		if(!IsValid(Pointer.Target)) return DefaultValue;
 		
-		auto Val = CastField<FNumericProperty>(Object->GetClass()->FindPropertyByName(SourceName));
+		auto Val = CastField<FNumericProperty>(Pointer.Target->GetClass()->FindPropertyByName(Pointer.SourceName));
 		if(!Val) return DefaultValue;
-		if(Val->IsInteger()) return Val->GetSignedIntPropertyValue(Val->ContainerPtrToValuePtr<void>(Object));
-		return Val->GetFloatingPointPropertyValue(Val->ContainerPtrToValuePtr<void>(Object));
+		if(Val->IsInteger()) return Val->GetSignedIntPropertyValue(Val->ContainerPtrToValuePtr<void>(Pointer.Target));
+		return Val->GetFloatingPointPropertyValue(Val->ContainerPtrToValuePtr<void>(Pointer.Target));
 	}
 
 	template<typename T, typename PropType = FProperty>
-	static T GenericProcess(REFLECTION_PARAMS, T DefaultValue = T())
+	static T GenericProcess(const FConnectionPointer& Pointer, T DefaultValue = T())
 	{
-		if(!IsValid(Object)) return DefaultValue;
+		if(!IsValid(Pointer.Target)) return DefaultValue;
 	
-		if(FromProperty)
-			return FromPropertyValue<T, PropType>(REFLECTION_ARGS, DefaultValue);
+		if(Pointer.IsProperty)
+			return FromPropertyValue<T, PropType>(Pointer, DefaultValue);
 	
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
+		if(Pointer.Target->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
 		{
-			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString());
-			return FromPropertyValue<T, PropType>(ValueBase, "Value", true, DefaultValue);
+			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Pointer.Target, Pointer.SourceName.ToString());
+			return FromPropertyValue<T, PropType>(FConnectionPointer(ValueBase, "Value", true), DefaultValue);
 		}
 
 		struct{T RetVal;} Params{DefaultValue};
-		if(!ProcessFunction<PropType>(REFLECTION_ARGS, &Params)) return FromPropertyValue<T, PropType>(REFLECTION_ARGS, DefaultValue);
+		if(!ProcessFunction<PropType>(Pointer, &Params)) return FromPropertyValue<T, PropType>(Pointer, DefaultValue);
 		return Params.RetVal;
 	}
 
-	static double NumericProcess(REFLECTION_PARAMS, double DefaultValue)
+	static double NumericProcess(const FConnectionPointer& Pointer, double DefaultValue)
 	{
-		if(!Object) return DefaultValue;
+		if(!Pointer.Target) return DefaultValue;
 
-		if(FromProperty)
-			return FromNumericPropertyValue(REFLECTION_ARGS, DefaultValue);
+		if(Pointer.IsProperty)
+			return FromNumericPropertyValue(Pointer, DefaultValue);
 
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
+		if(Pointer.Target->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
 		{
-			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString());
-			return FromNumericPropertyValue(ValueBase, "Value", true, DefaultValue);
+			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Pointer.Target, Pointer.SourceName.ToString());
+			return FromNumericPropertyValue(FConnectionPointer(ValueBase, "Value", true), DefaultValue);
 		}
 		
-		auto Function = Object->FindFunction(SourceName);
-		if(!Function) return FromNumericPropertyValue(REFLECTION_ARGS, DefaultValue);
+		auto Function = Pointer.Target->FindFunction(Pointer.SourceName);
+		if(!Function) return FromNumericPropertyValue(Pointer, DefaultValue);
 		
 		auto FuncProperty = Function->ChildProperties;
-		if(!FuncProperty) return FromNumericPropertyValue(REFLECTION_ARGS, DefaultValue);
+		if(!FuncProperty) return FromNumericPropertyValue(Pointer, DefaultValue);
 
 		//Explicit return value check because UE5 now uses double, but some code still uses float so we have to account for that,
 		//Not to mention int returns as well, i am so fucking done with this code.
-		if(FuncProperty->IsA<FIntProperty>()) return GenericProcess<int, FIntProperty>(REFLECTION_ARGS, DefaultValue);
-		else if(FuncProperty->IsA<FEnumProperty>()) return GenericProcess<int, FEnumProperty>(REFLECTION_ARGS, DefaultValue);
-		else if(FuncProperty->IsA<FFloatProperty>()) return GenericProcess<float, FFloatProperty>(REFLECTION_ARGS, DefaultValue);
-		else if (FuncProperty->IsA<FDoubleProperty>()) return GenericProcess<double, FDoubleProperty>(REFLECTION_ARGS, DefaultValue);
+		if(FuncProperty->IsA<FIntProperty>()) return GenericProcess<int, FIntProperty>(Pointer, DefaultValue);
+		else if(FuncProperty->IsA<FEnumProperty>()) return GenericProcess<int, FEnumProperty>(Pointer, DefaultValue);
+		else if(FuncProperty->IsA<FFloatProperty>()) return GenericProcess<float, FFloatProperty>(Pointer, DefaultValue);
+		else if (FuncProperty->IsA<FDoubleProperty>()) return GenericProcess<double, FDoubleProperty>(Pointer, DefaultValue);
 		else return DefaultValue;
 	}
 
 	template<typename T>
-	static void GenericSet(REFLECTION_PARAMS, T Value)
+	static void GenericSet(const FConnectionPointer& Pointer, T Value)
 	{
-		if(FromProperty)
+		if(Pointer.IsProperty)
 		{
-			auto Val = Object->GetClass()->FindPropertyByName(SourceName);
-			if(Val) *Val->ContainerPtrToValuePtr<T>(Object) = Value;
+			auto Val = Pointer.Target->GetClass()->FindPropertyByName(Pointer.SourceName);
+			if(Val) *Val->ContainerPtrToValuePtr<T>(Pointer.Target) = Value;
 			return;
 		}
 		
 		struct{T SetVal;} Params{Value};
-		ProcessFunction(REFLECTION_ARGS, &Params);
+		ProcessFunction(Pointer, &Params);
 		
 	}
 
-	static void NumericSet(REFLECTION_PARAMS, double Value)
+	static void NumericSet(const FConnectionPointer& Pointer, double Value)
 	{
-		if(FromProperty)
+		if(Pointer.IsProperty)
 		{
-			auto Val = CastField<FNumericProperty>(Object->GetClass()->FindPropertyByName(SourceName));
+			auto Val = CastField<FNumericProperty>(Pointer.Target->GetClass()->FindPropertyByName(Pointer.SourceName));
 			if(!Val) return;
-			if(Val->IsInteger()) Val->SetIntPropertyValue(Val->ContainerPtrToValuePtr<void>(Object), (int64) Value);
-			else Val->SetFloatingPointPropertyValue(Val->ContainerPtrToValuePtr<void>(Object), Value);
+			if(Val->IsInteger()) Val->SetIntPropertyValue(Val->ContainerPtrToValuePtr<void>(Pointer.Target), (int64) Value);
+			else Val->SetFloatingPointPropertyValue(Val->ContainerPtrToValuePtr<void>(Pointer.Target), Value);
 		}
 
-		auto Function = Object->FindFunction(SourceName);
+		auto Function = Pointer.Target->FindFunction(Pointer.SourceName);
 		if(!Function) return;
 		
 		auto FuncProperty = Function->ChildProperties;
@@ -539,39 +537,39 @@ public:
 		if(FuncProperty->IsA<FIntProperty>())
 		{
 			struct { int Value; } params{(int) Value};
-			ProcessFunction<FIntProperty>(REFLECTION_ARGS, &params);
+			ProcessFunction<FIntProperty>(Pointer, &params);
 		}
 		else if(FuncProperty->IsA<FEnumProperty>())
 		{
 			struct { int Value; } params{(int) Value};
-			ProcessFunction<FEnumProperty>(REFLECTION_ARGS, &params);
+			ProcessFunction<FEnumProperty>(Pointer, &params);
 		}
 		else if(FuncProperty->IsA<FFloatProperty>())
 		{
 			struct { float Value; } params{(float) Value};
-			ProcessFunction<FFloatProperty>(REFLECTION_ARGS, &params);
+			ProcessFunction<FFloatProperty>(Pointer, &params);
 		}
 		else
 		{
 			struct { double Value; } params{Value};
-			ProcessFunction<FDoubleProperty>(REFLECTION_ARGS, &params);
+			ProcessFunction<FDoubleProperty>(Pointer, &params);
 		}
 	}
 
 
 	template<typename PropType = FProperty>
-	static bool ProcessFunction(REFLECTION_PARAMS, void* Params)
+	static bool ProcessFunction(const FConnectionPointer& Pointer, void* Params)
 	{
-		if(IsValid(Object))
+		if(IsValid(Pointer.Target))
 		{
-			UFunction* Function = Object->FindFunction(SourceName);;
+			UFunction* Function = Pointer.Target->FindFunction(Pointer.SourceName);;
 			
 			if(Function)
 			{
 				auto ReturnProp = Function->GetReturnProperty();
 				if(ReturnProp && !ReturnProp->IsA<PropType>()) return false;
 				
-				Object->ProcessEvent(Function, Params);
+				Pointer.Target->ProcessEvent(Function, Params);
 				return true;
 			}
 		}

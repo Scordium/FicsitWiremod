@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
 #include "CCArrayValueBase.h"
-#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryColorArrayFilter.h"
+#include "CircuitryColorFilterRule.h"
+#include "JsonUtilities.h"
 #include "CCColorValue.generated.h"
 
 /**
@@ -26,18 +27,9 @@ public:
 		DOREPLIFETIME(UCCColorValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCColorValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetColor(REFLECTION_ARGS, Value);
+		DYNAMIC_FROMPOINTER(GetColor)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -48,9 +40,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetColor(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetColor(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return Value.ToString(); }
@@ -90,20 +82,17 @@ public:
 		DOREPLIFETIME(UCCColorArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCColorArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetColorArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetColorArray)
 	}
 
-	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetColor()); }
+	virtual void AddElement(const FConnectionData& Element) override
+	{
+		auto NewElement = Element.GetColor();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Add(NewElement);
+	}
+	
 	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
@@ -120,7 +109,8 @@ public:
 	{
 		if(!Value.IsValidIndex(Index)) return;
 
-		Value.Insert(Element.GetColor(), Index);
+		auto NewElement = Element.GetColor();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Insert(NewElement, Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
@@ -141,9 +131,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetColorArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetColorArray(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
@@ -227,18 +217,19 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if(!Filter) Filter = NewObject<UCircuitryColorArrayFilter>(this);
-		return Filter->FromJson(FilterData);
+		if (FilterData.FilterType != ConnectionType) return false;
+		
+		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}
 
-	virtual void ApplyFilter() override
+	virtual void OnValueUpdate() override
 	{
-		if(Filter) Value = Filter->FilterValues(Value);
+		Filter.FilterValues(Value);
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FLinearColor> Value;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	UCircuitryColorArrayFilter* Filter = nullptr;
+	FCircuitryColorFilterRule Filter;
 };

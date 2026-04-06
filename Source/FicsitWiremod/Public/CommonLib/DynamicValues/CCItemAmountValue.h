@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
+#include "CircuitryItemFilterRule.h"
 #include "ItemAmount.h"
-#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryItemArrayFilter.h"
 #include "CCItemAmountValue.generated.h"
 
 /**
@@ -26,17 +26,9 @@ public:
 		DOREPLIFETIME(UCCItemAmountValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCItemAmountValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetItemAmount(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetItemAmount)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -47,9 +39,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		auto OtherValue = UReflectionUtilities::GetItemAmount(Object, SourceName, FromProperty);
+		auto OtherValue = UReflectionUtilities::GetItemAmount(Pointer);
 
 		return OtherValue.Amount == Value.Amount && OtherValue.ItemClass == Value.ItemClass;
 	}
@@ -105,20 +97,17 @@ public:
 		DOREPLIFETIME(UCCItemAmountArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCItemAmountArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetItemAmountArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetItemAmountArray)
 	}
 
-	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetItemAmount()); }
+	virtual void AddElement(const FConnectionData& Element) override
+	{
+		auto NewElement = Element.GetItemAmount();
+		if (Filter.Predicate_Amount(NewElement)) Value.Add(NewElement);
+	}
+	
 	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
@@ -134,7 +123,8 @@ public:
 	{
 		if(!Value.IsValidIndex(Index)) return;
 
-		Value.Insert(Element.GetItemAmount(), Index);
+		auto NewElement = Element.GetItemAmount();
+		if (Filter.Predicate_Amount(NewElement)) Value.Insert(NewElement, Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
@@ -176,9 +166,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		auto OtherSource = UReflectionUtilities::GetItemAmountArray(Object, SourceName, FromProperty);
+		auto OtherSource = UReflectionUtilities::GetItemAmountArray(Pointer);
 
 		if(OtherSource.Num() != Value.Num()) return false;
         
@@ -292,20 +282,19 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if(!Filter) Filter = NewObject<UCircuitryItemArrayFilter>(this);
-
-		Filter->FilterType = ItemAmount;
-		return Filter->FromJson(FilterData);
+		if (FilterData.FilterType != ConnectionType) return false;
+		
+		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}
 
-	virtual void ApplyFilter() override
+	virtual void OnValueUpdate() override
 	{
-		if(Filter) Value = Filter->FilterValues(Value);
+		Filter.FilterValues(Value);
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FItemAmount> Value;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	UCircuitryItemArrayFilter* Filter = nullptr;
+	FCircuitryItemFilterRule Filter;
 };

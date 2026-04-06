@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
+#include "FilterRule.h"
 #include "WiremodReflection.h"
-#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryArrayFilterBase.h"
 #include "CCArrayValueBase.generated.h"
 
 /**
@@ -103,11 +103,5 @@ public:
 	{
 		DispatchNotImplemented("SET_FILTER");
 		return false;
-	}
-
-	UFUNCTION(BlueprintCallable)
-	virtual void ApplyFilter()
-	{
-		DispatchNotImplemented("APPLY_FILTER");
 	}
 };

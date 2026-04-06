@@ -25,17 +25,9 @@ public:
 		DOREPLIFETIME(ThisClass, Value);
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<ThisClass>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetElevatorFloor(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetElevatorFloor)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -46,9 +38,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetElevatorFloor(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetElevatorFloor(Pointer) == Value;
 	}
 
 	virtual FString ToString() override
@@ -88,17 +80,9 @@ public:
 		DOREPLIFETIME(ThisClass, Value);
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<ThisClass>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetElevatorFloorArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetElevatorFloorArray)
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override

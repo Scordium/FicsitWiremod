@@ -27,17 +27,9 @@ public:
 		DOREPLIFETIME(UCCSplitterRuleValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCSplitterRuleValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetSplitterRule(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetSplitterRule)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -48,9 +40,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		auto OtherSource = UReflectionUtilities::GetSplitterRule(Object, SourceName, FromProperty);
+		auto OtherSource = UReflectionUtilities::GetSplitterRule(Pointer);
 		return OtherSource.ItemClass == Value.ItemClass && OtherSource.OutputIndex == Value.OutputIndex;
 	}
 
@@ -111,17 +103,9 @@ public:
 		DOREPLIFETIME(UCCSplitterRuleArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCSplitterRuleArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetSplitterRuleArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetSplitterRuleArray)
 	}
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
 
@@ -247,9 +231,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		auto OtherSource = UReflectionUtilities::GetSplitterRuleArray(Object, SourceName, FromProperty);
+		auto OtherSource = UReflectionUtilities::GetSplitterRuleArray(Pointer);
 
 		if(OtherSource.Num() != Value.Num()) return false;
         

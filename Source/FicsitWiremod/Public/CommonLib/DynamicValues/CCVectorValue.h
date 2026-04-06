@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
-#include "Behaviour/Gates/Arrays/Filter/Filters/CircuitryVectorArrayFilter.h"
+#include "CircuitryVectorFilterRule.h"
 #include "CCVectorValue.generated.h"
 /**
  * 
@@ -25,17 +25,9 @@ public:
 		DOREPLIFETIME(UCCVectorValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCVectorValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetVector(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetVector)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -46,9 +38,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetVector(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetVector(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return Value.ToCompactString(); }
@@ -95,20 +87,17 @@ public:
 		DOREPLIFETIME(UCCVectorArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCVectorArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetVectorArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetVectorArray)
 	}
 
-	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetVector()); }
+	virtual void AddElement(const FConnectionData& Element) override
+	{
+		auto NewElement = Element.GetVector();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Add(NewElement);
+	}
+	
 	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
@@ -124,7 +113,8 @@ public:
 	{
 		if(!Value.IsValidIndex(Index)) return;
 
-		Value.Insert(Element.GetVector(), Index);
+		auto NewElement = Element.GetVector();
+		if (Filter.CheckFilterMatch(NewElement, true)) Value.Insert(NewElement, Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
@@ -145,9 +135,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetVectorArray(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetVectorArray(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }
@@ -237,18 +227,19 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if(!Filter) Filter = NewObject<UCircuitryVectorArrayFilter>(this);
-		return Filter->FromJson(FilterData);
+		if (FilterData.FilterType != ConnectionType) return false;
+		
+		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}
 
-	virtual void ApplyFilter() override
+	virtual void OnValueUpdate() override
 	{
-		if(Filter) Value = Filter->FilterValues(Value);
+		Filter.FilterValues(Value);
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FVector> Value;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	UCircuitryVectorArrayFilter* Filter = nullptr;
+	FCircuitryVectorFilterRule Filter;
 };

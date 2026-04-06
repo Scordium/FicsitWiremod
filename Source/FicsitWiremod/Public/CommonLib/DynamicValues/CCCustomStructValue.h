@@ -24,17 +24,9 @@ public:
 		DOREPLIFETIME(UCCCustomStructValue, Value)
 	}
 	
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCCustomStructValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetUnmanaged<FCustomStruct>(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetCustomStruct)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -45,9 +37,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetUnmanaged<FCustomStruct>(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetUnmanaged<FCustomStruct>(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return Value.Name + "[" + FString::FromInt(Value.Values.Num()) + " values]"; }
@@ -74,17 +66,9 @@ public:
 		DOREPLIFETIME(UCCCustomStructArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCCustomStructArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetUnmanaged<TArray<FCustomStruct>>(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetCustomStructArray)
 	}
 
 	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetCustomStruct()); }
@@ -124,9 +108,9 @@ public:
 		return Super::Equals(Other, ComparePointers);
 	}
 
-	virtual bool Equals(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual bool Equals(const FConnectionPointer& Pointer) override
 	{
-		return UReflectionUtilities::GetUnmanaged<TArray<FCustomStruct>>(Object, SourceName, FromProperty) == Value;
+		return UReflectionUtilities::GetUnmanaged<TArray<FCustomStruct>>(Pointer) == Value;
 	}
 
 	virtual FString ToString() override { return FString::Join(ToStringArray(), *FString(", ")); }

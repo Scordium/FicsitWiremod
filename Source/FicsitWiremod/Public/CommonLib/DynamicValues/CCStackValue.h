@@ -6,7 +6,8 @@
 #include "CCDynamicValueBase.h"
 #include "FGInventoryComponent.h"
 #include "CCArrayValueBase.h"
-#include "Filter/Filters/CircuitryItemArrayFilter.h"
+#include "JsonUtilities.h"
+#include "Rules/CircuitryItemFilterRule.h"
 #include "CCStackValue.generated.h"
 /**
  * 
@@ -27,17 +28,9 @@ public:
 		DOREPLIFETIME(UCCStackValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCStackValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetStack(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetStack)
 	}
 
 	virtual bool Equals(UCCDynamicValueBase* Other, bool ComparePointers = true) override
@@ -98,20 +91,17 @@ public:
 		DOREPLIFETIME(UCCStackArrayValue, Value)
 	}
 
-	virtual void FromConnectionValue(UObject* Object, FName SourceName, bool FromProperty) override
+	virtual void FromConnectionValue(const FConnectionPointer& Pointer) override
 	{
-		if(!Object) return;
-		if(Object->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
-			if(auto SameType = Cast<UCCStackArrayValue>(IDynamicValuePasser::Execute_GetValue(Object, SourceName.ToString())))
-			{
-				Value = SameType->Value;
-				return;
-			}
-		
-		Value = UReflectionUtilities::GetStackArray(REFLECTION_ARGS);
+		DYNAMIC_FROMPOINTER(GetStackArray)
 	}
 
-	virtual void AddElement(const FConnectionData& Element) override{ Value.Add(Element.GetStack()); }
+	virtual void AddElement(const FConnectionData& Element) override
+	{
+		auto NewElement = Element.GetStack();
+		if (Filter.Predicate_Stack(NewElement)) Value.Add(NewElement);
+	}
+	
 	virtual UCCDynamicValueBase* GetElement(int Index, UObject* Outer) override
 	{
 		if(!Value.IsValidIndex(Index)) return nullptr;
@@ -128,7 +118,8 @@ public:
 	{
 		if(!Value.IsValidIndex(Index)) return;
 
-		Value.Insert(Element.GetStack(), Index);
+		auto NewElement = Element.GetStack();
+		if (Filter.Predicate_Stack(NewElement)) Value.Insert(NewElement, Index);
 	}
 	virtual void Clear() override{ Value.Empty(); }
 	virtual int Length() override { return Value.Num(); }
@@ -267,19 +258,20 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if(!Filter) Filter = NewObject<UCircuitryItemArrayFilter>(this);
+		if (FilterData.FilterType != ConnectionType) return false;
 		
-		return Filter->FromJson(FilterData);
+		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}
 
-	virtual void ApplyFilter() override
+	virtual void OnValueUpdate() override
 	{
-		if(Filter) Value = Filter->FilterValues(Value);
+		Filter.FilterValues(Value);
 	}
+
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<FInventoryStack> Value;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	UCircuitryItemArrayFilter* Filter = nullptr;
+	FCircuitryItemFilterRule Filter;
 };
