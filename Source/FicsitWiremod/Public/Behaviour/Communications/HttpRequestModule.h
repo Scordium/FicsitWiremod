@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GenericPlatformHttp.h"
+#include "GenericPlatform/GenericPlatformHttp.h"
 #include "HttpModule.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCStringValue.h"
@@ -88,7 +88,7 @@ public:
 			}
 		}
 		
-		Request->OnRequestProgress().BindUObject(this, &AHttpRequestModule::OnRequestProgressUpdated);
+		Request->OnRequestProgress64().BindUObject(this, &AHttpRequestModule::OnRequestProgressUpdated);
 		Request->OnProcessRequestComplete().BindUObject(this, &AHttpRequestModule::OnRequestComplete);
 		Request->SetContentAsString(Content);
 		Request->SetVerb(Verb);
@@ -97,7 +97,7 @@ public:
 		return Request;
 	}
 
-	void OnRequestProgressUpdated(FHttpRequestPtr Request, int Progress1, int Progress2)
+	void OnRequestProgressUpdated(FHttpRequestPtr Request, unsigned long long Progress1, unsigned long long Progress2)
 	{
 		ACircuitryLogger::DispatchEvent("Progress: " + FString::FromInt(Progress1) + " " + FString::FromInt(Progress2), ELogVerbosity::Display);
 	}

@@ -1,7 +1,7 @@
 // Copyright Coffee Stain Studios. All Rights Reserved.
 
 #pragma once
-#include "CCDynamicValueBase.h"
+#include "CommonLib/DynamicValues/CCDynamicValueBase.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
 #include "FGRailroadTimeTable.h"

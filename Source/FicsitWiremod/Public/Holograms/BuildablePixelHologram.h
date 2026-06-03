@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGBuildableHologram.h"
+#include "Hologram/FGBuildableHologram.h"
 #include "WiremodBuildableHologram.h"
 
 #include "BuildablePixelHologram.generated.h"

@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "CCArrayValueBase.h"
 #include "CCDynamicValueBase.h"
-#include "CircuitryBoolFilterRule.h"
-#include "JsonUtilities.h"
+#include "Behaviour/Gates/Arrays/Filter/Rules/CircuitryBoolFilterRule.h"
+#include "CommonLib/JsonUtilities.h"
 #include "CommonLib/ReflectionUtilities.h"
 #include "CCBoolValue.generated.h"
 
@@ -206,7 +206,7 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if (FilterData.FilterType != ConnectionType) return false;
+		if (FilterData.FilterType != UConnectionTypeFunctions::ArrayToBase(ConnectionType)) return false;
 		
 		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}

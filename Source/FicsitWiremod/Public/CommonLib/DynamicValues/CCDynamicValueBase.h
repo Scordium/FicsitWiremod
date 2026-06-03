@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "FGSaveInterface.h"
-#include "JsonValue.h"
-#include "UnrealNetwork.h"
+#include "Dom/JsonValue.h"
+#include "Net/UnrealNetwork.h"
 #include "ConnectionPointer.h"
 #include "CommonLib/ConnectionType.h"
 #include "CCDynamicValueBase.generated.h"

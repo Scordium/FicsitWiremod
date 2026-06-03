@@ -1,4 +1,4 @@
-﻿#include "MakeCustomStruct.h"
+﻿#include "Behaviour/Gates/Makers/MakeCustomStruct.h"
 
 void ACustomStructProcessor::SetCustomStruct_Internal(const FCustomStruct& NewStruct)
 {

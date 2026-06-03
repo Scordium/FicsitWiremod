@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ValueStringResolverBase.h"
+#include "Utility/ValueStringResolver/ValueStringResolverBase.h"
 #include "CommonLib/ConnectionType.h"
 #include "Engine/DataTable.h"
 #include "UObject/Interface.h"

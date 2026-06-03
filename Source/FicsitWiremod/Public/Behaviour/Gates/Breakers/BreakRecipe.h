@@ -23,7 +23,7 @@ public:
 	FString GetRecipeName() { return IsValid(Recipe) ? UFGRecipe::GetRecipeName(Recipe).ToString() : "N/A"; }
 
 	UFUNCTION()
-	TArray<FItemAmount> GetIngredients() { return IsValid(Recipe) ? UFGRecipe::GetIngredients(Recipe) : TArray<FItemAmount>(); }
+	TArray<FItemAmount> GetIngredients() { return IsValid(Recipe) ? UFGRecipe::GetIngredients(nullptr, Recipe) : TArray<FItemAmount>(); }
 
 	UFUNCTION()
 	TArray<FItemAmount> GetProducts() { return IsValid(Recipe) ? UFGRecipe::GetProducts(Recipe) : TArray<FItemAmount>(); }

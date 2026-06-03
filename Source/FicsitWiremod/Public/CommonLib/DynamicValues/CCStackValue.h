@@ -6,8 +6,8 @@
 #include "CCDynamicValueBase.h"
 #include "FGInventoryComponent.h"
 #include "CCArrayValueBase.h"
-#include "JsonUtilities.h"
-#include "Rules/CircuitryItemFilterRule.h"
+#include "CommonLib/JsonUtilities.h"
+#include "Behaviour/Gates/Arrays/Filter/Rules/CircuitryItemFilterRule.h"
 #include "CCStackValue.generated.h"
 /**
  * 
@@ -258,7 +258,7 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if (FilterData.FilterType != ConnectionType) return false;
+		if (FilterData.FilterType != UConnectionTypeFunctions::ArrayToBase(ConnectionType)) return false;
 		
 		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}

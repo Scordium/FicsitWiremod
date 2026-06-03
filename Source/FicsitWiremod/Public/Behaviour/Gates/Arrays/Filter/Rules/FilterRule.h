@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ConnectionType.h"
-#include "UObject/Object.h"
+#include "CommonLib/ConnectionType.h"
 #include "FilterRule.generated.h"
 
 UENUM(Blueprintable, BlueprintType)

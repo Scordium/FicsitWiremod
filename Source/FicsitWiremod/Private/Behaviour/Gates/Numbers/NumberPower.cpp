@@ -1,1 +1,1 @@
-﻿#include "NumberPower.h"
+﻿#include "Behaviour/Gates/Numbers/NumberPower.h"

@@ -1,1 +1,1 @@
-﻿#include "InverseNumber.h"
+﻿#include "Behaviour/Gates/Numbers/InverseNumber.h"

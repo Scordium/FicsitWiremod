@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "CircuitryStatics.h"
 #include "WiremodUtils.h"
+#include "Behaviour/CircuitryStatics.h"
 #include "Equipment/FGEquipment.h"
 #include "Utility/CircuitryInputMappings.h"
 #include "Runtime/Engine/Classes/Engine/EngineTypes.h"

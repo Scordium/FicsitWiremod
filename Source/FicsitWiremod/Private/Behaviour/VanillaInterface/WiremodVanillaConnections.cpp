@@ -1,6 +1,4 @@
-﻿
-#include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
-
+﻿#include "Behaviour/VanillaInterface/WiremodVanillaConnections.h"
 #include "Utility/ConnectionWireBase.h"
 
 void ACircuitryBlueprintConnectionProxy::Tick(float DeltaSeconds)

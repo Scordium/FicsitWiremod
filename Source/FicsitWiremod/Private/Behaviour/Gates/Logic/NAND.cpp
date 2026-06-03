@@ -1,1 +1,1 @@
-﻿#include "NAND.h"
+﻿#include "Behaviour/Gates/Logic/NAND.h"

@@ -1,10 +1,10 @@
 // Copyright Coffee Stain Studios. All Rights Reserved.
 
 
-#include "WiremodBuildableHologram.h"
+#include "Holograms/WiremodBuildableHologram.h"
 
-#include "CircuitryBreadboard.h"
-#include "FGWiremodBuildable.h"
+#include "Behaviour/Miscellaneous/CircuitryBreadboard.h"
+#include "Behaviour/FGWiremodBuildable.h"
 
 
 void AWiremodBuildableHologram::SetHologramLocationAndRotation(const FHitResult& hitResult)

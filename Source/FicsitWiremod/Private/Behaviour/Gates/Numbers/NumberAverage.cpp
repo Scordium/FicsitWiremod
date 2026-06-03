@@ -1,1 +1,1 @@
-﻿#include "NumberAverage.h"
+﻿#include "Behaviour/Gates/Numbers/NumberAverage.h"

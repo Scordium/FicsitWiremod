@@ -1,1 +1,1 @@
-﻿#include "StringEquals.h"
+﻿#include "Behaviour/Gates/String/StringEquals.h"

@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "CCBoolValue.h"
-#include "CCDynamicValueUtils.h"
-#include "FGWiremodBuildable.h"
+#include "CommonLib/DynamicValues/CCBoolValue.h"
+#include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
+#include "Behaviour/FGWiremodBuildable.h"
 #include "JsonToStruct.generated.h"
 
 UCLASS()

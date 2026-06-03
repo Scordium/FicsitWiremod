@@ -1,1 +1,1 @@
-﻿#include "StringCase.h"
+﻿#include "Behaviour/Gates/String/StringCase.h"

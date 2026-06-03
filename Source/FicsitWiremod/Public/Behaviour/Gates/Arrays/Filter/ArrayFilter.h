@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGWiremodBuildable.h"
+#include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/DynamicValues/CCArrayValueBase.h"
 #include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "ArrayFilter.generated.h"

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGGameState.h"
 #include "JsonObjectConverter.h"
-#include "JsonUtilities.h"
+#include "CommonLib/JsonUtilities.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "CommonLib/FileUtilities.h"
 #include "CommonLib/PlayerOwnedClipboardData.h"
@@ -123,23 +123,6 @@ public:
 		PrimaryActorTick.UpdateTickIntervalAndCoolDown(Data.GetTickInterval());
 		OnSignDataChanged(NewData);
 	}
-
-#if WITH_EDITOR
-	UFUNCTION(CallInEditor, BlueprintCallable)
-	void SetLayoutFromJson()
-	{
-		FString Json;
-		FPlatformMisc::ClipboardPaste(Json);
-
-		FManagedSignData Layout;
-		TSharedPtr<FJsonObject> Object;
-		if(!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Json), Object)) return;
-
-		if(!UJsonUtilities::JsonObjectToUStruct(Object.ToSharedRef(), &Layout)) return;
-
-		Data = Layout;
-	}
-#endif
 
 	UFUNCTION(NetMulticast, Reliable)
 	void OnSignDataChanged(const FManagedSignData& NewData);

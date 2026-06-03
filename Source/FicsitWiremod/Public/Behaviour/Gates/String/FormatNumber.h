@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MultistateWiremodBuildable.h"
+#include "Behaviour/MultistateWiremodBuildable.h"
 #include "Kismet/KismetTextLibrary.h"
 
 #include "FormatNumber.generated.h"

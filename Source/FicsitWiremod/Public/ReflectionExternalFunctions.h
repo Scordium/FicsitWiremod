@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FGBuildableDoor.h"
-#include "FGBuildableDroneStation.h"
+#include "Buildables/FGBuildableDroneStation.h"
 #include "FGCharacterPlayer.h"
 #include "FGPipeSubsystem.h"
 #include "FGPowerConnectionComponent.h"

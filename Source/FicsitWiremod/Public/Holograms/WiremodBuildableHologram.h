@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CircuitryBreadboard.h"
+#include "Behaviour/Miscellaneous/CircuitryBreadboard.h"
 #include "Behaviour/CircuitryStatics.h"
 #include "Hologram/FGBuildableHologram.h"
 #include "WiremodBuildableHologram.generated.h"

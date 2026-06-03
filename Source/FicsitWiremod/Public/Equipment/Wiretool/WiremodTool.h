@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CircuitryWireSupport.h"
+#include "Behaviour/Miscellaneous/CircuitryWireSupport.h"
 #include "EnhancedInputComponent.h"
 #include "WiretoolWidget.h"
-#include "WiremodBaseTool.h"
+#include "Equipment/WiremodBaseTool.h"
 #include "FGCharacterPlayer.h"
 #include "Behaviour/WiremodRemoteCalls.h"
 #include "Buildables/FGBuildable.h"

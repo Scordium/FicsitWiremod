@@ -1,7 +1,6 @@
-﻿#include "WikiParser.h"
+﻿#include "Utility/WikiParser.h"
 
-#include "FGBuildingDescriptor.h"
-#include "FGWiremodBuildable.h"
+#include "Behaviour/FGWiremodBuildable.h"
 #include "JsonObjectConverter.h"
 
 

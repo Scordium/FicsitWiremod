@@ -9,7 +9,7 @@
 #endif
 
 #include "CoreMinimal.h"
-#include "CircuitryStatics.h"
+#include "Behaviour/CircuitryStatics.h"
 #include "BrowserClassNameHelpModule.generated.h"
 
 

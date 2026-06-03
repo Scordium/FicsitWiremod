@@ -212,7 +212,7 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if (FilterData.FilterType != ConnectionType) return false;
+		if (FilterData.FilterType != UConnectionTypeFunctions::ArrayToBase(ConnectionType)) return false;
 		
 		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}

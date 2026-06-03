@@ -1,1 +1,1 @@
-﻿#include "NOR.h"
+﻿#include "Behaviour/Gates/Logic/NOR.h"

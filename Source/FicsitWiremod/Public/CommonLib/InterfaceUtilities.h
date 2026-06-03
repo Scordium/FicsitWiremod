@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "WidgetComponent.h"
-#include "Runtime/Engine/Classes/Kismet/BlueprintFunctionLibrary.h"
+#include "Components/WidgetComponent.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "InterfaceUtilities.generated.h"
 
 

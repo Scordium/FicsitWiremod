@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "ConnectionType.h"
-#include "ReflectionUtilities.h"
+#include "CommonLib/ConnectionType.h"
+#include "CommonLib/ReflectionUtilities.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "ValueStringResolverBase.generated.h"
 

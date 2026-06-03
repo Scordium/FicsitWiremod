@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
-#include "CircuitryVectorFilterRule.h"
+#include "Behaviour/Gates/Arrays/Filter/Rules/CircuitryVectorFilterRule.h"
 #include "CCVectorValue.generated.h"
 /**
  * 
@@ -227,7 +227,7 @@ public:
 
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
 	{
-		if (FilterData.FilterType != ConnectionType) return false;
+		if (FilterData.FilterType != UConnectionTypeFunctions::ArrayToBase(ConnectionType)) return false;
 		
 		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
 	}

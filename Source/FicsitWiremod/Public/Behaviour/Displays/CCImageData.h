@@ -142,8 +142,6 @@ public:
 		if(Data.Data.IsValidIndex(Row))
 			return Data.Data[Row];
 
-		GetTypeHash(&Data);
-
 		return FPixelScreenRow();
 	}
 

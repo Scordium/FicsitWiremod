@@ -1,4 +1,5 @@
-﻿#include "CustomStruct.h"
+﻿#include "CommonLib/CustomStruct.h"
+#include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 
 FCustomStruct FCustomStruct::Duplicate(UObject* WorldContext)
 {

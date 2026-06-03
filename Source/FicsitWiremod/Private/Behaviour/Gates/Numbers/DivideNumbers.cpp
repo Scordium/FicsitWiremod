@@ -1,1 +1,1 @@
-﻿#include "DivideNumbers.h"
+﻿#include "Behaviour/Gates/Numbers/DivideNumbers.h"

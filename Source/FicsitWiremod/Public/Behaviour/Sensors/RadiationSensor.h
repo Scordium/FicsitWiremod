@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "FGRadiationInterface.h"
 #include "FGRadioactivitySubsystem.h"
-#include "FGWiremodBuildable.h"
+#include "Behaviour/FGWiremodBuildable.h"
 #include "RadiationSensor.generated.h"
 
 UCLASS()

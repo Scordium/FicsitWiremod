@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
-#include "CustomStruct.h"
+#include "CommonLib/CustomStruct.h"
 #include "BreakCustomStruct.generated.h"
 
 UCLASS()

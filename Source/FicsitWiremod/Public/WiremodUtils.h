@@ -2,7 +2,7 @@
 
 #pragma once
 #include "AbstractInstanceManager.h"
-#include "FGBuildingDescriptor.h"
+#include "Resources/FGBuildingDescriptor.h"
 #include "Behaviour/CircuitryInterface.h"
 #include "Buildables/FGBuildable.h"
 

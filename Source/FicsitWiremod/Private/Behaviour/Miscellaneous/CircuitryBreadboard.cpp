@@ -1,6 +1,5 @@
-﻿#include "CircuitryBreadboard.h"
-
-#include "CircuitryBreadboardHologram.h"
+﻿#include "Behaviour/Miscellaneous/CircuitryBreadboard.h"
+#include "Holograms/CircuitryBreadboardHologram.h"
 
 void ACircuitryBreadboard::BeginPlay()
 {

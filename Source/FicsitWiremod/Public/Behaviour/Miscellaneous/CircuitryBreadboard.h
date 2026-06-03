@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CircuitryLogger.h"
-#include "FGBuildable.h"
-#include "UnrealNetwork.h"
+#include "Utility/CircuitryLogger.h"
+#include "Buildables/FGBuildable.h"
+#include "Net/UnrealNetwork.h"
 #include "CircuitryBreadboard.generated.h"
 
 

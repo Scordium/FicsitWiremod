@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "ConnectionPointer.h"
-#include "CCImageData.h"
+#include "Behaviour/Displays/CCImageData.h"
 #include "CustomStruct.h"
-#include "FGBuildableConveyorMonitor.h"
-#include "FGBuildablePortalBase.h"
+#include "Buildables/FGBuildableConveyorMonitor.h"
+#include "Buildables/FGBuildablePortalBase.h"
 #include "FGElevatorTypes.h"
 #include "FGInventoryComponent.h"
 #include "FGPowerCircuit.h"
@@ -560,19 +560,19 @@ public:
 	template<typename PropType = FProperty>
 	static bool ProcessFunction(const FConnectionPointer& Pointer, void* Params)
 	{
-		if(IsValid(Pointer.Target))
-		{
-			UFunction* Function = Pointer.Target->FindFunction(Pointer.SourceName);;
+		if(!IsValid(Pointer.Target)) return false;
+		
+		UFunction* Function = Pointer.Target->FindFunction(Pointer.SourceName);
+		if(!Function) return false;
 			
-			if(Function)
-			{
-				auto ReturnProp = Function->GetReturnProperty();
-				if(ReturnProp && !ReturnProp->IsA<PropType>()) return false;
-				
-				Pointer.Target->ProcessEvent(Function, Params);
-				return true;
-			}
+		auto ReturnProp = Function->GetReturnProperty();
+		if (ReturnProp)
+		{
+			if (ReturnProp->IsA<FArrayProperty>() && !((FArrayProperty*) ReturnProp)->Inner->IsA<PropType>()) return false;
+			else if (!ReturnProp->IsA<PropType>()) return false;
 		}
-		return false;
+		
+		Pointer.Target->ProcessEvent(Function, Params);
+		return true;
 	}
 };

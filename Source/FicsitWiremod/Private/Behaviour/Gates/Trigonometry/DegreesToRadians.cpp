@@ -1,1 +1,1 @@
-﻿#include "DegreesToRadians.h"
+﻿#include "Behaviour/Gates/Trigonometry/DegreesToRadians.h"

@@ -1,6 +1,8 @@
-﻿#include "WiremodBaseTool.h"
+﻿#include "Equipment/WiremodBaseTool.h"
 
 #include "EnhancedInputSubsystems.h"
+#include "WiremodUtils.h"
+#include "Kismet/GameplayStatics.h"
 
 
 void AWiremodBaseTool::SetOutline(AActor* Object, EOutlineColor Color)

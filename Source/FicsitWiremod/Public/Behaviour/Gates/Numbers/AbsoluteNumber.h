@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MultistateWiremodBuildable.h"
+#include "Behaviour/MultistateWiremodBuildable.h"
 #include "Behaviour/FGWiremodBuildable.h"
 #include "AbsoluteNumber.generated.h"
 

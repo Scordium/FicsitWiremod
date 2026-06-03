@@ -8,6 +8,7 @@
 #include "Components/Image.h"
 #include "Engine/DataTable.h"
 #include "Engine/Texture2DDynamic.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "TextureUtilities.generated.h"
 
@@ -193,12 +194,10 @@ public:
 	};
 
 	UFUNCTION(BlueprintCallable)
-	static FString EncodeTextureAsBase64(UTexture2D* Texture, bool HeadlessEncoding = false)
+	static FString EncodeTextureAsBase64(UTexture2D* Texture)
 	{
 		if(!Texture) return "";
-
-		if (!HeadlessEncoding)
-		{
+#if WITH_EDITOR
 			if (Texture->MipGenSettings != TMGS_NoMipmaps || Texture->CompressionSettings != TC_EditorIcon)
 			{
 				Texture->MipGenSettings = TMGS_NoMipmaps;
@@ -207,7 +206,7 @@ public:
 				ACircuitryLogger::DispatchErrorEvent("Resave texture " + Texture->GetName());
 				return "";
 			}
-		}
+#endif
 		
 		
 		bool ResourceCreated = false;

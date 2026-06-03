@@ -1,1 +1,1 @@
-﻿#include "NOT.h"
+﻿#include "Behaviour/Gates/Logic/NOT.h"

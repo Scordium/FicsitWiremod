@@ -1,1 +1,1 @@
-﻿#include "GetStringChar.h"
+﻿#include "Behaviour/Gates/String/GetStringChar.h"

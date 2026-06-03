@@ -62,7 +62,7 @@ public:
 
 	bool IngredientsMatch(TSubclassOf<UFGRecipe> Recipe) const
 	{
-		auto Ingredients = UFGRecipe::GetIngredients(Recipe);
+		auto Ingredients = UFGRecipe::GetIngredients(nullptr, Recipe);
 
 		switch (IngredientsFilterType)
 		{

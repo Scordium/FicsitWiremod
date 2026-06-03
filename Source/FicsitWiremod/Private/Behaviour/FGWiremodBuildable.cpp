@@ -16,6 +16,7 @@
 #include "CommonLib/DynamicValues/CCStringValue.h"
 #include "CommonLib/DynamicValues/CCVectorValue.h"
 #include "Kismet/KismetMaterialLibrary.h"
+#include "Utility/ConnectionWireBase.h"
 
 void AFGWiremodBuildable::Tick(float DeltaTime)
 {

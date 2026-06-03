@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DynamicValues/CCDynamicValueBase.h"
+#include "CommonLib/DynamicValues/CCDynamicValueBase.h"
 #include "CustomStruct.generated.h"
 
 USTRUCT(BlueprintType)

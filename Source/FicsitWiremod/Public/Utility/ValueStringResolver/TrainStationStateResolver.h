@@ -34,7 +34,7 @@ public:
 		case ETrainPlatformDockingStatus::ETPDS_WaitingToStart: Result += " (Waiting To Start)"; break;
 		case ETrainPlatformDockingStatus::ETPDS_IdleWaitForTime: Result += " (Waiting for Timer)"; break;
 		case ETrainPlatformDockingStatus::ETPDS_WaitForTransferCondition: Result += " (Waiting for Condition)"; break;
-		default: Result += " (Unknown??)"; break;
+		default: Result += " (Unknown?!)"; break;
 		}
 
 		return Result;

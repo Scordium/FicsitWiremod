@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FGWiremodBuildable.h"
-#include "TextureUtilities.h"
+#include "CommonLib/TextureUtilities.h"
 #include "MultistateWiremodBuildable.generated.h"
 
 USTRUCT(BlueprintType)

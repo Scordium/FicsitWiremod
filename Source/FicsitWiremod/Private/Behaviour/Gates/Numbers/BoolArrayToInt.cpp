@@ -1,1 +1,1 @@
-﻿#include "BoolArrayToInt.h"
+﻿#include "Behaviour/Gates/Numbers/BoolArrayToInt.h"

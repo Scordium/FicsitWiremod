@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CCDynamicValueUtils.h"
+#include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
 #include "FGRemoteCallObject.h"
 #include "CommonLib/BackwardsCompatibilityHandler.h"
 #include "Communications/RemoteControlReceiver.h"
 #include "Displays/ManagedSign/ManagedSign.h"
-#include "MakeCustomStruct.h"
+#include "Behaviour/Gates/Makers/MakeCustomStruct.h"
 #include "WiremodRemoteCalls.generated.h"
 
 

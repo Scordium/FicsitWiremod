@@ -1,1 +1,1 @@
-﻿#include "XNOR.h"
+﻿#include "Behaviour/Gates/Logic/XNOR.h"

@@ -1,5 +1,5 @@
 ﻿
-#include "CircuitryConveyorLimiterHologram.h"
+#include "Holograms/CircuitryConveyorLimiterHologram.h"
 
 #include "Behaviour/Miscellaneous/ConveyorLimiter.h"
 #include "Buildables/FGBuildableConveyorBelt.h"

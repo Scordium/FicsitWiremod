@@ -1,1 +1,1 @@
-﻿#include "NegateNumber.h"
+﻿#include "Behaviour/Gates/Numbers/NegateNumber.h"

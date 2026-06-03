@@ -1,1 +1,1 @@
-﻿#include "Cos.h"
+﻿#include "Behaviour/Gates/Trigonometry/Cos.h"

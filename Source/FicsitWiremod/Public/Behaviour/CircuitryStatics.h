@@ -8,7 +8,7 @@
 #include "Utility/CircuitryLogger.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Module/GameInstanceModule.h"
-#include "FGEquipment.h"
+#include "Equipment/FGEquipment.h"
 #include "CircuitryStatics.generated.h"
 
 

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CCDynamicValueBase.h"
-#include "FilterRule.h"
+#include "Behaviour/Gates/Arrays/Filter/Rules/FilterRule.h"
 #include "WiremodReflection.h"
 #include "CCArrayValueBase.generated.h"
 

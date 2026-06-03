@@ -1,1 +1,1 @@
-﻿#include "QuadraticFormula.h"
+﻿#include "Behaviour/Gates/Trigonometry/QuadraticFormula.h"

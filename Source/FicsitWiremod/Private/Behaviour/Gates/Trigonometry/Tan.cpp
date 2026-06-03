@@ -1,1 +1,1 @@
-﻿#include "Tan.h"
+﻿#include "Behaviour/Gates/Trigonometry/Tan.h"

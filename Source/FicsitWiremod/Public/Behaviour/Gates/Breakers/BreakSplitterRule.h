@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGWiremodBuildable.h"
+#include "Behaviour/FGWiremodBuildable.h"
 #include "BreakSplitterRule.generated.h"
 
 UCLASS()

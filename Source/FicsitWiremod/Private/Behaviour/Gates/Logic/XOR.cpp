@@ -1,1 +1,1 @@
-﻿#include "XOR.h"
+﻿#include "Behaviour/Gates/Logic/XOR.h"

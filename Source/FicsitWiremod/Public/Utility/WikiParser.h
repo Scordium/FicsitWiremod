@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "CircuitryConnectionsProvider.h"
+#include "Behaviour/CircuitryConnectionsProvider.h"
 #include "WikiParser.generated.h"
 
 USTRUCT(Blueprintable)

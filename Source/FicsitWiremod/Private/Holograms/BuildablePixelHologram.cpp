@@ -1,7 +1,8 @@
-﻿#include "BuildablePixelHologram.h"
+﻿#include "Holograms/BuildablePixelHologram.h"
 
-#include "Pixel.h"
-#include "VectorUtils.h"
+#include "Behaviour/Displays/Pixel.h"
+#include "Behaviour/Miscellaneous/CircuitryBreadboard.h"
+#include "CommonLib/VectorUtils.h"
 
 void ABuildablePixelHologram::SetHologramLocationAndRotation(const FHitResult& HitResult)
 {

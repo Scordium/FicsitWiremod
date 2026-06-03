@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MultistateWiremodBuildable.h"
-#include "Behaviour/FGWiremodBuildable.h"
+#include "Behaviour/MultistateWiremodBuildable.h"
 #include "DegreesToRadians.generated.h"
 
 UCLASS()

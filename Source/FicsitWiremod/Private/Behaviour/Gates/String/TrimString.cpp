@@ -1,1 +1,1 @@
-﻿#include "TrimString.h"
+﻿#include "Behaviour/Gates/String/TrimString.h"

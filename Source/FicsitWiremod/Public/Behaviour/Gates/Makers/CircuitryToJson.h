@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CCDynamicValueUtils.h"
-#include "FGWiremodBuildable.h"
+#include "CommonLib/DynamicValues/CCDynamicValueUtils.h"
+#include "Behaviour/FGWiremodBuildable.h"
 #include "CircuitryToJson.generated.h"
 
 UCLASS()

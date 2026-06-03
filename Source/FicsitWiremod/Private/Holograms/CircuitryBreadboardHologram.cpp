@@ -1,8 +1,8 @@
-﻿#include "CircuitryBreadboardHologram.h"
+﻿#include "Holograms/CircuitryBreadboardHologram.h"
 
-#include "CircuitryBreadboard.h"
-#include "CircuitryStatics.h"
-#include "VectorUtils.h"
+#include "Behaviour/Miscellaneous/CircuitryBreadboard.h"
+#include "Behaviour/CircuitryStatics.h"
+#include "CommonLib/VectorUtils.h"
 
 
 void ACircuitryBreadboardHologram::BeginPlay()

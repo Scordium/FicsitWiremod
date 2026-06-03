@@ -127,11 +127,11 @@ public:
 	UFUNCTION()
 	virtual void SetActorCompassViewDistance( ECompassViewDistance compassViewDistance ) override {}
 	
-	virtual TArray<FLocalUserNetIdBundle> GetLastEditedBy() const override { return LastEditedBy; }
-	virtual void SetActorLastEditedBy(const TArray<FLocalUserNetIdBundle>& LastEditedBy) override { this->LastEditedBy = LastEditedBy; }
+	virtual FPlayerInfoHandle GetLastEditedBy() const override { return LastEditedBy; }
+	virtual void SetActorLastEditedByHandle(const FPlayerInfoHandle& Handle) override { this->LastEditedBy = Handle; }
 	
 	UPROPERTY()
-	TArray<FLocalUserNetIdBundle> LastEditedBy;
+	FPlayerInfoHandle LastEditedBy;
 
 	virtual UMaterialInterface* GetActorRepresentationCompassMaterial() override { return BaseMaterial; }
 

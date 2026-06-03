@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGWiremodBuildable.h"
+#include "Behaviour/FGWiremodBuildable.h"
 #include "Runtime/CoreUObject/Public/Templates/SubclassOf.h"
 
 #include "BreakItemDescriptor.generated.h"

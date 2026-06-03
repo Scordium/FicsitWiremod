@@ -1,1 +1,1 @@
-﻿#include "NumberTruncate.h"
+﻿#include "Behaviour/Gates/Numbers/NumberTruncate.h"

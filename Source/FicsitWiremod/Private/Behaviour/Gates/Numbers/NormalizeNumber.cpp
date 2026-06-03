@@ -1,1 +1,1 @@
-﻿#include "NormalizeNumber.h"
+﻿#include "Behaviour/Gates/Numbers/NormalizeNumber.h"

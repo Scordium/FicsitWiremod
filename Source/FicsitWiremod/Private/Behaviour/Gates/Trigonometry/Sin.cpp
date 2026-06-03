@@ -1,1 +1,1 @@
-﻿#include "Sin.h"
+﻿#include "Behaviour/Gates/Trigonometry/Sin.h"

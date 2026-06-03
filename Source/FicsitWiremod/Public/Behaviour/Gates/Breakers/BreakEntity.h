@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FGBuildablePortal.h"
+#include "Buildables/FGBuildablePortal.h"
 #include "FGFreightWagon.h"
 #include "FGRailroadVehicle.h"
 #include "FGVehicle.h"
