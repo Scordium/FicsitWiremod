@@ -1,6 +1,7 @@
 ﻿#include "CommonLib/JsonUtilities.h"
 
 #include "JsonObjectConverter.h"
+#include "Dom/JsonObject.h"
 
 bool UJsonUtilities::JsonAttributesToUStructWithContainer(const TMap< FString, TSharedPtr<FJsonValue> >& JsonAttributes, const UStruct* StructDefinition, void* OutStruct, const UStruct* ContainerStruct, void* Container, int64 CheckFlags, int64 SkipFlags, const bool bStrictMode)
 {

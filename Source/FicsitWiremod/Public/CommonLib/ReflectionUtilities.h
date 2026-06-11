@@ -80,7 +80,7 @@ public:
 		else if(auto Panel = Cast<AFGBuildableLightsControlPanel>(Pointer.Target); Panel && Pointer.SourceName == "IsTimeOfDayAware")
 			return Panel->GetLightControlData().IsTimeOfDayAware;
 		else
-			return GenericProcess(Pointer,  DefaultValue);
+			return GenericProcess<bool, FBoolProperty>(Pointer, nullptr, DefaultValue);
 	}
 
 	static void SetBool(const FConnectionPointer& Pointer, bool Value)
@@ -125,7 +125,7 @@ public:
 			return;
 		}
 
-		GenericSet(Pointer, Value);
+		GenericSet<FBoolProperty>(Pointer, Value, nullptr);
 	}
 	
 	static double GetFloat(const FConnectionPointer& Pointer, double DefaultValue = 0) 
@@ -228,7 +228,7 @@ public:
 		else if (auto Portal = Cast<AFGBuildablePortalBase>(Pointer.Target))
 			return Portal->GetPortalName().ToString();
 		else
-			return GenericProcess<FString, FStrProperty>(Pointer,  DefaultValue);
+			return GenericProcess<FString, FStrProperty>(Pointer, nullptr, DefaultValue);
 	}
 
 	static void SetString(const FConnectionPointer& Pointer, FString Value)
@@ -252,24 +252,24 @@ public:
 		}
 		else if (auto Portal = Cast<AFGBuildablePortalBase>(Pointer.Target))
 			Portal->SetPortalName(FText::FromString(Value));
-		else GenericSet(Pointer, Value);
+		else GenericSet<FStrProperty>(Pointer, Value, nullptr);
 	}
 	
-	static FVector GetVector(const FConnectionPointer& Pointer, FVector DefaultValue = FVector::ZeroVector) { return GenericProcess<FVector, FStructProperty>(Pointer, DefaultValue);}
-	static void SetVector(const FConnectionPointer& Pointer, FVector Value){ GenericSet(Pointer, Value); }
+	static FVector GetVector(const FConnectionPointer& Pointer, FVector DefaultValue = FVector::ZeroVector) { return GenericProcess<FVector, FStructProperty>(Pointer, nullptr, DefaultValue);}
+	static void SetVector(const FConnectionPointer& Pointer, FVector Value){ GenericSet<FStructProperty>(Pointer, Value, nullptr); }
 	
-	static UFGInventoryComponent* GetInventory(const FConnectionPointer& Pointer) { return GenericProcess<UFGInventoryComponent*, FObjectPropertyBase>(Pointer); }
-	static void SetInventory(const FConnectionPointer& Pointer, UFGInventoryComponent* Value) { GenericSet(Pointer, Value); }
+	static UFGInventoryComponent* GetInventory(const FConnectionPointer& Pointer) { return GenericProcess<UFGInventoryComponent*, FObjectPropertyBase>(Pointer, UFGInventoryComponent::StaticClass(), nullptr); }
+	static void SetInventory(const FConnectionPointer& Pointer, UFGInventoryComponent* Value) { GenericSet(Pointer, Value, UFGInventoryComponent::StaticClass()); }
 	
-	static UFGPowerCircuit* GetCircuit(const FConnectionPointer& Pointer) { return GenericProcess<UFGPowerCircuit*, FObjectPropertyBase>(Pointer); }
-	static void SetCircuit(const FConnectionPointer& Pointer, UFGPowerCircuit* Value) { GenericSet(Pointer, Value); }
+	static UFGPowerCircuit* GetCircuit(const FConnectionPointer& Pointer) { return GenericProcess<UFGPowerCircuit*, FObjectPropertyBase>(Pointer, UFGPowerCircuit::StaticClass(), nullptr); }
+	static void SetCircuit(const FConnectionPointer& Pointer, UFGPowerCircuit* Value) { GenericSet(Pointer, Value, UFGPowerCircuit::StaticClass()); }
 	
 	static AActor* GetEntity(const FConnectionPointer& Pointer) 
 	{
 		if(Pointer.SourceName == "Self")
 			return Cast<AActor>(Pointer.Target);
 		else
-			return GenericProcess<AActor*, FObjectPropertyBase>(Pointer, nullptr);
+			return GenericProcess<AActor*, FObjectPropertyBase>(Pointer, AActor::StaticClass(), nullptr);
 	}
 	static void SetEntity(const FConnectionPointer& Pointer, AActor* Value)
 	{
@@ -286,17 +286,17 @@ public:
 				OtherPortal->MakeLinkToPortal(Portal);
 			}
 		}
-		else GenericSet(Pointer, Value);
+		else GenericSet(Pointer, Value, AActor::StaticClass());
 	}
 	
-	static TSubclassOf<UFGRecipe> GetRecipe(const FConnectionPointer& Pointer) { return GenericProcess(Pointer,  TSubclassOf<UFGRecipe>()); }
+	static TSubclassOf<UFGRecipe> GetRecipe(const FConnectionPointer& Pointer) { return GenericProcess(Pointer, UFGRecipe::StaticClass(),  TSubclassOf<UFGRecipe>()); }
 	static void SetRecipe(const FConnectionPointer& Pointer, TSubclassOf<UFGRecipe> Value)
 	{
 		if(!Value) return;
-		GenericSet(Pointer, Value);
+		GenericSet(Pointer, Value, UFGRecipe::StaticClass());
 	}
 	
-	static FLinearColor GetColor(const FConnectionPointer& Pointer, FLinearColor DefaultValue = FLinearColor::Black) { return GenericProcess<FLinearColor, FStructProperty>(Pointer,  DefaultValue); }
+	static FLinearColor GetColor(const FConnectionPointer& Pointer, FLinearColor DefaultValue = FLinearColor::Black) { return GenericProcess<FLinearColor, FStructProperty>(Pointer, nullptr, DefaultValue); }
 	static void SetColor(const FConnectionPointer& Pointer, FLinearColor Value)
 	{
 		if(auto sign = Cast<AFGBuildableWidgetSign>(Pointer.Target))
@@ -324,40 +324,40 @@ public:
 			sign->SetPrefabSignData(signData);
 			return;
 		}
-		GenericSet(Pointer, Value);
+		GenericSet<FStructProperty>(Pointer, Value, nullptr);
 	}
 	
-	static FInventoryStack GetStack(const FConnectionPointer& Pointer) { return GenericProcess<FInventoryStack, FStructProperty>(Pointer); }
-	static void SetStack(const FConnectionPointer& Pointer, FInventoryStack Value) { GenericSet(Pointer, Value); }
+	static FInventoryStack GetStack(const FConnectionPointer& Pointer) { return GenericProcess<FInventoryStack>(Pointer, FInventoryStack::StaticStruct()); }
+	static void SetStack(const FConnectionPointer& Pointer, FInventoryStack Value) { GenericSet(Pointer, Value, FInventoryStack::StaticStruct()); }
 	
-	static FItemAmount GetItemAmount(const FConnectionPointer& Pointer) { return GenericProcess<FItemAmount, FStructProperty>(Pointer); }
-	static void SetItemAmount(const FConnectionPointer& Pointer, FItemAmount Value) { GenericSet(Pointer, Value); }
+	static FItemAmount GetItemAmount(const FConnectionPointer& Pointer) { return GenericProcess<FItemAmount>(Pointer, FItemAmount::StaticStruct()); }
+	static void SetItemAmount(const FConnectionPointer& Pointer, FItemAmount Value) { GenericSet(Pointer, Value, FItemAmount::StaticStruct()); }
 	
-	static UTexture* GetTexture(const FConnectionPointer& Pointer) { return GenericProcess<UTexture*>(Pointer); }
-	static void SetTexture(const FConnectionPointer& Pointer, UTexture* Value) { GenericSet(Pointer, Value); }
+	static UTexture* GetTexture(const FConnectionPointer& Pointer) { return GenericProcess<UTexture*, FObjectPropertyBase>(Pointer, UTexture::StaticClass(), nullptr); }
+	static void SetTexture(const FConnectionPointer& Pointer, UTexture* Value) { GenericSet(Pointer, Value, UTexture::StaticClass()); }
 	
-	static FSplitterSortRule GetSplitterRule(const FConnectionPointer& Pointer) { return GenericProcess<FSplitterSortRule, FStructProperty>(Pointer); }
-	static void SetSplitterRule(const FConnectionPointer& Pointer, FSplitterSortRule Value) { GenericSet(Pointer, Value); }
+	static FSplitterSortRule GetSplitterRule(const FConnectionPointer& Pointer) { return GenericProcess<FSplitterSortRule>(Pointer, FSplitterSortRule::StaticStruct()); }
+	static void SetSplitterRule(const FConnectionPointer& Pointer, FSplitterSortRule Value) { GenericSet(Pointer, Value, FSplitterSortRule::StaticStruct()); }
 
-	static TSubclassOf<UFGItemDescriptor> GetItemDescriptor(const FConnectionPointer& Pointer, TSubclassOf<UFGItemDescriptor> DefaultValue) { return GenericProcess(Pointer, DefaultValue); }
-	static void SetItemDescriptor(const FConnectionPointer& Pointer, TSubclassOf<UFGItemDescriptor> Value) { GenericSet(Pointer, Value); }
+	static TSubclassOf<UFGItemDescriptor> GetItemDescriptor(const FConnectionPointer& Pointer, TSubclassOf<UFGItemDescriptor> DefaultValue) { return GenericProcess<TSubclassOf<UFGItemDescriptor>, FProperty>(Pointer, UFGItemDescriptor::StaticClass(), DefaultValue); }
+	static void SetItemDescriptor(const FConnectionPointer& Pointer, TSubclassOf<UFGItemDescriptor> Value) { GenericSet(Pointer, Value, UFGItemDescriptor::StaticClass()); }
 
-	static FTimeTableStopData GetTimeTableStop(const FConnectionPointer& Pointer) { return GenericProcess<FTimeTableStopData, FStructProperty>(Pointer); }
-	static void SetTimeTableStop(const FConnectionPointer& Pointer, FTimeTableStopData Value) { GenericSet(Pointer, Value); }
+	static FTimeTableStopData GetTimeTableStop(const FConnectionPointer& Pointer) { return GenericProcess<FTimeTableStopData>(Pointer, FTimeTableStopData::StaticStruct()); }
+	static void SetTimeTableStop(const FConnectionPointer& Pointer, FTimeTableStopData Value) { GenericSet(Pointer, Value, FTimeTableStopData::StaticStruct()); }
 
 	static UFGPowerInfoComponent* GetPowerInfo(UObject* Object) { return UReflectionExternalFunctions::GetPowerInfo(Object); }
 
-	static FElevatorFloorStopInfo GetElevatorFloor(const FConnectionPointer& Pointer) { return GenericProcess<FElevatorFloorStopInfo, FStructProperty>(Pointer); }
-	static void SetElevatorFloor(const FConnectionPointer& Pointer, FElevatorFloorStopInfo Value) { GenericSet(Pointer, Value); }
+	static FElevatorFloorStopInfo GetElevatorFloor(const FConnectionPointer& Pointer) { return GenericProcess<FElevatorFloorStopInfo>(Pointer, FElevatorFloorStopInfo::StaticStruct()); }
+	static void SetElevatorFloor(const FConnectionPointer& Pointer, FElevatorFloorStopInfo Value) { GenericSet(Pointer, Value, FElevatorFloorStopInfo::StaticStruct()); }
 
-	static FPixelScreenData GetPixelImage(const FConnectionPointer& Pointer) { return GenericProcess<FPixelScreenData, FStructProperty>(Pointer); }
-	static void SetPixelImage(const FConnectionPointer& Pointer, FPixelScreenData Value) { GenericSet(Pointer, Value); }
+	static FPixelScreenData GetPixelImage(const FConnectionPointer& Pointer) { return GenericProcess<FPixelScreenData>(Pointer, FPixelScreenData::StaticStruct()); }
+	static void SetPixelImage(const FConnectionPointer& Pointer, FPixelScreenData Value) { GenericSet(Pointer, Value, FPixelScreenData::StaticStruct()); }
 
-	static FCustomStruct GetCustomStruct(const FConnectionPointer& Pointer) { return GenericProcess<FCustomStruct, FStructProperty>(Pointer); }
-	static void SetCustomStruct(const FConnectionPointer& Pointer, FCustomStruct Value) { GenericSet(Pointer, Value); }
+	static FCustomStruct GetCustomStruct(const FConnectionPointer& Pointer) { return GenericProcess<FCustomStruct>(Pointer, FCustomStruct::StaticStruct()); }
+	static void SetCustomStruct(const FConnectionPointer& Pointer, FCustomStruct Value) { GenericSet(Pointer, Value, FCustomStruct::StaticStruct()); }
 
-	static TArray<bool> GetBoolArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<bool>, FArrayProperty>(Pointer); }
-	static void SetBoolArray(const FConnectionPointer& Pointer, TArray<bool> Value) { GenericSet(Pointer, Value); }
+	static TArray<bool> GetBoolArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<bool>, FBoolProperty>(Pointer, nullptr); }
+	static void SetBoolArray(const FConnectionPointer& Pointer, TArray<bool> Value) { GenericSet<FBoolProperty>(Pointer, Value, nullptr); }
 	
 	static TArray<double> GetFloatArray(const FConnectionPointer& Pointer)
 	{
@@ -374,74 +374,71 @@ public:
 		}
 		
 		
-		return GenericProcess<TArray<double>, FArrayProperty>(Pointer);
+		return GenericProcess<TArray<double>, FDoubleProperty>(Pointer, nullptr);
 	}
-	static void SetFloatArray(const FConnectionPointer& Pointer, TArray<double> Value) { GenericSet(Pointer, Value); }
+	static void SetFloatArray(const FConnectionPointer& Pointer, TArray<double> Value) { GenericSet<FDoubleProperty>(Pointer, Value, nullptr); }
 	
-	static TArray<FString> GetStringArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FString>, FArrayProperty>(Pointer); }
-	static void SetStringArray(const FConnectionPointer& Pointer, const TArray<FString>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FString> GetStringArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FString>, FStrProperty>(Pointer, nullptr); }
+	static void SetStringArray(const FConnectionPointer& Pointer, const TArray<FString>& Value) { GenericSet<FStrProperty>(Pointer, Value, nullptr); }
 	
-	static TArray<FVector> GetVectorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FVector>, FArrayProperty>(Pointer); }
-	static void SetVectorArray(const FConnectionPointer& Pointer, const TArray<FVector>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FVector> GetVectorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FVector>, FStructProperty>(Pointer, nullptr); }
+	static void SetVectorArray(const FConnectionPointer& Pointer, const TArray<FVector>& Value) { GenericSet<FStructProperty>(Pointer, Value, nullptr); }
 	
-	static TArray<UFGInventoryComponent*> GetInventoryArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<UFGInventoryComponent*>, FArrayProperty>(Pointer); }
-	static void SetInventoryArray(const FConnectionPointer& Pointer, const TArray<UFGInventoryComponent*>& Value) { GenericSet(Pointer, Value); }
+	static TArray<UFGInventoryComponent*> GetInventoryArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<UFGInventoryComponent*>>(Pointer, UFGInventoryComponent::StaticClass()); }
+	static void SetInventoryArray(const FConnectionPointer& Pointer, const TArray<UFGInventoryComponent*>& Value) { GenericSet(Pointer, Value, UFGInventoryComponent::StaticClass()); }
 	
-	static TArray<UFGPowerCircuit*> GetCircuitArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<UFGPowerCircuit*>, FArrayProperty>(Pointer); }
-	static void SetCircuitArray(const FConnectionPointer& Pointer, const TArray<UFGPowerCircuit*>& Value) { GenericSet(Pointer, Value); }
+	static TArray<UFGPowerCircuit*> GetCircuitArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<UFGPowerCircuit*>>(Pointer, UFGPowerCircuit::StaticClass()); }
+	static void SetCircuitArray(const FConnectionPointer& Pointer, const TArray<UFGPowerCircuit*>& Value) { GenericSet(Pointer, Value, UFGPowerCircuit::StaticClass()); }
 	
-	static TArray<AActor*> GetEntityArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<AActor*>, FArrayProperty>(Pointer); }
-	static void SetEntityArray(const FConnectionPointer& Pointer, const TArray<AActor*>& Value) { GenericSet(Pointer, Value); }
+	static TArray<AActor*> GetEntityArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<AActor*>>(Pointer, AActor::StaticClass()); }
+	static void SetEntityArray(const FConnectionPointer& Pointer, const TArray<AActor*>& Value) { GenericSet(Pointer, Value, AActor::StaticClass()); }
 	
-	static TArray<TSubclassOf<UFGRecipe>> GetRecipeArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<TSubclassOf<UFGRecipe>>, FArrayProperty>(Pointer); }
-	static void SetRecipeArray(const FConnectionPointer& Pointer, const TArray<TSubclassOf<UFGRecipe>>& Value) { GenericSet(Pointer, Value); }
+	static TArray<TSubclassOf<UFGRecipe>> GetRecipeArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<TSubclassOf<UFGRecipe>>>(Pointer, UFGRecipe::StaticClass()); }
+	static void SetRecipeArray(const FConnectionPointer& Pointer, const TArray<TSubclassOf<UFGRecipe>>& Value) { GenericSet(Pointer, Value, UFGRecipe::StaticClass()); }
 	
-	static TArray<FLinearColor> GetColorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FLinearColor>, FArrayProperty>(Pointer); }
-	static void SetColorArray(const FConnectionPointer& Pointer, const TArray<FLinearColor>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FLinearColor> GetColorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FLinearColor>, FStructProperty>(Pointer, nullptr); }
+	static void SetColorArray(const FConnectionPointer& Pointer, const TArray<FLinearColor>& Value) { GenericSet<FStructProperty>(Pointer, Value, nullptr); }
 	
-	static TArray<FInventoryStack> GetStackArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FInventoryStack>, FArrayProperty>(Pointer); }
-	static void SetStackArray(const FConnectionPointer& Pointer, const TArray<FInventoryStack>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FInventoryStack> GetStackArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FInventoryStack>>(Pointer, FInventoryStack::StaticStruct()); }
+	static void SetStackArray(const FConnectionPointer& Pointer, const TArray<FInventoryStack>& Value) { GenericSet(Pointer, Value, FInventoryStack::StaticStruct()); }
 	
-	static TArray<FItemAmount> GetItemAmountArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FItemAmount>, FArrayProperty>(Pointer); }
-	static void SetItemAmountArray(const FConnectionPointer& Pointer, const TArray<FItemAmount>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FItemAmount> GetItemAmountArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FItemAmount>>(Pointer, FItemAmount::StaticStruct()); }
+	static void SetItemAmountArray(const FConnectionPointer& Pointer, const TArray<FItemAmount>& Value) { GenericSet(Pointer, Value, FItemAmount::StaticStruct()); }
 	
-	static TArray<UTexture*> GetTextureArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<UTexture*>, FArrayProperty>(Pointer); }
-	static void SetTextureArray(const FConnectionPointer& Pointer, const TArray<UTexture*>& Value) { GenericSet(Pointer, Value); }
+	static TArray<UTexture*> GetTextureArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<UTexture*>>(Pointer, UTexture::StaticClass()); }
+	static void SetTextureArray(const FConnectionPointer& Pointer, const TArray<UTexture*>& Value) { GenericSet(Pointer, Value, UTexture::StaticClass()); }
 	
-	static TArray<FSplitterSortRule> GetSplitterRuleArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FSplitterSortRule>, FArrayProperty>(Pointer); }
-	static void SetSplitterRuleArray(const FConnectionPointer& Pointer, const TArray<FSplitterSortRule>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FSplitterSortRule> GetSplitterRuleArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FSplitterSortRule>>(Pointer, FSplitterSortRule::StaticStruct()); }
+	static void SetSplitterRuleArray(const FConnectionPointer& Pointer, const TArray<FSplitterSortRule>& Value) { GenericSet(Pointer, Value, FSplitterSortRule::StaticStruct()); }
 
-	static TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>, FArrayProperty>(Pointer); }
-	static void SetItemDescriptorArray(const FConnectionPointer& Pointer, const TArray<TSubclassOf<UFGItemDescriptor>>& Value) { GenericSet(Pointer, Value); }
+	static TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>>(Pointer, UFGItemDescriptor::StaticClass()); }
+	static void SetItemDescriptorArray(const FConnectionPointer& Pointer, const TArray<TSubclassOf<UFGItemDescriptor>>& Value) { GenericSet(Pointer, Value, UFGItemDescriptor::StaticClass()); }
 
-	static TArray<FTimeTableStopData> GetTimeTableStopArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FTimeTableStopData>>(Pointer); }
-	static void SetTimeTableStopArray(const FConnectionPointer& Pointer, const TArray<FTimeTableStopData>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FTimeTableStopData> GetTimeTableStopArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FTimeTableStopData>>(Pointer, FTimeTableStopData::StaticStruct()); }
+	static void SetTimeTableStopArray(const FConnectionPointer& Pointer, const TArray<FTimeTableStopData>& Value) { GenericSet(Pointer, Value, FTimeTableStopData::StaticStruct()); }
 
-	static TArray<FElevatorFloorStopInfo> GetElevatorFloorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FElevatorFloorStopInfo>>(Pointer); }
-	static void SetElevatorFloorArray(const FConnectionPointer& Pointer, const TArray<FElevatorFloorStopInfo>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FElevatorFloorStopInfo> GetElevatorFloorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FElevatorFloorStopInfo>>(Pointer, FElevatorFloorStopInfo::StaticStruct()); }
+	static void SetElevatorFloorArray(const FConnectionPointer& Pointer, const TArray<FElevatorFloorStopInfo>& Value) { GenericSet(Pointer, Value, FElevatorFloorStopInfo::StaticStruct()); }
 
-	static TArray<FPixelScreenData> GetPixelImageArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FPixelScreenData>>(Pointer); }
-	static void SetPixelImageArray(const FConnectionPointer& Pointer, const TArray<FPixelScreenData>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FPixelScreenData> GetPixelImageArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FPixelScreenData>>(Pointer, FPixelScreenData::StaticStruct()); }
+	static void SetPixelImageArray(const FConnectionPointer& Pointer, const TArray<FPixelScreenData>& Value) { GenericSet(Pointer, Value, FPixelScreenData::StaticStruct()); }
 
-	static TArray<FCustomStruct> GetCustomStructArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FCustomStruct>>(Pointer); }
-	static void SetCustomStructArray(const FConnectionPointer& Pointer, const TArray<FCustomStruct>& Value) { GenericSet(Pointer, Value); }
+	static TArray<FCustomStruct> GetCustomStructArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FCustomStruct>>(Pointer, FCustomStruct::StaticStruct()); }
+	static void SetCustomStructArray(const FConnectionPointer& Pointer, const TArray<FCustomStruct>& Value) { GenericSet(Pointer, Value, FCustomStruct::StaticStruct()); }
 
-	template<typename T>
-	static T GetUnmanaged(const FConnectionPointer& Pointer, T DefaultValue = T()){ return GenericProcess(Pointer, DefaultValue); }
-
-	template<typename T>
-	static void SetUnmanaged(const FConnectionPointer& Pointer, T Value) { GenericSet(Pointer, Value); }
+	template<typename ReturnType> static ReturnType GetUnmanaged(const FConnectionPointer& Pointer, ReturnType DefaultValue = ReturnType()){ return GenericProcess(Pointer, nullptr, DefaultValue); }
+	template<typename ValueType> static void SetUnmanaged(const FConnectionPointer& Pointer, ValueType Value) { GenericSet(Pointer, Value, nullptr); }
 	
-	template <typename T, typename PropType>
-	static T FromPropertyValue(const FConnectionPointer& Pointer, T DefaultValue)
+	template <typename ReturnType, typename PropType>
+	static ReturnType FromPropertyValue(const FConnectionPointer& Pointer, ReturnType DefaultValue, UStruct* StructTypeClass)
 	{
 		if(!IsValid(Pointer.Target)) return DefaultValue;
 		
 		auto Val = Pointer.Target->GetClass()->FindPropertyByName(Pointer.SourceName);
 		if(!Val) return DefaultValue;
-		if(!Val->IsA<PropType>()) return DefaultValue;
+		if (!CheckType<PropType>(Val, StructTypeClass)) return DefaultValue;
 		
-		auto ValuePointer = Val->ContainerPtrToValuePtr<T>(Pointer.Target);
+		auto ValuePointer = Val->ContainerPtrToValuePtr<ReturnType>(Pointer.Target);
 		
 		return *ValuePointer;
 	}
@@ -456,22 +453,24 @@ public:
 		return Val->GetFloatingPointPropertyValue(Val->ContainerPtrToValuePtr<void>(Pointer.Target));
 	}
 
-	template<typename T, typename PropType = FProperty>
-	static T GenericProcess(const FConnectionPointer& Pointer, T DefaultValue = T())
+	template<typename ReturnType, typename PropType = FProperty>
+	static ReturnType GenericProcess(const FConnectionPointer& Pointer, UStruct* ScriptStruct, ReturnType DefaultValue = ReturnType())
 	{
 		if(!IsValid(Pointer.Target)) return DefaultValue;
 	
 		if(Pointer.IsProperty)
-			return FromPropertyValue<T, PropType>(Pointer, DefaultValue);
+			return FromPropertyValue<ReturnType, PropType>(Pointer, DefaultValue, ScriptStruct);
 	
 		if(Pointer.Target->GetClass()->ImplementsInterface(IDynamicValuePasser::UClassType::StaticClass()))
 		{
 			auto ValueBase = IDynamicValuePasser::Execute_GetValue(Pointer.Target, Pointer.SourceName.ToString());
-			return FromPropertyValue<T, PropType>(FConnectionPointer(ValueBase, "Value", true), DefaultValue);
+			auto ValuePointer = FConnectionPointer(ValueBase, "Value", true);
+			return FromPropertyValue<ReturnType, PropType>(ValuePointer, DefaultValue, ScriptStruct);
 		}
-
-		struct{T RetVal;} Params{DefaultValue};
-		if(!ProcessFunction<PropType>(Pointer, &Params)) return FromPropertyValue<T, PropType>(Pointer, DefaultValue);
+		
+		struct{ReturnType RetVal;} Params{DefaultValue};
+		bool IsSuccessfulFunctionCall = ProcessFunction<PropType>(Pointer, &Params, ScriptStruct);
+		if(!IsSuccessfulFunctionCall) return FromPropertyValue<ReturnType, PropType>(Pointer, DefaultValue, ScriptStruct);
 		return Params.RetVal;
 	}
 
@@ -496,25 +495,25 @@ public:
 
 		//Explicit return value check because UE5 now uses double, but some code still uses float so we have to account for that,
 		//Not to mention int returns as well, i am so fucking done with this code.
-		if(FuncProperty->IsA<FIntProperty>()) return GenericProcess<int, FIntProperty>(Pointer, DefaultValue);
-		else if(FuncProperty->IsA<FEnumProperty>()) return GenericProcess<int, FEnumProperty>(Pointer, DefaultValue);
-		else if(FuncProperty->IsA<FFloatProperty>()) return GenericProcess<float, FFloatProperty>(Pointer, DefaultValue);
-		else if (FuncProperty->IsA<FDoubleProperty>()) return GenericProcess<double, FDoubleProperty>(Pointer, DefaultValue);
+		if(FuncProperty->IsA<FIntProperty>()) return GenericProcess<int, FIntProperty>(Pointer, nullptr, DefaultValue);
+		else if(FuncProperty->IsA<FEnumProperty>()) return GenericProcess<int, FEnumProperty>(Pointer, nullptr, DefaultValue);
+		else if(FuncProperty->IsA<FFloatProperty>()) return GenericProcess<float, FFloatProperty>(Pointer, nullptr, DefaultValue);
+		else if (FuncProperty->IsA<FDoubleProperty>()) return GenericProcess<double, FDoubleProperty>(Pointer, nullptr, DefaultValue);
 		else return DefaultValue;
 	}
 
-	template<typename T>
-	static void GenericSet(const FConnectionPointer& Pointer, T Value)
+	template<typename PropertyType = FProperty, typename ValueType>
+	static void GenericSet(const FConnectionPointer& Pointer, ValueType Value, UStruct* StructTypeClass)
 	{
 		if(Pointer.IsProperty)
 		{
 			auto Val = Pointer.Target->GetClass()->FindPropertyByName(Pointer.SourceName);
-			if(Val) *Val->ContainerPtrToValuePtr<T>(Pointer.Target) = Value;
+			if(Val) *Val->ContainerPtrToValuePtr<ValueType>(Pointer.Target) = Value;
 			return;
 		}
 		
-		struct{T SetVal;} Params{Value};
-		ProcessFunction(Pointer, &Params);
+		struct{ValueType SetVal;} Params{Value};
+		ProcessFunction<PropertyType>(Pointer, &Params, StructTypeClass);
 		
 	}
 
@@ -537,42 +536,59 @@ public:
 		if(FuncProperty->IsA<FIntProperty>())
 		{
 			struct { int Value; } params{(int) Value};
-			ProcessFunction<FIntProperty>(Pointer, &params);
+			ProcessFunction<FIntProperty>(Pointer, &params, nullptr);
 		}
 		else if(FuncProperty->IsA<FEnumProperty>())
 		{
 			struct { int Value; } params{(int) Value};
-			ProcessFunction<FEnumProperty>(Pointer, &params);
+			ProcessFunction<FEnumProperty>(Pointer, &params, nullptr);
 		}
 		else if(FuncProperty->IsA<FFloatProperty>())
 		{
 			struct { float Value; } params{(float) Value};
-			ProcessFunction<FFloatProperty>(Pointer, &params);
+			ProcessFunction<FFloatProperty>(Pointer, &params, nullptr);
 		}
 		else
 		{
 			struct { double Value; } params{Value};
-			ProcessFunction<FDoubleProperty>(Pointer, &params);
+			ProcessFunction<FDoubleProperty>(Pointer, &params, nullptr);
 		}
 	}
 
 
-	template<typename PropType = FProperty>
-	static bool ProcessFunction(const FConnectionPointer& Pointer, void* Params)
+	template<typename PropType>
+	static bool ProcessFunction(const FConnectionPointer& Pointer, void* Params, UStruct* StructTypeClass)
 	{
 		if(!IsValid(Pointer.Target)) return false;
 		
 		UFunction* Function = Pointer.Target->FindFunction(Pointer.SourceName);
-		if(!Function) return false;
-			
-		auto ReturnProp = Function->GetReturnProperty();
-		if (ReturnProp)
-		{
-			if (ReturnProp->IsA<FArrayProperty>() && !((FArrayProperty*) ReturnProp)->Inner->IsA<PropType>()) return false;
-			else if (!ReturnProp->IsA<PropType>()) return false;
-		}
-		
+		if (!Function) return false;
+		if(!CheckType<PropType>(Function->GetReturnProperty(), StructTypeClass)) return false;
+
 		Pointer.Target->ProcessEvent(Function, Params);
 		return true;
+	}
+	
+	template<typename PropType>
+	static bool CheckType(FProperty* Property, UStruct* StructTypeClass)
+	{
+		if (!Property) return true;
+
+		if (Property->IsA<FArrayProperty>())
+			Property = ((FArrayProperty*) Property)->Inner;
+		
+		
+		if (Property->IsA<FStructProperty>())
+		{
+			//If the provided struct type is null then we skip this check and assume the type is correct.
+			if (StructTypeClass == nullptr) return true;
+			auto StructClass = ((FStructProperty*) Property)->Struct;
+
+			if (StructClass == StructTypeClass) return true;
+			
+			return StructClass.IsA((UClass*)StructTypeClass);
+		}
+
+		return Property->IsA<PropType>();
 	}
 };
