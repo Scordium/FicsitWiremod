@@ -21,8 +21,12 @@ class FICSITWIREMOD_API AWiremodTool : public AWiremodBaseTool
 {
 	GENERATED_BODY()
 
-	void OnScrollDownPress(const FInputActionValue& Value){ if(Value.Get<bool>()) OnScrollDown(); }
-	void OnScrollUpPress(const FInputActionValue& Value){ if(Value.Get<bool>()) OnScrollUp(); }
+	void OnScroll(const FInputActionValue& Value)
+	{
+		auto Val = Value.Get<float>();
+		if(Val > 0) OnScrollUp();
+		else if (Val < 0) OnScrollDown();
+	}
 	
 	void OnScrollDown(){ if(Widget.GetObject()) IWiringToolWidget::Execute_ScrollListDown(Widget.GetObject(), SelectedConnection.ConnectionType, HasSelectedConnection()); }
 	void OnScrollUp(){ if(Widget.GetObject()) IWiringToolWidget::Execute_ScrollListUp(Widget.GetObject(), SelectedConnection.ConnectionType, HasSelectedConnection()); }
@@ -321,8 +325,7 @@ protected:
 			auto InputsContext = GetFirstContextOfType<UCircuitryInputMappings>();
 			EnhancedInput->BindAction(InputsContext->PrimaryKey, ETriggerEvent::Triggered, this, &AWiremodTool::OnConnectionSelected);
 			EnhancedInput->BindAction(InputsContext->SecondaryKey, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollDown);
-			EnhancedInput->BindAction(InputsContext->ScrollDown, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollDownPress);
-			EnhancedInput->BindAction(InputsContext->ScrollUp, ETriggerEvent::Triggered, this, &AWiremodTool::OnScrollUpPress);
+			EnhancedInput->BindAction(InputsContext->Scroll, ETriggerEvent::Triggered, this, &AWiremodTool::OnScroll);
 			EnhancedInput->BindAction(InputsContext->AuxKey, ETriggerEvent::Triggered, this, &AWiremodTool::OnResetPressed);
 			EnhancedInput->BindAction(InputsContext->SpecialAction1, ETriggerEvent::Triggered, this, &AWiremodTool::OnSwitchSnapMode);
 			EnhancedInput->BindAction(InputsContext->SpecialAction2, ETriggerEvent::Triggered, this, &AWiremodTool::OnSwitchConnectMode);

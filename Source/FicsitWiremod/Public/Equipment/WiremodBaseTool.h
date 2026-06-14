@@ -75,9 +75,6 @@ public:
 	void InjectMappings();
 	void EjectMappings();
 	
-	UFUNCTION(BlueprintImplementableEvent) void ApplyScrollWheelPatch();
-	UFUNCTION(BlueprintImplementableEvent) void RemoveScrollWheelPatch();
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int MappingContextPriority = 10000;
 	

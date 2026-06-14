@@ -56,8 +56,8 @@ void AWiremodBaseTool::InjectMappings()
 		return;
 	}
 		
-	for(auto& InputsContext : InputsContexts) EnhancedInputSystem->AddMappingContext(InputsContext.Value, MappingContextPriority);
-	ApplyScrollWheelPatch();
+	for(auto& InputsContext : InputsContexts)
+		EnhancedInputSystem->AddMappingContext(InputsContext.Value, MappingContextPriority);
 }
 
 void AWiremodBaseTool::EjectMappings()
@@ -83,8 +83,8 @@ void AWiremodBaseTool::EjectMappings()
 		return;
 	}
 		
-	for(auto& InputsContext : InputsContexts) EnhancedInputSystem->RemoveMappingContext(InputsContext.Value);
-	RemoveScrollWheelPatch();
+	for(auto& InputsContext : InputsContexts)
+		EnhancedInputSystem->RemoveMappingContext(InputsContext.Value);
 }
 
 void AWiremodBaseTool::ShowNotification(const FText& Text)

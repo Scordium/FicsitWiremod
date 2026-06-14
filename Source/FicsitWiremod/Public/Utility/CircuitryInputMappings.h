@@ -24,13 +24,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* SecondaryKey;
 
-	///Scroll down key, Shift + Mouse Wheel Down by default
+	///Scroll key, Shift + Mouse Wheel by default
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UInputAction* ScrollDown;
-
-	///Scroll up key, Shift + Mouse Wheel Up by default
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UInputAction* ScrollUp;
+	UInputAction* Scroll;
 	
 	///Aux key, R by default
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
