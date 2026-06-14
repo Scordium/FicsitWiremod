@@ -18,7 +18,7 @@ class FICSITWIREMOD_API UJsonUtilities : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	static TSharedRef<FJsonValue> TimeTableStopToJson(const FTimeTableStopData& Value)
+	static TSharedRef<FJsonValue> TimeTableStopToJson(const FTimeTableStop& Value)
 	{
 		const TSharedRef<FJsonObject> Object = MakeShareable(new FJsonObject());
 

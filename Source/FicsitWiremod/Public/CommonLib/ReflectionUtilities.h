@@ -19,6 +19,7 @@
 #include "Buildables/FGBuildableRailroadSwitchControl.h"
 #include "Buildables/FGBuildableSplitterSmart.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "FGRailroadTimeTable.h"
 #include "ReflectionUtilities.generated.h"
 /**
  * 
@@ -40,28 +41,6 @@ public:
 	UObject* GetValue(const FString& ValueName);
 
 	void* GetRawValuePointer(const FString& ValueName);
-};
-
-
-USTRUCT(BlueprintType)
-struct FTimeTableStopData
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	class AFGTrainStationIdentifier* Station = nullptr;
-
-	/** Station Rules */
-	UPROPERTY()
-	FTrainDockingRuleSet DockingRuleSet;
-
-	FTimeTableStopData(){}
-
-	FTimeTableStopData(AFGTrainStationIdentifier* StationIdentifier, const FTrainDockingRuleSet& RuleSet)
-	{
-		Station = StationIdentifier;
-		DockingRuleSet = RuleSet;
-	}
 };
 
 UCLASS()
@@ -342,8 +321,8 @@ public:
 	static TSubclassOf<UFGItemDescriptor> GetItemDescriptor(const FConnectionPointer& Pointer, TSubclassOf<UFGItemDescriptor> DefaultValue) { return GenericProcess<TSubclassOf<UFGItemDescriptor>, FProperty>(Pointer, UFGItemDescriptor::StaticClass(), DefaultValue); }
 	static void SetItemDescriptor(const FConnectionPointer& Pointer, TSubclassOf<UFGItemDescriptor> Value) { GenericSet(Pointer, Value, UFGItemDescriptor::StaticClass()); }
 
-	static FTimeTableStopData GetTimeTableStop(const FConnectionPointer& Pointer) { return GenericProcess<FTimeTableStopData>(Pointer, FTimeTableStopData::StaticStruct()); }
-	static void SetTimeTableStop(const FConnectionPointer& Pointer, FTimeTableStopData Value) { GenericSet(Pointer, Value, FTimeTableStopData::StaticStruct()); }
+	static FTimeTableStop GetTimeTableStop(const FConnectionPointer& Pointer) { return GenericProcess<FTimeTableStop>(Pointer, FTimeTableStop::StaticStruct()); }
+	static void SetTimeTableStop(const FConnectionPointer& Pointer, FTimeTableStop Value) { GenericSet(Pointer, Value, FTimeTableStop::StaticStruct()); }
 
 	static UFGPowerInfoComponent* GetPowerInfo(UObject* Object) { return UReflectionExternalFunctions::GetPowerInfo(Object); }
 
@@ -414,8 +393,8 @@ public:
 	static TArray<TSubclassOf<UFGItemDescriptor>> GetItemDescriptorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<TSubclassOf<UFGItemDescriptor>>>(Pointer, UFGItemDescriptor::StaticClass()); }
 	static void SetItemDescriptorArray(const FConnectionPointer& Pointer, const TArray<TSubclassOf<UFGItemDescriptor>>& Value) { GenericSet(Pointer, Value, UFGItemDescriptor::StaticClass()); }
 
-	static TArray<FTimeTableStopData> GetTimeTableStopArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FTimeTableStopData>>(Pointer, FTimeTableStopData::StaticStruct()); }
-	static void SetTimeTableStopArray(const FConnectionPointer& Pointer, const TArray<FTimeTableStopData>& Value) { GenericSet(Pointer, Value, FTimeTableStopData::StaticStruct()); }
+	static TArray<FTimeTableStop> GetTimeTableStopArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FTimeTableStop>>(Pointer, FTimeTableStop::StaticStruct()); }
+	static void SetTimeTableStopArray(const FConnectionPointer& Pointer, const TArray<FTimeTableStop>& Value) { GenericSet(Pointer, Value, FTimeTableStop::StaticStruct()); }
 
 	static TArray<FElevatorFloorStopInfo> GetElevatorFloorArray(const FConnectionPointer& Pointer) { return GenericProcess<TArray<FElevatorFloorStopInfo>>(Pointer, FElevatorFloorStopInfo::StaticStruct()); }
 	static void SetElevatorFloorArray(const FConnectionPointer& Pointer, const TArray<FElevatorFloorStopInfo>& Value) { GenericSet(Pointer, Value, FElevatorFloorStopInfo::StaticStruct()); }

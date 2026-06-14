@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Behaviour/FGWiremodBuildable.h"
+#include "FGRailroadTimeTable.h"
 #include "BreakTimeTableStop.generated.h"
 
 UCLASS()
@@ -50,5 +51,5 @@ public:
 	}
 	
 	UPROPERTY(Replicated)
-	FTimeTableStopData Stop;
+	FTimeTableStop Stop;
 };

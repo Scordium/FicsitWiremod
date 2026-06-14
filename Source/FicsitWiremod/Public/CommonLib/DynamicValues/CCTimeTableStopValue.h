@@ -53,7 +53,7 @@ public:
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
-	FTimeTableStopData Value;
+	FTimeTableStop Value;
 };
 
 
@@ -201,6 +201,6 @@ public:
 	}
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
-	TArray<FTimeTableStopData> Value;
+	TArray<FTimeTableStop> Value;
 	
 };
