@@ -29,7 +29,7 @@ struct FCircuitryFilterRule
 
 public:
 	UPROPERTY(BlueprintReadWrite)
-	bool RuleUsed = true;
+	bool RuleUsed = false;
 	
 };
 

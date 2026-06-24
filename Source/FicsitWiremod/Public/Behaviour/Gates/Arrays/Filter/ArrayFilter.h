@@ -21,7 +21,7 @@ public:
 		{
 			SetOutputType(0, Unknown);
 			Out = Cast<UCCArrayValueBase>(UCCDynamicValueUtils::FromType(Connection.ConnectionType, this));
-			UpdateFilter();
+			if (Out) Out->SetFilter(FilterData);
 		}
 
 		if(Out)
@@ -49,25 +49,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetFilter(const FCircuitryArrayFilterData& NewFilterData, UObject* Setter)
 	{
-		if(!GetCanConfigure(Setter)) return;
+		PERMISSION_CHECK(Setter);
 		
-		SetFilter_Internal(NewFilterData);
-	}
-
-	void SetFilter_Internal(const FCircuitryArrayFilterData& NewFilterData)
-	{
 		if(FilterData != NewFilterData)
 		{
 			FilterData = NewFilterData;
-			UpdateFilter();
-		}
-	}
-
-	void UpdateFilter()
-	{
-		if (Out)
-		{
-			Out->SetFilter(FilterData);
+			if (Out) Out->SetFilter(FilterData);
 		}
 	}
 	

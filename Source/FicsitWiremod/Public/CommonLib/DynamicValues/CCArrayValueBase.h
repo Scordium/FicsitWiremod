@@ -6,6 +6,7 @@
 #include "CCDynamicValueBase.h"
 #include "Behaviour/Gates/Arrays/Filter/Rules/FilterRule.h"
 #include "WiremodReflection.h"
+#include "CommonLib/JsonUtilities.h"
 #include "CCArrayValueBase.generated.h"
 
 /**
@@ -101,7 +102,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData)
 	{
-		DispatchNotImplemented("SET_FILTER");
-		return false;
+		if (FilterData.FilterType != UConnectionTypeFunctions::ArrayToBase(ConnectionType)) return false;
+
+		const auto FilterPtr = GetFilterPtr();
+		const auto FilterStruct = GetFilterStruct();
+		if (!FilterPtr || !FilterStruct) return false;
+		
+		auto DeserializerResult = UJsonUtilities::DeserializeJson(FilterData.JsonDataString, FilterStruct, FilterPtr);
+		((FCircuitryFilterRule*) FilterPtr)->RuleUsed = true;
+		
+		return DeserializerResult;
 	}
+
+	virtual void* GetFilterPtr(){ return nullptr; }
+	virtual UScriptStruct* GetFilterStruct(){ return nullptr; }
 };

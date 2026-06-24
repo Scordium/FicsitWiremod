@@ -224,12 +224,8 @@ public:
 		}
 	}
 
-	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
-	{
-		if (FilterData.FilterType != UConnectionTypeFunctions::ArrayToBase(ConnectionType)) return false;
-		
-		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
-	}
+	virtual void* GetFilterPtr() override { return &Filter; }
+	virtual UScriptStruct* GetFilterStruct() override { return Filter.StaticStruct(); }
 
 	virtual void OnValueUpdate() override
 	{

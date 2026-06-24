@@ -204,17 +204,10 @@ public:
 		}
 	}
 
-	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
-	{
-		if (FilterData.FilterType != UConnectionTypeFunctions::ArrayToBase(ConnectionType)) return false;
-		
-		return UJsonUtilities::DeserializeJson(FilterData.JsonDataString, Filter.StaticStruct(), &Filter);
-	}
+	virtual void OnValueUpdate() override { Filter.FilterValues(Value); }
 
-	virtual void OnValueUpdate() override
-	{
-		Filter.FilterValues(Value);
-	}
+	virtual void* GetFilterPtr() override { return &Filter; }
+	virtual UScriptStruct* GetFilterStruct() override { return Filter.StaticStruct(); }
 	
 	UPROPERTY(Replicated, SaveGame, BlueprintReadWrite)
 	TArray<bool> Value;
