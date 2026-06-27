@@ -141,9 +141,6 @@ public:
 
 			ModuleMode.Name = State.Name.ToString();
 			ModuleMode.Description = State.Description.ToString();
-			ACircuitryLogger::DispatchEvent("Step 3 - Image for mode.", ELogVerbosity::Display);
-			if (State.Icon == nullptr) ACircuitryLogger::DispatchErrorEvent("Mode image is NULL. Using provided icon instead.");
-			
 			ModuleMode.Image = UTextureUtilities::EncodeTextureAsBase64(State.Icon ? State.Icon : Icon);
 			ModuleMode.ResetsInputs = State.ForceDisconnectInputs;
 			

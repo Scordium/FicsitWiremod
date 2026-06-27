@@ -2,31 +2,32 @@
 
 #include "Behaviour/FGWiremodBuildable.h"
 #include "JsonObjectConverter.h"
+#include "CommonLib/JsonUtilities.h"
 
-
-bool UCircuitryWikiParser::SaveAsset(const FModuleDocumentation& Document)
+void UCircuitryWikiParser::SaveAssets(TMap<AFGWiremodBuildable*, UTexture2D*> Buildables)
 {
-	const FString BaseFilePath = FPaths::ProjectSavedDir() + "CIRCUITRY_WIKIPARSE/";
-	ACircuitryLogger::DispatchEvent("Base path is " + BaseFilePath, ELogVerbosity::Display);
-	
-	const FString FileName = Document.ClassName + ".json";
-
-	TSharedPtr<FJsonObject> JsonObject = FJsonObjectConverter::UStructToJsonObject(Document);
-	if(!JsonObject)
+#if WITH_EDITOR
+	TArray<TSharedPtr<FJsonValue>> Array;
+	for (auto Buildable : Buildables)
 	{
-		ACircuitryLogger::DispatchErrorEvent("Failed to create json object for class " + Document.ClassName);
-		return false;
-	}
-
-	FString FileText;
-	if (!FJsonSerializer::Serialize(JsonObject.ToSharedRef(), TJsonWriterFactory<>::Create(&FileText, 0)))
-	{
-		ACircuitryLogger::DispatchErrorEvent("Failed to serialize json object for class " + Document.ClassName);
-		return false;
-	}
+		auto ModuleDocument = Buildable.Key->GenerateWikiModuleFile(Buildable.Value);
+		auto Object = MakeShareable(new FJsonValueObject(FJsonObjectConverter::UStructToJsonObject(ModuleDocument)));
 		
-	FFileHelper::SaveStringToFile(FileText, *(BaseFilePath + FileName));
-
-	ACircuitryLogger::DispatchEvent("Writing json to file " + FileName, ELogVerbosity::Display);
-	return true;
+		Array.Add(Object);
+	}
+	
+	FString JsonString;
+	if (!FJsonSerializer::Serialize(Array, TJsonWriterFactory<>::Create(&JsonString, 0)))
+		ACircuitryLogger::DispatchErrorEvent("There was an error creating json string");
+	
+	const FString BaseFilePath = FString(FPlatformProcess::UserHomeDir()) + "/CircuitryWikiParse.json";
+	ACircuitryLogger::DispatchEvent("Writing json to file " + BaseFilePath, ELogVerbosity::Display);
+	
+	if (FFileHelper::SaveStringToFile(JsonString, *BaseFilePath)) 
+		ACircuitryLogger::DispatchEvent("Saved " + FString::FromInt(Array.Num()) + " entries to file.", ELogVerbosity::Display);
+	else 
+		ACircuitryLogger::DispatchErrorEvent("There was an error saving the json string");
+#else
+	ACircuitryLogger::DispatchErrorEvent("Attempted to call wiki parser at runtime");
+#endif
 }

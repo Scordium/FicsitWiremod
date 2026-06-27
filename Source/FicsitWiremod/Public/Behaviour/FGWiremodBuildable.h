@@ -384,21 +384,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual FModuleDocumentation GenerateWikiModuleFile(UTexture2D* Icon)
 	{
-		ACircuitryLogger::DispatchEvent("Parsing class " + GetClass()->GetName(), ELogVerbosity::Display);
-		ACircuitryLogger::DispatchEvent("Step 1 - Basic metadata", ELogVerbosity::Display);
 		auto ModuleDocument = FModuleDocumentation();
 		ModuleDocument.ClassName = FSoftClassPath(GetClass()).GetAssetName();
 		ModuleDocument.ModuleName = mDisplayName.ToString();
 		ModuleDocument.ModuleDescription = mDescription.ToString();
-
-		ACircuitryLogger::DispatchEvent("Step 2 - Module Image. Image is " + (Icon ? Icon->GetName() : "NULL"), ELogVerbosity::Display);
 		ModuleDocument.ModuleImage = UTextureUtilities::EncodeTextureAsBase64(Icon);
 		
 		
 		auto DummyMode = FModuleMode();
 		DummyMode.Name = "Default";
-		DummyMode.Description = "This buildable doesn't have modes.\nThis is a fake mode so that the UI can be reused.";
+		DummyMode.Description = "This module doesn't have modes";
 		DummyMode.ResetsInputs = false;
+		DummyMode.Image = ModuleDocument.ModuleImage;
 
 		for (auto& Input : ConnectionsInfo.Inputs)
 		{

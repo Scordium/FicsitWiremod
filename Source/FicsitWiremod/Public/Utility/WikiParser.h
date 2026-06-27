@@ -88,6 +88,6 @@ class FICSITWIREMOD_API UCircuitryWikiParser : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable)
-	static bool SaveAsset(const FModuleDocumentation& ModuleDocumentation);
+	static void SaveAssets(TMap<AFGWiremodBuildable*, UTexture2D*> Buildables);
 
 };
