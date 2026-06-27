@@ -9,6 +9,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "Module/GameInstanceModule.h"
 #include "Equipment/FGEquipment.h"
+#include "Serialization/JsonSerializer.h"
 #include "CircuitryStatics.generated.h"
 
 
@@ -172,8 +173,8 @@ protected:
 		for(auto& JsonPatronData : Object->AsArray())
 		{
 			FCrosscatPatronData Data;
-			Data.DisplayName = JsonPatronData->AsObject()->GetStringField("DisplayName");
-			Data.PatronLevel = (ECrosscatPatronLevel)JsonPatronData->AsObject()->GetIntegerField("Level");
+			Data.DisplayName = JsonPatronData->AsObject()->GetStringField(*FString("DisplayName"));
+			Data.PatronLevel = (ECrosscatPatronLevel)JsonPatronData->AsObject()->GetIntegerField(*FString("Level"));
 
 			Patrons.Add(Data);
 		}

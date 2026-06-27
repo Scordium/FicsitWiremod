@@ -129,7 +129,7 @@ bool UJsonUtilities::JsonValueToFPropertyWithContainer(const TSharedPtr<FJsonVal
 	const int32 ItemsToRead = FMath::Clamp(ArrayValue.Num(), 0, Property->ArrayDim);
 	for (int Index = 0; Index != ItemsToRead; ++Index)
 	{
-		if (!ConvertScalarJsonValueToFPropertyWithContainer(ArrayValue[Index], Property, static_cast<char*>(OutValue) + Index * Property->ElementSize, ContainerStruct, Container, CheckFlags, SkipFlags, bStrictMode))
+		if (!ConvertScalarJsonValueToFPropertyWithContainer(ArrayValue[Index], Property, static_cast<char*>(OutValue) + Index * Property->GetElementSize(), ContainerStruct, Container, CheckFlags, SkipFlags, bStrictMode))
 		{
 			return false;
 		}
@@ -476,7 +476,8 @@ bool UJsonUtilities::ConvertScalarJsonValueToFPropertyWithContainer(const TShare
 			}
 
 			UObject* createdObj = StaticAllocateObject(PropertyClass, Outer, NAME_None, EObjectFlags::RF_NoFlags, EInternalObjectFlags::None, false);
-			(*PropertyClass->ClassConstructor)(FObjectInitializer(createdObj, PropertyClass->ClassDefaultObject, EObjectInitializerOptions::None));
+			TObjectPtr<UObject> CDO = GetMutableDefault<UObject>(PropertyClass);
+			(*PropertyClass->ClassConstructor)(FObjectInitializer(createdObj, CDO, EObjectInitializerOptions::None));
 
 			ObjectProperty->SetObjectPropertyValue(OutValue, createdObj);
 
