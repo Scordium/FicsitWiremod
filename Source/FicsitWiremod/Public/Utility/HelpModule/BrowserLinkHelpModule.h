@@ -16,7 +16,7 @@
 /**
  * 
  */
-UCLASS(DefaultToInstanced, EditInlineNew, BlueprintType)
+UCLASS(DefaultToInstanced, EditInlineNew, BlueprintType, Blueprintable)
 class FICSITWIREMOD_API UBrowserLinkHelpModule : public UBaseHelpModule
 {
 	GENERATED_BODY()
