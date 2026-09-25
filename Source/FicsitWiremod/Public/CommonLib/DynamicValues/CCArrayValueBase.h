@@ -104,6 +104,11 @@ public:
 	{
 		if (FilterData.FilterType != UConnectionTypeFunctions::ArrayToBase(ConnectionType)) return false;
 
+		return SetFilter_Internal(FilterData);
+	}
+	
+	bool SetFilter_Internal(const FCircuitryArrayFilterData& FilterData)
+	{
 		const auto FilterPtr = GetFilterPtr();
 		const auto FilterStruct = GetFilterStruct();
 		if (!FilterPtr || !FilterStruct) return false;

@@ -279,7 +279,13 @@ public:
 			Value.Append(ThisArray->Value);
 		}
 	}
-
+	
+	virtual bool SetFilter(const FCircuitryArrayFilterData& FilterData) override
+	{
+		if (FilterData.FilterType != ItemAmount && FilterData.FilterType != Stack) return false;
+		return SetFilter_Internal(FilterData);
+	}
+	
 	virtual void* GetFilterPtr() override { return &Filter; }
 	virtual UScriptStruct* GetFilterStruct() override { return Filter.StaticStruct(); }
 
